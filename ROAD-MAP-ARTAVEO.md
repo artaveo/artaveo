@@ -3,9 +3,9 @@
 
 ## Document status
 
-**Last revision:** 10 September 2026 (revision 3 — real logo received, D-01 spelling resolved, Phase 4.1 reframed)  
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open**.  
-**Next step:** close **Phase 3** (checklist 3.5) in a separate session, then run **Phase 4.1** to derive the design system from the approved logo (assets in `public/brand/`, see 4.1).  
+**Last revision:** 11 September 2026 (revision 4 — Phase 3 closure checklist 3.5 completed)  
+**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **✅ COMPLETE (checklist 3.5 closed)**.  
+**Next step:** run **Phase 4.1** to derive the design system from the approved logo (assets in `public/brand/`, see 4.1).  
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -259,22 +259,23 @@ Never copy another company's visual identity, copy, illustrations or layouts pix
 
 # 5. Completed history
 
-This history reflects the real state of `main` (commit `5bc6a61`, 10 September 2026). It must be preserved; later audits may add debt but may not erase it.
+This history reflects the real state of `main` after the Phase 3 closure session (11 September 2026). It must be preserved; later audits may add debt but may not erase it.
 
 ```text
 Phase 1   Design System Foundation              ✅ COMPLETE  (built with v0 — audit pending, see 6.4)
 Phase 2   Global Shell                          ⚠️ PARTIAL   (components exist, not mounted; i18n simulated)
-Phase 3   Home Page                             ⏳ PARTIAL   (Home mounted in SiteShell with 10 sections; closure 3.5 open)
+Phase 3   Home Page                             ✅ COMPLETE  (Home mounted with 10 sections; closure checklist 3.5 done)
 Phase 4   Brand Identity & Design System        ⬜ NEXT      (added after audit — see 6.6)
 ```
 
-**Phase 1 — delivered:** OKLCH colour tokens for light/dark (`app/globals.css`), brand colour, typography with Geist / Geist Mono / Vazirmatn, spacing, radius, Button / Badge / Card / Input primitives, and a showcase page for colours, typography, spacing, layout, buttons, cards and forms (`/design-system`).
+**Phase 1 — delivered:** OKLCH colour tokens for light/dark (`app/globals.css`), brand colour, typography with Geist / Geist Mono / Vazirmatn, spacing, radius, Button / Badge / Card / Input primitives, and a showcase page for colours, typography, spacing, layout, buttons, cards and forms (`/design-system`, now `noindex`/`nofollow` — closed in Phase 3.5).
 
 **Phase 2 — delivered:** `site-header`, `mobile-nav`, `site-footer`, `theme-toggle`, `language-switcher`, `command-palette`, `breadcrumb`, `page-transition`, `site-shell`, `lib/site.ts`, `components/icon.tsx`.  
 **Phase 2 — missing:** `SiteShell` is not used by any route; the language switcher only flips `dir` (no locale routes, no dictionaries); "Home" is missing from navigation; the command palette uses a hard-coded list.
 
 **Phase 3 — delivered in `main` (`4ef6f87`):** `app/page.tsx` renders the Home inside `SiteShell` with Hero, Capability Strip, Featured Work, Services, Why Artaveo, Tech Stack, Process, About Preview, Insights Preview and Final CTA; `types/content.ts` defines content shapes; `lib/home-content.ts` now contains only the two real projects (Transportation System, Pazhuhesh Portal) with facts taken from their repositories; fictional projects and metrics removed.  
-**Phase 3 — still open:** closure checklist 3.5 (site-config placeholders, voice, unused fake images, `noindex`, empty-means-hidden for Insights, bilingual content shape, phase document).
+**Phase 3 — closure checklist 3.5 delivered (11 September 2026):** `lib/site.ts` cleaned of the unverified placeholder e-mail and the X link, real GitHub/LinkedIn/Fiverr/WhatsApp links in place; voice pass to first-person/brand wording across nav, `siteConfig`, Home metadata and the Hero CTA; unused fictional-project and v0 placeholder images deleted; `/design-system` marked `noindex`/`nofollow`; Insights Preview hides itself while nothing is published; build-time placeholder guard added (`scripts/check-content-placeholders.mjs`); content fields are now `{ en, fa }` and every Home component reads through selector functions in `lib/home-content.ts`. Full detail and verification in `docs/phases/PHASE-3-README.md`.  
+**Phase 3 — new information recorded during closure:** the owner supplied a real e-mail (`artaveo.dev@gmail.com`) and WhatsApp number mid-session; used as the interim contact channel (see updated D-01 note in section 7). Phase 3 has no more open items.
 
 ---
 
@@ -285,9 +286,9 @@ These findings do not change the historical status of phases 1–3. They are res
 ## 6.1 Content debt — P0 (blocks any public deployment)
 
 - ~~`lib/home-content.ts` contains fictional projects (*Atlas Analytics*, *Meridian Pay*, *Northline Commerce*) with invented metrics~~ — **resolved in Phase 3 (`4ef6f87`)**.
-- `public/images/work-*.png` (AI-generated screenshots of those fictional products) are no longer referenced but are still in the repository — delete (3.5).
-- `lib/site.ts`: the e-mail `hello@artaveo.studio` is unverified (domain ownership not confirmed — D-01); `socialLinks` point to the root of github.com / x.com / linkedin.com; an X profile is not part of the strategy.
-- Copy uses "we / our / the studio" and implies a team (nav descriptions, site description, Home metadata, Hero "View our work"). The voice rule is in section 16.1.
+- ~~`public/images/work-*.png` (AI-generated screenshots of those fictional products) are no longer referenced but are still in the repository~~ — **resolved in Phase 3 closure (3.5, 11 Sep 2026)**: deleted, along with the unused v0 placeholder template assets.
+- ~~`lib/site.ts`: the e-mail `hello@artaveo.studio` is unverified (domain ownership not confirmed — D-01); `socialLinks` point to the root of github.com / x.com / linkedin.com; an X profile is not part of the strategy~~ — **resolved in Phase 3 closure**: the unverified address and the X link are gone; `socialLinks` now points at the real GitHub, LinkedIn and Fiverr profiles plus WhatsApp. A real, owner-confirmed e-mail (`artaveo.dev@gmail.com`) was supplied mid-closure and is in use as an interim contact channel — see the updated D-01 row in section 7. A domain-backed sending address for Phase 9.4 is still open.
+- ~~Copy uses "we / our / the studio" and implies a team (nav descriptions, site description, Home metadata, Hero "View our work")~~ — **resolved in Phase 3 closure**: voice rewritten to first person / brand name per 16.1 in every location the checklist named.
 
 ## 6.2 UX / architecture debt
 
@@ -326,11 +327,11 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 
 | ID | Decision | Recommended default | Blocks (phase) |
 |---|---|---|---|
-| **D-01** | Brand spelling, production domain, sending e-mail domain | **Spelling resolved: "Artaveo"** (confirmed by the approved logo, 10 Sep 2026). Domain and e-mail still open — register the domain, use it for e-mail with SPF, DKIM and DMARC configured | 4.1 · 9.4 · 10.7 |
+| **D-01** | Brand spelling, production domain, sending e-mail domain | **Spelling resolved: "Artaveo"** (confirmed by the approved logo, 10 Sep 2026). **Interim contact e-mail resolved (11 Sep 2026):** `artaveo.dev@gmail.com` and WhatsApp `+93 790685832` are real, owner-confirmed channels, now live in `lib/site.ts` and the footer/mobile nav. **Still open:** the production domain and a domain-backed *sending* address with SPF, DKIM and DMARC for Phase 9.4's automated notifications — a personal Gmail inbox is a fine interim contact address but is not a substitute for that | 4.1 · 9.4 · 10.7 |
 | **D-02** | Public identity: real name, portrait, published location / timezone | Real name + real portrait + timezone (city optional) | 3.3 (Hero) · 4.5 · 8.1 |
 | **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.3 |
 | **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.3–7.6 · 9.1 |
-| **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.4 · 5.4 (footer) |
+| **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist. **Confirmed live in footer (11 Sep 2026):** GitHub, LinkedIn, Fiverr, WhatsApp — all real, owner-supplied | 8.4 · 5.4 (footer) |
 | **D-06** | Publication rights for case studies (Transportation System, Pazhuhesh Portal): client/employer consent, what may be shown | Written consent; screenshots with **demo data only**; no customer PII; confidential details generalised | 6.3 · 6.4 |
 | **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 10.2 · 28 |
 | **D-08** | Availability state and response commitment | A promise that is sustainable (e.g. "reply within 1 business day") | 4.5 (Availability) · 13 (SLA) |
@@ -383,7 +384,7 @@ Later phases may inform earlier design decisions, but they are never used as an 
 
 Each phase below lists its goal, sub-phases and **exit criteria**. Exit criteria are in addition to the general Definition of Done (section 17).
 
-## Phase 3 — Content Truth Pass & Home Page  ⏳ PARTIAL
+## Phase 3 — Content Truth Pass & Home Page  ✅ COMPLETE
 
 **Goal:** a truthful, finished home page mounted inside the site shell, fed by a typed content layer.
 
@@ -424,19 +425,22 @@ Compatibility note: this keeps every section of the original v0 plan; "Capabilit
 - `/` renders the Home page inside `SiteShell` ✅ (`4ef6f87`)
 - `/design-system` stays, marked `noindex`, excluded from sitemap and main navigation
 
-### 3.5 Closure checklist (open items after the 10 September push)
-- `lib/site.ts`: remove `hello@artaveo.studio` until D-01 is decided; replace root `github.com` / `linkedin.com` links with real profile URLs or remove them; drop X
-- voice (16.1): nav descriptions ("How we can help you ship", "The studio and how it operates"), `siteConfig.tagline/description`, Home metadata ("development studio") and Hero "View our work" → first person / brand wording
-- delete unused `public/images/work-*.png` and unused v0 placeholder assets
-- `/design-system`: `robots: { index: false, follow: false }`
-- Insights Preview: render nothing while no article is published (principle 3) — "In writing" cards are allowed only in the admin/preview view
-- placeholder guard from 3.1
-- bilingual shape (3.2): content fields become `{ en, fa }` and pages read through selectors; Persian copy itself is authored in Phase 5
-- phase document `docs/phases/PHASE-3-README.md` with screenshots (Light/Dark × LTR/RTL × mobile/tablet/desktop)
+### 3.5 Closure checklist — ✅ CLOSED (11 September 2026)
+
+All eight items complete. Full implementation and verification detail in `docs/phases/PHASE-3-README.md`.
+
+- [x] `lib/site.ts`: removed `hello@artaveo.studio`; replaced root `github.com` / `linkedin.com` links with real profile URLs; dropped X. **Update:** the owner then supplied a real, currently-active e-mail (`artaveo.dev@gmail.com`) and WhatsApp number mid-closure — added as the confirmed interim contact channel (see D-01, section 7). This wasn't in the original eight items; it's owner-supplied new information, not scope creep.
+- [x] voice (16.1): nav descriptions, `siteConfig.tagline`/`description`, Home metadata ("development studio") and Hero "View our work" → rewritten to first person / brand wording. `app/layout.tsx`'s default metadata (same "studio" wording, not originally named in this bullet) was fixed too and now derives from `siteConfig` instead of duplicating it.
+- [x] deleted unused `public/images/work-*.png` and the unused v0 placeholder assets.
+- [x] `/design-system`: `robots: { index: false, follow: false }` added and verified in the served HTML.
+- [x] Insights Preview renders nothing while no article is published; the "In writing" draft state was removed from the public component (reserved for a future admin/preview view instead).
+- [x] placeholder guard from 3.1: `scripts/check-content-placeholders.mjs`, wired into `pnpm build`; tested passing and failing.
+- [x] bilingual shape (3.2): every prose content field is `{ en, fa }` (mirrored for now); all nine Home components read exclusively through selector functions in `lib/home-content.ts`.
+- [x] phase document: `docs/phases/PHASE-3-README.md`, with Light/Dark × LTR/RTL × mobile/tablet/desktop screenshots.
 
 **Scope moved out of Phase 3 (recorded, not dropped):** the Availability chip, Identity Header, Sticky Mobile CTA and the Expertise-matrix layout are designed and built in Phase 4 (4.5, 4.6); "How to Work Together", starting-from signals and proof-linked expertise *data* arrive with Phases 7 and 8. **Home is a living page:** every later phase that produces content for a Home section wires that section as part of its own Definition of Done.
 
-**Exit criteria:** no fictional content anywhere in the repo's published content; every Home section renders correctly or is hidden when empty; Light/Dark × LTR/RTL × mobile/tablet/desktop screenshots recorded in the phase document; no horizontal overflow.
+**Exit criteria — met:** no fictional content anywhere in the repo's published content; every Home section renders correctly or is hidden when empty (Insights Preview, currently); Light/Dark × LTR/RTL × mobile/tablet/desktop screenshots recorded in the phase document; no horizontal overflow in any combination tested.
 
 ---
 

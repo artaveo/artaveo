@@ -96,9 +96,12 @@ export function MobileNav({
             <ArrowRight data-icon="inline-end" />
           </Button>
         </div>
-        <span className="px-4 pb-4 text-xs text-muted-foreground">
+        <a
+          href={`mailto:${siteConfig.email}`}
+          className="px-4 pb-4 text-xs text-muted-foreground transition-colors hover:text-foreground"
+        >
           {siteConfig.email}
-        </span>
+        </a>
       </div>
     </div>
   )

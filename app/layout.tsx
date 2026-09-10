@@ -1,6 +1,8 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, Vazirmatn } from 'next/font/google'
+
+import { siteConfig } from '@/lib/site'
 import './globals.css'
 
 const geistSans = Geist({
@@ -23,11 +25,10 @@ const vazirmatn = Vazirmatn({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Artaveo — Independent full-stack studio',
+    default: `${siteConfig.name} — ${siteConfig.tagline}`,
     template: '%s — Artaveo',
   },
-  description:
-    'Artaveo is an independent full-stack development studio building fast, reliable web products — from architecture and design systems to shipped software.',
+  description: siteConfig.description,
   generator: 'v0.app',
 }
 

@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     absolute: 'Artaveo — Independent full-stack web & software development',
   },
   description:
-    'Artaveo is an independent full-stack development studio building modern web applications, business platforms and digital products — from idea and architecture to deployment.',
+    'Artaveo is the work of one independent full-stack developer, building modern web applications, business platforms and digital products — from idea and architecture to deployment.',
 }
 
 export default function HomePage() {

@@ -1,8 +1,11 @@
 import { SectionHeader } from '@/components/home/section-header'
-import { processSteps } from '@/lib/home-content'
+import { getProcessSteps } from '@/lib/home-content'
 import { cn } from '@/lib/utils'
+import { t } from '@/types/content'
 
 export function Process() {
+  const processSteps = getProcessSteps()
+
   return (
     <section aria-labelledby="process-title" className="py-20 md:py-28">
       <div className="container-page">
@@ -38,9 +41,9 @@ export function Process() {
                 <span className="font-mono text-xs text-brand">
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <h3 className="mt-1 font-semibold tracking-tight">{step.title}</h3>
+                <h3 className="mt-1 font-semibold tracking-tight">{t(step.title)}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground text-pretty">
-                  {step.description}
+                  {t(step.description)}
                 </p>
               </li>
             )

@@ -1,9 +1,12 @@
 import { Icon } from '@/components/icon'
 import { SectionHeader } from '@/components/home/section-header'
 import { Badge } from '@/components/ui/badge'
-import { differentiators, workflowStages } from '@/lib/home-content'
+import { getDifferentiators, getWorkflowStages } from '@/lib/home-content'
+import { t } from '@/types/content'
 
 export function WhyArtaveo() {
+  const differentiators = getDifferentiators()
+
   return (
     <section aria-labelledby="why-title" className="py-20 md:py-28">
       <div className="container-page">
@@ -23,15 +26,15 @@ export function WhyArtaveo() {
 
         <ul className="mt-16 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
           {differentiators.map((item) => (
-            <li key={item.title} className="border-t border-border pt-6">
+            <li key={item.title.en} className="border-t border-border pt-6">
               <Icon
                 name={item.icon}
                 aria-hidden
                 className="size-5 text-brand"
               />
-              <h3 className="mt-4 font-semibold tracking-tight">{item.title}</h3>
+              <h3 className="mt-4 font-semibold tracking-tight">{t(item.title)}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty">
-                {item.description}
+                {t(item.description)}
               </p>
             </li>
           ))}
@@ -47,6 +50,8 @@ export function WhyArtaveo() {
  * so the connecting line runs from 1/14 to 13/14 — correct in LTR and RTL.
  */
 function WorkflowChain() {
+  const workflowStages = getWorkflowStages()
+
   return (
     <div className="rounded-xl border border-border bg-card p-6 md:p-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 lg:mb-8">
@@ -59,7 +64,7 @@ function WorkflowChain() {
           const isEdge = index === 0 || index === workflowStages.length - 1
           return (
             <li
-              key={stage}
+              key={stage.en}
               className="relative flex items-center gap-4 py-2.5 lg:flex-1 lg:flex-col lg:gap-4 lg:py-0"
             >
               <span
@@ -70,7 +75,7 @@ function WorkflowChain() {
                     : 'relative size-[11px] shrink-0 rounded-full border-2 border-brand bg-card'
                 }
               />
-              <span className="text-sm font-medium lg:text-center">{stage}</span>
+              <span className="text-sm font-medium lg:text-center">{t(stage)}</span>
             </li>
           )
         })}

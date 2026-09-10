@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   title: 'Design System — Artaveo',
   description:
     'The visual foundation of Artaveo: color tokens, typography, spacing, and core UI components.',
+  robots: { index: false, follow: false },
 }
 
 export default function DesignSystemPage() {

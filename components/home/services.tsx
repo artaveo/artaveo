@@ -1,8 +1,11 @@
 import { Icon } from '@/components/icon'
 import { SectionHeader } from '@/components/home/section-header'
-import { services } from '@/lib/home-content'
+import { getServices } from '@/lib/home-content'
+import { t } from '@/types/content'
 
 export function Services() {
+  const services = getServices()
+
   return (
     <section
       aria-labelledby="services-title"
@@ -28,10 +31,10 @@ export function Services() {
               </span>
 
               <h3 className="mt-6 text-lg font-semibold tracking-tight">
-                {service.title}
+                {t(service.title)}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty">
-                {service.description}
+                {t(service.description)}
               </p>
 
               <div className="mt-auto pt-6">
@@ -39,11 +42,11 @@ export function Services() {
                 <ul className="flex flex-col gap-2 border-t border-border pt-5">
                   {service.deliverables.map((item) => (
                     <li
-                      key={item}
+                      key={item.en}
                       className="flex items-center gap-2.5 text-sm text-foreground/85"
                     >
                       <span aria-hidden className="h-px w-3 shrink-0 bg-brand" />
-                      {item}
+                      {t(item)}
                     </li>
                   ))}
                 </ul>

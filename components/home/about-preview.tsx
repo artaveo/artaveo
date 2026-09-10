@@ -3,9 +3,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
-import { developer } from '@/lib/home-content'
+import { getDeveloperProfile } from '@/lib/home-content'
+import { t, type DeveloperProfile } from '@/types/content'
 
 export function AboutPreview() {
+  const developer = getDeveloperProfile()
+
   return (
     <section
       aria-labelledby="about-title"
@@ -13,7 +16,7 @@ export function AboutPreview() {
     >
       <div className="container-page grid items-center gap-10 md:grid-cols-12 lg:gap-16">
         <div className="md:col-span-5 lg:col-span-4">
-          <Portrait />
+          <Portrait developer={developer} />
         </div>
 
         <div className="md:col-span-7 lg:col-span-8">
@@ -29,18 +32,18 @@ export function AboutPreview() {
               : 'The developer behind Artaveo'}
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground text-pretty">
-            {developer.bio}
+            {t(developer.bio)}
           </p>
 
           <h3 className="mt-8 text-sm font-semibold">Technical focus</h3>
           <ul className="mt-4 grid max-w-2xl gap-x-8 sm:grid-cols-2">
             {developer.focus.map((item) => (
               <li
-                key={item}
+                key={item.en}
                 className="flex items-center gap-3 border-b border-border py-3 text-sm"
               >
                 <span aria-hidden className="size-1.5 shrink-0 rounded-[2px] bg-brand" />
-                {item}
+                {t(item)}
               </li>
             ))}
           </ul>
@@ -61,7 +64,7 @@ export function AboutPreview() {
 }
 
 /** Real portrait when available, otherwise a neutral labelled placeholder. */
-function Portrait() {
+function Portrait({ developer }: { developer: DeveloperProfile }) {
   return (
     <div className="relative mx-auto aspect-[4/5] w-full max-w-[16rem] overflow-hidden rounded-xl border border-border bg-muted md:max-w-none">
       {developer.portrait ? (

@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { SectionHeader } from '@/components/home/section-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { featuredProjects } from '@/lib/home-content'
+import { getFeaturedProjects } from '@/lib/home-content'
 import { cn } from '@/lib/utils'
-import type { Project, ProjectStatus } from '@/types/content'
+import { t, type Project, type ProjectStatus } from '@/types/content'
 
 const statusLabel: Record<
   ProjectStatus,
@@ -19,7 +19,7 @@ const statusLabel: Record<
 }
 
 export function FeaturedWork() {
-  const projects = featuredProjects.filter((p) => p.featured && p.published)
+  const projects = getFeaturedProjects()
 
   return (
     <section aria-labelledby="work-title" className="py-20 md:py-28">
@@ -79,7 +79,7 @@ function ProjectFeature({
 
       <div className="lg:col-span-5">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="brand-soft">{project.category}</Badge>
+          <Badge variant="brand-soft">{t(project.category)}</Badge>
           {status ? <Badge variant={status.variant}>{status.label}</Badge> : null}
           {project.year ? (
             <span className="font-mono text-xs text-muted-foreground">
@@ -96,22 +96,22 @@ function ProjectFeature({
             href={href}
             className="rounded-sm outline-none transition-colors hover:text-brand focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            {project.title}
+            {t(project.title)}
           </Link>
         </h3>
 
         <p className="mt-4 leading-relaxed text-muted-foreground text-pretty">
-          {project.summary}
+          {t(project.summary)}
         </p>
 
         <ul className="mt-6 space-y-2.5 border-t border-border pt-6">
           {project.highlights.map((item) => (
-            <li key={item} className="flex gap-3 text-sm leading-relaxed">
+            <li key={item.en} className="flex gap-3 text-sm leading-relaxed">
               <span
                 aria-hidden
                 className="mt-[0.55rem] size-1.5 shrink-0 rounded-[2px] bg-brand"
               />
-              <span className="text-pretty">{item}</span>
+              <span className="text-pretty">{t(item)}</span>
             </li>
           ))}
         </ul>
@@ -187,7 +187,7 @@ function ProjectMedia({
         {project.coverImage ? (
           <Image
             src={project.coverImage}
-            alt={`${project.title} interface`}
+            alt={`${t(project.title)} interface`}
             fill
             priority={priority}
             sizes="(min-width: 1024px) 58vw, 100vw"
@@ -204,7 +204,7 @@ function ProjectMedia({
                 Project screenshot
               </span>
               <span className="text-lg font-semibold tracking-tight text-foreground/70 md:text-xl">
-                {project.title}
+                {t(project.title)}
               </span>
             </div>
           </>

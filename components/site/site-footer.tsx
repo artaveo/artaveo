@@ -35,7 +35,7 @@ export function SiteFooter() {
           </div>
 
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
-            <FooterCol title="Studio" items={mainNav} />
+            <FooterCol title="Explore" items={mainNav} />
             <FooterCol title="More" items={utilityNav} />
             <div>
               <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">

@@ -32,15 +32,15 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground text-pretty md:text-xl">
-            Artaveo is an independent development studio for modern web
-            applications, business platforms and digital products — taken from
-            the first idea through architecture, interface, backend and
-            database to a deployed product.
+            Artaveo is the work of one independent full-stack developer,
+            building modern web applications, business platforms and digital
+            products — taken from the first idea through architecture,
+            interface, backend and database to a deployed product.
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button size="lg" className="h-11 px-5 text-[0.95rem]" render={<Link href="/work" />}>
-              View our work
+              View my work
               <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
             </Button>
             <Button

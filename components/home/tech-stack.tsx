@@ -1,8 +1,11 @@
 import { Icon } from '@/components/icon'
 import { SectionHeader } from '@/components/home/section-header'
-import { techStack } from '@/lib/home-content'
+import { getTechStack } from '@/lib/home-content'
+import { t } from '@/types/content'
 
 export function TechStack() {
+  const techStack = getTechStack()
+
   return (
     <section
       aria-labelledby="stack-title"
@@ -25,7 +28,7 @@ export function TechStack() {
                   aria-hidden
                   className="size-4 text-brand"
                 />
-                {category.title}
+                {t(category.title)}
               </h3>
               <ul className="mt-5 divide-y divide-border border-t border-border">
                 {category.items.map((item) => (
