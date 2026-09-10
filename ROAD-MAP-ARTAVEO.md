@@ -3,9 +3,9 @@
 
 ## Document status
 
-**Last revision:** 10 September 2026  
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL** (only the Hero component exists in `main`, not mounted).  
-**Next step:** resolve the blocking items in the Decision Register (section 7: D-01 to D-06), then finish **Phase 3 — Content Truth Pass & Home Page**.  
+**Last revision:** 10 September 2026 (revision 3 — real logo received, D-01 spelling resolved, Phase 4.1 reframed)  
+**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open**.  
+**Next step:** close **Phase 3** (checklist 3.5) in a separate session, then run **Phase 4.1** to derive the design system from the approved logo (assets in `public/brand/`, see 4.1).  
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -83,7 +83,7 @@ a student CV · a generic template · a fake agency with a "team" · a startup l
 6. **Reduce client uncertainty** before the first conversation: scope, process, payment, ownership and handover are published.
 7. **One primary action everywhere:** *Start a Project*. Secondary: *View Work*, *Book a Consultation*.
 8. **Direct communication** with the developer is a product feature, not a hidden detail.
-9. **Typed content mirrors the future database.** Content that lives in files today must have the same shape as the tables it will move into (no rewrites at Phase 10).
+9. **Typed content mirrors the future database.** Content that lives in files today must have the same shape as the tables it will move into (no rewrites at Phase 11).
 10. **i18n before pages.** Locale routing and dictionaries exist before new pages are built; nothing is retrofitted.
 11. **RTL is first-class,** not a mirrored afterthought. Latin technical terms inside Persian text are bidi-isolated; code is always LTR.
 12. **Server boundary for every mutation.** Validation, authorization, rate limiting and persistence happen server-side. The browser is never the source of truth.
@@ -259,12 +259,13 @@ Never copy another company's visual identity, copy, illustrations or layouts pix
 
 # 5. Completed history
 
-This history reflects the real state of `main` (commit `04df1f8`, 10 September 2026). It must be preserved; later audits may add debt but may not erase it.
+This history reflects the real state of `main` (commit `5bc6a61`, 10 September 2026). It must be preserved; later audits may add debt but may not erase it.
 
 ```text
 Phase 1   Design System Foundation              ✅ COMPLETE  (built with v0 — audit pending, see 6.4)
 Phase 2   Global Shell                          ⚠️ PARTIAL   (components exist, not mounted; i18n simulated)
-Phase 3   Home Page                             ⏳ PARTIAL   (only components/home/hero.tsx in main, not mounted)
+Phase 3   Home Page                             ⏳ PARTIAL   (Home mounted in SiteShell with 10 sections; closure 3.5 open)
+Phase 4   Brand Identity & Design System        ⬜ NEXT      (added after audit — see 6.6)
 ```
 
 **Phase 1 — delivered:** OKLCH colour tokens for light/dark (`app/globals.css`), brand colour, typography with Geist / Geist Mono / Vazirmatn, spacing, radius, Button / Badge / Card / Input primitives, and a showcase page for colours, typography, spacing, layout, buttons, cards and forms (`/design-system`).
@@ -272,27 +273,27 @@ Phase 3   Home Page                             ⏳ PARTIAL   (only components/h
 **Phase 2 — delivered:** `site-header`, `mobile-nav`, `site-footer`, `theme-toggle`, `language-switcher`, `command-palette`, `breadcrumb`, `page-transition`, `site-shell`, `lib/site.ts`, `components/icon.tsx`.  
 **Phase 2 — missing:** `SiteShell` is not used by any route; the language switcher only flips `dir` (no locale routes, no dictionaries); "Home" is missing from navigation; the command palette uses a hard-coded list.
 
-**Phase 3 — delivered in `main`:** `components/home/hero.tsx` and `lib/home-content.ts` (content currently violates section 16 — see 6.1).  
-**Phase 3 — note:** a fuller Home implementation was produced in a separate working session but was never merged into `main`. It must either be merged through a pull request or rebuilt; in both cases it passes Phase 3's Definition of Done against *this* roadmap before it is marked complete.
+**Phase 3 — delivered in `main` (`4ef6f87`):** `app/page.tsx` renders the Home inside `SiteShell` with Hero, Capability Strip, Featured Work, Services, Why Artaveo, Tech Stack, Process, About Preview, Insights Preview and Final CTA; `types/content.ts` defines content shapes; `lib/home-content.ts` now contains only the two real projects (Transportation System, Pazhuhesh Portal) with facts taken from their repositories; fictional projects and metrics removed.  
+**Phase 3 — still open:** closure checklist 3.5 (site-config placeholders, voice, unused fake images, `noindex`, empty-means-hidden for Insights, bilingual content shape, phase document).
 
 ---
 
 # 6. Debt found in audit (added 10 September 2026)
 
-These findings do not change the historical status of phases 1–3. They are resolved inside Phase 3 and Phase 4 unless stated otherwise.
+These findings do not change the historical status of phases 1–3. They are resolved inside Phase 3 (closure), Phase 4 (design) and Phase 5 (i18n) unless stated otherwise.
 
 ## 6.1 Content debt — P0 (blocks any public deployment)
 
-- `lib/home-content.ts` contains fictional projects (*Atlas Analytics*, *Meridian Pay*, *Northline Commerce*) with invented metrics (query speed-ups, app-store rating, conversion lift, LCP).
-- `public/images/work-*.png` are AI-generated screenshots of those fictional products.
+- ~~`lib/home-content.ts` contains fictional projects (*Atlas Analytics*, *Meridian Pay*, *Northline Commerce*) with invented metrics~~ — **resolved in Phase 3 (`4ef6f87`)**.
+- `public/images/work-*.png` (AI-generated screenshots of those fictional products) are no longer referenced but are still in the repository — delete (3.5).
 - `lib/site.ts`: the e-mail `hello@artaveo.studio` is unverified (domain ownership not confirmed — D-01); `socialLinks` point to the root of github.com / x.com / linkedin.com; an X profile is not part of the strategy.
-- Copy uses "we / the studio" and implies a team (nav descriptions, site description). The voice rule is in section 16.1.
+- Copy uses "we / our / the studio" and implies a team (nav descriptions, site description, Home metadata, Hero "View our work"). The voice rule is in section 16.1.
 
 ## 6.2 UX / architecture debt
 
 - `/` renders the design-system showcase, duplicating `/design-system`.
 - No locale routing (`/en`, `/fa`), no dictionaries, no translated metadata.
-- Mobile navigation is a sheet; decide in Phase 4.4 whether to keep it (acceptable if accessible) or switch to a full overlay.
+- Mobile navigation is a sheet; decide in Phase 5.4 whether to keep it (acceptable if accessible) or switch to a full overlay.
 - Command palette is not fed by content.
 - No `loading`, `error` or `not-found` boundaries per locale.
 - `README.md` is v0 boilerplate.
@@ -305,11 +306,17 @@ These findings do not change the historical status of phases 1–3. They are res
 
 ## 6.4 Audit items for completed work
 
-- **P1-A (Design System audit):** verify contrast of all token pairs in both themes (AA), focus-visible styles on every primitive, RTL behaviour of every primitive, and that Vazirmatn is actually applied for `lang="fa"`. Record results in `docs/phases/PHASE-1-README.md`.
+- **P1-A (Design System audit):** verify contrast of all token pairs in both themes (AA), focus-visible styles on every primitive, RTL behaviour of every primitive, and that Vazirmatn is actually applied for `lang="fa"`. Scheduled in Phase 4.2; results recorded in `docs/phases/PHASE-4-README.md` with a back-reference in `PHASE-1-README.md`.
 
 ## 6.5 Delivery-process debt
 
-- v0 pushes directly to `main`, and every merge to `main` auto-deploys. Until Phase 20, rule: v0 and other agents work on a branch; `main` changes only through a reviewed pull request.
+- v0 pushes directly to `main`, and every merge to `main` auto-deploys. Until Phase 21, rule: v0 and other agents work on a branch; `main` changes only through a reviewed pull request.
+
+## 6.6 Roadmap gap — design system & brand identity (added 10 September 2026, after audit)
+
+- Phase 1 delivered exactly the foundation v0 was asked for (tokens, typography, spacing, Button / Badge / Card / Input, breakpoints, container). The **full design system** specified in the previous roadmap revision — links, icon buttons, all form controls, tables, dialogs, tooltips, tabs, accordions, pagination, surfaces/shadows/borders, loading/empty/error states — the **Professional Identity System** (identity header, availability, external profiles, hire CTAs) and the **responsive system** (explicit breakpoint matrix) were compressed into section 14 of revision 1 without a phase that builds them.
+- There is **no brand identity yet**: `public/icon.svg` and the favicons are v0 defaults, `placeholder-logo.*` files are unused templates, and no art direction has been chosen — the current UI is the default shadcn/v0 look.
+- Resolution: new **Phase 4 — Brand Identity & Design System Completion**, placed before i18n and before any new page, because every later page (package table, FAQ accordion, Brief Builder stepper, dialogs, admin tables) is assembled from these parts. Phase 1 keeps its status (numbering rule).
 
 ---
 
@@ -319,17 +326,18 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 
 | ID | Decision | Recommended default | Blocks (phase) |
 |---|---|---|---|
-| **D-01** | Brand spelling (**Artaveo**), production domain, sending e-mail domain | Register the domain, use it for e-mail with SPF, DKIM and DMARC configured | 8.4 · 9.7 |
-| **D-02** | Public identity: real name, portrait, published location / timezone | Real name + real portrait + timezone (city optional) | 3.3 (Hero) · 7.1 |
-| **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.3 |
-| **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 6.3–6.6 · 8.1 |
-| **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 7.4 · 4.4 (footer) |
-| **D-06** | Publication rights for case studies (Transportation System, Pazhuhesh Portal): client/employer consent, what may be shown | Written consent; screenshots with **demo data only**; no customer PII; confidential details generalised | 5.3 · 5.4 |
-| **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 9.2 · 27 |
-| **D-08** | Availability state and response commitment | A promise that is sustainable (e.g. "reply within 1 business day") | 3.3 (Availability) · 12 (SLA) |
-| **D-09** | Consultation format: free intro call length, paid consultation, tool | Free 20–30 min intro call, request-based in v1 | 18 |
-| **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 23's external dump first | 8.3 · 23 |
-| **D-11** | Optional early-client offer | None unless the owner explicitly wants one; if used, it is labelled clearly and time-boxed | 6.5 |
+| **D-01** | Brand spelling, production domain, sending e-mail domain | **Spelling resolved: "Artaveo"** (confirmed by the approved logo, 10 Sep 2026). Domain and e-mail still open — register the domain, use it for e-mail with SPF, DKIM and DMARC configured | 4.1 · 9.4 · 10.7 |
+| **D-02** | Public identity: real name, portrait, published location / timezone | Real name + real portrait + timezone (city optional) | 3.3 (Hero) · 4.5 · 8.1 |
+| **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.3 |
+| **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.3–7.6 · 9.1 |
+| **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.4 · 5.4 (footer) |
+| **D-06** | Publication rights for case studies (Transportation System, Pazhuhesh Portal): client/employer consent, what may be shown | Written consent; screenshots with **demo data only**; no customer PII; confidential details generalised | 6.3 · 6.4 |
+| **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 10.2 · 28 |
+| **D-08** | Availability state and response commitment | A promise that is sustainable (e.g. "reply within 1 business day") | 4.5 (Availability) · 13 (SLA) |
+| **D-09** | Consultation format: free intro call length, paid consultation, tool | Free 20–30 min intro call, request-based in v1 | 19 |
+| **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 24's external dump first | 9.3 · 24 |
+| **D-11** | Optional early-client offer | None unless the owner explicitly wants one; if used, it is labelled clearly and time-boxed | 7.5 |
+| **D-12** | Visual direction and light-theme / small-size logo variants | **Primary mark approved** (`Artaveo_-_Logo.png`, received 10 Sep 2026): a faceted charcoal "A" with a gold interior facet, wordmark ARTAVEO, tagline "Digital Development". Phase 4.1 derives tokens and missing variants from it instead of proposing options from scratch; the owner approves the derived light-theme wordmark, the simplified mark and the favicon in 4.1 | 4.1 · 4.6 |
 
 Decisions and their dates are recorded in `docs/decisions.md`.
 
@@ -338,11 +346,11 @@ Decisions and their dates are recorded in `docs/decisions.md`.
 # 8. Release milestones & dependency rule
 
 ```text
-M1  CREDIBLE LAUNCH       Phases 3–9    Real content, real services, working inquiry, SEO, legal, live on own domain
-M2  OPERATING LAYER       Phases 10–18  Full schema, admin, lead pipeline, CMS, evidence, journal, search, notifications, consultation
-M3  PRODUCTION ASSURANCE  Phases 19–24  Tests, CI/CD gates, security, observability, backup/restore, performance & a11y certification
-M4  GROWTH & BUSINESS     Phases 25–29  Proposals, client portal, invoicing, content growth, conversion analytics
-M5  FINAL AUDIT           Phase 30      International-grade audit → manual release decision
+M1  CREDIBLE LAUNCH       Phases 3–10   Brand identity, complete design system, real content, real services, working inquiry, SEO, legal, live on own domain
+M2  OPERATING LAYER       Phases 11–19  Full schema, admin, lead pipeline, CMS, evidence, journal, search, notifications, consultation
+M3  PRODUCTION ASSURANCE  Phases 20–25  Tests, CI/CD gates, security, observability, backup/restore, performance & a11y certification
+M4  GROWTH & BUSINESS     Phases 26–30  Proposals, client portal, invoicing, content growth, conversion analytics
+M5  FINAL AUDIT           Phase 31      International-grade audit → manual release decision
 ```
 
 ## 8.1 Why content-first (and why this does not bypass architecture)
@@ -354,12 +362,13 @@ A new freelance brand needs a live, credible site **early**; a CMS with no conte
 ```text
 Decisions (D-xx)
 → Content truth + typed content model        (3)
-→ i18n routing + shell                       (4)
-→ Work / case studies                        (5)
-→ Services / packages / pricing              (6)
-→ About / process / working agreement        (7)
-→ Inquiry backend slice                      (8)
-→ Launch readiness                           (9)   ── M1 gate
+→ Brand identity + design system completion  (4)
+→ i18n routing + shell                       (5)
+→ Work / case studies                        (6)
+→ Services / packages / pricing              (7)
+→ About / process / working agreement        (8)
+→ Inquiry backend slice                      (9)
+→ Launch readiness                           (10)  ── M1 gate
 → Full schema → Auth → Pipeline → CMS → Evidence → Journal → Search → Notifications → Consultation   ── M2
 → Tests → CI/CD → Security → Observability → Recovery → Certification                                ── M3
 → Growth tools                                                                                        ── M4
@@ -378,7 +387,7 @@ Each phase below lists its goal, sub-phases and **exit criteria**. Exit criteria
 
 **Goal:** a truthful, finished home page mounted inside the site shell, fed by a typed content layer.
 
-> Phase 3 comes before i18n routing (Phase 4) only because it had already started. To respect principle 10, all Phase 3 content is bilingual-shaped from day one (`{ en, fa }`), and Phase 4 moves the page under `app/[locale]/` without rewriting it.
+> Phase 3 comes before i18n routing (Phase 5) only because it had already started. To respect principle 10, all Phase 3 content is bilingual-shaped from day one (`{ en, fa }`), and Phase 5 moves the page under `app/[locale]/` without rewriting it.
 
 ### 3.1 Content truth pass
 - delete the fictional projects, their metrics and the AI-generated product images (6.1)
@@ -387,7 +396,7 @@ Each phase below lists its goal, sub-phases and **exit criteria**. Exit criteria
 - add a build-time guard that fails if a published content item contains an unresolved placeholder pattern such as `[CLIENT_NAME]`
 
 ### 3.2 Typed content layer
-- `content/` holds data; `types/content.ts` holds shapes that match the Phase 10 tables: `Project`, `Service`, `ServicePackage`, `ServiceAddon`, `EngagementModel`, `Recommendation`, `Article`, `Technology`, `SiteSettings` (incl. availability)
+- `content/` holds data; `types/content.ts` holds shapes that match the Phase 11 tables: `Project`, `Service`, `ServicePackage`, `ServiceAddon`, `EngagementModel`, `Recommendation`, `Article`, `Technology`, `SiteSettings` (incl. availability)
 - every translatable field is `{ en: string; fa: string }`; every item has `published` and `sortOrder`
 - selectors (`getPublishedProjects()`, `getFeaturedServices()`…) are the only way pages read content, so the source can later switch to the database without touching components
 - selectors return empty arrays for missing content; sections check emptiness and do not render
@@ -412,58 +421,165 @@ Each phase below lists its goal, sub-phases and **exit criteria**. Exit criteria
 Compatibility note: this keeps every section of the original v0 plan; "Capability Strip" becomes the Proof Strip, "Tech Stack" becomes the Expertise matrix, and "How to Work Together" is new.
 
 ### 3.4 Wiring
-- `/` renders the Home page inside `SiteShell`
+- `/` renders the Home page inside `SiteShell` ✅ (`4ef6f87`)
 - `/design-system` stays, marked `noindex`, excluded from sitemap and main navigation
+
+### 3.5 Closure checklist (open items after the 10 September push)
+- `lib/site.ts`: remove `hello@artaveo.studio` until D-01 is decided; replace root `github.com` / `linkedin.com` links with real profile URLs or remove them; drop X
+- voice (16.1): nav descriptions ("How we can help you ship", "The studio and how it operates"), `siteConfig.tagline/description`, Home metadata ("development studio") and Hero "View our work" → first person / brand wording
+- delete unused `public/images/work-*.png` and unused v0 placeholder assets
+- `/design-system`: `robots: { index: false, follow: false }`
+- Insights Preview: render nothing while no article is published (principle 3) — "In writing" cards are allowed only in the admin/preview view
+- placeholder guard from 3.1
+- bilingual shape (3.2): content fields become `{ en, fa }` and pages read through selectors; Persian copy itself is authored in Phase 5
+- phase document `docs/phases/PHASE-3-README.md` with screenshots (Light/Dark × LTR/RTL × mobile/tablet/desktop)
+
+**Scope moved out of Phase 3 (recorded, not dropped):** the Availability chip, Identity Header, Sticky Mobile CTA and the Expertise-matrix layout are designed and built in Phase 4 (4.5, 4.6); "How to Work Together", starting-from signals and proof-linked expertise *data* arrive with Phases 7 and 8. **Home is a living page:** every later phase that produces content for a Home section wires that section as part of its own Definition of Done.
 
 **Exit criteria:** no fictional content anywhere in the repo's published content; every Home section renders correctly or is hidden when empty; Light/Dark × LTR/RTL × mobile/tablet/desktop screenshots recorded in the phase document; no horizontal overflow.
 
 ---
 
-## Phase 4 — Internationalization & Shell Completion
+## Phase 4 — Brand Identity & Design System Completion  ⬜ NEXT
+
+> **Historical debt / added after audit (10 September 2026)** — see 6.6. Phase 1 keeps its status; this phase restores the design scope of the previous roadmap revision and adds the missing brand identity.
+
+**Goal:** a distinctive Artaveo identity and a complete, documented design system, applied to the existing shell and Home — so every later page is assembled from finished parts instead of inventing UI on the fly.
+
+### 4.1 Art direction & brand identity (requires D-12, D-01 — **logo received 10 Sep 2026, spelling resolved**)
+
+The primary mark is approved — a faceted charcoal "A" (folded-ribbon facets) with a gold interior facet, paired with a wide-tracked wordmark **ARTAVEO** and the tagline "Digital Development". This sub-phase no longer proposes direction options from scratch; it **derives the system from the approved logo** and fills the gaps the logo doesn't cover (light theme, small sizes, RTL, motion).
+
+**Assets to place before this sub-phase starts** (provided outside the repo; see 4.1.1):
+```text
+public/brand/artaveo-mark-source.png       full-resolution source render (reference only, not production-optimized)
+public/brand/artaveo-lockup-reference.png  mark + wordmark + tagline, cropped
+public/brand/artaveo-mark-reference.png    mark only, cropped
+```
+These three files are **reference crops of the supplied render**, not production assets: the background is a photographic smoke texture, not transparent, and the mark itself is a glossy 3D render (gradients, bevel highlights, rim light) rather than flat vector art. They are enough to derive colour tokens and to use as a large hero asset, but production UI (header logo, favicon, badges) needs the derivation work below.
+
+**4.1.1 Colour tokens derived from the logo** (measured from the supplied file):
+- charcoal facet (mark) → base of a new **brand-neutral** scale, sampled around `#353535` (mid-facet) to `#5D5B5D` (highlight facet)
+- gold interior facet / tagline → **brand accent**, sampled around `#C68B4B` (median) — use as an accent only (borders, icons, small highlights, the tagline-style small caps line), never as body text or large fills, since it doesn't clear AA contrast on either pure black or pure white at text sizes
+- confirm both against the existing OKLCH tokens from Phase 1; adjust the brand hue to match the gold rather than inventing a new one
+
+**4.1.2 Logo system — derive the missing variants** (none of these exist yet; the supplied file is the dark-theme hero lockup only):
+
+| Variant | What changes from the supplied logo | Why |
+|---|---|---|
+| **Light-theme wordmark** | Wordmark switches from white to a near-black / dark-charcoal fill. Tagline gold can stay, or move slightly darker/less saturated for AA contrast on white. The mark itself (charcoal + gold) already reads on light backgrounds — it likely needs no colour change, only a check on legibility where the darkest facet nearly disappears against a pure-white page (a subtle 1px contour or a slightly lighter charcoal floor may be enough). | The supplied file is white-on-dark only; the site runs Light and Dark as equally first-class (principle 4). |
+| **Flat / simplified mark** | Remove the gradients, bevel highlights and rim-light glow; flatten each facet to one solid tone (two tones total: charcoal + gold, or one tone for single-colour contexts). Keep the silhouette and the folded-ribbon negative space — that's the recognizable part. | The current render is a photorealistic 3D asset. At UI sizes (header ~28–32px, favicon 16–48px) the fine gradient and thin gold sliver won't survive; a flat version is what actually gets used in the product. The 3D render stays as a large "hero" asset (About page, Open Graph image, loading states) used sparingly. |
+| **Monochrome mark** | Single flat colour: pure white version for dark surfaces, pure near-black version for light surfaces. No gold. | Needed for contexts with one ink: favicon fallback, watermark, print, embossed/engraved use, places the brand accent would clash. |
+| **Mark-only lockup** | Just the "A", no wordmark, no tagline. | The full lockup's wide letter-spacing doesn't fit compact UI (header on narrow mobile, browser tab, avatar-sized badge). |
+| **Compact lockup** | Mark + wordmark, tagline dropped. | Header logo at normal sizes — the tagline is a poster-level detail, not a UI-level one. |
+
+None of this is a new design; it is the same approved mark rebuilt as flat, layered vector art (SVG) so it scales and recolors cleanly. If the owner has the original design file (Figma/Illustrator/AI-tool project), export directly from there instead of rebuilding from the PNG — it will be cleaner than any rebuild from a rendered image.
+
+**4.1.3 Everything else this sub-phase still owns**
+- benchmarks are used for patterns only; no visual copying (section 4)
+- clear-space and minimum-size rules for every lockup variant above; the wordmark is Latin-only and is never mirrored in RTL contexts (in `fa` layouts it still reads left-to-right, set apart from the surrounding RTL text)
+- favicon, app icons (light/dark), Open Graph image template — replacing the v0 default `icon.svg` and placeholder logos, built from the flat/monochrome variants above, not the 3D render
+- semantic colours (success / warning / danger / info) in both themes, chosen to sit alongside the charcoal/gold palette without competing with the gold accent
+- **typography pairing:** the wordmark's own geometric, wide-tracked display style is a strong cue for the Latin display face; pair it with a readable Latin text face, and the Persian face (Vazirmatn or a chosen alternative) matched in optical size and weight; separate scales and line-heights per script; numeral rules per D-03
+- **imagery rules:** product screenshots only inside frames with demo data; architecture diagrams in one consistent style; no stock photos of people; no AI images of fictional products
+- **iconography:** one icon set (lucide) with size and stroke rules and an explicit RTL mirroring list; stroke weight chosen to sit comfortably next to the mark's facet style
+- **motion principles:** durations, easing, what may animate, reduced-motion behaviour; the design must stand without motion — the mark's rim-light/glow is a static design detail here, not something to animate on every hover
+
+**Output:** `docs/design/art-direction.md` records the derived tokens, the approved logo variants (with the files above), and the light-theme + small-size rules — for the owner to confirm rather than choose from scratch.
+
+### 4.2 Token refinement & design-system audit (closes P1-A)
+- AA contrast for every text/background pair in both themes; one focus-ring token used everywhere
+- surface / elevation levels, border and shadow scales, radius scale, z-index scale, motion tokens
+- layout tokens: container widths, grid, section-spacing rhythm, reading width for prose
+- **responsive matrix:** small mobile 320–374 · mobile 375–639 · tablet 640–1023 · laptop 1024–1279 · desktop 1280–1535 · large 1536–1919 · ultra-wide ≥ 1920 (capped content width, no stretched lines)
+- logical properties only in components (`ms-*`, `me-*`, `ps-*`, `start-*`) — no physical left/right
+
+### 4.3 Missing primitives
+Existing: Button, Badge, Card, Input. Add — each RTL-correct, keyboard-accessible, both themes, built on the existing Base UI / shadcn foundation:
+
+| Group | Primitives |
+|---|---|
+| Actions | Link (inline, standalone, external with indicator) · IconButton · ButtonGroup · Kbd |
+| Forms | Label · Field (label + hint + error) · Textarea · Select · Checkbox · RadioGroup · Switch · SegmentedControl · FileInput shell (upload wiring in Phase 14) · FormMessage |
+| Overlays | Dialog · Sheet / Drawer · Popover · Tooltip · DropdownMenu · Toast |
+| Disclosure & navigation | Tabs · Accordion · Pagination · Stepper (Brief Builder) · Progress |
+| Data display | Table (with stacked mobile mode) · Tag · Avatar · Separator · Skeleton · Status badge set (*Live · In development · Private · Archived · Concept*) |
+| Content | Callout · Code block (LTR-locked, copy button) · Blockquote · Prose styles for articles in `en` and `fa` |
+
+Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · **4.3c** disclosure, data display, content.
+
+### 4.4 Patterns & states
+- Page Header, Section Header (promote the Home one to a shared pattern), CTA Section, feature list, proof row without numbers
+- state patterns: Empty (admin/preview only), Loading (skeletons), Error (inline / section / page), Success, Rate-limited, Offline
+- Browser Frame / Device Frame, diagram container with text alternative
+- form layouts: single-column and multi-step
+
+### 4.5 Identity components (restores the previous revision's Professional Identity System)
+- Identity Header (name, title, tagline, portrait slot — content per D-02)
+- Availability Chip + Availability Card (states from settings, "last updated")
+- Response Commitment Note
+- External Profile Links (verified URLs only)
+- primary Hire CTA and Consultation CTA variants
+- Sticky Mobile CTA
+
+### 4.6 Visual pass on Shell & Home (requires D-12 approval of the derived variants from 4.1)
+- apply the chosen direction to header, mobile navigation, footer, command palette and every Home section
+- redesign the Home "Tech Stack" block into the Expertise-matrix layout (data wiring follows in Phases 7–8)
+- fix known Home issues: Hero code-panel line overflow around 1024 px, "Why Artaveo" heading line break, portrait-placeholder head shape
+- no content changes beyond the rules of Phase 3
+
+### 4.7 Living documentation
+- `/design-system` presents every token, primitive, pattern and state in Light/Dark × LTR/RTL with usage notes and do / don't examples (still `noindex`)
+
+**Exit criteria:** D-12 approved and recorded (derived tokens, logo variants, light-theme and small-size rules); every primitive verified for keyboard, screen reader, RTL and both themes (results in `docs/phases/PHASE-4-README.md`); no component uses physical left/right; no hard-coded colours outside tokens; the Home visual pass approved by the owner; no dependency added without a reason.
+
+---
+
+## Phase 5 — Internationalization & Shell Completion
 
 **Goal:** real bilingual routing and a finished global shell **before** any new page is built.
 
-### 4.1 Locale routing
+### 5.1 Locale routing
 - `app/[locale]/…` with `en` and `fa`; middleware negotiates the locale on first visit and respects a stored choice
 - the language switcher maps to the **equivalent route** in the other locale (never back to Home)
 - `<html lang dir>` set server-side per locale — no client-side direction flip, no flash
 
-### 4.2 Dictionaries
+### 5.2 Dictionaries
 - typed message keys; a missing key fails type-check or tests
 - metadata, navigation, validation messages, empty/error states and alt text are all translated
 
-### 4.3 Persian specifics (per D-03)
+### 5.3 Persian specifics (per D-03)
 - Vazirmatn for `fa`, with line-height and letter-spacing tuned separately from Latin
 - dates, numbers and currency through `Intl` with the chosen conventions
 - Latin technical terms inside Persian sentences wrapped with `<bdi>` (e.g. *Next.js*, *PostgreSQL*)
 - code blocks, terminal output, URLs and e-mail addresses always LTR
 - icon mirroring rules: directional icons mirror, brand/media icons never do
 
-### 4.4 Shell completion
+### 5.4 Shell completion
 - "Home" added; navigation: Work · Services · Process · About · Insights (Insights hidden until content exists) · Contact
 - right controls: Search · Language · Theme · **Start a Project**
-- mobile: accessible navigation (decide sheet vs full overlay and record the decision) + **Sticky Mobile CTA** on content pages
+- mobile: accessible navigation (decide sheet vs full overlay and record the decision) + wire the **Sticky Mobile CTA** (built in 4.5) on content pages
 - header: sticky, scroll-state, solid on content pages, keyboard accessible, skip-to-content link
 - footer: only real links; external profiles from D-05; locale-aware legal links
 - command palette fed by the content selectors, per locale
 
-### 4.5 Global boundaries
+### 5.5 Global boundaries
 - `loading`, `error` and `not-found` per locale, designed (not default)
 
 **Exit criteria:** switching language on any existing route lands on the same route in the other locale with correct `lang`/`dir`; no hard-coded UI strings; RTL review completed for the shell.
 
 ---
 
-## Phase 5 — Work & Case Study Engine
+## Phase 6 — Work & Case Study Engine
 
 **Goal:** real projects become the strongest proof on the site.
 
-### 5.1 `/work` index
+### 6.1 `/work` index
 - project grid (1 / 2 / 2–3 columns), featured first
 - filters (category, technology) appear **only when there are enough projects to need them** (threshold recorded in config; with two projects, no filters)
 - honest status badges: *Live* · *In development* · *Internal / private* · *Archived* · *Concept*
 
-### 5.2 Case study template
+### 6.2 Case study template
 
 ```text
 Hero + Snapshot         title, one-line outcome, status, year, role, stack (only true fields)
@@ -485,7 +601,7 @@ Next Project
 
 Metadata that is unknown or not true is omitted, never guessed.
 
-### 5.3 Case study — Transportation System (requires D-06)
+### 6.3 Case study — Transportation System (requires D-06)
 Candidate highlights from the repository (verify each against the code before publishing):
 - intercity booking with a live seat map; seat holds and confirmation enforced server-side, never in the browser
 - PostgreSQL row-level security combined with server-side authorization and a permission center for limited admins
@@ -495,27 +611,27 @@ Candidate highlights from the repository (verify each against the code before pu
 - honest status: in active development; real payment-provider integration pending
 - process evidence: phased roadmap and per-phase implementation documents
 
-### 5.4 Case study — Pazhuhesh Complex Portal (requires D-06)
+### 6.4 Case study — Pazhuhesh Complex Portal (requires D-06)
 - bilingual Dari/English portal with RTL-native interface
 - two admin roles with role-based routing and department-scoped permissions
 - offline-first data layer and installable PWA with caching tuned per data type; admin excluded from caching
 - server-side rate-limited submissions via an edge function
 
-### 5.5 Engineering evidence
+### 6.5 Engineering evidence
 - "How this was built" links from each case study to the public repository and, where allowed, to its roadmap and phase documents — real, verifiable process evidence
 
-### 5.6 Media v1
+### 6.6 Media v1
 - screenshots captured with **demo data only**; Browser Frame / Device Frame components; required alt text; `next/image` with explicit sizes and priority only for above-the-fold media
 
 **Exit criteria:** both case studies published in `en` and `fa` (or explicitly blocked on D-06); every factual claim listed in the claims ledger; no real personal data visible.
 
 ---
 
-## Phase 6 — Services, Packages & Pricing Signals
+## Phase 7 — Services, Packages & Pricing Signals
 
 **Goal:** a visitor can understand, compare and pre-qualify an offer without a call.
 
-### 6.1 Curated service catalogue (5–7 services)
+### 7.1 Curated service catalogue (5–7 services)
 
 | Service | Type | Notes |
 |---|---|---|
@@ -529,7 +645,7 @@ Candidate highlights from the repository (verify each against the code before pu
 
 The previous revision's 13 overlapping services are merged into these; overlap dilutes positioning.
 
-### 6.2 Service detail blueprint
+### 7.2 Service detail blueprint
 
 ```text
 Title + one-line promise
@@ -549,20 +665,20 @@ FAQ
 Start this service  → Brief Builder pre-filled with the service
 ```
 
-### 6.3 Package model
+### 7.3 Package model
 - tiers: **Starter · Standard · Custom** (Custom = "scoped after discovery", never a fake price)
 - fields per tier: `summary`, `forWhom`, `included[]`, `notIncluded[]`, `deliverables[]`, `deliveryDays {min,max}`, `revisions`, `supportDays`, `requirements[]`, `price {amount, currency, type: fixed | from | quote}`
 - mobile: stacked cards with a sticky tier switcher; desktop: side-by-side table with a "Not included" row
 
-### 6.4 Add-ons
+### 7.4 Add-ons
 - configurable records (`title`, `description`, `price`, `deliveryImpactDays`); never hard-coded in components
 
-### 6.5 Pricing signals (per D-04)
+### 7.5 Pricing signals (per D-04)
 - **What drives cost** block: number of roles, integrations, content volume, languages, deadlines
 - typical ranges for custom work; starting-from for packages; payment schedule summary linking to the Working Agreement
 - optional early-client offer only if D-11 says so
 
-### 6.6 Engagement models
+### 7.6 Engagement models
 
 | Model | When it fits | Billing |
 |---|---|---|
@@ -576,17 +692,17 @@ Start this service  → Brief Builder pre-filled with the service
 
 ---
 
-## Phase 7 — About, Process & Working Agreement
+## Phase 8 — About, Process & Working Agreement
 
 **Goal:** answer the questions clients are afraid to ask.
 
-### 7.1 About
+### 8.1 About
 Story (not a CV) · the person (D-02) · technical focus · how I work · values · languages · timezone and overlap hours · tools · external profiles (verified only) · CTA.
 
-### 7.2 Process
+### 8.2 Process
 `01 Discover · 02 Define · 03 Design · 04 Architect · 05 Build · 06 Test · 07 Launch · 08 Support` — each with purpose, activities, output, client involvement, decisions and risks.
 
-### 7.3 Working Agreement ("How we'll work")
+### 8.3 Working Agreement ("How we'll work")
 - communication channel and cadence (e.g. weekly written update, demo per milestone)
 - response commitment (D-08)
 - milestones, deposits and payment timing
@@ -595,70 +711,70 @@ Story (not a CV) · the person (D-02) · technical focus · how I work · values
 - warranty window for defects; what counts as a change request and how it is priced
 - confidentiality / NDA availability
 
-### 7.4 Hire channels (per D-05)
+### 8.4 Hire channels (per D-05)
 **Hire Channel Selector** comparing: *Direct* (direct contact, no platform fee) vs *Via platform* (buyer protection/escrow, platform fees and rules). The website stays canonical; platform profiles link back to it.
 
-### 7.5 Quality baseline
+### 8.5 Quality baseline
 A short, honest page of what every project receives — only commitments the owner actually keeps (e.g. TypeScript, tests on critical flows, WCAG 2.2 AA target, security review, documentation, handover).
 
 **Exit criteria:** every commitment on these pages is approved by the owner and recorded in `docs/decisions.md`.
 
 ---
 
-## Phase 8 — Start a Project (Inquiry v1 — first real backend slice)
+## Phase 9 — Start a Project (Inquiry v1 — first real backend slice)
 
 **Goal:** qualified, persisted, notified inquiries — no fake success.
 
-### 8.1 Brief Builder
+### 9.1 Brief Builder
 Steps: engagement model / service → project type → goal → key features (checklist) → timeline → budget range (optional; ranges per D-04) → links / references → contact details → preferred language and channel → consent.
 - pre-fill from the page that launched it (`?service=`, `?package=`)
 - per-step validation, back/forward without data loss, keyboard and screen-reader friendly
 - final **Brief Summary** screen before submit; the client receives the same summary by e-mail
 
-### 8.2 Server handling
+### 9.2 Server handling
 - one schema shared by client and server; server re-validates everything
 - honeypot + rate limit per IP/e-mail + optional privacy-friendly challenge
 - idempotency key per submission to prevent duplicates on double click or retry
 
-### 8.3 Persistence (minimal slice of the Phase 10 schema)
+### 9.3 Persistence (minimal slice of the Phase 11 schema)
 - `inquiries` and `inquiry_events` tables; RLS: no public select; inserts only through the server
 - source attribution (referrer, UTM, channel) stored without extra personal data
 
-### 8.4 Notifications (requires D-01 domain + DNS authentication)
+### 9.4 Notifications (requires D-01 domain + DNS authentication)
 - owner alert + client confirmation through a provider abstraction
 - **outbox pattern:** persist first, send after; failed e-mails are retried and never lose the inquiry
 
-### 8.5 States
+### 9.5 States
 `Idle · Editing · Step error · Submitting · Persisted-notification-pending · Success · Server error · Rate limited · Offline`
 
-### 8.6 Scope limits
-File attachments are deferred to Phase 13 (uploads are a security surface); v1 accepts links.
+### 9.6 Scope limits
+File attachments are deferred to Phase 14 (uploads are a security surface); v1 accepts links.
 
 **Exit criteria:** end-to-end submission verified in both locales; duplicate submission creates one record; provider outage does not lose data; spam controls tested.
 
 ---
 
-## Phase 9 — Launch Readiness  (M1 gate)
+## Phase 10 — Launch Readiness  (M1 gate)
 
-### 9.1 SEO
+### 10.1 SEO
 Unique titles/descriptions per page and locale · canonical · hreflang · sitemap · robots · dynamic Open Graph images · structured data: `Person`, `ProfessionalService`, `WebSite`, `BreadcrumbList`, `CreativeWork` for case studies, `Service` + `Offer` only where a price is published, `FAQPage` for FAQs.
 
-### 9.2 Legal & privacy (per D-07)
+### 10.2 Legal & privacy (per D-07)
 Privacy policy (what the inquiry collects, why, retention, rights, processors) · terms · imprint if required · prefer cookie-less analytics; if any non-essential cookie is used, a consent banner with a real reject option.
 
-### 9.3 Analytics events
+### 10.3 Analytics events
 `page_view · project_view · service_view · package_compare · cta_click · brief_start · brief_step · brief_submit · consultation_request · external_profile_click · language_switch · search_used` — no form contents, no personal data in events.
 
-### 9.4 Performance budget
+### 10.4 Performance budget
 Mobile CWV targets from section 3; route JS budget recorded; fonts subset and preloaded carefully; images sized and modern formats.
 
-### 9.5 Accessibility
+### 10.5 Accessibility
 Keyboard-only pass, screen reader pass (one desktop + one mobile), 200 % zoom, reduced motion, contrast, form errors announced, RTL reading order.
 
-### 9.6 Pre-launch content check
+### 10.6 Pre-launch content check
 Every claim in the claims ledger · no visible placeholder · every link resolves · both locales complete · 404 designed.
 
-### 9.7 Deploy
+### 10.7 Deploy
 Production domain (D-01) · environment variables audited · preview deployments on · `main` protected.
 
 **Gate:** `M1 LAUNCH — MANUAL APPROVAL REQUIRED`.
@@ -667,7 +783,7 @@ Production domain (D-01) · environment variables audited · preview deployments
 
 # 10. Milestone M2 — Operating Layer
 
-## Phase 10 — Data Model & Migrations
+## Phase 11 — Data Model & Migrations
 
 **Goal:** the typed content model becomes the database, without changing page components.
 
@@ -703,13 +819,13 @@ Core entities and key fields:
 
 `*` = translatable field.
 
-## Phase 11 — Admin Authentication & Authorization
+## Phase 12 — Admin Authentication & Authorization
 - Supabase Auth for admin only; MFA required for the owner role
 - roles: `owner`, `editor` (content only, no leads) — permissions checked server-side on every action
 - protected `/[locale]/admin` routes and server actions; no reliance on hidden routes
 - secure sessions, auth event logging, audit log for every admin mutation
 
-## Phase 12 — Lead Pipeline
+## Phase 13 — Lead Pipeline
 ```text
 NEW → REVIEWED → QUALIFIED → CONTACTED → DISCOVERY → PROPOSAL → WON | LOST → ARCHIVED
 ```
@@ -718,36 +834,36 @@ NEW → REVIEWED → QUALIFIED → CONTACTED → DISCOVERY → PROPOSAL → WON 
 - **SLA indicator** comparing time-to-first-reply with the published response commitment
 - CSV export; no fake dashboards or invented business metrics
 
-## Phase 13 — CMS & Media
+## Phase 14 — CMS & Media
 - editors: projects + case-study sections, services, packages, add-ons, FAQs, engagement models, articles, settings/availability, navigation
 - draft → preview → publish → unpublish; per-locale completeness indicator; publishing a locale requires its required fields
 - media uploads: type/size validation server-side, safe names, storage policy, required alt text, focal-point cropping for responsive crops
 - on-demand revalidation of affected routes after publish
 - attachments for the Brief Builder enabled here, behind the same upload rules
 
-## Phase 14 — Verified Evidence (Recommendations & Testimonials)
+## Phase 15 — Verified Evidence (Recommendations & Testimonials)
 - the owner generates a single-use **request link**; the recommender submits statement, role, relationship, optional profile URL and explicit consent to publish
 - moderation queue: approve · request change · reject; meaning is never edited, typos only with consent
 - verification labels shown publicly: *Submitted via verified request* · *Linked to platform review* · *Linked public profile*
 - recommendation = about working with the developer; testimonial = tied to a delivered project/service
 - sections stay hidden until at least one item is published
 
-## Phase 15 — Insights / Engineering Journal
+## Phase 16 — Insights / Engineering Journal
 - article model with statuses `Draft · Review · Scheduled · Published · Archived`
 - table of contents, LTR-locked code blocks with copy button, images, related projects/services/articles, RSS per locale, reading time per locale
 - seed topics from real work (e.g. server-side seat holding, RLS + server authorization, offline-first caching per data type, running bilingual RTL products)
 
-## Phase 16 — Search & Command Palette
+## Phase 17 — Search & Command Palette
 - index built from published content per locale (pages, projects, services, articles, technologies)
 - recent searches, suggestions, keyboard navigation, highlighted matches, loading and no-result states
 - interface ready for a server-side search provider later
 
-## Phase 17 — Notifications & Outbox
+## Phase 18 — Notifications & Outbox
 - provider abstraction (e-mail first; others later) with bilingual templates
 - events: new inquiry, inquiry confirmation, consultation request/confirmation, evidence submitted, publish events, system error
 - retries with backoff, delivery log, alert when a message keeps failing
 
-## Phase 18 — Consultation
+## Phase 19 — Consultation
 - **v1 (request-based):** client proposes time windows in their timezone; owner confirms; calendar invite (ICS) sent; reschedule/cancel links
 - **v2:** calendar provider behind the same interface (per D-09); availability slots; buffer times
 - consultation always linked to an inquiry
@@ -756,36 +872,36 @@ NEW → REVIEWED → QUALIFIED → CONTACTED → DISCOVERY → PROPOSAL → WON 
 
 # 11. Milestone M3 — Production Assurance
 
-## Phase 19 — Testing
+## Phase 20 — Testing
 - **Unit:** schemas, formatters (dates/digits per locale), selectors, state transitions, pricing display rules
 - **Integration:** inquiry persistence + outbox, RLS policies, admin authorization, CMS mutations, uploads
 - **E2E (critical flows):** Home → Work → Case Study · Home → Service → Package → Brief Builder → Submit · language switch on every route type · theme switch · search · admin login · publish project · move inquiry through pipeline
 - automated axe checks on key templates in both directions
 
-## Phase 20 — CI/CD & Release Gates
+## Phase 21 — CI/CD & Release Gates
 ```text
 INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (preview) → SECURITY (deps audit, secret scan) → DEPLOY
 ```
 - branch protection on `main`; agents (v0 included) work through pull requests
 - preview deployment per pull request; a failing gate blocks the release
 
-## Phase 21 — Security Hardening
+## Phase 22 — Security Hardening
 - security headers and CSP; rate limits on every public mutation; CSRF posture of server actions verified
 - XSS review of rich content, SQL injection review of any raw query, IDOR tests on admin resources
 - upload hardening; secret inventory and rotation plan; dependency policy
 
-## Phase 22 — Observability
+## Phase 23 — Observability
 - structured logs with correlation IDs from request to database to outbox
 - error tracking; business events (inquiry submitted, notification failed, content published, auth events)
 - uptime check on the inquiry endpoint; alert on repeated notification failure
 
-## Phase 23 — Backup & Recovery
+## Phase 24 — Backup & Recovery
 - decision per D-10; if the database plan has no platform backups, a scheduled external `pg_dump` to separate storage is the minimum (lesson carried over from the Transportation System project, where the free plan had no restorable backups)
 - media metadata and storage objects included; content export
 - RPO/RTO written down; **a restore test is performed** — a backup never restored is not verified
 - rollback procedure for deployments and migrations; recovery runbook
 
-## Phase 24 — Performance & Accessibility Certification
+## Phase 25 — Performance & Accessibility Certification
 - field data review, Lighthouse CI budgets per route, image and font audit
 - manual assistive-technology pass on the finished product in both locales
 
@@ -795,32 +911,32 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 
 Prepared for, not built early. Each phase starts only when the owner confirms the need.
 
-## Phase 25 — Proposal & Estimate Builder
+## Phase 26 — Proposal & Estimate Builder
 Qualified inquiry → proposal (scope, milestones, price, validity, terms) → shareable link → accept → PDF; linked to the lead pipeline.
 
-## Phase 26 — Client Portal (minimal)
+## Phase 27 — Client Portal (minimal)
 Project timeline, milestones, files, decisions log, invoices list; magic-link access; no chat product.
 
-## Phase 27 — Invoicing & Payments
+## Phase 28 — Invoicing & Payments
 Provider abstraction; payment rails chosen per D-07; platform channel remains an alternative.
 
-## Phase 28 — Content Growth
+## Phase 29 — Content Growth
 Newsletter, resources, `/now`, `/uses`, public changelog, downloadable résumé.
 
-## Phase 29 — Conversion Analytics
+## Phase 30 — Conversion Analytics
 Funnels from landing to brief submit, drop-off per Brief Builder step, channel attribution; experiments only when traffic makes them meaningful.
 
 ---
 
 # 13. Milestone M5 — Final Audit
 
-## Phase 30 — International-Grade Product Audit
-- **30.1 UX & design:** hierarchy, typography, spacing, consistency, CTA clarity, motion, empty/error/loading states, 404, dark/light, mobile, RTL
-- **30.2 Business conversion:** every question in section 21.2 answered "yes"
-- **30.3 Content truth:** every public claim traced to the claims ledger; no placeholder; no stale availability
-- **30.4 Security & production:** auth boundaries, public mutations, uploads, secrets, headers, abuse controls, dependencies
-- **30.5 Architecture:** component/domain/service boundaries, types, validation, error handling, provider abstractions, CMS extensibility, localization architecture
-- **30.6 Localization:** full `fa` walkthrough by a native reader
+## Phase 31 — International-Grade Product Audit
+- **31.1 UX & design:** hierarchy, typography, spacing, consistency, CTA clarity, motion, empty/error/loading states, 404, dark/light, mobile, RTL
+- **31.2 Business conversion:** every question in section 21.2 answered "yes"
+- **31.3 Content truth:** every public claim traced to the claims ledger; no placeholder; no stale availability
+- **31.4 Security & production:** auth boundaries, public mutations, uploads, secrets, headers, abuse controls, dependencies
+- **31.5 Architecture:** component/domain/service boundaries, types, validation, error handling, provider abstractions, CMS extensibility, localization architecture
+- **31.6 Localization:** full `fa` walkthrough by a native reader
 
 **Final release decision: MANUAL APPROVAL REQUIRED.**
 
@@ -828,7 +944,7 @@ Funnels from landing to brief submit, drop-off per Brief Builder step, channel a
 
 # 14. Artaveo component inventory
 
-Components specific to this product (beyond the Phase 1 primitives). Each must support Light/Dark, LTR/RTL, keyboard use, and — where data-driven — hide itself when its data is empty.
+Components specific to this product. The generic primitives and patterns they are built from are listed in Phase 4.3–4.4; the identity components are built in Phase 4.5. Each must support Light/Dark, LTR/RTL, keyboard use, and — where data-driven — hide itself when its data is empty.
 
 | Component | Purpose | Origin | Data | Honesty rule |
 |---|---|---|---|---|
@@ -852,7 +968,7 @@ Components specific to this product (beyond the Phase 1 primitives). Each must s
 | **Process Timeline** | Steps with output and client involvement | — | content | — |
 | **Recommendation Card** | Statement, person, relationship, date, verification label, source | Contra B-04 | `recommendations` | Hidden when none; no ratings |
 | **Brief Builder** | Multi-step inquiry with summary | Fiverr B-18 | `inquiries` | Success only after persistence |
-| **Response Commitment Note** | Small line near every primary CTA | Fiverr B-20 | `site_settings` | Must be kept (SLA in Phase 12) |
+| **Response Commitment Note** | Small line near every primary CTA | Fiverr B-20 | `site_settings` | Must be kept (SLA in Phase 13) |
 | **Sticky Mobile CTA** | Start a Project on mobile content pages | — | — | Never covers content or focus |
 | **FAQ Accordion** | Service and global FAQ | Fiverr B-19 | `faqs` | — |
 | **Article ToC / Code Block** | Journal reading experience | — | `articles` | Code always LTR |
@@ -864,6 +980,8 @@ Components specific to this product (beyond the Phase 1 primitives). Each must s
 ## 14.1 Visual direction
 
 Premium · minimal · editorial · technical · confident · human.
+
+The concrete identity — approved logo, derived tokens and variants — is finalized in Phase 4.1 (D-12); this section sets the boundaries the derivation must respect.
 
 Quality comes from typography, spacing, composition, hierarchy, content clarity, image quality, interaction quality and consistent tokens — **not** from gradients, glassmorphism, endless rounded cards, 3D, random floating shapes, infinite marquees, heavy parallax or neon. Motion is restrained, respects `prefers-reduced-motion`, and the design must remain premium with motion disabled.
 
@@ -883,9 +1001,9 @@ Quality comes from typography, spacing, composition, hierarchy, content clarity,
 /[locale]/insights/[article]      Article
 /[locale]/start                   Brief Builder        (primary CTA target)
 /[locale]/contact                 Direct contact + hire channels
-/[locale]/consultation            Consultation request (Phase 18)
+/[locale]/consultation            Consultation request (Phase 19)
 /[locale]/privacy · /terms        Legal
-/[locale]/admin/…                 Admin (Phase 11+)
+/[locale]/admin/…                 Admin (Phase 12+)
 /design-system                    Internal, noindex
 Future: /now · /uses · /resume · /changelog
 ```
@@ -922,7 +1040,7 @@ No phase is complete because code exists. Every phase closes only when the relev
 
 - implementation complete for the defined scope — nothing simulated
 - type-check, lint and build pass
-- tests appropriate to risk pass (from Phase 19 on, in CI)
+- tests appropriate to risk pass (from Phase 20 on, in CI)
 - smoke test of affected routes
 - **English and Persian** verified; **LTR and RTL** verified
 - **Light and Dark** verified
