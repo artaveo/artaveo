@@ -1,0 +1,63 @@
+import { ArrowRight, Code, LoaderCircle, Plus } from 'lucide-react'
+
+import { Section, Subhead } from '@/components/showcase/section'
+import { Button } from '@/components/ui/button'
+
+export function ButtonsSection() {
+  return (
+    <Section
+      id="buttons"
+      index="05 — Buttons"
+      title="Buttons"
+      description="A single button primitive with consistent variants and sizes. Variants map to intent — solid primary for the main action, outline and ghost for secondary paths."
+      className="flex flex-col gap-10"
+    >
+      <div>
+        <Subhead>Variants</Subhead>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button>Start a Project</Button>
+          <Button variant="secondary">Secondary</Button>
+          <Button variant="outline">Outline</Button>
+          <Button variant="ghost">Ghost</Button>
+          <Button variant="destructive">Destructive</Button>
+          <Button variant="link">Link</Button>
+        </div>
+      </div>
+
+      <div>
+        <Subhead>Sizes</Subhead>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button size="xs">Extra small</Button>
+          <Button size="sm">Small</Button>
+          <Button size="default">Default</Button>
+          <Button size="lg">Large</Button>
+        </div>
+      </div>
+
+      <div>
+        <Subhead>With icons &amp; states</Subhead>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button>
+            View Our Work
+            <ArrowRight data-icon="inline-end" />
+          </Button>
+          <Button variant="outline">
+            <Code data-icon="inline-start" />
+            GitHub
+          </Button>
+          <Button variant="secondary">
+            <Plus data-icon="inline-start" />
+            Add Project
+          </Button>
+          <Button disabled>
+            <LoaderCircle className="animate-spin" data-icon="inline-start" />
+            Submitting
+          </Button>
+          <Button variant="outline" size="icon-sm" aria-label="Add">
+            <Plus />
+          </Button>
+        </div>
+      </div>
+    </Section>
+  )
+}
