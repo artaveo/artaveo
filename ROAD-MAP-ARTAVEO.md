@@ -379,6 +379,55 @@ Later phases may inform earlier design decisions, but they are never used as an 
 
 ---
 
+## 8.3 Phase index — one line per phase
+
+**Read this table first.** Everything below it (sections 9–13) is the detailed version of the same 29 phases, for when a phase actually starts. If a phase feels confusing in the detailed section, come back here first to see where it sits and what it depends on.
+
+```text
+M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
+  Phase 3   Content Truth Pass & Home Page   Remove fake content, publish the real Home page                    ⏳ PARTIAL
+  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ⬜ NEXT
+  Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav
+  Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects
+  Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals
+  Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms
+  Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)
+  Phase 10  Launch Readiness (M1 gate)       SEO, legal pages, analytics, performance/a11y check, deploy
+
+M2 — OPERATING LAYER (database + admin panel)
+  Phase 11  Data Model & Migrations          Move file-based content into a real Postgres database
+  Phase 12  Admin Auth & Authorization       Login system for the admin panel
+  Phase 13  Lead Pipeline                    Track inquiries through stages (New → Won/Lost) in the admin
+  Phase 14  CMS & Media                      Admin screens to edit projects/services/articles + image uploads
+  Phase 15  Verified Evidence                Collect and publish real client recommendations
+  Phase 16  Insights / Engineering Journal   Blog/article system
+  Phase 17  Search & Command Palette         Site search wired to real content
+  Phase 18  Notifications & Outbox           Reliable e-mail sending — an outage never loses a lead
+  Phase 19  Consultation                     Let clients request/book a call
+
+M3 — PRODUCTION ASSURANCE (make it safe to trust)
+  Phase 20  Testing                          Automated tests for the critical flows
+  Phase 21  CI/CD & Release Gates            Automatic checks before every deploy
+  Phase 22  Security Hardening               Headers, rate limits, upload safety, dependency checks
+  Phase 23  Observability                    Logging, error tracking, alerts
+  Phase 24  Backup & Recovery                Real, restore-tested database backups
+  Phase 25  Performance & a11y Certification Final speed and accessibility sign-off
+
+M4 — GROWTH & BUSINESS (only once M1–M3 are live)
+  Phase 26  Proposal & Estimate Builder      Turn a qualified lead into a formal proposal
+  Phase 27  Client Portal (minimal)          Simple client-facing project page
+  Phase 28  Invoicing & Payments             Send invoices, accept payment
+  Phase 29  Content Growth                   Newsletter, /now, /uses, public changelog
+  Phase 30  Conversion Analytics             Funnels, drop-off tracking, channel attribution
+
+M5 — FINAL AUDIT
+  Phase 31  International-Grade Audit        Full audit of everything above → manual release decision
+```
+
+**How to read the numbers inside a phase (e.g. "4.1", "4.2"…):** these are just sub-steps of that one phase, in build order — they are not separate phases and not related to any other number in this document. "4.1" only ever means "the first sub-step of Phase 4"; it has nothing to do with a section called "4" elsewhere. If a sub-step number ever looks like it's colliding with something else in the document, that's a documentation bug — flag it, don't try to make sense of it.
+
+---
+
 # 9. Milestone M1 — Credible Launch
 
 Each phase below lists its goal, sub-phases and **exit criteria**. Exit criteria are in addition to the general Definition of Done (section 17).
