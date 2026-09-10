@@ -22,9 +22,12 @@ const vazirmatn = Vazirmatn({
 })
 
 export const metadata: Metadata = {
-  title: 'Artaveo — Design System',
+  title: {
+    default: 'Artaveo — Independent full-stack studio',
+    template: '%s — Artaveo',
+  },
   description:
-    'The visual foundation of Artaveo: color tokens, typography, spacing, and core UI components for an independent full-stack development studio.',
+    'Artaveo is an independent full-stack development studio building fast, reliable web products — from architecture and design systems to shipped software.',
   generator: 'v0.app',
 }
 
@@ -39,12 +42,18 @@ export const viewport: Viewport = {
 const themeScript = `
 (function () {
   try {
+    var root = document.documentElement;
     var stored = localStorage.getItem('artaveo-theme');
     var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     var isDark = stored ? stored === 'dark' : systemDark;
-    var root = document.documentElement;
     root.classList.toggle('dark', isDark);
     root.classList.toggle('light', !isDark);
+
+    var lang = localStorage.getItem('artaveo-lang');
+    if (lang === 'fa') {
+      root.lang = 'fa';
+      root.dir = 'rtl';
+    }
   } catch (e) {}
 })();
 `
