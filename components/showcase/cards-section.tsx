@@ -1,6 +1,7 @@
 import { ArrowUpRight } from 'lucide-react'
 
 import { Section } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -16,7 +17,7 @@ export function CardsSection() {
   return (
     <Section
       id="cards"
-      index="07 — Cards"
+      index="12 — Cards"
       title="Cards"
       description="Cards use borders and spacing to establish hierarchy rather than heavy shadows. The same primitive composes into project cards, service cards, and stat blocks without every card looking identical."
       className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
@@ -89,6 +90,16 @@ export function CardsSection() {
           <Button>Start a Project</Button>
         </CardFooter>
       </Card>
+      <UsageNotes
+        dos={[
+          "Use Card's Header/Content/Footer slots instead of ad hoc padding so spacing stays consistent across every card on the site.",
+          'Reach for CardFooter for the primary action so it always lands in the same place a reader expects it.',
+        ]}
+        donts={[
+          "Don't nest a Card inside another Card — pick one elevation level instead of stacking borders.",
+          "Don't put the card's primary action outside CardFooter — it breaks the consistent bottom-aligned action rule the pattern is built on.",
+        ]}
+      />
     </Section>
   )
 }

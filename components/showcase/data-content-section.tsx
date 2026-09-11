@@ -2,6 +2,7 @@
 
 import { Avatar, AvatarFallback, Separator, Skeleton } from '@/components/ui/data-display'
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { Blockquote, Callout, CodeBlock } from '@/components/ui/content'
 import { Prose } from '@/components/ui/prose'
 import { StatusBadge, Tag } from '@/components/ui/tag'
@@ -102,6 +103,16 @@ export function DataContentSection() {
           <p>Inline <code>code</code> and links keep the same treatment across every article.</p>
         </Prose>
       </div>
+      <UsageNotes
+        dos={[
+          "Use Table's stacked mobile mode for anything wider than a few columns instead of letting it overflow.",
+          'Reach for Prose to wrap long-form article content so heading, link and quote styles stay consistent with the rest of the site.',
+        ]}
+        donts={[
+          "Don't build a data table as a plain <div> grid — Table already handles the responsive stacked layout and correct semantics.",
+          "Don't apply Prose to short UI copy (buttons, labels) — it's tuned for reading-width article text, not interface chrome.",
+        ]}
+      />
     </Section>
   )
 }

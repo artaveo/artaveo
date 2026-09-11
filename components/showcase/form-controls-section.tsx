@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { FileInput } from '@/components/ui/file-input'
 import { Checkbox, Field, FieldDescription, FieldError, FieldLabel, FormMessage, Radio, RadioGroup, Switch } from '@/components/ui/form-controls'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -110,6 +111,16 @@ export function FormControlsSection() {
           </div>
         </div>
       </div>
+      <UsageNotes
+        dos={[
+          "Always pair an input with a real <Label> (or Field's built-in one) — placeholder text is not an accessible label.",
+          'Use FormMessage to report success/error at the field or form level instead of a plain colored <p>.',
+        ]}
+        donts={[
+          "Don't rely on color alone to show a field is invalid — Field/FormMessage already pair the color with text and aria-invalid.",
+          "Don't build a custom checkbox/radio/switch from styled <div>s — the primitives here already handle keyboard, focus and RTL.",
+        ]}
+      />
     </Section>
   )
 }

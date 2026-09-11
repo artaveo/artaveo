@@ -1,11 +1,12 @@
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { BrowserFrame, DeviceFrame, DiagramContainer } from '@/components/ui/frames'
 
 export function FramesSection() {
   return (
     <Section
       id="frames"
-      index="14 — Frames"
+      index="16 — Frames"
       title="Browser frame, device frame & diagrams"
       description="Product screenshots only ever appear inside a frame with demo data — never bare, per § 4.1.3's imagery rules."
       className="grid gap-10 lg:grid-cols-2"
@@ -66,6 +67,16 @@ export function FramesSection() {
           </svg>
         </DiagramContainer>
       </div>
+      <UsageNotes
+        dos={[
+          'Always put a real product screenshot inside BrowserFrame/DeviceFrame with demo data — never bare.',
+          'Give DiagramContainer both a visible caption and a longer sr-only textAlternative when the diagram carries real information.',
+        ]}
+        donts={[
+          "Don't use a stock photo of a person or a fictional product inside a frame — § 4.1.3's imagery rule rules both out.",
+          "Don't rely on the diagram image alone to convey information — a screen reader needs the text alternative, not just alt text on a picture.",
+        ]}
+      />
     </Section>
   )
 }

@@ -1,3 +1,4 @@
+import { DirectionToggle } from '@/components/showcase/direction-toggle'
 import { ThemeToggle } from '@/components/theme-toggle'
 
 const nav = [
@@ -18,6 +19,7 @@ const nav = [
   { href: '#states', label: 'States' },
   { href: '#frames', label: 'Frames' },
   { href: '#form-layouts', label: 'Form layouts' },
+  { href: '#identity', label: 'Identity' },
 ]
 
 export function ShowcaseHeader() {
@@ -46,7 +48,10 @@ export function ShowcaseHeader() {
             </a>
           ))}
         </nav>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <DirectionToggle />
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   )

@@ -1,4 +1,5 @@
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 
 const spacing = [
   { token: '1', px: '4px' },
@@ -89,6 +90,16 @@ export function SpacingSection() {
           </div>
         </div>
       </div>
+      <UsageNotes
+        dos={[
+          'Pick spacing from the 4px scale (gap-3, p-6, mt-8…) so rhythm stays consistent across sections.',
+          'Reserve shadow-md/lg for genuinely elevated surfaces (dialogs, popovers) — most cards need no shadow at all.',
+        ]}
+        donts={[
+          "Don't use an arbitrary pixel value for spacing when a scale step already covers it.",
+          "Don't stack radius and shadow on everything — the restrained, technical feel depends on using both sparingly.",
+        ]}
+      />
     </Section>
   )
 }

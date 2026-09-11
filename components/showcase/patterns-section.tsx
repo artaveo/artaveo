@@ -1,6 +1,7 @@
 import { Rocket, ShieldCheck, Sparkles } from 'lucide-react'
 
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import {
   CTASection,
   FeatureList,
@@ -34,7 +35,7 @@ export function PatternsSection() {
   return (
     <Section
       id="patterns"
-      index="12 — Patterns"
+      index="14 — Patterns"
       title="Headers, CTAs & proof"
       description="The repeatable page-level blocks every route is assembled from, per roadmap § 4.4."
       className="flex flex-col gap-12"
@@ -97,6 +98,16 @@ export function PatternsSection() {
           className="!py-0"
         />
       </div>
+      <UsageNotes
+        dos={[
+          'Use PageHeader once, at the top of a content route — SectionHeader is for repeating blocks within a page.',
+          "Keep ProofRow numberless unless a real, verifiable metric exists — that's the whole point of the pattern per the benchmark decision.",
+        ]}
+        donts={[
+          "Don't invent a metric to fill ProofRow — ship it with qualitative, checkable claims until a real number exists.",
+          "Don't duplicate CTASection's markup for a new call-to-action block — extend the shared component instead so every CTA stays visually identical.",
+        ]}
+      />
     </Section>
   )
 }

@@ -1,4 +1,5 @@
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 
 const scale = [
   { label: 'Display', className: 'text-5xl font-semibold tracking-tight', size: '48 / 3rem' },
@@ -78,6 +79,16 @@ export function TypographySection() {
           </div>
         </div>
       </div>
+      <UsageNotes
+        dos={[
+          'Let Vazirmatn render Persian text with its own line-height — mixed-script lines need more vertical room than pure Latin.',
+          'Use the named scale steps (H1–H4, Lead, Body, Caption) instead of picking an arbitrary text-[…] size.',
+        ]}
+        donts={[
+          "Don't set a fixed line-height across en and fa copy — the two scripts need different rhythm, which is why they're separate tokens.",
+          "Don't use font-mono for Persian text or vice versa — Geist Mono has no Arabic-script glyphs to fall back to gracefully.",
+        ]}
+      />
     </Section>
   )
 }

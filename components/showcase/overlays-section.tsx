@@ -3,6 +3,7 @@
 import { Info, LogOut, Settings, SlidersHorizontal, User } from 'lucide-react'
 
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -155,6 +156,16 @@ export function OverlaysSection() {
           <Toaster />
         </ToastProvider>
       </div>
+      <UsageNotes
+        dos={[
+          "Use Dialog for content that blocks the page and Sheet/Drawer for a panel that slides in alongside it — they're not interchangeable.",
+          'Let Toast auto-dismiss for confirmations; keep Dialog for anything that needs an explicit decision.',
+        ]}
+        donts={[
+          "Don't build a custom modal with a raw fixed <div> — you'd have to reimplement focus trapping, Escape-to-close and scroll-lock, all already done here.",
+          "Don't stack more than one Dialog at a time — nested overlays confuse both focus order and screen readers.",
+        ]}
+      />
     </Section>
   )
 }

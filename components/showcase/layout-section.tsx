@@ -1,4 +1,5 @@
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 
 const breakpoints = [
   { name: 'sm', min: '640px', use: 'Large phones' },
@@ -13,7 +14,7 @@ export function LayoutSection() {
   return (
     <Section
       id="layout"
-      index="08 — Layout"
+      index="13 — Layout"
       title="Breakpoints, container &amp; grid"
       description="A mobile-first breakpoint set drives responsive behavior. The page container caps at 80rem with fluid gutters, and a 12-column grid governs composition on larger screens."
       className="flex flex-col gap-10"
@@ -71,6 +72,16 @@ export function LayoutSection() {
           4 columns on mobile, 6 on tablet, 12 on desktop.
         </p>
       </div>
+      <UsageNotes
+        dos={[
+          'Use container-page for every top-level section wrapper so max-width and side padding stay identical site-wide.',
+          "Reach for the 12-column grid's logical spans (col-span-*) rather than fixed pixel widths for responsive layout.",
+        ]}
+        donts={[
+          "Don't hard-code a max-width on a section — container-page already encodes the responsive matrix from § 4.2.",
+          "Don't mix a 12-col grid with manually-computed percentage widths in the same layout — pick one system per section.",
+        ]}
+      />
     </Section>
   )
 }

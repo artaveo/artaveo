@@ -1,4 +1,5 @@
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import {
   AvailabilityCard,
   AvailabilityChip,
@@ -37,7 +38,7 @@ export function IdentitySection() {
   return (
     <Section
       id="identity"
-      index="16 — Identity"
+      index="18 — Identity"
       title="Identity &amp; availability"
       description="The owner-facing building blocks from roadmap § 4.5 — header, availability, external links, and the two hire CTAs."
       className="flex flex-col gap-12"
@@ -100,6 +101,16 @@ export function IdentitySection() {
           <StickyMobileCta availability={demoAvailability.available} className="static" />
         </div>
       </div>
+      <UsageNotes
+        dos={[
+          'Read name/portrait/availability from one DeveloperProfile object (getDeveloperProfile()) rather than hard-coding them again in a new component.',
+          "Let IdentityHeader's portrait fall back to an initial when the image is missing instead of showing a broken image or an invented stock photo.",
+        ]}
+        donts={[
+          "Don't invent an evidence count, a fake response time, or a city the owner hasn't confirmed — every field here is optional-safe specifically so it can stay empty until it's real.",
+          "Don't wire StickyMobileCta into every route by default — § 5.4 decides which content pages actually show it.",
+        ]}
+      />
     </Section>
   )
 }

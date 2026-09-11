@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { FormLayout, MultiStepFormLayout } from '@/components/ui/form-layout'
 import { Button } from '@/components/ui/button'
 import { Input, Label, Textarea } from '@/components/ui/input'
@@ -15,7 +16,7 @@ export function FormLayoutsSection() {
   return (
     <Section
       id="form-layouts"
-      index="15 — Form layouts"
+      index="17 — Form layouts"
       title="Single-column & multi-step"
       description="Every form on the site is one of these two shapes — a plain contact form, or the Brief Builder's step flow."
       className="grid gap-10 lg:grid-cols-2"
@@ -51,6 +52,16 @@ export function FormLayoutsSection() {
           </p>
         </MultiStepFormLayout>
       </div>
+      <UsageNotes
+        dos={[
+          'Use FormLayout for any single-column form and MultiStepFormLayout specifically for a linear, ordered flow like the Brief Builder.',
+          "Let MultiStepFormLayout's aria-live region announce the step change — don't add a second, competing announcement.",
+        ]}
+        donts={[
+          "Don't build a multi-step form's header from a bespoke progress bar — Stepper inside MultiStepFormLayout already covers current/complete/upcoming.",
+          "Don't gate step advancement inside the layout component — validation belongs to whichever real form (e.g. the Brief Builder) uses it.",
+        ]}
+      />
     </Section>
   )
 }

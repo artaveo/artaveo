@@ -1,6 +1,7 @@
 import { Check } from 'lucide-react'
 
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { Badge } from '@/components/ui/badge'
 import { Input, Label, Textarea } from '@/components/ui/input'
 
@@ -69,6 +70,16 @@ export function FormsSection() {
           <Badge variant="destructive">Archived</Badge>
         </div>
       </div>
+      <UsageNotes
+        dos={[
+          'Pair every status color with its badge, not a raw background color, so light/dark contrast stays correct automatically.',
+          'Use Badge for a static label; reach for Tag (§ Actions) when the chip needs to be removable or interactive.',
+        ]}
+        donts={[
+          "Don't invent a new badge variant for a one-off case — the existing set (default/secondary/outline/muted/brand/success/warning/info/destructive) covers the site's real states.",
+          "Don't use a warning-colored badge for something that isn't actually a caution — Live/In development/Archived already have their own honest vocabulary in StatusBadge.",
+        ]}
+      />
     </Section>
   )
 }

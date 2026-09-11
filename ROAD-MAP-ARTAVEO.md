@@ -4,8 +4,8 @@
 ## Document status
 
 **Last revision:** 11 September 2026 (revision 8 — Phase 4 status updated: §4.2 and §4.3 (a/b/c) marked complete throughout, §8.3 index and Phase 4 header updated; no phase content changed)  
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **IN PROGRESS — 4.1 partial (derived tokens/variants delivered, D-12 resolved), 4.2 complete, 4.3 complete (a+b+c), 4.4 complete, 4.5 complete, 4.6 complete, 4.7 open**.  
-**Next step:** § 4.7 Living documentation (see `docs/phases/PHASE-4.6-README.md` for what 4.6 shipped); Phase 3's closure checklist 3.5 and the remaining 4.1 placeholder-mark swap-back remain open in parallel, independent of 4.7.
+**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE — 4.1 delivered (D-12 resolved; placeholder-mark swap-back tracked as separate, non-blocking debt), 4.2–4.7 complete**.  
+**Next step:** Phase 3's closure checklist 3.5 (still open, independent of Phase 4) and Phase 5 (Home content in `fa`, locale routing). See `docs/phases/PHASE-4.7-README.md` for what closed Phase 4 out.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -398,7 +398,7 @@ Later phases may inform earlier design decisions, but they are never used as an 
 ```text
 M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 3   Content Truth Pass & Home Page   Remove fake content, publish the real Home page                    ⏳ PARTIAL
-  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ⏳ IN PROGRESS (4.1–4.6 done; 4.7 open)
+  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ✅ COMPLETE (4.1 debt tracked separately, non-blocking)
   Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav
   Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals
@@ -502,13 +502,13 @@ Compatibility note: this keeps every section of the original v0 plan; "Capabilit
 
 ---
 
-## Phase 4 — Brand Identity & Design System Completion  ⏳ IN PROGRESS (4.1–4.6 complete; 4.7 open — see `docs/phases/PHASE-4-README.md`, `PHASE-4.3-README.md`, `PHASE-4.4-README.md`, `PHASE-4.5-README.md`, `PHASE-4.6-README.md`)
+## Phase 4 — Brand Identity & Design System Completion  ✅ COMPLETE (see `docs/phases/PHASE-4-README.md`, `PHASE-4.3-README.md`, `PHASE-4.4-README.md`, `PHASE-4.5-README.md`, `PHASE-4.6-README.md`, `PHASE-4.7-README.md`)
 
 > **Historical debt / added after audit (10 September 2026)** — see 6.6. Phase 1 keeps its status; this phase restores the design scope of the previous roadmap revision and adds the missing brand identity.
 
 **Goal:** a distinctive Artaveo identity and a complete, documented design system, applied to the existing shell and Home — so every later page is assembled from finished parts instead of inventing UI on the fly.
 
-### 4.1 Art direction & brand identity — ⏳ PARTIAL (derived tokens/variants delivered; D-12 owner sign-off still open — see `docs/phases/PHASE-4.1-README.md`) (requires D-12, D-01 — **logo received 10 Sep 2026, spelling resolved**)
+### 4.1 Art direction & brand identity — ⏳ PARTIAL (derived tokens/variants delivered and owner-approved via D-12, resolved 12 Sep 2026; placeholder-mark swap-back still open as separate, non-blocking debt — see `docs/phases/PHASE-4.1-README.md`) (D-01 — logo received 10 Sep 2026, spelling resolved)
 
 The primary mark is approved — a faceted charcoal "A" (folded-ribbon facets) with a gold interior facet, paired with a wide-tracked wordmark **ARTAVEO** and the tagline "Digital Development". This sub-phase no longer proposes direction options from scratch; it **derives the system from the approved logo** and fills the gaps the logo doesn't cover (light theme, small sizes, RTL, motion).
 
@@ -612,7 +612,7 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 - fix known Home issues: Hero code-panel line overflow around 1024 px, "Why Artaveo" heading line break, portrait-placeholder head shape
 - no content changes beyond the rules of Phase 3
 
-### 4.7 Living documentation
+### 4.7 Living documentation — ✅ complete (see `docs/phases/PHASE-4.7-README.md`)
 - `/design-system` presents every token, primitive, pattern and state in Light/Dark × LTR/RTL with usage notes and do / don't examples (still `noindex`)
 
 **Exit criteria:** D-12 approved and recorded (derived tokens, logo variants, light-theme and small-size rules); every primitive verified for keyboard, screen reader, RTL and both themes (results in `docs/phases/PHASE-4-README.md`); no component uses physical left/right; no hard-coded colours outside tokens; the Home visual pass approved by the owner; no dependency added without a reason.

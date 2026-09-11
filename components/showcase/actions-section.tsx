@@ -1,6 +1,7 @@
 import { Bold, Copy, Italic, Underline } from 'lucide-react'
 
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { ButtonGroup, ButtonGroupSeparator, IconButton, Kbd, Link } from '@/components/ui/actions'
 
 export function ActionsSection() {
@@ -72,6 +73,16 @@ export function ActionsSection() {
           <Kbd>K</Kbd>
         </div>
       </div>
+      <UsageNotes
+        dos={[
+          "Use Link's external variant for anything leaving the site — it adds the arrow indicator and target/rel automatically.",
+          'Use Kbd for every rendered keyboard shortcut so the glyph styling and LTR-locking stay identical everywhere.',
+        ]}
+        donts={[
+          'Don\'t write a bare <a> for an external URL — you\'ll have to remember the arrow icon and rel="noopener noreferrer" by hand every time.',
+          'Don\'t let a Kbd mirror in RTL — key glyphs (⌘, K) always read left-to-right, which is why the component pins dir="ltr" itself.',
+        ]}
+      />
     </Section>
   )
 }

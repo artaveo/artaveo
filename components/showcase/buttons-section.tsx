@@ -1,6 +1,7 @@
 import { ArrowRight, Code, LoaderCircle, Plus } from 'lucide-react'
 
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { Button } from '@/components/ui/button'
 
 export function ButtonsSection() {
@@ -58,6 +59,16 @@ export function ButtonsSection() {
           </Button>
         </div>
       </div>
+      <UsageNotes
+        dos={[
+          "Use the size that matches its context (xs/sm inside dense toolbars, lg for a page's primary CTA).",
+          'Pick variant by intent — default for the primary action per screen, outline/ghost for secondary, destructive only for irreversible actions.',
+        ]}
+        donts={[
+          "Don't style a <div onClick> to look like a button — it breaks keyboard focus and screen-reader semantics that Button/IconButton already handle.",
+          "Don't put more than one default (filled) button in the same view — it defeats the point of a visual hierarchy.",
+        ]}
+      />
     </Section>
   )
 }

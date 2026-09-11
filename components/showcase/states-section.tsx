@@ -1,4 +1,5 @@
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { Skeleton } from '@/components/ui/data-display'
 import {
   EmptyState,
@@ -13,7 +14,7 @@ export function StatesSection() {
   return (
     <Section
       id="states"
-      index="13 — States"
+      index="15 — States"
       title="Empty, loading, error & more"
       description="Every list, form and async boundary resolves to one of these — never a blank screen or a silently-failed action."
       className="flex flex-col gap-10"
@@ -69,6 +70,16 @@ export function StatesSection() {
           <OfflineState />
         </div>
       </div>
+      <UsageNotes
+        dos={[
+          "Use ErrorState's size prop (inline/section/page) to match the actual blast radius of the failure, not always the full-page version.",
+          "Show OfflineState instead of a false success whenever the Brief Builder (or anything else) can't confirm a submission actually went through.",
+        ]}
+        donts={[
+          "Don't show EmptyState on the public site — it's reserved for admin/preview views; empty public sections hide themselves instead (§ 6.1).",
+          "Don't let a failed submission report success — that's exactly the dishonest state OfflineState/ErrorState exist to prevent.",
+        ]}
+      />
     </Section>
   )
 }

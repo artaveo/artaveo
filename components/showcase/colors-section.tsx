@@ -1,4 +1,5 @@
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 
 type Swatch = {
   name: string
@@ -95,6 +96,18 @@ export function ColorsSection() {
         <Subhead>Text</Subhead>
         <SwatchGrid items={text} />
       </div>
+      <UsageNotes
+        dos={[
+          'Use a semantic token (bg-card, text-muted-foreground, border-border…) for every color decision.',
+          'Reach for a -text variant (success-text, warning-text…) whenever the color sits behind small text or an icon — they are the AA-safe pair.',
+          "Use brand/brand-text sparingly, as an accent — borders, icons, small highlights — never as a large fill or body text color.",
+        ]}
+        donts={[
+          "Don't hard-code a hex or oklch value in a component — if the palette needs a new shade, add a token first.",
+          "Don't reuse --brand for a focus ring — it fails 3:1 contrast on light surfaces; --ring is a separate, decoupled token for exactly this reason.",
+          'Don\u2019t assume a raw status color (bg-success) is readable as text — pair it with its -text variant instead.',
+        ]}
+      />
     </Section>
   )
 }

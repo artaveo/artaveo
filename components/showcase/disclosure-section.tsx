@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import { Section, Subhead } from '@/components/showcase/section'
+import { UsageNotes } from '@/components/showcase/usage-notes'
 import { Accordion, AccordionItem, AccordionPanel, AccordionTrigger } from '@/components/ui/accordion'
 import { Pagination, PaginationEllipsis, PaginationItem, PaginationNav } from '@/components/ui/pagination'
 import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/data-display'
@@ -93,6 +94,16 @@ export function DisclosureSection() {
           ]}
         />
       </div>
+      <UsageNotes
+        dos={[
+          'Use Tabs when only one panel is relevant at a time, Accordion when several sections can stay open together.',
+          'Use Stepper for a linear, ordered flow (like the Brief Builder) — Pagination is for paged lists of independent items instead.',
+        ]}
+        donts={[
+          "Don't fake a tab UI with buttons plus manually-toggled divs — Tabs already wires aria-selected, roving focus and panel association.",
+          "Don't use Pagination controls to represent a multi-step form — Stepper's semantics (current/complete/upcoming step) fit that case, Pagination's don't.",
+        ]}
+      />
     </Section>
   )
 }
