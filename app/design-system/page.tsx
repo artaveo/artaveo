@@ -10,6 +10,7 @@ import { FormControlsSection } from '@/components/showcase/form-controls-section
 import { FormLayoutsSection } from '@/components/showcase/form-layouts-section'
 import { FormsSection } from '@/components/showcase/forms-section'
 import { FramesSection } from '@/components/showcase/frames-section'
+import { IdentitySection } from '@/components/showcase/identity-section'
 import { LayoutSection } from '@/components/showcase/layout-section'
 import { OverlaysSection } from '@/components/showcase/overlays-section'
 import { PatternsSection } from '@/components/showcase/patterns-section'
@@ -78,6 +79,7 @@ export default function DesignSystemPage() {
         <StatesSection />
         <FramesSection />
         <FormLayoutsSection />
+        <IdentitySection />
       </main>
 
       <footer className="border-t border-border">

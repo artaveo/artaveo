@@ -92,11 +92,29 @@ export type ArticlePreview = {
   readingMinutes: number | null
 }
 
+export type AvailabilityState = 'available' | 'limited' | 'unavailable'
+
+/**
+ * Owner-maintained availability (roadmap § 4.5, D-08). `state` and
+ * `updatedAt` are hand-edited today; TODO(Phase 9) move onto the
+ * `site_settings` table once Supabase is wired up — keep this shape so
+ * components go on reading a single `availability` object either way.
+ */
+export type Availability = {
+  state: AvailabilityState
+  /** ISO date the owner last confirmed this state, e.g. '2026-09-11'. */
+  updatedAt: string
+  responseCommitment: LocalizedText
+}
+
 export type DeveloperProfile = {
   /** Real name, shown only when provided. */
   name?: string
   /** Path to a real portrait. When missing, a neutral placeholder is shown. */
   portrait?: string
+  /** UTC offset or IANA zone. City intentionally omitted (D-02). */
+  timezone?: string
   bio: LocalizedText
   focus: LocalizedText[]
+  availability?: Availability
 }

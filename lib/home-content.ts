@@ -267,6 +267,14 @@ const processStepsData: ProcessStep[] = [
  * `name` / `portrait` once they are ready — nothing personal is invented here.
  */
 const developerData: DeveloperProfile = {
+  name: 'Zakir Naseri',
+  portrait: '/Profile-pic.jpg',
+  timezone: 'UTC',
+  availability: {
+    state: 'available',
+    updatedAt: '2026-09-11',
+    responseCommitment: en('Replies within a few hours, same day'),
+  },
   bio: en(
     'Artaveo is run by one independent full-stack developer. Every project is planned, designed, built and deployed by the same person — which keeps decisions consistent from the database schema to the last detail of the interface.',
   ),
