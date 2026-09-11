@@ -4,6 +4,7 @@ import { ArrowUpRight, CornerDownLeft, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { Kbd } from '@/components/ui/actions'
 import { commandItems } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
@@ -109,9 +110,7 @@ export function CommandPalette({
             className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             aria-label="Search"
           />
-          <kbd className="hidden shrink-0 rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground sm:inline">
-            ESC
-          </kbd>
+          <Kbd className="hidden shrink-0 sm:inline-flex">ESC</Kbd>
         </div>
 
         <div ref={listRef} className="max-h-80 overflow-y-auto p-2">

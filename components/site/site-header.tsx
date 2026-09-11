@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { Kbd } from '@/components/ui/actions'
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { CommandPalette } from '@/components/site/command-palette'
 import { LanguageSwitcher } from '@/components/site/language-switcher'
@@ -69,13 +70,19 @@ export function SiteHeader() {
                     href={item.href}
                     aria-current={active ? 'page' : undefined}
                     className={cn(
-                      'rounded-md px-3 py-1.5 text-sm transition-colors',
+                      'relative rounded-md px-3 py-1.5 text-sm transition-colors',
                       active
                         ? 'text-foreground'
                         : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
                     {item.label}
+                    {active ? (
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-x-3 -bottom-[1px] h-px bg-brand"
+                      />
+                    ) : null}
                   </Link>
                 )
               })}
@@ -91,9 +98,7 @@ export function SiteHeader() {
             >
               <Search className="size-4" />
               <span className="hidden lg:inline">Search…</span>
-              <kbd className="hidden rounded-md border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] lg:inline">
-                ⌘K
-              </kbd>
+              <Kbd className="hidden lg:inline-flex">⌘K</Kbd>
             </button>
 
             <div className="hidden items-center gap-2 sm:flex">

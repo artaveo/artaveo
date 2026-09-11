@@ -4,8 +4,8 @@
 ## Document status
 
 **Last revision:** 11 September 2026 (revision 8 — Phase 4 status updated: §4.2 and §4.3 (a/b/c) marked complete throughout, §8.3 index and Phase 4 header updated; no phase content changed)  
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **IN PROGRESS — 4.1 partial (D-12 sign-off open), 4.2 complete, 4.3 complete (a+b+c), 4.4 complete, 4.5 complete, 4.6–4.7 open**.  
-**Next step:** § 4.6 (see `docs/phases/PHASE-4.5-README.md` for what 4.5 shipped); Phase 3's closure checklist 3.5 and D-12 owner sign-off remain open in parallel, independent of 4.6.
+**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **IN PROGRESS — 4.1 partial (derived tokens/variants delivered, D-12 resolved), 4.2 complete, 4.3 complete (a+b+c), 4.4 complete, 4.5 complete, 4.6 complete, 4.7 open**.  
+**Next step:** § 4.7 Living documentation (see `docs/phases/PHASE-4.6-README.md` for what 4.6 shipped); Phase 3's closure checklist 3.5 and the remaining 4.1 placeholder-mark swap-back remain open in parallel, independent of 4.7.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -348,7 +348,7 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 | **D-09** | Consultation format: free intro call length, paid consultation, tool | Free 20–30 min intro call, request-based in v1 | 20 |
 | **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 25's external dump first | 9.3 · 25 |
 | **D-11** | Optional early-client offer | None unless the owner explicitly wants one; if used, it is labelled clearly and time-boxed | 7.5 |
-| **D-12** | Visual direction and light-theme / small-size logo variants | **Primary mark approved** (`Artaveo_-_Logo.png`, received 10 Sep 2026): a faceted charcoal "A" with a gold interior facet, wordmark ARTAVEO, tagline "Digital Development". Phase 4.1 derives tokens and missing variants from it instead of proposing options from scratch; the owner approves the derived light-theme wordmark, the simplified mark and the favicon in 4.1 | 4.1 · 4.6 |
+| **D-12** | Visual direction and light-theme / small-size logo variants | **Resolved (12 Sep 2026):** owner approved the primary mark (`Artaveo_-_Logo.png`, received 10 Sep 2026) and the derived tokens/variants delivered in § 4.1 (colour tokens, all logo variants, light-theme + small-size rules per `docs/design/art-direction.md`). § 4.6 unblocked. | 4.1 · 4.6 |
 
 Decisions and their dates are recorded in `docs/decisions.md`.
 
@@ -398,7 +398,7 @@ Later phases may inform earlier design decisions, but they are never used as an 
 ```text
 M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 3   Content Truth Pass & Home Page   Remove fake content, publish the real Home page                    ⏳ PARTIAL
-  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ⏳ IN PROGRESS (4.1–4.5 done; 4.6–4.7 open)
+  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ⏳ IN PROGRESS (4.1–4.6 done; 4.7 open)
   Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav
   Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals
@@ -502,7 +502,7 @@ Compatibility note: this keeps every section of the original v0 plan; "Capabilit
 
 ---
 
-## Phase 4 — Brand Identity & Design System Completion  ⏳ IN PROGRESS (4.1–4.5 complete; 4.6–4.7 open — see `docs/phases/PHASE-4-README.md`, `PHASE-4.3-README.md`, `PHASE-4.4-README.md`, `PHASE-4.5-README.md`)
+## Phase 4 — Brand Identity & Design System Completion  ⏳ IN PROGRESS (4.1–4.6 complete; 4.7 open — see `docs/phases/PHASE-4-README.md`, `PHASE-4.3-README.md`, `PHASE-4.4-README.md`, `PHASE-4.5-README.md`, `PHASE-4.6-README.md`)
 
 > **Historical debt / added after audit (10 September 2026)** — see 6.6. Phase 1 keeps its status; this phase restores the design scope of the previous roadmap revision and adds the missing brand identity.
 
@@ -605,7 +605,7 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 - primary Hire CTA and Consultation CTA variants
 - Sticky Mobile CTA
 
-### 4.6 Visual pass on Shell & Home (requires D-12 approval of the derived variants from 4.1)
+### 4.6 Visual pass on Shell & Home — ✅ complete (see `docs/phases/PHASE-4.6-README.md`)
 > **Exception — the header/nav mark placeholder.** Swapping the literal "A" placeholder box in the header for the actual mark file is a small, reversible asset swap, not a design decision — it doesn't need to wait for D-12 or for the rest of this sub-phase. Done as part of 4.1.3, now using the corrected, connectivity-verified mark (11 Sep 2026 — see 4.1.2). The **rest** of 4.6 below (full direction applied to nav/footer/command-palette, Home redesign) still waits for D-12.
 - apply the chosen direction to header, mobile navigation, footer, command palette and every Home section
 - redesign the Home "Tech Stack" block into the Expertise-matrix layout (data wiring follows in Phases 7–8)

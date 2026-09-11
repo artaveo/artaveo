@@ -15,8 +15,8 @@ export function WhyArtaveo() {
           eyebrow="Why Artaveo"
           title={
             <>
-              One developer. One workflow.
-              <br className="hidden sm:inline" /> The whole product.
+              One developer. One workflow.{' '}
+              <span className="text-muted-foreground">The whole product.</span>
             </>
           }
           description="Artaveo is not an agency with layers of handoffs. The same person carries a project from the first idea to production — so the architecture, the interface and the code stay consistent."

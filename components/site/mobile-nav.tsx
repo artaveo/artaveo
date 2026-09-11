@@ -2,12 +2,14 @@
 
 import { ArrowRight, X } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 
 import { LanguageSwitcher } from '@/components/site/language-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { mainNav, siteConfig, utilityNav } from '@/lib/site'
+import { cn } from '@/lib/utils'
 
 export function MobileNav({
   open,
@@ -16,6 +18,8 @@ export function MobileNav({
   open: boolean
   onClose: () => void
 }) {
+  const pathname = usePathname()
+
   useEffect(() => {
     if (!open) return
     const original = document.body.style.overflow
@@ -51,21 +55,34 @@ export function MobileNav({
         </div>
 
         <nav aria-label="Mobile" className="flex flex-1 flex-col gap-1 overflow-y-auto p-4">
-          {mainNav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onClose}
-              className="flex flex-col rounded-lg px-3 py-2.5 transition-colors hover:bg-muted"
-            >
-              <span className="text-base font-medium">{item.label}</span>
-              {item.description ? (
-                <span className="text-xs text-muted-foreground">
-                  {item.description}
-                </span>
-              ) : null}
-            </Link>
-          ))}
+          {mainNav.map((item) => {
+            const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onClose}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'relative flex flex-col rounded-lg px-3 py-2.5 ps-4 transition-colors hover:bg-muted',
+                  active && 'bg-muted',
+                )}
+              >
+                {active ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-y-2 start-0 w-0.5 rounded-full bg-brand"
+                  />
+                ) : null}
+                <span className="text-base font-medium">{item.label}</span>
+                {item.description ? (
+                  <span className="text-xs text-muted-foreground">
+                    {item.description}
+                  </span>
+                ) : null}
+              </Link>
+            )
+          })}
 
           <div className="my-2 h-px bg-border" />
 

@@ -81,9 +81,9 @@ function Portrait({ developer }: { developer: DeveloperProfile }) {
             aria-hidden
             className="absolute inset-0 opacity-60 [background-image:linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] [background-size:32px_32px]"
           />
-          <div aria-hidden className="absolute inset-0 flex flex-col items-center justify-end p-6">
-            <div className="mb-auto mt-[22%] aspect-square w-[38%] rounded-full border border-border bg-background/70" />
-            <div className="h-[30%] w-[70%] rounded-t-full border border-b-0 border-border bg-background/70" />
+          <div aria-hidden className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 p-6">
+            <div className="aspect-square w-[34%] shrink-0 rounded-full border border-border bg-background/70" />
+            <div className="h-[26%] w-[72%] shrink-0 rounded-t-full border border-b-0 border-border bg-background/70" />
           </div>
           <span className="absolute inset-x-0 bottom-3 text-center font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
             Portrait

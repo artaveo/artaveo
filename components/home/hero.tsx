@@ -82,7 +82,7 @@ function HeroVisual({ className }: { className?: string }) {
 
           <pre
             dir="ltr"
-            className="overflow-x-auto p-5 text-left font-mono text-[13px] leading-6 md:text-sm md:leading-7 lg:text-[13px] lg:leading-6 xl:text-sm xl:leading-7"
+            className="overflow-x-auto p-5 text-left font-mono text-[13px] leading-6 md:text-sm md:leading-7 lg:text-[11px] lg:leading-5 xl:text-sm xl:leading-7"
           >
             <code>
               <Line n={1}>
@@ -99,16 +99,20 @@ function HeroVisual({ className }: { className?: string }) {
                 <Prop>scope</Prop>
                 <P>: [</P>
                 <Str>&apos;architecture&apos;</Str>
-                <P>,</P> <Str>&apos;interface&apos;</Str>
                 <P>,</P>
               </Line>
               <Line n={4}>
+                {'          '}
+                <Str>&apos;interface&apos;</Str>
+                <P>,</P>
+              </Line>
+              <Line n={5}>
                 {'          '}
                 <Str>&apos;api&apos;</Str>
                 <P>,</P> <Str>&apos;database&apos;</Str>
                 <P>],</P>
               </Line>
-              <Line n={5}>
+              <Line n={6}>
                 {'  '}
                 <Prop>stack</Prop>
                 <P>: [</P>
@@ -116,24 +120,24 @@ function HeroVisual({ className }: { className?: string }) {
                 <P>,</P> <Str>&apos;TypeScript&apos;</Str>
                 <P>,</P>
               </Line>
-              <Line n={6}>
+              <Line n={7}>
                 {'          '}
                 <Str>&apos;PostgreSQL&apos;</Str>
                 <P>],</P>
               </Line>
-              <Line n={7}>
+              <Line n={8}>
                 {'  '}
                 <Prop>delivery</Prop>
                 <P>:</P> <Str>&apos;end-to-end&apos;</Str>
                 <P>,</P>
               </Line>
-              <Line n={8}>
+              <Line n={9}>
                 {'  '}
                 <Prop>handoffs</Prop>
                 <P>:</P> <Kw>false</Kw>
                 <P>,</P>
               </Line>
-              <Line n={9}>
+              <Line n={10}>
                 <P>{'}'}</P> <Kw>satisfies</Kw> <Id>Product</Id>
               </Line>
             </code>

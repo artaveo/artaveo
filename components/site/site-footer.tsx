@@ -1,8 +1,9 @@
-import { ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
-import { mainNav, siteConfig, socialLinks, utilityNav } from '@/lib/site'
+import { Link as ActionLink } from '@/components/ui/actions'
+import { ExternalProfileLinks } from '@/components/ui/identity'
+import { mainNav, siteConfig, utilityNav } from '@/lib/site'
 
 export function SiteFooter() {
   const year = new Date().getFullYear()
@@ -21,13 +22,13 @@ export function SiteFooter() {
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">
               {siteConfig.description}
             </p>
-            <a
+            <ActionLink
               href={`mailto:${siteConfig.email}`}
-              className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-brand-text transition-opacity hover:opacity-80"
+              variant="standalone"
+              className="mt-6"
             >
               {siteConfig.email}
-              <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
-            </a>
+            </ActionLink>
           </div>
 
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
@@ -37,21 +38,7 @@ export function SiteFooter() {
               <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
                 Social
               </h3>
-              <ul className="mt-4 space-y-3">
-                {socialLinks.map((item) => (
-                  <li key={item.href}>
-                    <a
-                      href={item.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {item.label}
-                      <ArrowUpRight className="size-3 rtl:-scale-x-100" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <ExternalProfileLinks className="mt-4 flex-col items-start gap-x-0 gap-y-3" />
             </div>
           </div>
         </div>
