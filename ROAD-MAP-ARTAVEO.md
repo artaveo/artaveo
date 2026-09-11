@@ -3,7 +3,7 @@
 
 ## Document status
 
-**Last revision:** 11 September 2026 (revision 5 — all 7 logo variants complete; new Phase 10 added for installable/offline-safe PWA; Phases 10–31 renumbered to 11–32)  
+**Last revision:** 11 September 2026 (revision 6 — added the end-of-message status-line rule for AI agent sessions; no phase content changed)  
 **Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open**.  
 **Next step:** close **Phase 3** (checklist 3.5) in a separate session; fix the `public/brand/` folder placement (3 files still misplaced inside `source/`, see 4.1); Phase 4.1's logo intake is now complete — proceed to 4.1.3 onward.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
@@ -18,6 +18,12 @@ This document records the real state of the project, the product direction, the 
 > **Numbering rule.** Phases that have started (1, 2, 3) keep their numbers forever. No new phase is ever inserted before a phase that has started. Anything discovered later — even if it "should" have been done earlier — is recorded in section 6 (Debt) or added as a later phase with the label **Historical debt / added after audit**. Completed phases are never re-marked as incomplete because a later audit found more work.
 
 > **How an AI agent must use this document.** Before writing code, read sections 1–8, the section of the phase being implemented, section 14 (components), section 16 (content rules), section 17 (Definition of Done) and section 18 (completion protocol). Implement **one phase (or sub-phase) per session**. Never implement a later milestone to make an earlier one look finished. Never replace required backend behaviour with UI simulation.
+
+> **End-of-message status line.** Every message that delivers work on a phase must end with one short status line, so whoever is driving the session always knows exactly where things stand without re-reading the roadmap:
+> - which sub-phase(s) that message just completed (e.g. "4.1.2 done"),
+> - what the next sub-phase is (e.g. "next: 4.1.3"),
+> - and a plain recommendation of **same chat or new chat** for that next sub-phase (long/unrelated sub-phases — e.g. a new phase, or one needing a fresh audit — usually mean a new chat; small continuations of the same file set usually mean the same chat).
+> If a phase has no numbered sub-phases, report against the phase itself. This rule applies from this revision forward; it is not retroactive.
 
 ---
 
