@@ -3,9 +3,9 @@
 
 ## Document status
 
-**Last revision:** 11 September 2026 (revision 4 — three production logo lockups received: Full-Light, Compact-Dark, Compact-Light)  
+**Last revision:** 11 September 2026 (revision 5 — all 7 logo variants complete; new Phase 10 added for installable/offline-safe PWA; Phases 10–31 renumbered to 11–32)  
 **Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open**.  
-**Next step:** close **Phase 3** (checklist 3.5) in a separate session; in parallel, fix the `public/brand/` folder placement (3 files currently misplaced inside `source/`, see 4.1) and get the remaining flat/monochrome/mark-only logo variants before running the rest of Phase 4.1.  
+**Next step:** close **Phase 3** (checklist 3.5) in a separate session; fix the `public/brand/` folder placement (3 files still misplaced inside `source/`, see 4.1); Phase 4.1's logo intake is now complete — proceed to 4.1.3 onward.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -83,7 +83,7 @@ a student CV · a generic template · a fake agency with a "team" · a startup l
 6. **Reduce client uncertainty** before the first conversation: scope, process, payment, ownership and handover are published.
 7. **One primary action everywhere:** *Start a Project*. Secondary: *View Work*, *Book a Consultation*.
 8. **Direct communication** with the developer is a product feature, not a hidden detail.
-9. **Typed content mirrors the future database.** Content that lives in files today must have the same shape as the tables it will move into (no rewrites at Phase 11).
+9. **Typed content mirrors the future database.** Content that lives in files today must have the same shape as the tables it will move into (no rewrites at Phase 12).
 10. **i18n before pages.** Locale routing and dictionaries exist before new pages are built; nothing is retrofitted.
 11. **RTL is first-class,** not a mirrored afterthought. Latin technical terms inside Persian text are bidi-isolated; code is always LTR.
 12. **Server boundary for every mutation.** Validation, authorization, rate limiting and persistence happen server-side. The browser is never the source of truth.
@@ -310,7 +310,7 @@ These findings do not change the historical status of phases 1–3. They are res
 
 ## 6.5 Delivery-process debt
 
-- v0 pushes directly to `main`, and every merge to `main` auto-deploys. Until Phase 21, rule: v0 and other agents work on a branch; `main` changes only through a reviewed pull request.
+- v0 pushes directly to `main`, and every merge to `main` auto-deploys. Until Phase 22, rule: v0 and other agents work on a branch; `main` changes only through a reviewed pull request.
 
 ## 6.6 Roadmap gap — design system & brand identity (added 10 September 2026, after audit)
 
@@ -326,16 +326,16 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 
 | ID | Decision | Recommended default | Blocks (phase) |
 |---|---|---|---|
-| **D-01** | Brand spelling, production domain, sending e-mail domain | **Spelling resolved: "Artaveo"** (confirmed by the approved logo, 10 Sep 2026). Domain and e-mail still open — register the domain, use it for e-mail with SPF, DKIM and DMARC configured | 4.1 · 9.4 · 10.7 |
+| **D-01** | Brand spelling, production domain, sending e-mail domain | **Spelling resolved: "Artaveo"** (confirmed by the approved logo, 10 Sep 2026). Domain and e-mail still open — register the domain, use it for e-mail with SPF, DKIM and DMARC configured | 4.1 · 9.4 · 11.7 |
 | **D-02** | Public identity: real name, portrait, published location / timezone | Real name + real portrait + timezone (city optional) | 3.3 (Hero) · 4.5 · 8.1 |
 | **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.3 |
 | **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.3–7.6 · 9.1 |
 | **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.4 · 5.4 (footer) |
 | **D-06** | Publication rights for case studies (Transportation System, Pazhuhesh Portal): client/employer consent, what may be shown | Written consent; screenshots with **demo data only**; no customer PII; confidential details generalised | 6.3 · 6.4 |
-| **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 10.2 · 28 |
-| **D-08** | Availability state and response commitment | A promise that is sustainable (e.g. "reply within 1 business day") | 4.5 (Availability) · 13 (SLA) |
-| **D-09** | Consultation format: free intro call length, paid consultation, tool | Free 20–30 min intro call, request-based in v1 | 19 |
-| **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 24's external dump first | 9.3 · 24 |
+| **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 11.2 · 29 |
+| **D-08** | Availability state and response commitment | A promise that is sustainable (e.g. "reply within 1 business day") | 4.5 (Availability) · 14 (SLA) |
+| **D-09** | Consultation format: free intro call length, paid consultation, tool | Free 20–30 min intro call, request-based in v1 | 20 |
+| **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 25's external dump first | 9.3 · 25 |
 | **D-11** | Optional early-client offer | None unless the owner explicitly wants one; if used, it is labelled clearly and time-boxed | 7.5 |
 | **D-12** | Visual direction and light-theme / small-size logo variants | **Primary mark approved** (`Artaveo_-_Logo.png`, received 10 Sep 2026): a faceted charcoal "A" with a gold interior facet, wordmark ARTAVEO, tagline "Digital Development". Phase 4.1 derives tokens and missing variants from it instead of proposing options from scratch; the owner approves the derived light-theme wordmark, the simplified mark and the favicon in 4.1 | 4.1 · 4.6 |
 
@@ -346,11 +346,11 @@ Decisions and their dates are recorded in `docs/decisions.md`.
 # 8. Release milestones & dependency rule
 
 ```text
-M1  CREDIBLE LAUNCH       Phases 3–10   Brand identity, complete design system, real content, real services, working inquiry, SEO, legal, live on own domain
-M2  OPERATING LAYER       Phases 11–19  Full schema, admin, lead pipeline, CMS, evidence, journal, search, notifications, consultation
-M3  PRODUCTION ASSURANCE  Phases 20–25  Tests, CI/CD gates, security, observability, backup/restore, performance & a11y certification
-M4  GROWTH & BUSINESS     Phases 26–30  Proposals, client portal, invoicing, content growth, conversion analytics
-M5  FINAL AUDIT           Phase 31      International-grade audit → manual release decision
+M1  CREDIBLE LAUNCH       Phases 3–11   Brand identity, complete design system, real content, real services, working inquiry, SEO, legal, live on own domain
+M2  OPERATING LAYER       Phases 12–20  Full schema, admin, lead pipeline, CMS, evidence, journal, search, notifications, consultation
+M3  PRODUCTION ASSURANCE  Phases 21–26  Tests, CI/CD gates, security, observability, backup/restore, performance & a11y certification
+M4  GROWTH & BUSINESS     Phases 27–31  Proposals, client portal, invoicing, content growth, conversion analytics
+M5  FINAL AUDIT           Phase 32      International-grade audit → manual release decision
 ```
 
 ## 8.1 Why content-first (and why this does not bypass architecture)
@@ -368,7 +368,8 @@ Decisions (D-xx)
 → Services / packages / pricing              (7)
 → About / process / working agreement        (8)
 → Inquiry backend slice                      (9)
-→ Launch readiness                           (10)  ── M1 gate
+→ Installable PWA & offline-safe shell       (10)
+→ Launch readiness                           (11)  ── M1 gate
 → Full schema → Auth → Pipeline → CMS → Evidence → Journal → Search → Notifications → Consultation   ── M2
 → Tests → CI/CD → Security → Observability → Recovery → Certification                                ── M3
 → Growth tools                                                                                        ── M4
@@ -381,7 +382,7 @@ Later phases may inform earlier design decisions, but they are never used as an 
 
 ## 8.3 Phase index — one line per phase
 
-**Read this table first.** Everything below it (sections 9–13) is the detailed version of the same 29 phases, for when a phase actually starts. If a phase feels confusing in the detailed section, come back here first to see where it sits and what it depends on.
+**Read this table first.** Everything below it (sections 9–13) is the detailed version of the same 30 phases, for when a phase actually starts. If a phase feels confusing in the detailed section, come back here first to see where it sits and what it depends on.
 
 ```text
 M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
@@ -392,36 +393,37 @@ M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals
   Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms
   Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)
-  Phase 10  Launch Readiness (M1 gate)       SEO, legal pages, analytics, performance/a11y check, deploy
+  Phase 10  Installable PWA & Offline Shell  Site installs like an app, browsable offline; Brief Builder never fakes success offline
+  Phase 11  Launch Readiness (M1 gate)       SEO, legal pages, analytics, performance/a11y check, deploy
 
 M2 — OPERATING LAYER (database + admin panel)
-  Phase 11  Data Model & Migrations          Move file-based content into a real Postgres database
-  Phase 12  Admin Auth & Authorization       Login system for the admin panel
-  Phase 13  Lead Pipeline                    Track inquiries through stages (New → Won/Lost) in the admin
-  Phase 14  CMS & Media                      Admin screens to edit projects/services/articles + image uploads
-  Phase 15  Verified Evidence                Collect and publish real client recommendations
-  Phase 16  Insights / Engineering Journal   Blog/article system
-  Phase 17  Search & Command Palette         Site search wired to real content
-  Phase 18  Notifications & Outbox           Reliable e-mail sending — an outage never loses a lead
-  Phase 19  Consultation                     Let clients request/book a call
+  Phase 12  Data Model & Migrations          Move file-based content into a real Postgres database
+  Phase 13  Admin Auth & Authorization       Login system for the admin panel
+  Phase 14  Lead Pipeline                    Track inquiries through stages (New → Won/Lost) in the admin
+  Phase 15  CMS & Media                      Admin screens to edit projects/services/articles + image uploads
+  Phase 16  Verified Evidence                Collect and publish real client recommendations
+  Phase 17  Insights / Engineering Journal   Blog/article system
+  Phase 18  Search & Command Palette         Site search wired to real content
+  Phase 19  Notifications & Outbox           Reliable e-mail sending — an outage never loses a lead
+  Phase 20  Consultation                     Let clients request/book a call
 
 M3 — PRODUCTION ASSURANCE (make it safe to trust)
-  Phase 20  Testing                          Automated tests for the critical flows
-  Phase 21  CI/CD & Release Gates            Automatic checks before every deploy
-  Phase 22  Security Hardening               Headers, rate limits, upload safety, dependency checks
-  Phase 23  Observability                    Logging, error tracking, alerts
-  Phase 24  Backup & Recovery                Real, restore-tested database backups
-  Phase 25  Performance & a11y Certification Final speed and accessibility sign-off
+  Phase 21  Testing                          Automated tests for the critical flows
+  Phase 22  CI/CD & Release Gates            Automatic checks before every deploy
+  Phase 23  Security Hardening               Headers, rate limits, upload safety, dependency checks
+  Phase 24  Observability                    Logging, error tracking, alerts
+  Phase 25  Backup & Recovery                Real, restore-tested database backups
+  Phase 26  Performance & a11y Certification Final speed and accessibility sign-off
 
 M4 — GROWTH & BUSINESS (only once M1–M3 are live)
-  Phase 26  Proposal & Estimate Builder      Turn a qualified lead into a formal proposal
-  Phase 27  Client Portal (minimal)          Simple client-facing project page
-  Phase 28  Invoicing & Payments             Send invoices, accept payment
-  Phase 29  Content Growth                   Newsletter, /now, /uses, public changelog
-  Phase 30  Conversion Analytics             Funnels, drop-off tracking, channel attribution
+  Phase 27  Proposal & Estimate Builder      Turn a qualified lead into a formal proposal
+  Phase 28  Client Portal (minimal)          Simple client-facing project page
+  Phase 29  Invoicing & Payments             Send invoices, accept payment
+  Phase 30  Content Growth                   Newsletter, /now, /uses, public changelog
+  Phase 31  Conversion Analytics             Funnels, drop-off tracking, channel attribution
 
 M5 — FINAL AUDIT
-  Phase 31  International-Grade Audit        Full audit of everything above → manual release decision
+  Phase 32  International-Grade Audit        Full audit of everything above → manual release decision
 ```
 
 **How to read the numbers inside a phase (e.g. "4.1", "4.2"…):** these are just sub-steps of that one phase, in build order — they are not separate phases and not related to any other number in this document. "4.1" only ever means "the first sub-step of Phase 4"; it has nothing to do with a section called "4" elsewhere. If a sub-step number ever looks like it's colliding with something else in the document, that's a documentation bug — flag it, don't try to make sense of it.
@@ -445,7 +447,7 @@ Each phase below lists its goal, sub-phases and **exit criteria**. Exit criteria
 - add a build-time guard that fails if a published content item contains an unresolved placeholder pattern such as `[CLIENT_NAME]`
 
 ### 3.2 Typed content layer
-- `content/` holds data; `types/content.ts` holds shapes that match the Phase 11 tables: `Project`, `Service`, `ServicePackage`, `ServiceAddon`, `EngagementModel`, `Recommendation`, `Article`, `Technology`, `SiteSettings` (incl. availability)
+- `content/` holds data; `types/content.ts` holds shapes that match the Phase 12 tables: `Project`, `Service`, `ServicePackage`, `ServiceAddon`, `EngagementModel`, `Recommendation`, `Article`, `Technology`, `SiteSettings` (incl. availability)
 - every translatable field is `{ en: string; fa: string }`; every item has `published` and `sortOrder`
 - selectors (`getPublishedProjects()`, `getFeaturedServices()`…) are the only way pages read content, so the source can later switch to the database without touching components
 - selectors return empty arrays for missing content; sections check emptiness and do not render
@@ -515,19 +517,23 @@ These three lockups are usable production assets (real transparency, no white/bl
 - gold interior facet / tagline → **brand accent**, sampled around `#C68B4B`–`#CD9E57` depending on file — use as an accent only (borders, icons, small highlights, the tagline-style small caps line), never as body text or large fills, since it doesn't clear AA contrast on either pure black or pure white at text sizes
 - confirm both against the existing OKLCH tokens from Phase 1; adjust the brand hue to match the gold rather than inventing a new one
 
-**4.1.2 Logo system — remaining variants**
+**4.1.2 Logo system — status: complete (11 Sep 2026)**
 
-| Variant | Status | What changes from the supplied logo | Why |
-|---|---|---|---|
-| **Full — Light** (mark + wordmark + tagline, dark text) | ✅ received (`artaveo-lockup-full-light.png`) | — | — |
-| **Compact — Dark** (mark + wordmark, no tagline, white text) | ✅ received (`artaveo-lockup-compact-dark.png`) | — | — |
-| **Compact — Light** (mark + wordmark, no tagline, dark text) | ✅ received (`artaveo-lockup-compact-light.png`) | — | — |
-| **Full — Dark** (mark + wordmark + tagline, white text, transparent) | optional / not blocking | Same as the master reference but with a clean transparent background instead of the smoky one | Only needed if a large dark-background hero placement comes up; the compact-dark lockup covers most real UI needs already |
-| **Flat / simplified mark** | ❌ still needed | Remove the gradients, bevel highlights and rim-light glow; flatten each facet to one solid tone (charcoal + gold, or one tone for single-colour contexts). Keep the silhouette and the folded-ribbon negative space — that's the recognizable part | None of the received renders survive at UI sizes (header ~28–32px, favicon 16–48px); the fine gradient and thin gold sliver disappear. The 3D renders stay as large "hero" assets (About page, Open Graph image), used sparingly |
-| **Monochrome mark** (white + black) | ❌ still needed | Single flat colour: pure white version for dark surfaces, pure near-black version for light surfaces. No gold | Needed for contexts with one ink: favicon fallback, watermark, print, embossed/engraved use, places the brand accent would clash |
-| **Mark-only lockup** (just the "A", no text) | ❌ still needed | Crop/rebuild without the wordmark | The received lockups all include the wordmark; compact UI (browser tab, avatar-sized badge) needs the mark alone |
+All 7 planned variants are now in hand. Shape-consistency check passed: each was cropped and compared side by side against the master reference at equal height — the silhouette, the double-ribbon crossing and the lower-right facet all match across every file (unlike the earlier AI-generated sheet, where the same check had found the shapes drifting between cells).
 
-None of the still-needed rows are a new design; they are the same approved mark rebuilt as flat, layered vector art (SVG) so it scales and recolors cleanly. If the owner has the original design file (Figma/Illustrator/AI-tool project), export directly from there instead of rebuilding from the PNGs — it will be cleaner than any rebuild from a rendered image.
+| Variant | Status | File |
+|---|---|---|
+| **Full — Light** (mark + wordmark + tagline, dark text) | ✅ received | `artaveo-lockup-full-light.png` |
+| **Compact — Dark** (mark + wordmark, no tagline, white text) | ✅ received | `artaveo-lockup-compact-dark.png` |
+| **Compact — Light** (mark + wordmark, no tagline, dark text) | ✅ received | `artaveo-lockup-compact-light.png` |
+| **Flat mark — Dark** (mark only, flat charcoal + gold, no outline needed — charcoal reads fine against dark surfaces) | ✅ received | `artaveo-mark-flat-dark.png` |
+| **Flat mark — Light** (mark only, flat charcoal + gold, with a thin inner contour line for definition against white) | ✅ received | `artaveo-mark-flat-light.png` |
+| **Monochrome — White** (mark only, single flat white, for dark/photo surfaces) | ✅ received | `artaveo-mark-mono-white.png` |
+| **Monochrome — Black** (mark only, single flat black, for light surfaces) | ✅ received | `artaveo-mark-mono-black.png` |
+
+Minor, non-blocking polish for whoever finalizes these: the white mono file measures roughly `#FAFAFA` rather than pure `#FFFFFF`, and the black mono file measures roughly `#0A0A0A` rather than pure `#000000` — close enough to use as-is; only worth a touch-up if a future print or embossed use needs an exact pure value. All four mark-only files also already satisfy the "Mark-only lockup" need (browser tab, avatar-sized badge) — no separate file required for that.
+
+**Optional, not blocking:** a **Full — Dark** lockup (mark + wordmark + tagline, white text, transparent) would only be needed for a large dark-background hero placement; the compact-dark lockup already covers real UI needs.
 
 **4.1.3 Everything else this sub-phase still owns**
 - benchmarks are used for patterns only; no visual copying (section 4)
@@ -554,7 +560,7 @@ Existing: Button, Badge, Card, Input. Add — each RTL-correct, keyboard-accessi
 | Group | Primitives |
 |---|---|
 | Actions | Link (inline, standalone, external with indicator) · IconButton · ButtonGroup · Kbd |
-| Forms | Label · Field (label + hint + error) · Textarea · Select · Checkbox · RadioGroup · Switch · SegmentedControl · FileInput shell (upload wiring in Phase 14) · FormMessage |
+| Forms | Label · Field (label + hint + error) · Textarea · Select · Checkbox · RadioGroup · Switch · SegmentedControl · FileInput shell (upload wiring in Phase 15) · FormMessage |
 | Overlays | Dialog · Sheet / Drawer · Popover · Tooltip · DropdownMenu · Toast |
 | Disclosure & navigation | Tabs · Accordion · Pagination · Stepper (Brief Builder) · Progress |
 | Data display | Table (with stacked mobile mode) · Tag · Avatar · Separator · Skeleton · Status badge set (*Live · In development · Private · Archived · Concept*) |
@@ -790,7 +796,7 @@ Steps: engagement model / service → project type → goal → key features (ch
 - honeypot + rate limit per IP/e-mail + optional privacy-friendly challenge
 - idempotency key per submission to prevent duplicates on double click or retry
 
-### 9.3 Persistence (minimal slice of the Phase 11 schema)
+### 9.3 Persistence (minimal slice of the Phase 12 schema)
 - `inquiries` and `inquiry_events` tables; RLS: no public select; inserts only through the server
 - source attribution (referrer, UTM, channel) stored without extra personal data
 
@@ -802,33 +808,66 @@ Steps: engagement model / service → project type → goal → key features (ch
 `Idle · Editing · Step error · Submitting · Persisted-notification-pending · Success · Server error · Rate limited · Offline`
 
 ### 9.6 Scope limits
-File attachments are deferred to Phase 14 (uploads are a security surface); v1 accepts links.
+File attachments are deferred to Phase 15 (uploads are a security surface); v1 accepts links.
 
 **Exit criteria:** end-to-end submission verified in both locales; duplicate submission creates one record; provider outage does not lose data; spam controls tested.
 
 ---
 
-## Phase 10 — Launch Readiness  (M1 gate)
+## Phase 10 — Installable PWA & Offline-Safe Shell
 
-### 10.1 SEO
+> **Historical debt / added after audit (11 September 2026)** — decided during a chat discussion, not found by an automated audit, but recorded under the same rule: it did not exist when Phases 3–9 were planned, so it is appended here rather than inserted earlier.
+
+**Goal:** the marketing site (Home, Work, Services, About, Process, Insights) opens instantly and stays browsable with no or poor connection, and can be installed like an app — without ever letting the Brief Builder pretend a submission succeeded while offline.
+
+By this point Phase 6, 7, 8 and 9 have already shipped Work, Services, About/Process and the Brief Builder, so there is real multi-page content worth caching — this is why the phase sits here rather than right after Phase 5.
+
+### 10.1 Web app manifest & install experience
+- `manifest.json`: name, short name, theme colour, background colour, `display: standalone`, `start_url`
+- icons generated from the Phase 4 mark-only variants (flat/monochrome, not the 3D render) at the standard PWA sizes
+- install prompt follows platform conventions; never a custom nagging banner
+
+### 10.2 Service worker & caching strategy
+- **cache-first** for static assets: fonts, the logo files, icons, CSS/JS bundles
+- **stale-while-revalidate** for content pages: Home, Work (index + case studies), Services (catalogue + detail), About, Process, Insights — a repeat visit opens instantly from cache while a fresh copy loads in the background
+- cache versioned to the deploy; a new publish invalidates the old cache instead of leaving visitors on stale content indefinitely
+
+### 10.3 What stays network-only — never cached, never offline
+- the Brief Builder's **submit** request itself, and every other server mutation
+- from Phase 13 onward: every admin route, the lead pipeline, CMS screens, and later the client portal (Phase 28) — these are excluded from the service worker's scope entirely, the same rule the Pazhuhesh Portal case study already applied to its own admin (section 6.4)
+
+### 10.4 Offline behaviour for the Brief Builder
+- the form itself may open offline (it's just UI), but submission follows principle 15 (never fake success): if offline at submit time, either block with a clear "you're offline — reconnect to send" message, or queue the payload locally and retry automatically once back online (browser-side outbox, same idea as the server-side outbox in Phase 19)
+- the success screen only ever appears after the server has actually confirmed persistence — never on queueing alone
+
+### 10.5 Update handling
+- when a new deploy publishes, a visitor with the site already open or installed gets a visible "update available" prompt rather than silently running stale content forever
+
+**Exit criteria:** Home, Work, Services, About, Process and Insights are navigable with the network turned off after one prior visit; Lighthouse's installability and PWA checks pass; the Brief Builder never shows a false success while offline; every admin/CMS/client-portal route (as they come online in later phases) is verifiably outside the service worker's cache scope; both locales and both themes checked per the standard Definition of Done.
+
+---
+
+## Phase 11 — Launch Readiness  (M1 gate)
+
+### 11.1 SEO
 Unique titles/descriptions per page and locale · canonical · hreflang · sitemap · robots · dynamic Open Graph images · structured data: `Person`, `ProfessionalService`, `WebSite`, `BreadcrumbList`, `CreativeWork` for case studies, `Service` + `Offer` only where a price is published, `FAQPage` for FAQs.
 
-### 10.2 Legal & privacy (per D-07)
+### 11.2 Legal & privacy (per D-07)
 Privacy policy (what the inquiry collects, why, retention, rights, processors) · terms · imprint if required · prefer cookie-less analytics; if any non-essential cookie is used, a consent banner with a real reject option.
 
-### 10.3 Analytics events
+### 11.3 Analytics events
 `page_view · project_view · service_view · package_compare · cta_click · brief_start · brief_step · brief_submit · consultation_request · external_profile_click · language_switch · search_used` — no form contents, no personal data in events.
 
-### 10.4 Performance budget
+### 11.4 Performance budget
 Mobile CWV targets from section 3; route JS budget recorded; fonts subset and preloaded carefully; images sized and modern formats.
 
-### 10.5 Accessibility
+### 11.5 Accessibility
 Keyboard-only pass, screen reader pass (one desktop + one mobile), 200 % zoom, reduced motion, contrast, form errors announced, RTL reading order.
 
-### 10.6 Pre-launch content check
+### 11.6 Pre-launch content check
 Every claim in the claims ledger · no visible placeholder · every link resolves · both locales complete · 404 designed.
 
-### 10.7 Deploy
+### 11.7 Deploy
 Production domain (D-01) · environment variables audited · preview deployments on · `main` protected.
 
 **Gate:** `M1 LAUNCH — MANUAL APPROVAL REQUIRED`.
@@ -837,7 +876,7 @@ Production domain (D-01) · environment variables audited · preview deployments
 
 # 10. Milestone M2 — Operating Layer
 
-## Phase 11 — Data Model & Migrations
+## Phase 12 — Data Model & Migrations
 
 **Goal:** the typed content model becomes the database, without changing page components.
 
@@ -873,13 +912,13 @@ Core entities and key fields:
 
 `*` = translatable field.
 
-## Phase 12 — Admin Authentication & Authorization
+## Phase 13 — Admin Authentication & Authorization
 - Supabase Auth for admin only; MFA required for the owner role
 - roles: `owner`, `editor` (content only, no leads) — permissions checked server-side on every action
 - protected `/[locale]/admin` routes and server actions; no reliance on hidden routes
 - secure sessions, auth event logging, audit log for every admin mutation
 
-## Phase 13 — Lead Pipeline
+## Phase 14 — Lead Pipeline
 ```text
 NEW → REVIEWED → QUALIFIED → CONTACTED → DISCOVERY → PROPOSAL → WON | LOST → ARCHIVED
 ```
@@ -888,36 +927,36 @@ NEW → REVIEWED → QUALIFIED → CONTACTED → DISCOVERY → PROPOSAL → WON 
 - **SLA indicator** comparing time-to-first-reply with the published response commitment
 - CSV export; no fake dashboards or invented business metrics
 
-## Phase 14 — CMS & Media
+## Phase 15 — CMS & Media
 - editors: projects + case-study sections, services, packages, add-ons, FAQs, engagement models, articles, settings/availability, navigation
 - draft → preview → publish → unpublish; per-locale completeness indicator; publishing a locale requires its required fields
 - media uploads: type/size validation server-side, safe names, storage policy, required alt text, focal-point cropping for responsive crops
 - on-demand revalidation of affected routes after publish
 - attachments for the Brief Builder enabled here, behind the same upload rules
 
-## Phase 15 — Verified Evidence (Recommendations & Testimonials)
+## Phase 16 — Verified Evidence (Recommendations & Testimonials)
 - the owner generates a single-use **request link**; the recommender submits statement, role, relationship, optional profile URL and explicit consent to publish
 - moderation queue: approve · request change · reject; meaning is never edited, typos only with consent
 - verification labels shown publicly: *Submitted via verified request* · *Linked to platform review* · *Linked public profile*
 - recommendation = about working with the developer; testimonial = tied to a delivered project/service
 - sections stay hidden until at least one item is published
 
-## Phase 16 — Insights / Engineering Journal
+## Phase 17 — Insights / Engineering Journal
 - article model with statuses `Draft · Review · Scheduled · Published · Archived`
 - table of contents, LTR-locked code blocks with copy button, images, related projects/services/articles, RSS per locale, reading time per locale
 - seed topics from real work (e.g. server-side seat holding, RLS + server authorization, offline-first caching per data type, running bilingual RTL products)
 
-## Phase 17 — Search & Command Palette
+## Phase 18 — Search & Command Palette
 - index built from published content per locale (pages, projects, services, articles, technologies)
 - recent searches, suggestions, keyboard navigation, highlighted matches, loading and no-result states
 - interface ready for a server-side search provider later
 
-## Phase 18 — Notifications & Outbox
+## Phase 19 — Notifications & Outbox
 - provider abstraction (e-mail first; others later) with bilingual templates
 - events: new inquiry, inquiry confirmation, consultation request/confirmation, evidence submitted, publish events, system error
 - retries with backoff, delivery log, alert when a message keeps failing
 
-## Phase 19 — Consultation
+## Phase 20 — Consultation
 - **v1 (request-based):** client proposes time windows in their timezone; owner confirms; calendar invite (ICS) sent; reschedule/cancel links
 - **v2:** calendar provider behind the same interface (per D-09); availability slots; buffer times
 - consultation always linked to an inquiry
@@ -926,36 +965,36 @@ NEW → REVIEWED → QUALIFIED → CONTACTED → DISCOVERY → PROPOSAL → WON 
 
 # 11. Milestone M3 — Production Assurance
 
-## Phase 20 — Testing
+## Phase 21 — Testing
 - **Unit:** schemas, formatters (dates/digits per locale), selectors, state transitions, pricing display rules
 - **Integration:** inquiry persistence + outbox, RLS policies, admin authorization, CMS mutations, uploads
 - **E2E (critical flows):** Home → Work → Case Study · Home → Service → Package → Brief Builder → Submit · language switch on every route type · theme switch · search · admin login · publish project · move inquiry through pipeline
 - automated axe checks on key templates in both directions
 
-## Phase 21 — CI/CD & Release Gates
+## Phase 22 — CI/CD & Release Gates
 ```text
 INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (preview) → SECURITY (deps audit, secret scan) → DEPLOY
 ```
 - branch protection on `main`; agents (v0 included) work through pull requests
 - preview deployment per pull request; a failing gate blocks the release
 
-## Phase 22 — Security Hardening
+## Phase 23 — Security Hardening
 - security headers and CSP; rate limits on every public mutation; CSRF posture of server actions verified
 - XSS review of rich content, SQL injection review of any raw query, IDOR tests on admin resources
 - upload hardening; secret inventory and rotation plan; dependency policy
 
-## Phase 23 — Observability
+## Phase 24 — Observability
 - structured logs with correlation IDs from request to database to outbox
 - error tracking; business events (inquiry submitted, notification failed, content published, auth events)
 - uptime check on the inquiry endpoint; alert on repeated notification failure
 
-## Phase 24 — Backup & Recovery
+## Phase 25 — Backup & Recovery
 - decision per D-10; if the database plan has no platform backups, a scheduled external `pg_dump` to separate storage is the minimum (lesson carried over from the Transportation System project, where the free plan had no restorable backups)
 - media metadata and storage objects included; content export
 - RPO/RTO written down; **a restore test is performed** — a backup never restored is not verified
 - rollback procedure for deployments and migrations; recovery runbook
 
-## Phase 25 — Performance & Accessibility Certification
+## Phase 26 — Performance & Accessibility Certification
 - field data review, Lighthouse CI budgets per route, image and font audit
 - manual assistive-technology pass on the finished product in both locales
 
@@ -965,26 +1004,26 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 
 Prepared for, not built early. Each phase starts only when the owner confirms the need.
 
-## Phase 26 — Proposal & Estimate Builder
+## Phase 27 — Proposal & Estimate Builder
 Qualified inquiry → proposal (scope, milestones, price, validity, terms) → shareable link → accept → PDF; linked to the lead pipeline.
 
-## Phase 27 — Client Portal (minimal)
+## Phase 28 — Client Portal (minimal)
 Project timeline, milestones, files, decisions log, invoices list; magic-link access; no chat product.
 
-## Phase 28 — Invoicing & Payments
+## Phase 29 — Invoicing & Payments
 Provider abstraction; payment rails chosen per D-07; platform channel remains an alternative.
 
-## Phase 29 — Content Growth
+## Phase 30 — Content Growth
 Newsletter, resources, `/now`, `/uses`, public changelog, downloadable résumé.
 
-## Phase 30 — Conversion Analytics
+## Phase 31 — Conversion Analytics
 Funnels from landing to brief submit, drop-off per Brief Builder step, channel attribution; experiments only when traffic makes them meaningful.
 
 ---
 
 # 13. Milestone M5 — Final Audit
 
-## Phase 31 — International-Grade Product Audit
+## Phase 32 — International-Grade Product Audit
 - **31.1 UX & design:** hierarchy, typography, spacing, consistency, CTA clarity, motion, empty/error/loading states, 404, dark/light, mobile, RTL
 - **31.2 Business conversion:** every question in section 21.2 answered "yes"
 - **31.3 Content truth:** every public claim traced to the claims ledger; no placeholder; no stale availability
@@ -1022,7 +1061,7 @@ Components specific to this product. The generic primitives and patterns they ar
 | **Process Timeline** | Steps with output and client involvement | — | content | — |
 | **Recommendation Card** | Statement, person, relationship, date, verification label, source | Contra B-04 | `recommendations` | Hidden when none; no ratings |
 | **Brief Builder** | Multi-step inquiry with summary | Fiverr B-18 | `inquiries` | Success only after persistence |
-| **Response Commitment Note** | Small line near every primary CTA | Fiverr B-20 | `site_settings` | Must be kept (SLA in Phase 13) |
+| **Response Commitment Note** | Small line near every primary CTA | Fiverr B-20 | `site_settings` | Must be kept (SLA in Phase 14) |
 | **Sticky Mobile CTA** | Start a Project on mobile content pages | — | — | Never covers content or focus |
 | **FAQ Accordion** | Service and global FAQ | Fiverr B-19 | `faqs` | — |
 | **Article ToC / Code Block** | Journal reading experience | — | `articles` | Code always LTR |
@@ -1055,9 +1094,9 @@ Quality comes from typography, spacing, composition, hierarchy, content clarity,
 /[locale]/insights/[article]      Article
 /[locale]/start                   Brief Builder        (primary CTA target)
 /[locale]/contact                 Direct contact + hire channels
-/[locale]/consultation            Consultation request (Phase 19)
+/[locale]/consultation            Consultation request (Phase 20)
 /[locale]/privacy · /terms        Legal
-/[locale]/admin/…                 Admin (Phase 12+)
+/[locale]/admin/…                 Admin (Phase 13+)
 /design-system                    Internal, noindex
 Future: /now · /uses · /resume · /changelog
 ```
@@ -1094,7 +1133,7 @@ No phase is complete because code exists. Every phase closes only when the relev
 
 - implementation complete for the defined scope — nothing simulated
 - type-check, lint and build pass
-- tests appropriate to risk pass (from Phase 20 on, in CI)
+- tests appropriate to risk pass (from Phase 21 on, in CI)
 - smoke test of affected routes
 - **English and Persian** verified; **LTR and RTL** verified
 - **Light and Dark** verified
