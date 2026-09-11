@@ -1,0 +1,21 @@
+Phase 5.1 delivery — files to delete from the working copy
+============================================================
+
+These three files were superseded by app/[locale]/... equivalents and
+should be deleted after dropping in this zip's contents. A zip can't
+represent a deletion, so remove them manually in GitHub Desktop (or `git
+rm`):
+
+  app/layout.tsx            -> replaced by app/[locale]/layout.tsx
+  app/page.tsx               -> replaced by app/[locale]/page.tsx
+  app/design-system/page.tsx -> replaced by app/[locale]/design-system/page.tsx
+
+After deleting those three files, app/design-system/ will be empty and
+can be removed too (its only file moved to app/[locale]/design-system/).
+
+Everything else in this zip is either a new file or an in-place edit to
+an existing path — just drop the zip's contents into the repo root and
+overwrite.
+
+See docs/phases/PHASE-5.1-README.md for the full list of what changed and
+why, plus known debt items tracked for later phases.

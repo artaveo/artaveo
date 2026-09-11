@@ -1,25 +1,29 @@
+import { useLocale, useTranslations } from 'next-intl'
+
 import { Icon } from '@/components/icon'
 import { SectionHeader } from '@/components/home/section-header'
 import { Badge } from '@/components/ui/badge'
 import { getDifferentiators, getWorkflowStages } from '@/lib/home-content'
-import { t } from '@/types/content'
+import { t, type Locale } from '@/types/content'
 
 export function WhyArtaveo() {
   const differentiators = getDifferentiators()
+  const locale = useLocale() as Locale
+  const tSection = useTranslations('WhyArtaveo')
 
   return (
     <section aria-labelledby="why-title" className="section-y">
       <div className="container-page">
         <SectionHeader
           id="why-title"
-          eyebrow="Why Artaveo"
+          eyebrow={tSection('eyebrow')}
           title={
             <>
-              One developer. One workflow.{' '}
-              <span className="text-muted-foreground">The whole product.</span>
+              {tSection('titleLine1')}{' '}
+              <span className="text-muted-foreground">{tSection('titleLine2')}</span>
             </>
           }
-          description="Artaveo is not an agency with layers of handoffs. The same person carries a project from the first idea to production — so the architecture, the interface and the code stay consistent."
+          description={tSection('description')}
         />
 
         <WorkflowChain />
@@ -32,9 +36,9 @@ export function WhyArtaveo() {
                 aria-hidden
                 className="size-5 text-brand-text"
               />
-              <h3 className="mt-4 font-semibold tracking-tight">{t(item.title)}</h3>
+              <h3 className="mt-4 font-semibold tracking-tight">{t(item.title, locale)}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty">
-                {t(item.description)}
+                {t(item.description, locale)}
               </p>
             </li>
           ))}
@@ -51,12 +55,14 @@ export function WhyArtaveo() {
  */
 function WorkflowChain() {
   const workflowStages = getWorkflowStages()
+  const locale = useLocale() as Locale
+  const tSection = useTranslations('WhyArtaveo')
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 md:p-8">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 lg:mb-8">
-        <p className="text-sm font-medium">From idea to deployment</p>
-        <Badge variant="brand-soft">Handled by one developer</Badge>
+        <p className="text-sm font-medium">{tSection('fromIdeaToDeployment')}</p>
+        <Badge variant="brand-soft">{tSection('handledByOneDeveloper')}</Badge>
       </div>
 
       <ol className="relative flex flex-col before:absolute before:start-[5px] before:top-4 before:bottom-4 before:w-px before:bg-border lg:flex-row lg:before:start-[calc(100%/14)] lg:before:end-[calc(100%/14)] lg:before:top-[5px] lg:before:bottom-auto lg:before:h-px lg:before:w-auto">
@@ -75,7 +81,7 @@ function WorkflowChain() {
                     : 'relative size-[11px] shrink-0 rounded-full border-2 border-brand bg-card'
                 }
               />
-              <span className="text-sm font-medium lg:text-center">{t(stage)}</span>
+              <span className="text-sm font-medium lg:text-center">{t(stage, locale)}</span>
             </li>
           )
         })}
@@ -86,8 +92,7 @@ function WorkflowChain() {
         className="mx-[calc(100%/14)] mt-6 hidden h-3 rounded-b-md border-x border-b border-brand/40 lg:block"
       />
       <p className="mt-6 text-sm text-muted-foreground text-pretty lg:mt-3 lg:text-center">
-        No handoffs between designers, frontend and backend teams — every
-        decision is made with the whole system in view.
+        {tSection('noHandoffs')}
       </p>
     </div>
   )

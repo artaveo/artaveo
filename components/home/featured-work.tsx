@@ -1,35 +1,36 @@
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
 import Image from 'next/image'
-import Link from 'next/link'
 
+import { Link } from '@/i18n/navigation'
 import { SectionHeader } from '@/components/home/section-header'
+import { LatinTerm } from '@/components/site/latin-term'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getFeaturedProjects } from '@/lib/home-content'
 import { cn } from '@/lib/utils'
-import { t, type Project, type ProjectStatus } from '@/types/content'
-
-const statusLabel: Record<
-  ProjectStatus,
-  { label: string; variant: 'info' | 'success' | 'muted' }
-> = {
-  'in-development': { label: 'In development', variant: 'info' },
-  live: { label: 'Live', variant: 'success' },
-  archived: { label: 'Archived', variant: 'muted' },
-}
+import { t, type Locale, type Project, type ProjectStatus } from '@/types/content'
 
 export function FeaturedWork() {
   const projects = getFeaturedProjects()
+  const locale = useLocale() as Locale
+  const tSection = useTranslations('FeaturedWork')
+
+  const statusLabel: Record<ProjectStatus, { label: string; variant: 'info' | 'success' | 'muted' }> = {
+    'in-development': { label: tSection('statusInDevelopment'), variant: 'info' },
+    live: { label: tSection('statusLive'), variant: 'success' },
+    archived: { label: tSection('statusArchived'), variant: 'muted' },
+  }
 
   return (
     <section aria-labelledby="work-title" className="section-y">
       <div className="container-page">
         <SectionHeader
           id="work-title"
-          eyebrow="Selected work"
-          title="Projects built from database to interface"
-          description="Real projects, presented as case studies: what was built, how it works and the stack behind it."
-          action={{ href: '/work', label: 'All work' }}
+          eyebrow={tSection('eyebrow')}
+          title={tSection('title')}
+          description={tSection('description')}
+          action={{ href: '/work', label: tSection('allWork') }}
         />
 
         <div className="flex flex-col gap-16 md:gap-24">
@@ -37,6 +38,9 @@ export function FeaturedWork() {
             <ProjectFeature
               key={project.id}
               project={project}
+              locale={locale}
+              statusLabel={statusLabel}
+              t={tSection}
               reversed={index % 2 === 1}
               priority={index === 0}
             />
@@ -49,10 +53,16 @@ export function FeaturedWork() {
 
 function ProjectFeature({
   project,
+  locale,
+  statusLabel,
+  t: tSection,
   reversed,
   priority,
 }: {
   project: Project
+  locale: Locale
+  statusLabel: Record<ProjectStatus, { label: string; variant: 'info' | 'success' | 'muted' }>
+  t: ReturnType<typeof useTranslations<'FeaturedWork'>>
   reversed: boolean
   priority: boolean
 }) {
@@ -74,12 +84,12 @@ function ProjectFeature({
           reversed && 'lg:order-last',
         )}
       >
-        <ProjectMedia project={project} priority={priority} />
+        <ProjectMedia project={project} locale={locale} priority={priority} screenshotPlaceholder={tSection('screenshotPlaceholder')} />
       </Link>
 
       <div className="lg:col-span-5">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="brand-soft">{t(project.category)}</Badge>
+          <Badge variant="brand-soft">{t(project.category, locale)}</Badge>
           {status ? <Badge variant={status.variant}>{status.label}</Badge> : null}
           {project.year ? (
             <span className="font-mono text-xs text-muted-foreground">
@@ -96,12 +106,12 @@ function ProjectFeature({
             href={href}
             className="rounded-sm outline-none transition-colors hover:text-brand-text focus-visible:ring-3 focus-visible:ring-ring/50"
           >
-            {t(project.title)}
+            {t(project.title, locale)}
           </Link>
         </h3>
 
         <p className="mt-4 leading-relaxed text-muted-foreground text-pretty">
-          {t(project.summary)}
+          {t(project.summary, locale)}
         </p>
 
         <ul className="mt-6 space-y-2.5 border-t border-border pt-6">
@@ -111,29 +121,31 @@ function ProjectFeature({
                 aria-hidden
                 className="mt-[0.55rem] size-1.5 shrink-0 rounded-[2px] bg-brand"
               />
-              <span className="text-pretty">{t(item)}</span>
+              <span className="text-pretty">{t(item, locale)}</span>
             </li>
           ))}
         </ul>
 
-        <ul aria-label="Technologies" className="mt-6 flex flex-wrap gap-1.5">
+        <ul aria-label={tSection('technologies')} className="mt-6 flex flex-wrap gap-1.5">
           {project.technologies.map((tech) => (
             <li key={tech}>
-              <Badge variant="muted">{tech}</Badge>
+              <Badge variant="muted">
+                <LatinTerm>{tech}</LatinTerm>
+              </Badge>
             </li>
           ))}
         </ul>
 
         <div className="mt-8 flex flex-wrap items-center gap-2">
           <Button size="lg" render={<Link href={href} />}>
-            View case study
+            {tSection('viewCaseStudy')}
             <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
           </Button>
           {project.liveUrl ? (
-            <ExternalButton href={project.liveUrl} label="Live demo" />
+            <ExternalButton href={project.liveUrl} label={tSection('liveDemo')} opensNewTab={tSection('opensNewTab')} />
           ) : null}
           {project.githubUrl ? (
-            <ExternalButton href={project.githubUrl} label="GitHub" />
+            <ExternalButton href={project.githubUrl} label={tSection('github')} opensNewTab={tSection('opensNewTab')} />
           ) : null}
         </div>
       </div>
@@ -141,7 +153,7 @@ function ProjectFeature({
   )
 }
 
-function ExternalButton({ href, label }: { href: string; label: string }) {
+function ExternalButton({ href, label, opensNewTab }: { href: string; label: string; opensNewTab: string }) {
   return (
     <Button
       size="lg"
@@ -150,7 +162,7 @@ function ExternalButton({ href, label }: { href: string; label: string }) {
     >
       {label}
       <ArrowUpRight data-icon="inline-end" className="rtl:-scale-x-100" />
-      <span className="sr-only">(opens in a new tab)</span>
+      <span className="sr-only">{opensNewTab}</span>
     </Button>
   )
 }
@@ -162,10 +174,14 @@ function ExternalButton({ href, label }: { href: string; label: string }) {
  */
 function ProjectMedia({
   project,
+  locale,
   priority,
+  screenshotPlaceholder,
 }: {
   project: Project
+  locale: Locale
   priority: boolean
+  screenshotPlaceholder: string
 }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card transition-colors group-hover:border-foreground/20">
@@ -187,7 +203,7 @@ function ProjectMedia({
         {project.coverImage ? (
           <Image
             src={project.coverImage}
-            alt={`${t(project.title)} interface`}
+            alt={`${t(project.title, locale)} interface`}
             fill
             priority={priority}
             sizes="(min-width: 1024px) 58vw, 100vw"
@@ -201,10 +217,10 @@ function ProjectMedia({
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center">
               <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-                Project screenshot
+                {screenshotPlaceholder}
               </span>
               <span className="text-lg font-semibold tracking-tight text-foreground/70 md:text-xl">
-                {t(project.title)}
+                {t(project.title, locale)}
               </span>
             </div>
           </>

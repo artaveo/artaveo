@@ -1,20 +1,24 @@
+import { useLocale, useTranslations } from 'next-intl'
+
 import { SectionHeader } from '@/components/home/section-header'
 import { getProcessSteps } from '@/lib/home-content'
 import { cn } from '@/lib/utils'
-import { t } from '@/types/content'
+import { t, type Locale } from '@/types/content'
 
 export function Process() {
   const processSteps = getProcessSteps()
+  const locale = useLocale() as Locale
+  const tSection = useTranslations('Process')
 
   return (
     <section aria-labelledby="process-title" className="section-y">
       <div className="container-page">
         <SectionHeader
           id="process-title"
-          eyebrow="Process"
-          title="A clear path from first call to launch"
-          description="Seven defined stages, each with a visible result, so you always know where the project stands."
-          action={{ href: '/process', label: 'See the full process' }}
+          eyebrow={tSection('eyebrow')}
+          title={tSection('title')}
+          description={tSection('description')}
+          action={{ href: '/process', label: tSection('seeFullProcess') }}
         />
 
         {/* Vertical timeline below lg, single horizontal track from lg up. */}
@@ -38,12 +42,12 @@ export function Process() {
                   />
                 ) : null}
 
-                <span className="font-mono text-xs text-brand-text">
+                <span className="font-mono text-xs text-brand-text" dir="ltr">
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <h3 className="mt-1 font-semibold tracking-tight">{t(step.title)}</h3>
+                <h3 className="mt-1 font-semibold tracking-tight">{t(step.title, locale)}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground text-pretty">
-                  {t(step.description)}
+                  {t(step.description, locale)}
                 </p>
               </li>
             )

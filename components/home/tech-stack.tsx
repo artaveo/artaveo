@@ -1,8 +1,11 @@
+import { useLocale, useTranslations } from 'next-intl'
+
 import { Icon } from '@/components/icon'
 import { SectionHeader } from '@/components/home/section-header'
+import { LatinTerm } from '@/components/site/latin-term'
 import { Badge } from '@/components/ui/badge'
 import { getTechStack } from '@/lib/home-content'
-import { t } from '@/types/content'
+import { t, type Locale } from '@/types/content'
 
 /**
  * Proof-Linked Expertise Matrix (roadmap § 4.5/4.6, Contra B-03), layout
@@ -16,6 +19,8 @@ import { t } from '@/types/content'
  */
 export function TechStack() {
   const techStack = getTechStack()
+  const locale = useLocale() as Locale
+  const tSection = useTranslations('TechStack')
 
   return (
     <section
@@ -25,9 +30,9 @@ export function TechStack() {
       <div className="container-page">
         <SectionHeader
           id="stack-title"
-          eyebrow="Expertise"
-          title="A focused, modern stack"
-          description="Proven tools chosen for type safety, performance and long-term maintainability. Every one of them is used in the real work further down this page."
+          eyebrow={tSection('eyebrow')}
+          title={tSection('title')}
+          description={tSection('description')}
         />
 
         <div className="overflow-hidden rounded-xl border border-border">
@@ -45,13 +50,13 @@ export function TechStack() {
                   aria-hidden
                   className="size-4 text-brand-text"
                 />
-                {t(category.title)}
+                {t(category.title, locale)}
               </h3>
               <ul className="flex flex-wrap gap-2">
                 {category.items.map((item) => (
                   <li key={item}>
                     <Badge variant="outline" className="py-1 text-[0.8rem] font-normal">
-                      {item}
+                      <LatinTerm>{item}</LatinTerm>
                     </Badge>
                   </li>
                 ))}

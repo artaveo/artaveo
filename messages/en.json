@@ -1,0 +1,125 @@
+{
+  "Nav": {
+    "work": "Work",
+    "workDescription": "Selected projects and case studies",
+    "services": "Services",
+    "servicesDescription": "How I can help you ship",
+    "process": "Process",
+    "processDescription": "How I build, step by step",
+    "about": "About",
+    "aboutDescription": "The developer behind Artaveo",
+    "insights": "Insights",
+    "insightsDescription": "Notes on engineering and craft",
+    "designSystem": "Design System",
+    "contact": "Contact"
+  },
+  "Common": {
+    "startProject": "Start a project",
+    "search": "Search",
+    "searchPlaceholder": "Search…",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "language": "Language",
+    "siteDescription": "Artaveo is the work of one independent full-stack developer — building fast, reliable web products end to end, from architecture and design systems to shipped software.",
+    "location": "Remote · Worldwide",
+    "tagline": "Independent full-stack developer",
+    "capabilities": "Capabilities"
+  },
+  "CommandPalette": {
+    "label": "Command palette",
+    "searchPlaceholder": "Search pages and actions…",
+    "close": "Close command palette",
+    "noResults": "No results for \u201c{query}\u201d",
+    "groupNavigate": "Navigate",
+    "groupResources": "Resources",
+    "groupActions": "Actions",
+    "home": "Home",
+    "emailArtaveo": "Email Artaveo"
+  },
+  "Footer": {
+    "explore": "Explore",
+    "more": "More",
+    "social": "Social",
+    "tagline": "Built full-stack, shipped end to end"
+  },
+  "Hero": {
+    "badge": "Available for new projects",
+    "titleLine1": "Full-stack products,",
+    "titleLine2": "built end to end.",
+    "description": "Artaveo is the work of one independent full-stack developer, building modern web applications, business platforms and digital products — taken from the first idea through architecture, interface, backend and database to a deployed product.",
+    "ctaWork": "View my work",
+    "ctaContact": "Start a project",
+    "codePanelFooter": "Typed from database to interface"
+  },
+  "FeaturedWork": {
+    "eyebrow": "Selected work",
+    "title": "Projects built from database to interface",
+    "description": "Real projects, presented as case studies: what was built, how it works and the stack behind it.",
+    "allWork": "All work",
+    "viewCaseStudy": "View case study",
+    "liveDemo": "Live demo",
+    "github": "GitHub",
+    "opensNewTab": "(opens in a new tab)",
+    "screenshotPlaceholder": "Project screenshot",
+    "statusInDevelopment": "In development",
+    "statusLive": "Live",
+    "statusArchived": "Archived",
+    "technologies": "Technologies"
+  },
+  "Services": {
+    "eyebrow": "Services",
+    "title": "What Artaveo builds",
+    "description": "From a single website to a complete business platform — each service covers design, development and delivery.",
+    "allServices": "All services",
+    "deliverables": "Deliverables"
+  },
+  "WhyArtaveo": {
+    "eyebrow": "Why Artaveo",
+    "titleLine1": "One developer. One workflow.",
+    "titleLine2": "The whole product.",
+    "description": "Artaveo is not an agency with layers of handoffs. The same person carries a project from the first idea to production — so the architecture, the interface and the code stay consistent.",
+    "fromIdeaToDeployment": "From idea to deployment",
+    "handledByOneDeveloper": "Handled by one developer",
+    "noHandoffs": "No handoffs between designers, frontend and backend teams — every decision is made with the whole system in view."
+  },
+  "TechStack": {
+    "eyebrow": "Expertise",
+    "title": "A focused, modern stack",
+    "description": "Proven tools chosen for type safety, performance and long-term maintainability. Every one of them is used in the real work further down this page."
+  },
+  "Process": {
+    "eyebrow": "Process",
+    "title": "A clear path from first call to launch",
+    "description": "Seven defined stages, each with a visible result, so you always know where the project stands.",
+    "seeFullProcess": "See the full process"
+  },
+  "AboutPreview": {
+    "eyebrow": "About",
+    "headingWithName": "<name>{name}</name>, the developer behind Artaveo",
+    "headingNoName": "The developer behind Artaveo",
+    "technicalFocus": "Technical focus",
+    "moreAbout": "More about Artaveo",
+    "portraitAltNamed": "Portrait of {name}",
+    "portraitAltGeneric": "Portrait of the developer behind Artaveo",
+    "portraitPlaceholder": "Portrait"
+  },
+  "Insights": {
+    "eyebrow": "Insights",
+    "title": "Notes from real projects",
+    "description": "Practical writing on architecture, interfaces and the problems that come up while building production software.",
+    "allInsights": "All insights",
+    "readArticle": "Read article",
+    "minRead": "{minutes} min read"
+  },
+  "FinalCta": {
+    "titleLine1": "Have a project in mind?",
+    "titleLine2": "Let's build it.",
+    "description": "Share the idea, the timeline and what you need. You'll get a clear, direct reply about scope and next steps.",
+    "startProject": "Start a project",
+    "viewWork": "View work"
+  },
+  "DesignSystemPage": {
+    "title": "Design System — Artaveo",
+    "description": "The visual foundation of Artaveo: color tokens, typography, spacing, and core UI components."
+  }
+}

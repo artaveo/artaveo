@@ -1,10 +1,10 @@
 'use client'
 
 import { ArrowRight, X } from 'lucide-react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useEffect } from 'react'
 
+import { Link, usePathname } from '@/i18n/navigation'
 import { LanguageSwitcher } from '@/components/site/language-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
@@ -19,6 +19,8 @@ export function MobileNav({
   onClose: () => void
 }) {
   const pathname = usePathname()
+  const tNav = useTranslations('Nav')
+  const tCommon = useTranslations('Common')
 
   useEffect(() => {
     if (!open) return
@@ -40,7 +42,7 @@ export function MobileNav({
     <div className="fixed inset-0 z-modal lg:hidden" role="dialog" aria-modal="true">
       <button
         type="button"
-        aria-label="Close menu"
+        aria-label={tCommon('closeMenu')}
         className="fixed inset-0 bg-overlay backdrop-blur-sm animate-in fade-in"
         onClick={onClose}
       />
@@ -49,7 +51,7 @@ export function MobileNav({
           <span dir="ltr" className="font-mono text-sm font-semibold tracking-[0.2em]">
             ARTAVEO
           </span>
-          <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close menu">
+          <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label={tCommon('closeMenu')}>
             <X />
           </Button>
         </div>
@@ -74,10 +76,10 @@ export function MobileNav({
                     className="absolute inset-y-2 start-0 w-0.5 rounded-full bg-brand"
                   />
                 ) : null}
-                <span className="text-base font-medium">{item.label}</span>
-                {item.description ? (
+                <span className="text-base font-medium">{tNav(item.key)}</span>
+                {item.hasDescription ? (
                   <span className="text-xs text-muted-foreground">
-                    {item.description}
+                    {tNav(`${item.key}Description` as Parameters<typeof tNav>[0])}
                   </span>
                 ) : null}
               </Link>
@@ -93,7 +95,7 @@ export function MobileNav({
               onClick={onClose}
               className="rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
-              {item.label}
+              {tNav(item.key)}
             </Link>
           ))}
         </nav>
@@ -109,13 +111,14 @@ export function MobileNav({
             className="w-full"
             render={<Link href="/contact" onClick={onClose} />}
           >
-            Start a project
+            {tCommon('startProject')}
             <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
           </Button>
         </div>
         <a
           href={`mailto:${siteConfig.email}`}
-          className="px-4 pb-4 text-xs text-muted-foreground transition-colors hover:text-foreground"
+          dir="ltr"
+          className="px-4 pb-4 text-end text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
           {siteConfig.email}
         </a>

@@ -1,7 +1,7 @@
 import { ArrowRight, Check } from 'lucide-react'
-import NextLink from 'next/link'
 import type * as React from 'react'
 
+import { Link as IntlLink } from '@/i18n/navigation'
 import { Link } from '@/components/ui/actions'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -177,7 +177,7 @@ function CTASection({
               <Button
                 size="lg"
                 className="h-11 px-5 text-[0.95rem]"
-                render={<NextLink href={primaryAction.href} />}
+                render={<IntlLink href={primaryAction.href} />}
               >
                 {primaryAction.label}
                 <ArrowRight data-icon="inline-end" aria-hidden="true" className="rtl:rotate-180" />
@@ -187,7 +187,7 @@ function CTASection({
                   size="lg"
                   variant="outline"
                   className="h-11 px-5 text-[0.95rem]"
-                  render={<NextLink href={secondaryAction.href} />}
+                  render={<IntlLink href={secondaryAction.href} />}
                 >
                   {secondaryAction.label}
                 </Button>

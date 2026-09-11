@@ -1,10 +1,10 @@
 'use client'
 
 import { ArrowRight, Menu, Search } from 'lucide-react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
+import { Link, usePathname } from '@/i18n/navigation'
 import { Kbd } from '@/components/ui/actions'
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { CommandPalette } from '@/components/site/command-palette'
@@ -17,6 +17,8 @@ import { cn } from '@/lib/utils'
 
 export function SiteHeader() {
   const pathname = usePathname()
+  const tNav = useTranslations('Nav')
+  const tCommon = useTranslations('Common')
   const [cmdOpen, setCmdOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -76,7 +78,7 @@ export function SiteHeader() {
                         : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
-                    {item.label}
+                    {tNav(item.key)}
                     {active ? (
                       <span
                         aria-hidden="true"
@@ -94,10 +96,10 @@ export function SiteHeader() {
               type="button"
               onClick={() => setCmdOpen(true)}
               className="hidden items-center gap-2 rounded-lg border border-border bg-card py-1.5 pe-2 ps-3 text-sm text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
-              aria-label="Search"
+              aria-label={tCommon('search')}
             >
               <Search className="size-4" />
-              <span className="hidden lg:inline">Search…</span>
+              <span className="hidden lg:inline">{tCommon('searchPlaceholder')}</span>
               <Kbd className="hidden lg:inline-flex">⌘K</Kbd>
             </button>
 
@@ -107,7 +109,7 @@ export function SiteHeader() {
             </div>
 
             <Button className="hidden sm:inline-flex" render={<Link href="/contact" />}>
-              Start a project
+              {tCommon('startProject')}
               <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
             </Button>
 
@@ -116,7 +118,7 @@ export function SiteHeader() {
               size="icon"
               className="lg:hidden"
               onClick={() => setMenuOpen(true)}
-              aria-label="Open menu"
+              aria-label={tCommon('openMenu')}
             >
               <Menu />
             </Button>

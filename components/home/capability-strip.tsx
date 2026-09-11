@@ -1,6 +1,8 @@
+import { useLocale, useTranslations } from 'next-intl'
+
 import { Icon } from '@/components/icon'
 import { getCapabilities } from '@/lib/home-content'
-import { t } from '@/types/content'
+import { t, type Locale } from '@/types/content'
 
 /**
  * A quiet band directly under the hero listing what Artaveo covers.
@@ -9,9 +11,11 @@ import { t } from '@/types/content'
  */
 export function CapabilityStrip() {
   const capabilities = getCapabilities()
+  const locale = useLocale() as Locale
+  const tCommon = useTranslations('Common')
 
   return (
-    <section aria-label="Capabilities" className="border-b border-border bg-elevated">
+    <section aria-label={tCommon('capabilities')} className="border-b border-border bg-elevated">
       <div className="container-page">
         <ul className="grid grid-cols-1 gap-px bg-border sm:grid-cols-2 lg:grid-cols-5">
           {capabilities.map((item) => (
@@ -25,9 +29,9 @@ export function CapabilityStrip() {
                 className="mt-0.5 size-4 shrink-0 text-brand-text"
               />
               <div>
-                <p className="text-sm font-medium">{t(item.title)}</p>
+                <p className="text-sm font-medium">{t(item.title, locale)}</p>
                 <p className="mt-1 text-sm leading-snug text-muted-foreground text-pretty">
-                  {t(item.description)}
+                  {t(item.description, locale)}
                 </p>
               </div>
             </li>

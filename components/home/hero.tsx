@@ -1,10 +1,13 @@
 import { ArrowRight } from 'lucide-react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
+import { Link } from '@/i18n/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
 export function Hero() {
+  const t = useTranslations('Hero')
+
   return (
     <section
       aria-labelledby="hero-title"
@@ -20,27 +23,24 @@ export function Hero() {
         <div className="lg:col-span-7">
           <Badge variant="brand-soft" className="mb-6">
             <span className="me-1 inline-block size-1.5 rounded-full bg-brand" />
-            Available for new projects
+            {t('badge')}
           </Badge>
 
           <h1
             id="hero-title"
             className="max-w-4xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl xl:text-7xl"
           >
-            Full-stack products,
-            <span className="text-muted-foreground"> built end to end.</span>
+            {t('titleLine1')}
+            <span className="text-muted-foreground"> {t('titleLine2')}</span>
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground text-pretty md:text-xl">
-            Artaveo is the work of one independent full-stack developer,
-            building modern web applications, business platforms and digital
-            products — taken from the first idea through architecture,
-            interface, backend and database to a deployed product.
+            {t('description')}
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button size="lg" className="h-11 px-5 text-[0.95rem]" render={<Link href="/work" />}>
-              View my work
+              {t('ctaWork')}
               <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
             </Button>
             <Button
@@ -49,12 +49,12 @@ export function Hero() {
               className="h-11 px-5 text-[0.95rem]"
               render={<Link href="/contact" />}
             >
-              Start a project
+              {t('ctaContact')}
             </Button>
           </div>
         </div>
 
-        <HeroVisual className="hidden md:block lg:col-span-5" />
+        <HeroVisual className="hidden md:block lg:col-span-5" footer={t('codePanelFooter')} />
       </div>
     </section>
   )
@@ -66,7 +66,7 @@ export function Hero() {
  * the same information is in the copy — so it is hidden from assistive tech.
  * Code always reads left-to-right, including in the Persian layout.
  */
-function HeroVisual({ className }: { className?: string }) {
+function HeroVisual({ className, footer }: { className?: string; footer: string }) {
   return (
     <div aria-hidden className={className}>
       <div className="relative mx-auto max-w-lg lg:max-w-none">
@@ -145,7 +145,7 @@ function HeroVisual({ className }: { className?: string }) {
 
           <div className="flex items-center gap-2 border-t border-border px-4 py-2.5 font-mono text-xs text-muted-foreground">
             <span className="inline-block size-1.5 rounded-full bg-success" />
-            Typed from database to interface
+            {footer}
           </div>
         </div>
       </div>

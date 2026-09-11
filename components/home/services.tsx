@@ -1,10 +1,14 @@
+import { useLocale, useTranslations } from 'next-intl'
+
 import { Icon } from '@/components/icon'
 import { SectionHeader } from '@/components/home/section-header'
 import { getServices } from '@/lib/home-content'
-import { t } from '@/types/content'
+import { t, type Locale } from '@/types/content'
 
 export function Services() {
   const services = getServices()
+  const locale = useLocale() as Locale
+  const tSection = useTranslations('Services')
 
   return (
     <section
@@ -14,10 +18,10 @@ export function Services() {
       <div className="container-page">
         <SectionHeader
           id="services-title"
-          eyebrow="Services"
-          title="What Artaveo builds"
-          description="From a single website to a complete business platform — each service covers design, development and delivery."
-          action={{ href: '/services', label: 'All services' }}
+          eyebrow={tSection('eyebrow')}
+          title={tSection('title')}
+          description={tSection('description')}
+          action={{ href: '/services', label: tSection('allServices') }}
         />
 
         <ul className="grid gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-2 lg:grid-cols-3">
@@ -31,14 +35,14 @@ export function Services() {
               </span>
 
               <h3 className="mt-6 text-lg font-semibold tracking-tight">
-                {t(service.title)}
+                {t(service.title, locale)}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty">
-                {t(service.description)}
+                {t(service.description, locale)}
               </p>
 
               <div className="mt-auto pt-6">
-                <p className="sr-only">Deliverables</p>
+                <p className="sr-only">{tSection('deliverables')}</p>
                 <ul className="flex flex-col gap-2 border-t border-border pt-5">
                   {service.deliverables.map((item) => (
                     <li
@@ -46,7 +50,7 @@ export function Services() {
                       className="flex items-center gap-2.5 text-sm text-foreground/85"
                     >
                       <span aria-hidden className="h-px w-3 shrink-0 bg-brand" />
-                      {t(item)}
+                      {t(item, locale)}
                     </li>
                   ))}
                 </ul>

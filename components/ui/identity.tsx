@@ -1,7 +1,7 @@
 import { CircleCheck, CircleDashed, Clock } from 'lucide-react'
 import Image from 'next/image'
-import NextLink from 'next/link'
 
+import { Link as IntlLink } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/actions'
 import { socialLinks } from '@/lib/site'
@@ -264,7 +264,7 @@ function IdentityCta({
       variant={copy.variant}
       size={size}
       className={className}
-      render={<NextLink href={href} />}
+      render={<IntlLink href={href} />}
     >
       {copy.label}
     </Button>

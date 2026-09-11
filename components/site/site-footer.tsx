@@ -1,12 +1,15 @@
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
+import { Link } from '@/i18n/navigation'
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { Link as ActionLink } from '@/components/ui/actions'
 import { ExternalProfileLinks } from '@/components/ui/identity'
-import { mainNav, siteConfig, utilityNav } from '@/lib/site'
+import { mainNav, siteConfig, utilityNav, type NavItem } from '@/lib/site'
 
 export function SiteFooter() {
   const year = new Date().getFullYear()
+  const t = useTranslations('Footer')
+  const tCommon = useTranslations('Common')
 
   return (
     <footer className="border-t border-border bg-elevated">
@@ -20,23 +23,23 @@ export function SiteFooter() {
               </span>
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">
-              {siteConfig.description}
+              {tCommon('siteDescription')}
             </p>
             <ActionLink
               href={`mailto:${siteConfig.email}`}
               variant="standalone"
               className="mt-6"
             >
-              {siteConfig.email}
+              <span dir="ltr">{siteConfig.email}</span>
             </ActionLink>
           </div>
 
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
-            <FooterCol title="Explore" items={mainNav} />
-            <FooterCol title="More" items={utilityNav} />
+            <FooterCol title={t('explore')} items={mainNav} />
+            <FooterCol title={t('more')} items={utilityNav} />
             <div>
               <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-                Social
+                {t('social')}
               </h3>
               <ExternalProfileLinks className="mt-4 flex-col items-start gap-x-0 gap-y-3" />
             </div>
@@ -45,10 +48,10 @@ export function SiteFooter() {
 
         <div className="mt-16 flex flex-col items-start justify-between gap-3 border-t border-border pt-8 sm:flex-row sm:items-center">
           <p className="text-sm text-muted-foreground">
-            © {year} {siteConfig.name}. {siteConfig.location}.
+            © {year} {siteConfig.name}. {tCommon('location')}.
           </p>
           <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-            Built full-stack, shipped end to end
+            {t('tagline')}
           </p>
         </div>
       </div>
@@ -61,8 +64,9 @@ function FooterCol({
   items,
 }: {
   title: string
-  items: { href: string; label: string }[]
+  items: NavItem[]
 }) {
+  const tNav = useTranslations('Nav')
   return (
     <div>
       <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
@@ -75,7 +79,7 @@ function FooterCol({
               href={item.href}
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
-              {item.label}
+              {tNav(item.key)}
             </Link>
           </li>
         ))}

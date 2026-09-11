@@ -1,11 +1,12 @@
 'use client'
 
 import { ArrowUpRight, CornerDownLeft, Search } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useRouter } from '@/i18n/navigation'
 import { Kbd } from '@/components/ui/actions'
-import { commandItems } from '@/lib/site'
+import { commandItems, type CommandGroup } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 export function CommandPalette({
@@ -16,20 +17,40 @@ export function CommandPalette({
   onOpenChange: (open: boolean) => void
 }) {
   const router = useRouter()
+  const t = useTranslations('CommandPalette')
+  const tNav = useTranslations('Nav')
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
+  const groupLabel: Record<CommandGroup, string> = {
+    navigate: t('groupNavigate'),
+    resources: t('groupResources'),
+    actions: t('groupActions'),
+  }
+
+  const items = useMemo(
+    () =>
+      commandItems.map((item) => ({
+        ...item,
+        label:
+          item.labelNamespace === 'Nav'
+            ? tNav(item.labelKey as Parameters<typeof tNav>[0])
+            : t(item.labelKey as 'home' | 'emailArtaveo'),
+      })),
+    [t, tNav],
+  )
+
   const results = useMemo(() => {
     const q = query.trim().toLowerCase()
-    if (!q) return commandItems
-    return commandItems.filter((item) =>
+    if (!q) return items
+    return items.filter((item) =>
       `${item.label} ${item.group} ${item.keywords ?? ''}`
         .toLowerCase()
         .includes(q),
     )
-  }, [query])
+  }, [items, query])
 
   useEffect(() => {
     setActive(0)
@@ -88,11 +109,11 @@ export function CommandPalette({
       className="fixed inset-0 z-command flex items-start justify-center p-4 pt-[12vh]"
       role="dialog"
       aria-modal="true"
-      aria-label="Command palette"
+      aria-label={t('label')}
     >
       <button
         type="button"
-        aria-label="Close command palette"
+        aria-label={t('close')}
         className="fixed inset-0 bg-overlay backdrop-blur-sm animate-in fade-in"
         onClick={() => onOpenChange(false)}
       />
@@ -106,9 +127,9 @@ export function CommandPalette({
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search pages and actions…"
+            placeholder={t('searchPlaceholder')}
             className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            aria-label="Search"
+            aria-label={t('searchPlaceholder')}
           />
           <Kbd className="hidden shrink-0 sm:inline-flex">ESC</Kbd>
         </div>
@@ -116,13 +137,13 @@ export function CommandPalette({
         <div ref={listRef} className="max-h-80 overflow-y-auto p-2">
           {results.length === 0 ? (
             <p className="px-3 py-8 text-center text-sm text-muted-foreground">
-              No results for &ldquo;{query}&rdquo;
+              {t('noResults', { query })}
             </p>
           ) : (
             Array.from(new Set(results.map((r) => r.group))).map((group) => (
               <div key={group} className="mb-1 last:mb-0">
                 <p className="px-3 py-1.5 font-mono text-[10px] tracking-widest text-muted-foreground uppercase">
-                  {group}
+                  {groupLabel[group]}
                 </p>
                 {results
                   .filter((r) => r.group === group)

@@ -1,9 +1,9 @@
 import { Button as ButtonPrimitive } from '@base-ui/react/button'
 import { Separator as SeparatorPrimitive } from '@base-ui/react/separator'
 import { ArrowUpRight } from 'lucide-react'
-import NextLink from 'next/link'
 import type * as React from 'react'
 
+import { Link as IntlLink } from '@/i18n/navigation'
 import { cn } from '@/lib/utils'
 
 /**
@@ -14,9 +14,11 @@ import { cn } from '@/lib/utils'
  * underline-on-hover, optional leading/trailing icon via `data-icon`).
  * External links (`external` or an `href` outside the app) automatically
  * get an arrow indicator and `target`/`rel`, unless `showExternalIcon` is
- * turned off.
+ * turned off. Internal hrefs go through next-intl's locale-aware `Link`
+ * (§ 5.1), so every relative href here keeps the active locale prefix —
+ * absolute URLs (`https://…`, `mailto:`, `tel:`) pass through unchanged.
  */
-type LinkProps = React.ComponentProps<typeof NextLink> & {
+type LinkProps = React.ComponentProps<typeof IntlLink> & {
   variant?: 'inline' | 'standalone'
   external?: boolean
   showExternalIcon?: boolean
@@ -39,7 +41,7 @@ function Link({
   const isExternal = external ?? isExternalHref(href)
 
   return (
-    <NextLink
+    <IntlLink
       data-slot="link"
       href={href}
       className={cn(
@@ -61,7 +63,7 @@ function Link({
           className="inline size-3.5 shrink-0 rtl:-scale-x-100"
         />
       ) : null}
-    </NextLink>
+    </IntlLink>
   )
 }
 

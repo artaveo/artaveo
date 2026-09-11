@@ -14,23 +14,29 @@ export const siteConfig = {
   location: 'Remote · Worldwide',
 }
 
+/**
+ * `key` maps to `Nav.<key>` / `Nav.<key>Description` in `messages/*.json`
+ * (§ 5.1) — the href is locale-independent structure, the copy is not.
+ */
+export type NavKey = 'work' | 'services' | 'process' | 'about' | 'insights' | 'designSystem' | 'contact'
+
 export type NavItem = {
   href: string
-  label: string
-  description?: string
+  key: NavKey
+  hasDescription?: boolean
 }
 
 export const mainNav: NavItem[] = [
-  { href: '/work', label: 'Work', description: 'Selected projects and case studies' },
-  { href: '/services', label: 'Services', description: 'How I can help you ship' },
-  { href: '/process', label: 'Process', description: 'How I build, step by step' },
-  { href: '/about', label: 'About', description: 'The developer behind Artaveo' },
-  { href: '/insights', label: 'Insights', description: 'Notes on engineering and craft' },
+  { href: '/work', key: 'work', hasDescription: true },
+  { href: '/services', key: 'services', hasDescription: true },
+  { href: '/process', key: 'process', hasDescription: true },
+  { href: '/about', key: 'about', hasDescription: true },
+  { href: '/insights', key: 'insights', hasDescription: true },
 ]
 
 export const utilityNav: NavItem[] = [
-  { href: '/design-system', label: 'Design System' },
-  { href: '/contact', label: 'Contact' },
+  { href: '/design-system', key: 'designSystem' },
+  { href: '/contact', key: 'contact' },
 ]
 
 /**
@@ -45,21 +51,30 @@ export const socialLinks = [
   { href: 'https://wa.me/93790685832', label: 'WhatsApp' },
 ]
 
+/**
+ * `labelKey` resolves against `Nav.<key>` or `CommandPalette.<key>`;
+ * `group` resolves against `CommandPalette.group<Group>` (§ 5.1). Keywords
+ * stay English-only — they are a local, case-insensitive filter over the
+ * palette's own English source strings, not user-facing copy.
+ */
+export type CommandGroup = 'navigate' | 'resources' | 'actions'
+
 export type CommandItem = {
-  label: string
+  labelKey: NavKey | 'home' | 'emailArtaveo'
+  labelNamespace: 'Nav' | 'CommandPalette'
   href: string
-  group: string
+  group: CommandGroup
   keywords?: string
 }
 
 export const commandItems: CommandItem[] = [
-  { label: 'Home', href: '/', group: 'Navigate', keywords: 'start landing' },
-  { label: 'Work', href: '/work', group: 'Navigate', keywords: 'projects portfolio case studies' },
-  { label: 'Services', href: '/services', group: 'Navigate', keywords: 'offerings help' },
-  { label: 'Process', href: '/process', group: 'Navigate', keywords: 'method steps how' },
-  { label: 'About', href: '/about', group: 'Navigate', keywords: 'developer about' },
-  { label: 'Insights', href: '/insights', group: 'Navigate', keywords: 'blog writing notes' },
-  { label: 'Design System', href: '/design-system', group: 'Resources', keywords: 'tokens components ui' },
-  { label: 'Contact', href: '/contact', group: 'Actions', keywords: 'start project hire' },
-  { label: 'Email Artaveo', href: 'mailto:artaveo.dev@gmail.com', group: 'Actions', keywords: 'mail email reach contact' },
+  { labelKey: 'home', labelNamespace: 'CommandPalette', href: '/', group: 'navigate', keywords: 'start landing home' },
+  { labelKey: 'work', labelNamespace: 'Nav', href: '/work', group: 'navigate', keywords: 'projects portfolio case studies work' },
+  { labelKey: 'services', labelNamespace: 'Nav', href: '/services', group: 'navigate', keywords: 'offerings help services' },
+  { labelKey: 'process', labelNamespace: 'Nav', href: '/process', group: 'navigate', keywords: 'method steps how process' },
+  { labelKey: 'about', labelNamespace: 'Nav', href: '/about', group: 'navigate', keywords: 'developer about' },
+  { labelKey: 'insights', labelNamespace: 'Nav', href: '/insights', group: 'navigate', keywords: 'blog writing notes insights' },
+  { labelKey: 'designSystem', labelNamespace: 'Nav', href: '/design-system', group: 'resources', keywords: 'tokens components ui design system' },
+  { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'start project hire contact' },
+  { labelKey: 'emailArtaveo', labelNamespace: 'CommandPalette', href: 'mailto:artaveo.dev@gmail.com', group: 'actions', keywords: 'mail email reach contact' },
 ]
