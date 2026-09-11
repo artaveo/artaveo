@@ -8,7 +8,7 @@ export function WhyArtaveo() {
   const differentiators = getDifferentiators()
 
   return (
-    <section aria-labelledby="why-title" className="py-20 md:py-28">
+    <section aria-labelledby="why-title" className="section-y">
       <div className="container-page">
         <SectionHeader
           id="why-title"
@@ -30,7 +30,7 @@ export function WhyArtaveo() {
               <Icon
                 name={item.icon}
                 aria-hidden
-                className="size-5 text-brand"
+                className="size-5 text-brand-text"
               />
               <h3 className="mt-4 font-semibold tracking-tight">{t(item.title)}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground text-pretty">

@@ -23,7 +23,7 @@ export function SiteFooter() {
             </p>
             <a
               href={`mailto:${siteConfig.email}`}
-              className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-brand transition-opacity hover:opacity-80"
+              className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-brand-text transition-opacity hover:opacity-80"
             >
               {siteConfig.email}
               <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />

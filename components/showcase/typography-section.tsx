@@ -67,7 +67,7 @@ export function TypographySection() {
           <div className="flex flex-col gap-4">
             <p className="font-mono text-sm">
               <span className="text-muted-foreground">const</span> stack ={' '}
-              <span className="text-brand">&apos;full-stack&apos;</span>
+              <span className="text-brand-text">&apos;full-stack&apos;</span>
             </p>
             <p dir="rtl" className="font-persian text-xl">
               ساخت محصولات دیجیتال مدرن

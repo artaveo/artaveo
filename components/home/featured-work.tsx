@@ -22,7 +22,7 @@ export function FeaturedWork() {
   const projects = getFeaturedProjects()
 
   return (
-    <section aria-labelledby="work-title" className="py-20 md:py-28">
+    <section aria-labelledby="work-title" className="section-y">
       <div className="container-page">
         <SectionHeader
           id="work-title"
@@ -94,7 +94,7 @@ function ProjectFeature({
         >
           <Link
             href={href}
-            className="rounded-sm outline-none transition-colors hover:text-brand focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="rounded-sm outline-none transition-colors hover:text-brand-text focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             {t(project.title)}
           </Link>

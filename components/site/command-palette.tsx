@@ -84,7 +84,7 @@ export function CommandPalette({
 
   return (
     <div
-      className="fixed inset-0 z-100 flex items-start justify-center p-4 pt-[12vh]"
+      className="fixed inset-0 z-command flex items-start justify-center p-4 pt-[12vh]"
       role="dialog"
       aria-modal="true"
       aria-label="Command palette"
@@ -139,7 +139,7 @@ export function CommandPalette({
                         onMouseMove={() => setActive(index)}
                         onClick={() => select(item.href)}
                         className={cn(
-                          'flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors',
+                          'flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-start text-sm transition-colors',
                           isActive
                             ? 'bg-accent text-accent-foreground'
                             : 'text-foreground',

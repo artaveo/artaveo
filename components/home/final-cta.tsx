@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 
 export function FinalCta() {
   return (
-    <section aria-labelledby="cta-title" className="py-20 md:py-28">
+    <section aria-labelledby="cta-title" className="section-y">
       <div className="container-page">
         <div className="relative overflow-hidden rounded-2xl border border-border bg-card px-6 py-16 text-center md:px-12 md:py-24">
           {/* Same technical grid as the hero, so the page opens and closes alike. */}

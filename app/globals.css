@@ -34,14 +34,19 @@
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-muted: var(--brand-muted);
+  --color-brand-text: var(--brand-text);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-success-text: var(--success-text);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-warning-text: var(--warning-text);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-info-text: var(--info-text);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-text: var(--destructive-text);
 
   /* Lines + states */
   --color-border: var(--border);
@@ -76,6 +81,21 @@
 
   /* Container */
   --breakpoint-3xl: 120rem;
+
+  /* Reading width for long-form prose (articles, Insights posts — Phase 6) */
+  --width-prose: 65ch;
+
+  /* z-index scale (§4.2) — every stacking-context utility in the app must
+     use one of these (z-sticky, z-dropdown, …), never a raw number like
+     z-50/z-100. Ordered low -> high so later layers always win: sticky
+     chrome sits under any overlay, overlays sit under the command palette
+     (which can open on top of a dialog). */
+  --z-index-sticky: 50;    /* site header, showcase sticky header */
+  --z-index-dropdown: 60;  /* popovers, dropdown menus, select content */
+  --z-index-overlay: 90;   /* dialog/sheet backdrop, mobile nav backdrop */
+  --z-index-modal: 100;    /* dialog/sheet/mobile-nav panel content */
+  --z-index-command: 110;  /* command palette (can open above a dialog) */
+  --z-index-toast: 120;    /* toast notifications — always on top */
 
   /* Shadows — restrained, technical */
   --shadow-xs: 0 1px 2px 0 oklch(0.2 0.02 260 / 0.05);
@@ -124,17 +144,29 @@
   --brand: oklch(0.74 0.12 79);
   --brand-foreground: oklch(0.25 0.05 79);
   --brand-muted: oklch(0.95 0.03 79);
+  /* -text tokens (§4.2 AA audit): --brand/--success/--warning/--info/
+     --destructive are fill colours (chips, dots, solid badges) — measured
+     at ~2.3:1 on this theme's background, they FAIL as text or icon
+     colour here. Each -text sibling is the same hue, darkened until it
+     clears 4.5:1 against background/card/elevated *and* against its own
+     10% tint (badges, inline alert boxes). Use -text for any label, link,
+     icon or inline code-highlight colour; keep the base token for fills. */
+  --brand-text: oklch(0.52 0.12 79);
   --success: oklch(0.62 0.14 150);
   --success-foreground: oklch(0.985 0.01 150);
+  --success-text: oklch(0.5 0.14 150);
   /* Warning hue moved 70 -> 40: at hue 70 it was visually identical to the
      new brand gold (both amber). Shifted toward red-orange to stay
      distinguishable from the brand accent. */
   --warning: oklch(0.7 0.18 40);
   --warning-foreground: oklch(0.22 0.05 40);
+  --warning-text: oklch(0.54 0.18 40);
   --info: oklch(0.6 0.12 240);
   --info-foreground: oklch(0.985 0.01 240);
+  --info-text: oklch(0.51 0.12 240);
   --destructive: oklch(0.577 0.22 27);
   --destructive-foreground: oklch(0.985 0.01 27);
+  --destructive-text: oklch(0.54 0.22 27);
 
   --border: oklch(0.905 0.005 250);
   --input: oklch(0.905 0.005 250);
@@ -187,14 +219,19 @@
   --brand: oklch(0.8 0.12 79);
   --brand-foreground: oklch(0.2 0.05 79);
   --brand-muted: oklch(0.32 0.05 79);
+  --brand-text: oklch(0.78 0.12 79);
   --success: oklch(0.7 0.14 150);
   --success-foreground: oklch(0.16 0.03 150);
+  --success-text: oklch(0.72 0.14 150);
   --warning: oklch(0.76 0.18 40);
   --warning-foreground: oklch(0.2 0.05 40);
+  --warning-text: oklch(0.78 0.18 40);
   --info: oklch(0.68 0.12 240);
   --info-foreground: oklch(0.16 0.03 240);
+  --info-text: oklch(0.72 0.12 240);
   --destructive: oklch(0.7 0.19 22);
   --destructive-foreground: oklch(0.16 0.03 22);
+  --destructive-text: oklch(0.79 0.19 22);
 
   --border: oklch(1 0 0 / 11%);
   --input: oklch(1 0 0 / 14%);
@@ -275,5 +312,28 @@
 @media (min-width: 768px) {
   .container-page {
     padding-inline: 2rem;
+  }
+}
+
+/* Section-spacing rhythm (§4.2). Two steps only — the whole site uses one
+   of these two, never a bespoke py-* pair, so vertical rhythm stays
+   predictable while scrolling. `section-y` is the standard page-section
+   gap (Home sections, CTA blocks). `section-y-compact` is for dense,
+   repeating blocks inside a single page (the /design-system showcase
+   entries) where the full gap would waste scroll distance. */
+@utility section-y {
+  padding-block: 5rem; /* 80px */
+}
+@media (min-width: 768px) {
+  .section-y {
+    padding-block: 7rem; /* 112px */
+  }
+}
+@utility section-y-compact {
+  padding-block: 3.5rem; /* 56px */
+}
+@media (min-width: 768px) {
+  .section-y-compact {
+    padding-block: 5rem; /* 80px */
   }
 }

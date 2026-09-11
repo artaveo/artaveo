@@ -44,7 +44,7 @@ export function SiteHeader() {
     <>
       <header
         className={cn(
-          'sticky top-0 z-50 border-b transition-colors ease-standard',
+          'sticky top-0 z-sticky border-b transition-colors ease-standard',
           scrolled
             ? 'border-border bg-background/80 backdrop-blur-md'
             : 'border-transparent bg-background',

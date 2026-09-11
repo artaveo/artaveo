@@ -12,7 +12,7 @@ export function AboutPreview() {
   return (
     <section
       aria-labelledby="about-title"
-      className="border-t border-border py-20 md:py-28"
+      className="border-t border-border section-y"
     >
       <div className="container-page grid items-center gap-10 md:grid-cols-12 lg:gap-16">
         <div className="md:col-span-5 lg:col-span-4">
@@ -20,7 +20,7 @@ export function AboutPreview() {
         </div>
 
         <div className="md:col-span-7 lg:col-span-8">
-          <span className="font-mono text-xs tracking-widest text-brand uppercase">
+          <span className="font-mono text-xs tracking-widest text-brand-text uppercase">
             About
           </span>
           <h2

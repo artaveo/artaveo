@@ -47,7 +47,7 @@ export function FormsSection() {
               placeholder="Tell me about what you want to build…"
             />
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-success/25 bg-success/10 px-3 py-2 text-sm text-success">
+          <div className="flex items-center gap-2 rounded-lg border border-success/25 bg-success/10 px-3 py-2 text-sm text-success-text">
             <Check className="size-4 shrink-0" />
             Message sent — I&apos;ll get back to you shortly.
           </div>

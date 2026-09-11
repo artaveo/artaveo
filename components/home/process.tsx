@@ -7,7 +7,7 @@ export function Process() {
   const processSteps = getProcessSteps()
 
   return (
-    <section aria-labelledby="process-title" className="py-20 md:py-28">
+    <section aria-labelledby="process-title" className="section-y">
       <div className="container-page">
         <SectionHeader
           id="process-title"
@@ -38,7 +38,7 @@ export function Process() {
                   />
                 ) : null}
 
-                <span className="font-mono text-xs text-brand">
+                <span className="font-mono text-xs text-brand-text">
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <h3 className="mt-1 font-semibold tracking-tight">{t(step.title)}</h3>

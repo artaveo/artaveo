@@ -74,7 +74,7 @@ export function CardsSection() {
       {/* Emphasis / brand card */}
       <Card className="border-brand/30 bg-brand-muted/40">
         <CardHeader>
-          <span className="font-mono text-xs tracking-widest text-brand uppercase">
+          <span className="font-mono text-xs tracking-widest text-brand-text uppercase">
             Start
           </span>
           <CardTitle className="text-balance">

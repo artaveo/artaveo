@@ -23,7 +23,7 @@ export function LayoutSection() {
         <div className="overflow-hidden rounded-xl border border-border">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border bg-muted/50 text-left">
+              <tr className="border-b border-border bg-muted/50 text-start">
                 <th className="px-4 py-2.5 font-medium">Token</th>
                 <th className="px-4 py-2.5 font-medium">Min width</th>
                 <th className="px-4 py-2.5 font-medium">Target</th>
@@ -32,7 +32,7 @@ export function LayoutSection() {
             <tbody className="divide-y divide-border">
               {breakpoints.map((b) => (
                 <tr key={b.name}>
-                  <td className="px-4 py-2.5 font-mono text-brand">{b.name}</td>
+                  <td className="px-4 py-2.5 font-mono text-brand-text">{b.name}</td>
                   <td className="px-4 py-2.5 font-mono text-muted-foreground">
                     {b.min}
                   </td>

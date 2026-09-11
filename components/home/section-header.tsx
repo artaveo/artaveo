@@ -34,7 +34,7 @@ export function SectionHeader({
       )}
     >
       <div className="flex max-w-2xl flex-col gap-3">
-        <span className="font-mono text-xs tracking-widest text-brand uppercase">
+        <span className="font-mono text-xs tracking-widest text-brand-text uppercase">
           {eyebrow}
         </span>
         <h2
@@ -53,7 +53,7 @@ export function SectionHeader({
       {action ? (
         <Link
           href={action.href}
-          className="group inline-flex shrink-0 items-center gap-1.5 self-start rounded-md text-sm font-medium text-foreground outline-none transition-colors hover:text-brand focus-visible:ring-3 focus-visible:ring-ring/50 md:self-auto"
+          className="group inline-flex shrink-0 items-center gap-1.5 self-start rounded-md text-sm font-medium text-foreground outline-none transition-colors hover:text-brand-text focus-visible:ring-3 focus-visible:ring-ring/50 md:self-auto"
         >
           {action.label}
           <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5 rtl:rotate-180 rtl:group-hover:-translate-x-0.5" />

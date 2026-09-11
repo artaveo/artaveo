@@ -22,10 +22,10 @@ export function Section({
   return (
     <section
       id={id}
-      className="scroll-mt-24 border-t border-border py-14 first:border-t-0 md:py-20"
+      className="scroll-mt-24 border-t border-border section-y-compact first:border-t-0"
     >
       <div className="mb-8 flex flex-col gap-3 md:mb-10">
-        <span className="font-mono text-xs tracking-widest text-brand uppercase">
+        <span className="font-mono text-xs tracking-widest text-brand-text uppercase">
           {index}
         </span>
         <h2 className="text-2xl font-semibold tracking-tight text-balance md:text-3xl">

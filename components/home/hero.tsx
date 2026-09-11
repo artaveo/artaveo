@@ -16,7 +16,7 @@ export function Hero() {
         className="pointer-events-none absolute inset-0 opacity-[0.4] [background-image:linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]"
       />
 
-      <div className="container-page relative grid items-center gap-14 py-20 md:py-28 lg:grid-cols-12 lg:gap-10 lg:py-32">
+      <div className="container-page relative grid items-center gap-14 section-y lg:grid-cols-12 lg:gap-10 lg:py-32">
         <div className="lg:col-span-7">
           <Badge variant="brand-soft" className="mb-6">
             <span className="me-1 inline-block size-1.5 rounded-full bg-brand" />
@@ -161,7 +161,7 @@ function Line({ n, children }: { n: number; children: React.ReactNode }) {
 }
 
 function Kw({ children }: { children: React.ReactNode }) {
-  return <span className="text-brand">{children}</span>
+  return <span className="text-brand-text">{children}</span>
 }
 function Id({ children }: { children: React.ReactNode }) {
   return <span className="text-foreground">{children}</span>
@@ -170,7 +170,7 @@ function Prop({ children }: { children: React.ReactNode }) {
   return <span className="text-foreground/80">{children}</span>
 }
 function Str({ children }: { children: React.ReactNode }) {
-  return <span className="text-success">{children}</span>
+  return <span className="text-success-text">{children}</span>
 }
 function P({ children }: { children: React.ReactNode }) {
   return <span className="text-muted-foreground">{children}</span>

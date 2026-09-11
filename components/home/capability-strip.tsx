@@ -22,7 +22,7 @@ export function CapabilityStrip() {
               <Icon
                 name={item.icon}
                 aria-hidden
-                className="mt-0.5 size-4 shrink-0 text-brand"
+                className="mt-0.5 size-4 shrink-0 text-brand-text"
               />
               <div>
                 <p className="text-sm font-medium">{t(item.title)}</p>

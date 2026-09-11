@@ -53,6 +53,14 @@ const status: Swatch[] = [
   { name: 'destructive', className: 'bg-destructive' },
 ]
 
+const statusText: Swatch[] = [
+  { name: 'brand-text', className: 'bg-brand-text' },
+  { name: 'success-text', className: 'bg-success-text' },
+  { name: 'warning-text', className: 'bg-warning-text' },
+  { name: 'info-text', className: 'bg-info-text' },
+  { name: 'destructive-text', className: 'bg-destructive-text' },
+]
+
 const text: Swatch[] = [
   { name: 'foreground', className: 'bg-foreground' },
   { name: 'muted-foreground', className: 'bg-muted-foreground' },
@@ -64,7 +72,7 @@ export function ColorsSection() {
       id="color"
       index="02 — Color"
       title="Color tokens"
-      description="Every color is a semantic token defined in oklch for both light and dark modes. The palette is a cool graphite neutral scale with a single confident brand blue used sparingly for emphasis, focus, and links."
+      description="Every color is a semantic token defined in oklch for both light and dark modes. The palette is a cool graphite neutral scale with a single confident brand gold used sparingly for chips and links; focus rings stay on a separate neutral-blue token since gold fails the 3:1 minimum on light surfaces."
       className="flex flex-col gap-10"
     >
       <div>
@@ -78,6 +86,10 @@ export function ColorsSection() {
       <div>
         <Subhead>Status</Subhead>
         <SwatchGrid items={status} />
+      </div>
+      <div>
+        <Subhead>-text variants (AA-safe for small text/icons, §4.2)</Subhead>
+        <SwatchGrid items={statusText} />
       </div>
       <div>
         <Subhead>Text</Subhead>

@@ -9,7 +9,7 @@ export function Services() {
   return (
     <section
       aria-labelledby="services-title"
-      className="border-y border-border bg-elevated py-20 md:py-28"
+      className="border-y border-border bg-elevated section-y"
     >
       <div className="container-page">
         <SectionHeader
@@ -25,7 +25,7 @@ export function Services() {
             <li key={service.id} className="flex flex-col bg-card p-6 md:p-8">
               <span
                 aria-hidden
-                className="grid size-9 place-items-center rounded-lg border border-border bg-elevated text-brand"
+                className="grid size-9 place-items-center rounded-lg border border-border bg-elevated text-brand-text"
               >
                 <Icon name={service.icon} className="size-4" />
               </span>

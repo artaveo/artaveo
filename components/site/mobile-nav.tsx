@@ -33,7 +33,7 @@ export function MobileNav({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-100 lg:hidden" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-modal lg:hidden" role="dialog" aria-modal="true">
       <button
         type="button"
         aria-label="Close menu"

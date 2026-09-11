@@ -9,7 +9,7 @@ export function TechStack() {
   return (
     <section
       aria-labelledby="stack-title"
-      className="border-y border-border bg-elevated py-20 md:py-28"
+      className="border-y border-border bg-elevated section-y"
     >
       <div className="container-page">
         <SectionHeader
@@ -26,7 +26,7 @@ export function TechStack() {
                 <Icon
                   name={category.icon}
                   aria-hidden
-                  className="size-4 text-brand"
+                  className="size-4 text-brand-text"
                 />
                 {t(category.title)}
               </h3>

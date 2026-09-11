@@ -24,7 +24,7 @@ export function InsightsPreview() {
   return (
     <section
       aria-labelledby="insights-title"
-      className="border-y border-border bg-elevated py-20 md:py-28"
+      className="border-y border-border bg-elevated section-y"
     >
       <div className="container-page">
         <SectionHeader
@@ -80,7 +80,7 @@ function ArticleCard({ article }: { article: ArticlePreview }) {
       <div className="mt-auto pt-6">
         <span
           aria-hidden
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground transition-colors group-hover:text-brand"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground transition-colors group-hover:text-brand-text"
         >
           Read article
           <ArrowRight className="size-4 rtl:rotate-180" />
