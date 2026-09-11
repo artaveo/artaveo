@@ -64,7 +64,7 @@ export default function DesignSystemPage() {
 
       <footer className="border-t border-border">
         <div className="container-page flex flex-col items-start justify-between gap-2 py-8 sm:flex-row sm:items-center">
-          <span className="font-mono text-sm font-semibold tracking-[0.2em]">
+          <span dir="ltr" className="font-mono text-sm font-semibold tracking-[0.2em]">
             ARTAVEO
           </span>
           <span className="text-sm text-muted-foreground">

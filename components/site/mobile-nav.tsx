@@ -42,7 +42,7 @@ export function MobileNav({
       />
       <div className="fixed inset-y-0 end-0 flex w-[min(20rem,85vw)] flex-col border-s border-border bg-background shadow-lg animate-in slide-in-from-right duration-200">
         <div className="flex h-16 items-center justify-between border-b border-border px-5">
-          <span className="font-mono text-sm font-semibold tracking-[0.2em]">
+          <span dir="ltr" className="font-mono text-sm font-semibold tracking-[0.2em]">
             ARTAVEO
           </span>
           <Button variant="ghost" size="icon-sm" onClick={onClose} aria-label="Close menu">
@@ -93,7 +93,7 @@ export function MobileNav({
             render={<Link href="/contact" onClick={onClose} />}
           >
             Start a project
-            <ArrowRight data-icon="inline-end" />
+            <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
           </Button>
         </div>
         <a

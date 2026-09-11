@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { CommandPalette } from '@/components/site/command-palette'
 import { LanguageSwitcher } from '@/components/site/language-switcher'
 import { MobileNav } from '@/components/site/mobile-nav'
@@ -43,7 +44,7 @@ export function SiteHeader() {
     <>
       <header
         className={cn(
-          'sticky top-0 z-50 border-b transition-colors',
+          'sticky top-0 z-50 border-b transition-colors ease-standard',
           scrolled
             ? 'border-border bg-background/80 backdrop-blur-md'
             : 'border-transparent bg-background',
@@ -52,13 +53,8 @@ export function SiteHeader() {
         <div className="container-page flex h-16 items-center justify-between gap-4">
           <div className="flex items-center gap-8">
             <Link href="/" className="group flex items-center gap-2" aria-label="Artaveo home">
-              <span
-                aria-hidden
-                className="grid size-7 place-items-center rounded-md bg-primary font-mono text-sm font-bold text-primary-foreground"
-              >
-                A
-              </span>
-              <span className="font-mono text-sm font-semibold tracking-[0.2em]">
+              <ArtaveoMark className="size-7 text-foreground" />
+              <span dir="ltr" className="font-mono text-sm font-semibold tracking-[0.2em]">
                 ARTAVEO
               </span>
             </Link>
@@ -107,7 +103,7 @@ export function SiteHeader() {
 
             <Button className="hidden sm:inline-flex" render={<Link href="/contact" />}>
               Start a project
-              <ArrowRight data-icon="inline-end" />
+              <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
             </Button>
 
             <Button

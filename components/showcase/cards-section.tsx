@@ -44,7 +44,7 @@ export function CardsSection() {
         <CardFooter className="mt-auto">
           <Button variant="outline" size="sm">
             Case Study
-            <ArrowUpRight data-icon="inline-end" />
+            <ArrowUpRight data-icon="inline-end" className="rtl:-scale-x-100" />
           </Button>
         </CardFooter>
       </Card>
@@ -66,7 +66,7 @@ export function CardsSection() {
         <CardFooter className="mt-auto">
           <Button variant="link" className="px-0">
             Explore service
-            <ArrowUpRight data-icon="inline-end" />
+            <ArrowUpRight data-icon="inline-end" className="rtl:-scale-x-100" />
           </Button>
         </CardFooter>
       </Card>

@@ -148,7 +148,7 @@ export function CommandPalette({
                         <span>{item.label}</span>
                         {isActive ? (
                           external ? (
-                            <ArrowUpRight className="size-3.5 text-muted-foreground" />
+                            <ArrowUpRight className="size-3.5 text-muted-foreground rtl:-scale-x-100" />
                           ) : (
                             <CornerDownLeft className="size-3.5 text-muted-foreground" />
                           )

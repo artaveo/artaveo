@@ -3,7 +3,7 @@
 
 ## Document status
 
-**Last revision:** 11 September 2026 (revision 6 — added the end-of-message status-line rule for AI agent sessions; no phase content changed)  
+**Last revision:** 11 September 2026 (revision 7 — added the end-of-phase delivery rule: deliver changed files, via a branch + PR, before the status line; no phase content changed)  
 **Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open**.  
 **Next step:** close **Phase 3** (checklist 3.5) in a separate session; fix the `public/brand/` folder placement (3 files still misplaced inside `source/`, see 4.1); Phase 4.1's logo intake is now complete — proceed to 4.1.3 onward.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
@@ -24,6 +24,11 @@ This document records the real state of the project, the product direction, the 
 > - what the next sub-phase is (e.g. "next: 4.1.3"),
 > - and a plain recommendation of **same chat or new chat** for that next sub-phase (long/unrelated sub-phases — e.g. a new phase, or one needing a fresh audit — usually mean a new chat; small continuations of the same file set usually mean the same chat).
 > If a phase has no numbered sub-phases, report against the phase itself. This rule applies from this revision forward; it is not retroactive.
+
+> **End-of-phase delivery rule.** Finishing a phase or sub-phase means the changed files actually leave the session, not just that they exist on disk. Order matters — **output first, status line second**, never the reverse:
+> 1. **Deliver the changed files.** Per § 6.5, that means pushed to a branch (not `main`) with a pull request opened for review — not a direct push to `main`, even once push access exists. If the session's environment has no write/push credentials configured (check before claiming otherwise — do not assume), the default fallback is a **plain zip of the actual changed/new files, at their real repo-relative paths**, plus a short note listing any files that need deleting (a zip can't represent a deletion) — not a git patch or bundle. The owner works from GitHub Desktop against a local working copy, not the git CLI, so the delivered artifact must be something that drops directly into that working copy and shows up as changes/new files on its own — nothing requiring `git am`, `git clone`, or any other CLI step. Only offer the CLI-oriented formats (patch/bundle) if the owner asks for them specifically.
+> 2. **Then** give the end-of-message status line above (what finished, what's next, same/new chat).
+> Reporting "phase done" without either a pushed branch/PR or a working-copy-ready zip is incomplete — the roadmap file existing in the repo's history is not itself delivery.
 
 ---
 
@@ -541,15 +546,15 @@ Minor, non-blocking polish for whoever finalizes these: the white mono file meas
 
 **Optional, not blocking:** a **Full — Dark** lockup (mark + wordmark + tagline, white text, transparent) would only be needed for a large dark-background hero placement; the compact-dark lockup already covers real UI needs.
 
-**4.1.3 Everything else this sub-phase still owns**
+**4.1.3 Everything else this sub-phase still owns — ✅ delivered, see `docs/design/art-direction.md` § 4.1.3**
 - benchmarks are used for patterns only; no visual copying (section 4)
-- clear-space and minimum-size rules for every lockup variant above; the wordmark is Latin-only and is never mirrored in RTL contexts (in `fa` layouts it still reads left-to-right, set apart from the surrounding RTL text)
-- favicon, app icons (light/dark), Open Graph image template — replacing the v0 default `icon.svg` and placeholder logos, built from the flat/monochrome variants above, not the 3D render. **Use the current `artaveo-mark-flat-light.svg` / `-flat-dark` / `-mono-white` / `-mono-black` files for this — they are temporary (see `docs/design/art-direction.md` → "Known Issues") but are meant to be placed into real, visible UI now (favicon, app icon, header, anywhere else a mark is needed) rather than left unused while the corrected files are pending. Do not treat "temporary" as a reason to skip using them or to leave the slot empty/generic — that defeats the point of having a placeholder. Add a one-line note wherever they're wired in (code comment or the relevant doc) that this is the temporary mark, swap for the corrected one later.**
-- semantic colours (success / warning / danger / info) in both themes, chosen to sit alongside the charcoal/gold palette without competing with the gold accent
-- **typography pairing:** the wordmark's own geometric, wide-tracked display style is a strong cue for the Latin display face; pair it with a readable Latin text face, and the Persian face (Vazirmatn or a chosen alternative) matched in optical size and weight; separate scales and line-heights per script; numeral rules per D-03
-- **imagery rules:** product screenshots only inside frames with demo data; architecture diagrams in one consistent style; no stock photos of people; no AI images of fictional products
-- **iconography:** one icon set (lucide) with size and stroke rules and an explicit RTL mirroring list; stroke weight chosen to sit comfortably next to the mark's facet style
-- **motion principles:** durations, easing, what may animate, reduced-motion behaviour; the design must stand without motion — the mark's rim-light/glow is a static design detail here, not something to animate on every hover
+- clear-space and minimum-size rules for every lockup variant above ✅ (measured ratios of the mark's own height, not fixed pixels — survives the eventual approved-shape swap); the wordmark is Latin-only and is never mirrored in RTL contexts (in `fa` layouts it still reads left-to-right, set apart from the surrounding RTL text) ✅ (`dir="ltr"` pinned explicitly everywhere the wordmark renders)
+- favicon, app icons (light/dark), Open Graph image template — replacing the v0 default `icon.svg` and placeholder logos, built from the flat/monochrome variants above, not the 3D render ✅. **Used the `artaveo-mark-mono-black.svg` / `-mono-white.svg` temporary files for this, exactly as instructed** — favicon, app icon, header, and footer are all wired to the real mark now rather than left generic, with a one-line note at every wiring point (see `app/layout.tsx`, `components/site/artaveo-mark.tsx`) flagging it as temporary pending the corrected geometry.
+- semantic colours (success / warning / danger / info) in both themes, chosen to sit alongside the charcoal/gold palette without competing with the gold accent ✅ — audited (warning was already fixed in § 4.1.1; success/info/destructive/chart-4/chart-5 checked against the corrected gold this round and found to already have enough hue separation, no changes needed)
+- **typography pairing:** ✅ the wordmark's own geometric, wide-tracked display style is a strong cue for the Latin display face; pair it with a readable Latin text face, and the Persian face (Vazirmatn or a chosen alternative) matched in optical size and weight; separate scales and line-heights per script; numeral rules per D-03 — formalized as: Geist Mono (uppercase, wide-tracked) for display/labels, Geist Sans for text, Vazirmatn for `fa` with its own line-height, numeral rule recorded for Phase 5.3
+- **imagery rules:** ✅ product screenshots only inside frames with demo data; architecture diagrams in one consistent style; no stock photos of people; no AI images of fictional products
+- **iconography:** ✅ one icon set (lucide) with size and stroke rules and an explicit RTL mirroring list; stroke weight chosen to sit comfortably next to the mark's facet style — and six components' inconsistent mirroring fixed along the way
+- **motion principles:** ✅ durations, easing, what may animate, reduced-motion behaviour; the design must stand without motion — the mark's rim-light/glow is a static design detail here, not something to animate on every hover
 
 **Output:** `docs/design/art-direction.md` records the derived tokens, the approved logo variants (with the files above), and the light-theme + small-size rules — for the owner to confirm rather than choose from scratch.
 

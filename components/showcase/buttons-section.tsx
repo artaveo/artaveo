@@ -39,7 +39,7 @@ export function ButtonsSection() {
         <div className="flex flex-wrap items-center gap-3">
           <Button>
             View Our Work
-            <ArrowRight data-icon="inline-end" />
+            <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
           </Button>
           <Button variant="outline">
             <Code data-icon="inline-start" />

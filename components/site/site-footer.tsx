@@ -1,6 +1,7 @@
 import { ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 
+import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { mainNav, siteConfig, socialLinks, utilityNav } from '@/lib/site'
 
 export function SiteFooter() {
@@ -12,13 +13,8 @@ export function SiteFooter() {
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <Link href="/" className="flex items-center gap-2" aria-label="Artaveo home">
-              <span
-                aria-hidden
-                className="grid size-7 place-items-center rounded-md bg-primary font-mono text-sm font-bold text-primary-foreground"
-              >
-                A
-              </span>
-              <span className="font-mono text-sm font-semibold tracking-[0.2em]">
+              <ArtaveoMark className="size-7 text-foreground" />
+              <span dir="ltr" className="font-mono text-sm font-semibold tracking-[0.2em]">
                 ARTAVEO
               </span>
             </Link>
@@ -30,7 +26,7 @@ export function SiteFooter() {
               className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-brand transition-opacity hover:opacity-80"
             >
               {siteConfig.email}
-              <ArrowUpRight className="size-3.5" />
+              <ArrowUpRight className="size-3.5 rtl:-scale-x-100" />
             </a>
           </div>
 
@@ -51,7 +47,7 @@ export function SiteFooter() {
                       className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {item.label}
-                      <ArrowUpRight className="size-3" />
+                      <ArrowUpRight className="size-3 rtl:-scale-x-100" />
                     </a>
                   </li>
                 ))}
