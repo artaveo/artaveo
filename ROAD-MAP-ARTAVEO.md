@@ -3,7 +3,7 @@
 
 ## Document status
 
-**Last revision:** 11 September 2026 (revision 8 — Phase 4 status updated: §4.2 and §4.3 (a/b/c) marked complete throughout, §8.3 index and Phase 4 header updated; no phase content changed)  
+**Last revision:** 12 September 2026 (revision 9 — sub-phase consolidation for Phases 5–11 only: over-split sub-phases with no independent decision gate, owner-approval step or size justification were merged so future sessions aren't fragmented below what a phase actually needs; no information removed, only renumbered/regrouped; all cross-references — Decision Register "Blocks" column, §6.2 debt note, §10.2's forward reference — updated to match. Phases 1–4 (including all of 4.1–4.7) are untouched: content, numbering and structure exactly as in revision 8, since they are already built, pushed and committed. Phases 12–32 were checked and found to already have no sub-phase numbering, so nothing there needed consolidation.)  
 **Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE — 4.1 delivered (D-12 resolved; placeholder-mark swap-back tracked as separate, non-blocking debt), 4.2–4.7 complete**.  
 **Next step:** Phase 3's closure checklist 3.5 (still open, independent of Phase 4) and Phase 5 (Home content in `fa`, locale routing). See `docs/phases/PHASE-4.7-README.md` for what closed Phase 4 out.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
@@ -304,7 +304,7 @@ These findings do not change the historical status of phases 1–3. They are res
 
 - `/` renders the design-system showcase, duplicating `/design-system`.
 - No locale routing (`/en`, `/fa`), no dictionaries, no translated metadata.
-- Mobile navigation is a sheet; decide in Phase 5.4 whether to keep it (acceptable if accessible) or switch to a full overlay.
+- Mobile navigation is a sheet; decide in Phase 5.2 whether to keep it (acceptable if accessible) or switch to a full overlay.
 - Command palette is not fed by content.
 - No `loading`, `error` or `not-found` boundaries per locale.
 - `README.md` is v0 boilerplate.
@@ -337,17 +337,17 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 
 | ID | Decision | Recommended default | Blocks (phase) |
 |---|---|---|---|
-| **D-01** | Brand spelling, production domain, sending e-mail domain | **Spelling resolved: "Artaveo"** (confirmed by the approved logo, 10 Sep 2026). Domain and e-mail still open — register the domain, use it for e-mail with SPF, DKIM and DMARC configured | 4.1 · 9.4 · 11.7 |
+| **D-01** | Brand spelling, production domain, sending e-mail domain | **Spelling resolved: "Artaveo"** (confirmed by the approved logo, 10 Sep 2026). Domain and e-mail still open — register the domain, use it for e-mail with SPF, DKIM and DMARC configured | 4.1 · 9.3 · 11.4 |
 | **D-02** | Public identity: real name, portrait, published location / timezone | **Resolved (11 Sep 2026):** name **Zakir Naseri**; portrait `public/Profile-pic.jpg` (referenced as `/Profile-pic.jpg`); timezone **UTC**, no city published | 3.3 (Hero) · 4.5 · 8.1 |
-| **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.3 |
-| **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.3–7.6 · 9.1 |
-| **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.4 · 5.4 (footer) |
-| **D-06** | Publication rights for case studies (Transportation System, Pazhuhesh Portal): client/employer consent, what may be shown | Written consent; screenshots with **demo data only**; no customer PII; confidential details generalised | 6.3 · 6.4 |
+| **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.1 |
+| **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.2 · 9.1 |
+| **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.3 · 5.2 (footer) |
+| **D-06** | Publication rights for case studies (Transportation System, Pazhuhesh Portal): client/employer consent, what may be shown | Written consent; screenshots with **demo data only**; no customer PII; confidential details generalised | 6.2 · 6.3 |
 | **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 11.2 · 29 |
 | **D-08** | Availability state and response commitment | **Resolved (11 Sep 2026):** response commitment published as **"replies within a few hours, same day"** | 4.5 (Availability) · 14 (SLA) |
 | **D-09** | Consultation format: free intro call length, paid consultation, tool | Free 20–30 min intro call, request-based in v1 | 20 |
-| **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 25's external dump first | 9.3 · 25 |
-| **D-11** | Optional early-client offer | None unless the owner explicitly wants one; if used, it is labelled clearly and time-boxed | 7.5 |
+| **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 25's external dump first | 9.2 · 25 |
+| **D-11** | Optional early-client offer | None unless the owner explicitly wants one; if used, it is labelled clearly and time-boxed | 7.2 |
 | **D-12** | Visual direction and light-theme / small-size logo variants | **Resolved (12 Sep 2026):** owner approved the primary mark (`Artaveo_-_Logo.png`, received 10 Sep 2026) and the derived tokens/variants delivered in § 4.1 (colour tokens, all logo variants, light-theme + small-size rules per `docs/design/art-direction.md`). § 4.6 unblocked. | 4.1 · 4.6 |
 
 Decisions and their dates are recorded in `docs/decisions.md`.
@@ -623,32 +623,30 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 
 **Goal:** real bilingual routing and a finished global shell **before** any new page is built.
 
-### 5.1 Locale routing
+### 5.1 Locale infrastructure (routing, dictionaries, Persian specifics — per D-03)
 - `app/[locale]/…` with `en` and `fa`; middleware negotiates the locale on first visit and respects a stored choice
 - the language switcher maps to the **equivalent route** in the other locale (never back to Home)
 - `<html lang dir>` set server-side per locale — no client-side direction flip, no flash
-
-### 5.2 Dictionaries
 - typed message keys; a missing key fails type-check or tests
 - metadata, navigation, validation messages, empty/error states and alt text are all translated
-
-### 5.3 Persian specifics (per D-03)
 - Vazirmatn for `fa`, with line-height and letter-spacing tuned separately from Latin
 - dates, numbers and currency through `Intl` with the chosen conventions
 - Latin technical terms inside Persian sentences wrapped with `<bdi>` (e.g. *Next.js*, *PostgreSQL*)
 - code blocks, terminal output, URLs and e-mail addresses always LTR
 - icon mirroring rules: directional icons mirror, brand/media icons never do
 
-### 5.4 Shell completion
+> Merged from the previous revision's separate 5.1 (routing) / 5.2 (dictionaries) / 5.3 (Persian specifics): routing without dictionaries has nothing to render, and the Persian rules apply to the same locale layer — none of the three has an independent decision gate or owner-approval step (D-03 is already resolved), so they are one unit of work.
+
+### 5.2 Shell completion & global boundaries
 - "Home" added; navigation: Work · Services · Process · About · Insights (Insights hidden until content exists) · Contact
 - right controls: Search · Language · Theme · **Start a Project**
 - mobile: accessible navigation (decide sheet vs full overlay and record the decision) + wire the **Sticky Mobile CTA** (built in 4.5) on content pages
 - header: sticky, scroll-state, solid on content pages, keyboard accessible, skip-to-content link
 - footer: only real links; external profiles from D-05; locale-aware legal links
 - command palette fed by the content selectors, per locale
-
-### 5.5 Global boundaries
 - `loading`, `error` and `not-found` per locale, designed (not default)
+
+> Merged from the previous revision's separate 5.4 (shell completion) / 5.5 (global boundaries): the boundary pages are small, ride along with the same shell-wiring work, and depend on 5.1 being done first — no independent reason to split them into two sessions.
 
 **Exit criteria:** switching language on any existing route lands on the same route in the other locale with correct `lang`/`dir`; no hard-coded UI strings; RTL review completed for the shell.
 
@@ -658,12 +656,11 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 
 **Goal:** real projects become the strongest proof on the site.
 
-### 6.1 `/work` index
+### 6.1 `/work` index, case study template & shared infrastructure
 - project grid (1 / 2 / 2–3 columns), featured first
 - filters (category, technology) appear **only when there are enough projects to need them** (threshold recorded in config; with two projects, no filters)
 - honest status badges: *Live* · *In development* · *Internal / private* · *Archived* · *Concept*
-
-### 6.2 Case study template
+- case study template:
 
 ```text
 Hero + Snapshot         title, one-line outcome, status, year, role, stack (only true fields)
@@ -685,7 +682,12 @@ Next Project
 
 Metadata that is unknown or not true is omitted, never guessed.
 
-### 6.3 Case study — Transportation System (requires D-06)
+- "How this was built" links from each case study to the public repository and, where allowed, to its roadmap and phase documents — real, verifiable process evidence
+- media v1: screenshots captured with **demo data only**; Browser Frame / Device Frame components; required alt text; `next/image` with explicit sizes and priority only for above-the-fold media
+
+> Merged from the previous revision's separate 6.1 (`/work` index) / 6.2 (case study template) / 6.5 (engineering evidence) / 6.6 (media v1): all four are reusable engine/template infrastructure with no independent decision gate and no per-project content to verify — they are built once and used by both case studies below.
+
+### 6.2 Case study — Transportation System (requires D-06)
 Candidate highlights from the repository (verify each against the code before publishing):
 - intercity booking with a live seat map; seat holds and confirmation enforced server-side, never in the browser
 - PostgreSQL row-level security combined with server-side authorization and a permission center for limited admins
@@ -695,17 +697,13 @@ Candidate highlights from the repository (verify each against the code before pu
 - honest status: in active development; real payment-provider integration pending
 - process evidence: phased roadmap and per-phase implementation documents
 
-### 6.4 Case study — Pazhuhesh Complex Portal (requires D-06)
+### 6.3 Case study — Pazhuhesh Complex Portal (requires D-06)
 - bilingual Dari/English portal with RTL-native interface
 - two admin roles with role-based routing and department-scoped permissions
 - offline-first data layer and installable PWA with caching tuned per data type; admin excluded from caching
 - server-side rate-limited submissions via an edge function
 
-### 6.5 Engineering evidence
-- "How this was built" links from each case study to the public repository and, where allowed, to its roadmap and phase documents — real, verifiable process evidence
-
-### 6.6 Media v1
-- screenshots captured with **demo data only**; Browser Frame / Device Frame components; required alt text; `next/image` with explicit sizes and priority only for above-the-fold media
+> 6.2 and 6.3 stay independent sub-phases (not merged into 6.1 or each other): each is substantial, distinct content-verification work against a different real codebase, and both are separately gated by D-06 (publication consent) per project.
 
 **Exit criteria:** both case studies published in `en` and `fa` (or explicitly blocked on D-06); every factual claim listed in the claims ledger; no real personal data visible.
 
@@ -715,7 +713,7 @@ Candidate highlights from the repository (verify each against the code before pu
 
 **Goal:** a visitor can understand, compare and pre-qualify an offer without a call.
 
-### 7.1 Curated service catalogue (5–7 services)
+### 7.1 Curated service catalogue & detail blueprint
 
 | Service | Type | Notes |
 |---|---|---|
@@ -729,7 +727,7 @@ Candidate highlights from the repository (verify each against the code before pu
 
 The previous revision's 13 overlapping services are merged into these; overlap dilutes positioning.
 
-### 7.2 Service detail blueprint
+Service detail blueprint (every service page):
 
 ```text
 Title + one-line promise
@@ -749,20 +747,17 @@ FAQ
 Start this service  → Brief Builder pre-filled with the service
 ```
 
-### 7.3 Package model
+> Merged from the previous revision's separate 7.1 (catalogue) / 7.2 (detail blueprint): the blueprint is the page template that renders each catalogue entry — there is no catalogue work that doesn't immediately need the blueprint it's rendered through, so they are one page-building task.
+
+### 7.2 Package model, add-ons, pricing signals & engagement models (per D-04)
 - tiers: **Starter · Standard · Custom** (Custom = "scoped after discovery", never a fake price)
 - fields per tier: `summary`, `forWhom`, `included[]`, `notIncluded[]`, `deliverables[]`, `deliveryDays {min,max}`, `revisions`, `supportDays`, `requirements[]`, `price {amount, currency, type: fixed | from | quote}`
 - mobile: stacked cards with a sticky tier switcher; desktop: side-by-side table with a "Not included" row
-
-### 7.4 Add-ons
-- configurable records (`title`, `description`, `price`, `deliveryImpactDays`); never hard-coded in components
-
-### 7.5 Pricing signals (per D-04)
+- add-ons: configurable records (`title`, `description`, `price`, `deliveryImpactDays`); never hard-coded in components
 - **What drives cost** block: number of roles, integrations, content volume, languages, deadlines
 - typical ranges for custom work; starting-from for packages; payment schedule summary linking to the Working Agreement
 - optional early-client offer only if D-11 says so
-
-### 7.6 Engagement models
+- engagement models:
 
 | Model | When it fits | Billing |
 |---|---|---|
@@ -772,6 +767,8 @@ Start this service  → Brief Builder pre-filled with the service
 | Care Plan | Live product needing ongoing care | Monthly |
 | Long-term Part-time | Ongoing product development | Monthly block of hours |
 
+> Merged from the previous revision's separate 7.3 (package model) / 7.4 (add-ons) / 7.5 (pricing signals) / 7.6 (engagement models): all four are the pricing/commerce data mechanics that feed the same package-comparison section of the 7.1 blueprint, and D-04/D-11 gate them together. Kept as its own sub-phase rather than folded into 7.1 because the combined catalogue + blueprint + packages + add-ons + pricing + engagement models is genuinely too large for one session — the same size exception already used for the old Phase 4.3 (a/b/c) split.
+
 **Exit criteria:** every published service has all blueprint sections in both locales; no price shown that the owner has not approved; package table accessible (real table semantics on desktop, labelled cards on mobile).
 
 ---
@@ -780,13 +777,14 @@ Start this service  → Brief Builder pre-filled with the service
 
 **Goal:** answer the questions clients are afraid to ask.
 
-### 8.1 About
-Story (not a CV) · the person (D-02) · technical focus · how I work · values · languages · timezone and overlap hours · tools · external profiles (verified only) · CTA.
+### 8.1 About, Process & Quality baseline
+- **About:** story (not a CV) · the person (D-02) · technical focus · how I work · values · languages · timezone and overlap hours · tools · external profiles (verified only) · CTA
+- **Process:** `01 Discover · 02 Define · 03 Design · 04 Architect · 05 Build · 06 Test · 07 Launch · 08 Support` — each with purpose, activities, output, client involvement, decisions and risks
+- **Quality baseline:** a short, honest page of what every project receives — only commitments the owner actually keeps (e.g. TypeScript, tests on critical flows, WCAG 2.2 AA target, security review, documentation, handover)
 
-### 8.2 Process
-`01 Discover · 02 Define · 03 Design · 04 Architect · 05 Build · 06 Test · 07 Launch · 08 Support` — each with purpose, activities, output, client involvement, decisions and risks.
+> Merged from the previous revision's separate 8.1 (About) / 8.2 (Process) / 8.5 (Quality baseline): three straightforward content pages with no independent decision gate and no owner-approval iteration beyond the phase's normal exit criteria.
 
-### 8.3 Working Agreement ("How we'll work")
+### 8.2 Working Agreement ("How we'll work")
 - communication channel and cadence (e.g. weekly written update, demo per milestone)
 - response commitment (D-08)
 - milestones, deposits and payment timing
@@ -795,11 +793,12 @@ Story (not a CV) · the person (D-02) · technical focus · how I work · values
 - warranty window for defects; what counts as a change request and how it is priced
 - confidentiality / NDA availability
 
-### 8.4 Hire channels (per D-05)
+> Kept as its own sub-phase: this page carries the heaviest legally-adjacent commitments (IP transfer, payment timing, warranty) and is the most likely to need its own separate round of owner review before publishing.
+
+### 8.3 Hire channels (per D-05)
 **Hire Channel Selector** comparing: *Direct* (direct contact, no platform fee) vs *Via platform* (buyer protection/escrow, platform fees and rules). The website stays canonical; platform profiles link back to it.
 
-### 8.5 Quality baseline
-A short, honest page of what every project receives — only commitments the owner actually keeps (e.g. TypeScript, tests on critical flows, WCAG 2.2 AA target, security review, documentation, handover).
+> Kept as its own sub-phase: gated by D-05, which is not yet marked resolved in the Decision Register — it may need to proceed on its own timeline if that decision lags behind the rest of Phase 8.
 
 **Exit criteria:** every commitment on these pages is approved by the owner and recorded in `docs/decisions.md`.
 
@@ -814,25 +813,25 @@ Steps: engagement model / service → project type → goal → key features (ch
 - pre-fill from the page that launched it (`?service=`, `?package=`)
 - per-step validation, back/forward without data loss, keyboard and screen-reader friendly
 - final **Brief Summary** screen before submit; the client receives the same summary by e-mail
+- form states: `Idle · Editing · Step error · Submitting · Persisted-notification-pending · Success · Server error · Rate limited · Offline`
+- scope limit: file attachments are deferred to Phase 15 (uploads are a security surface); v1 accepts links
 
-### 9.2 Server handling
+> Merged from the previous revision's separate 9.1 (Brief Builder) / 9.5 (states) / 9.6 (scope limits): the state list is the Brief Builder's own UI/flow behaviour, and the scope-limit note is a one-line caveat on the same form — neither is independent build work.
+
+### 9.2 Server handling & persistence (minimal slice of the Phase 12 schema)
 - one schema shared by client and server; server re-validates everything
 - honeypot + rate limit per IP/e-mail + optional privacy-friendly challenge
 - idempotency key per submission to prevent duplicates on double click or retry
-
-### 9.3 Persistence (minimal slice of the Phase 12 schema)
 - `inquiries` and `inquiry_events` tables; RLS: no public select; inserts only through the server
 - source attribution (referrer, UTM, channel) stored without extra personal data
 
-### 9.4 Notifications (requires D-01 domain + DNS authentication)
+> Merged from the previous revision's separate 9.2 (server handling) / 9.3 (persistence): validation, rate-limiting and idempotency only make sense in the context of what they're protecting — the same insert path into the same tables — so these were never separable work.
+
+### 9.3 Notifications (requires D-01 domain + DNS authentication)
 - owner alert + client confirmation through a provider abstraction
 - **outbox pattern:** persist first, send after; failed e-mails are retried and never lose the inquiry
 
-### 9.5 States
-`Idle · Editing · Step error · Submitting · Persisted-notification-pending · Success · Server error · Rate limited · Offline`
-
-### 9.6 Scope limits
-File attachments are deferred to Phase 15 (uploads are a security surface); v1 accepts links.
+> Kept as its own sub-phase: blocked on an external dependency (domain + DNS authentication under D-01, still open) independent of the rest of Phase 9, and it is distinct provider-integration work reused again in Phase 19.
 
 **Exit criteria:** end-to-end submission verified in both locales; duplicate submission creates one record; provider outage does not lose data; spam controls tested.
 
@@ -846,26 +845,27 @@ File attachments are deferred to Phase 15 (uploads are a security surface); v1 a
 
 By this point Phase 6, 7, 8 and 9 have already shipped Work, Services, About/Process and the Brief Builder, so there is real multi-page content worth caching — this is why the phase sits here rather than right after Phase 5.
 
-### 10.1 Web app manifest & install experience
+### 10.1 Web app manifest, install experience & update handling
 - `manifest.json`: name, short name, theme colour, background colour, `display: standalone`, `start_url`
 - icons generated from the Phase 4 mark-only variants (flat/monochrome, not the 3D render) at the standard PWA sizes
 - install prompt follows platform conventions; never a custom nagging banner
+- when a new deploy publishes, a visitor with the site already open or installed gets a visible "update available" prompt rather than silently running stale content forever
+
+> Merged from the previous revision's separate 10.1 (manifest/install) / 10.5 (update handling): both are the installed-app lifecycle experience around the same manifest/service-worker registration, with no independent blocker.
 
 ### 10.2 Service worker & caching strategy
 - **cache-first** for static assets: fonts, the logo files, icons, CSS/JS bundles
 - **stale-while-revalidate** for content pages: Home, Work (index + case studies), Services (catalogue + detail), About, Process, Insights — a repeat visit opens instantly from cache while a fresh copy loads in the background
 - cache versioned to the deploy; a new publish invalidates the old cache instead of leaving visitors on stale content indefinitely
+- **never cached, network-only:** the Brief Builder's **submit** request itself, and every other server mutation; from Phase 13 onward, every admin route, the lead pipeline, CMS screens, and later the client portal (Phase 28) — excluded from the service worker's scope entirely, the same rule the Pazhuhesh Portal case study already applied to its own admin (section 6.3)
 
-### 10.3 What stays network-only — never cached, never offline
-- the Brief Builder's **submit** request itself, and every other server mutation
-- from Phase 13 onward: every admin route, the lead pipeline, CMS screens, and later the client portal (Phase 28) — these are excluded from the service worker's scope entirely, the same rule the Pazhuhesh Portal case study already applied to its own admin (section 6.4)
+> Merged from the previous revision's separate 10.2 (caching strategy) / 10.3 (what stays network-only): the exclusion list is the other half of the same caching-strategy decision, not separate work.
 
-### 10.4 Offline behaviour for the Brief Builder
+### 10.3 Offline behaviour for the Brief Builder
 - the form itself may open offline (it's just UI), but submission follows principle 15 (never fake success): if offline at submit time, either block with a clear "you're offline — reconnect to send" message, or queue the payload locally and retry automatically once back online (browser-side outbox, same idea as the server-side outbox in Phase 19)
 - the success screen only ever appears after the server has actually confirmed persistence — never on queueing alone
 
-### 10.5 Update handling
-- when a new deploy publishes, a visitor with the site already open or installed gets a visible "update available" prompt rather than silently running stale content forever
+> Kept as its own sub-phase: this is the safety-critical "never fake success" behaviour (principle 15) and warrants isolated, careful verification rather than being folded into general caching work.
 
 **Exit criteria:** Home, Work, Services, About, Process and Insights are navigable with the network turned off after one prior visit; Lighthouse's installability and PWA checks pass; the Brief Builder never shows a false success while offline; every admin/CMS/client-portal route (as they come online in later phases) is verifiably outside the service worker's cache scope; both locales and both themes checked per the standard Definition of Done.
 
@@ -873,26 +873,28 @@ By this point Phase 6, 7, 8 and 9 have already shipped Work, Services, About/Pro
 
 ## Phase 11 — Launch Readiness  (M1 gate)
 
-### 11.1 SEO
-Unique titles/descriptions per page and locale · canonical · hreflang · sitemap · robots · dynamic Open Graph images · structured data: `Person`, `ProfessionalService`, `WebSite`, `BreadcrumbList`, `CreativeWork` for case studies, `Service` + `Offer` only where a price is published, `FAQPage` for FAQs.
+### 11.1 SEO & analytics events
+- unique titles/descriptions per page and locale · canonical · hreflang · sitemap · robots · dynamic Open Graph images · structured data: `Person`, `ProfessionalService`, `WebSite`, `BreadcrumbList`, `CreativeWork` for case studies, `Service` + `Offer` only where a price is published, `FAQPage` for FAQs
+- analytics events: `page_view · project_view · service_view · package_compare · cta_click · brief_start · brief_step · brief_submit · consultation_request · external_profile_click · language_switch · search_used` — no form contents, no personal data in events
+
+> Merged from the previous revision's separate 11.1 (SEO) / 11.3 (analytics events): both are marketing/measurement metadata wired into the same pages, with no independent blocker.
 
 ### 11.2 Legal & privacy (per D-07)
 Privacy policy (what the inquiry collects, why, retention, rights, processors) · terms · imprint if required · prefer cookie-less analytics; if any non-essential cookie is used, a consent banner with a real reject option.
 
-### 11.3 Analytics events
-`page_view · project_view · service_view · package_compare · cta_click · brief_start · brief_step · brief_submit · consultation_request · external_profile_click · language_switch · search_used` — no form contents, no personal data in events.
+> Kept as its own sub-phase: gated by D-07 (jurisdiction of operation), which is not yet marked resolved in the Decision Register.
 
-### 11.4 Performance budget
-Mobile CWV targets from section 3; route JS budget recorded; fonts subset and preloaded carefully; images sized and modern formats.
+### 11.3 Performance & accessibility pass
+- mobile CWV targets from section 3; route JS budget recorded; fonts subset and preloaded carefully; images sized and modern formats
+- keyboard-only pass, screen reader pass (one desktop + one mobile), 200 % zoom, reduced motion, contrast, form errors announced, RTL reading order
 
-### 11.5 Accessibility
-Keyboard-only pass, screen reader pass (one desktop + one mobile), 200 % zoom, reduced motion, contrast, form errors announced, RTL reading order.
+> Merged from the previous revision's separate 11.4 (performance budget) / 11.5 (accessibility): both are whole-site audit-and-fix passes of the same kind, mirroring how Phase 26 later combines the two into a single "Performance & Accessibility Certification" phase.
 
-### 11.6 Pre-launch content check
-Every claim in the claims ledger · no visible placeholder · every link resolves · both locales complete · 404 designed.
+### 11.4 Pre-launch content check & deploy
+- every claim in the claims ledger · no visible placeholder · every link resolves · both locales complete · 404 designed
+- production domain (D-01) · environment variables audited · preview deployments on · `main` protected
 
-### 11.7 Deploy
-Production domain (D-01) · environment variables audited · preview deployments on · `main` protected.
+> Merged from the previous revision's separate 11.6 (pre-launch content check) / 11.7 (deploy): both are the final go/no-go checklist immediately before flipping the release switch, naturally done in the same pass.
 
 **Gate:** `M1 LAUNCH — MANUAL APPROVAL REQUIRED`.
 
