@@ -544,7 +544,7 @@ Minor, non-blocking polish for whoever finalizes these: the white mono file meas
 **4.1.3 Everything else this sub-phase still owns**
 - benchmarks are used for patterns only; no visual copying (section 4)
 - clear-space and minimum-size rules for every lockup variant above; the wordmark is Latin-only and is never mirrored in RTL contexts (in `fa` layouts it still reads left-to-right, set apart from the surrounding RTL text)
-- favicon, app icons (light/dark), Open Graph image template — replacing the v0 default `icon.svg` and placeholder logos, built from the flat/monochrome variants above, not the 3D render
+- favicon, app icons (light/dark), Open Graph image template — replacing the v0 default `icon.svg` and placeholder logos, built from the flat/monochrome variants above, not the 3D render. **Use the current `artaveo-mark-flat-light.svg` / `-flat-dark` / `-mono-white` / `-mono-black` files for this — they are temporary (see `docs/design/art-direction.md` → "Known Issues") but are meant to be placed into real, visible UI now (favicon, app icon, header, anywhere else a mark is needed) rather than left unused while the corrected files are pending. Do not treat "temporary" as a reason to skip using them or to leave the slot empty/generic — that defeats the point of having a placeholder. Add a one-line note wherever they're wired in (code comment or the relevant doc) that this is the temporary mark, swap for the corrected one later.**
 - semantic colours (success / warning / danger / info) in both themes, chosen to sit alongside the charcoal/gold palette without competing with the gold accent
 - **typography pairing:** the wordmark's own geometric, wide-tracked display style is a strong cue for the Latin display face; pair it with a readable Latin text face, and the Persian face (Vazirmatn or a chosen alternative) matched in optical size and weight; separate scales and line-heights per script; numeral rules per D-03
 - **imagery rules:** product screenshots only inside frames with demo data; architecture diagrams in one consistent style; no stock photos of people; no AI images of fictional products
@@ -589,6 +589,7 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 - Sticky Mobile CTA
 
 ### 4.6 Visual pass on Shell & Home (requires D-12 approval of the derived variants from 4.1)
+> **Exception — the header/nav mark placeholder.** Swapping the literal "A" placeholder box in the header for the actual mark file (currently the temporary one — see 4.1.3's note) is a small, reversible asset swap, not a design decision — it doesn't need to wait for D-12 or for the rest of this sub-phase. Do it as part of 4.1.3 (or as soon as the mark files exist), same reasoning as the favicon: a placeholder sitting unused while a temporary asset is available and explicitly meant to be used defeats the purpose of having it. The **rest** of 4.6 below (full direction applied to nav/footer/command-palette, Home redesign) still waits for D-12.
 - apply the chosen direction to header, mobile navigation, footer, command palette and every Home section
 - redesign the Home "Tech Stack" block into the Expertise-matrix layout (data wiring follows in Phases 7–8)
 - fix known Home issues: Hero code-panel line overflow around 1024 px, "Why Artaveo" heading line break, portrait-placeholder head shape
