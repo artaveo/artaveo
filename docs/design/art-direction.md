@@ -84,6 +84,53 @@ Because these were traced mark-only (the wordmark was never part of the crop), t
 
 **Tested at UI sizes:** both monochrome variants stay legible as a recognisable "A" at 32px and 16px (favicon range); the negative-space triangle (the ribbon fold) starts to merge with the outer strokes at 16px but the shape doesn't collapse into a blob.
 
+## Update — owner reference sheet supersedes the measured colours
+
+`Data/ChatGPT Image Sep 11, 2026, 01_24_12 AM.png` — a 9-panel brand reference sheet (main logo dark/light, flat/simple version, monochrome white/black, icon-only, compact lockup, favicon examples on six backgrounds, and a labelled brand-colour swatch) — turned up in the repo after the above was written. It labels the brand colours explicitly:
+
+| | Hex | OKLCH |
+|---|---|---|
+| Charcoal | `#1A1A1A` | `oklch(0.218 0.000 90)` — genuinely neutral, zero chroma |
+| Gold | `#D4A24C` | `oklch(0.743 0.119 79)` |
+| Light | `#F8F9FA` | `oklch(0.982 0.002 248)` |
+
+**This supersedes the colours measured earlier in this document.** The earlier charcoal (`#333940`, hue ~250–260) was sampled from the glossy 3D render's shaded facets — that cool tint turns out to be the render engine's lighting, not the brand's intended flat colour. This sheet's charcoal is genuinely neutral (chroma 0), which actually matches the roadmap's original §4.1.1 guess (`#353535`) better than this document's own pixel-sampling did. The gold barely moves (`#D6963D` measured → `#D4A24C` official, ~2% difference).
+
+**What changed as a result:**
+- `artaveo-mark-flat.svg` — fills updated: charcoal `#2C3239` → `#1A1A1A`, gold `#D6963D` → `#D4A24C`.
+- `artaveo-mark-mono-black*.svg` — near-black fill unified to `#1A1A1A` instead of a separately-eyeballed `#151515`.
+- `app/globals.css` — `--brand` (light `oklch(0.74 0.12 79)`, dark `oklch(0.8 0.12 79)`) and `--brand-foreground`/`--brand-muted` recomputed at hue 79 instead of 72. The AA finding (gold fails as text/fill on white, needs a dark foreground) still holds — contrast is ~2.3 vs white either way — so the `--ring`/`badge.tsx` fixes from before are unaffected.
+- `--warning` (hue 40) stays clearly separated from the corrected gold hue (79 vs 40) — no clash, no change needed.
+
+**Not resolved by this:** the sheet is an AI-generated mockup (per its filename), not a vector deliverable — this session adopted its *colour values* (explicit labelled numbers) but kept the traced *geometry* from the approved master render, not this sheet's raster icon. **Still needs the owner's confirmation (D-12)** — it isn't certain this sheet reflects a final decision rather than one exploration among others.
+
+## Known Issues — temporary placeholder mark files (do not treat as final)
+
+Four additional files were added to `Data/` after the above (`Flat Gold and Charcoal A Emblem.png`, `Geometric Charcoal and Gold Ribbon Emblem.png`, `Monochrome Angular A Logo.png`, `Abstract White Ribbon A Emblem.png`). Compared against the D-12-approved master (`artaveo-master-reference.png`), all four share **a different silhouette from the approved mark**: they add a separate, detached quadrilateral "flag" shape at the bottom-right of the "A" that does not exist in the approved logo's continuous folded-ribbon silhouette. This is a different design, not a flat/mono rebuild of the approved one — the roadmap's §4.1.2 is explicit that none of the logo-system rows should be a new design.
+
+**Per explicit instruction, these were still traced and installed as working placeholders** (official `#1A1A1A` / `#D4A24C` colours applied, approved-logo geometry not used) so favicon/icon/UI work isn't blocked waiting for a corrected asset:
+
+| File | Source | Role |
+|---|---|---|
+| `public/brand/artaveo-mark-flat-light.svg` | `Data/Flat Gold and Charcoal A Emblem.png` | **TEMP** — flat mark, light-surface use |
+| `public/brand/artaveo-mark-flat-dark.svg` | `Data/Geometric Charcoal and Gold Ribbon Emblem.png` | **TEMP** — flat mark, dark-surface use |
+| `public/brand/artaveo-mark-mono-white.svg` | `Data/Abstract White Ribbon A Emblem.png` | **TEMP** — overwrote the approved-shape version |
+| `public/brand/artaveo-mark-mono-black.svg` | `Data/Monochrome Angular A Logo.png` | **TEMP** — overwrote the approved-shape version |
+
+The role assignment (which of the two colour files is "-light" vs "-dark") was my own labelling guess to match the requested four names — not stated anywhere in the source files, so confirm/correct it before it propagates further.
+
+The pre-existing, approved-shape versions were **not deleted** — they're kept as:
+- `public/brand/artaveo-mark-mono-white-approved-shape-REFERENCE.svg`
+- `public/brand/artaveo-mark-mono-black-approved-shape-REFERENCE.svg`
+- `public/brand/artaveo-mark-flat.svg` (single flat mark, correct silhouette — the flat-light/flat-dark split doesn't exist yet in the correct geometry)
+
+**When the corrected replacement arrives, these are the places that need to be swapped back** (nothing currently downstream consumes the temp files yet, since favicon/app-icon generation is still an open 4.1.3 item — but flag this if that work starts before the swap happens):
+- `public/brand/artaveo-mark-flat-light.svg`
+- `public/brand/artaveo-mark-flat-dark.svg`
+- `public/brand/artaveo-mark-mono-white.svg`
+- `public/brand/artaveo-mark-mono-black.svg`
+- any favicon / app-icon / Open Graph asset built from the four files above, once that work happens
+
 ## Still open in 4.1 (not attempted this session)
 
 - Favicon / app icons (light+dark) / Open Graph template built from the new flat/mono SVGs.
