@@ -519,7 +519,7 @@ public/brand/artaveo-lockup-full-light.png          mark + wordmark + tagline, d
 public/brand/artaveo-lockup-compact-dark.png        mark + wordmark, no tagline, white text, transparent background ✅
 public/brand/artaveo-lockup-compact-light.png       mark + wordmark, no tagline, dark text, transparent background  ✅
 ```
-> **Folder fix needed:** as of the last check, all four files were placed inside `public/brand/source/`. Only `artaveo-master-reference.png` belongs in `source/`; move the other three up one level to `public/brand/` directly — `source/` is for raw, non-production references only.
+> **Folder fix — resolved (11 Sep 2026):** all three lockup PNGs are now directly under `public/brand/`; only `artaveo-master-reference.png` remains in `public/brand/source/`, as intended.
 
 These three lockups are usable production assets (real transparency, no white/black fringe) and already cover the **Full — Light**, **Compact — Dark** and **Compact — Light** rows below. The original master stays reference-only: its background is a photographic smoke texture, not transparent, and the mark is a glossy 3D render (gradients, bevel highlights, rim light) rather than flat vector art — fine for colour sampling and as an occasional large hero asset, not for header/favicon use.
 
@@ -528,28 +528,40 @@ These three lockups are usable production assets (real transparency, no white/bl
 - gold interior facet / tagline → **brand accent**, sampled around `#C68B4B`–`#CD9E57` depending on file — use as an accent only (borders, icons, small highlights, the tagline-style small caps line), never as body text or large fills, since it doesn't clear AA contrast on either pure black or pure white at text sizes
 - confirm both against the existing OKLCH tokens from Phase 1; adjust the brand hue to match the gold rather than inventing a new one
 
-**4.1.2 Logo system — status: complete (11 Sep 2026)**
+**4.1.2 Logo system — PNG status: mostly complete; SVG vector set: complete and verified (11 Sep 2026)**
 
-All 7 planned variants are now in hand. Shape-consistency check passed: each was cropped and compared side by side against the master reference at equal height — the silhouette, the double-ribbon crossing and the lower-right facet all match across every file (unlike the earlier AI-generated sheet, where the same check had found the shapes drifting between cells).
+All 7 PNG variants are in hand. Re-verified this round with pixel-level connected-component analysis (not just a visual side-by-side) against the master reference:
 
-| Variant | Status | File |
+| Variant | PNG status | File |
 |---|---|---|
-| **Full — Light** (mark + wordmark + tagline, dark text) | ✅ received | `artaveo-lockup-full-light.png` |
-| **Compact — Dark** (mark + wordmark, no tagline, white text) | ✅ received | `artaveo-lockup-compact-dark.png` |
-| **Compact — Light** (mark + wordmark, no tagline, dark text) | ✅ received | `artaveo-lockup-compact-light.png` |
-| **Flat mark — Dark** (mark only, flat charcoal + gold, no outline needed — charcoal reads fine against dark surfaces) | ✅ received | `artaveo-mark-flat-dark.png` |
-| **Flat mark — Light** (mark only, flat charcoal + gold, with a thin inner contour line for definition against white) | ✅ received | `artaveo-mark-flat-light.png` |
-| **Monochrome — White** (mark only, single flat white, for dark/photo surfaces) | ✅ received | `artaveo-mark-mono-white.png` |
-| **Monochrome — Black** (mark only, single flat black, for light surfaces) | ✅ received | `artaveo-mark-mono-black.png` |
+| **Full — Light** (mark + wordmark + tagline, dark text) | ✅ correct, transparent | `artaveo-lockup-full-light.png` |
+| **Compact — Dark** (mark + wordmark, no tagline, white text) | ✅ correct, transparent | `artaveo-lockup-compact-dark.png` |
+| **Compact — Light** (mark + wordmark, no tagline, dark text) | ✅ correct, transparent | `artaveo-lockup-compact-light.png` |
+| **Flat mark — Dark** (mark only, flat charcoal + gold) | ✅ geometry connected (verified via erosion test); ⚠️ no alpha channel — opaque white background baked in, not transparent | `artaveo-mark-flat-dark.png` |
+| **Flat mark — Light** (mark only, flat charcoal + gold, thin inner contour) | ✅ correct, transparent, connected | `artaveo-mark-flat-light.png` |
+| **Monochrome — White** (mark only, single flat white) | ❌ **still has the lower-right-facet disconnect** — connected-component analysis found two separate shapes (179,349px and 104,960px), not one. The "shape-consistency check passed" note previously recorded here for this file was not correct. | `artaveo-mark-mono-white.png` |
+| **Monochrome — Black** (mark only, single flat black) | ✅ correct, transparent, connected | `artaveo-mark-mono-black.png` |
 
-Minor, non-blocking polish for whoever finalizes these: the white mono file measures roughly `#FAFAFA` rather than pure `#FFFFFF`, and the black mono file measures roughly `#0A0A0A` rather than pure `#000000` — close enough to use as-is; only worth a touch-up if a future print or embossed use needs an exact pure value. All four mark-only files also already satisfy the "Mark-only lockup" need (browser tab, avatar-sized badge) — no separate file required for that.
+**SVG vector set — rebuilt 11 Sep 2026, all 4 verified:**
+
+`artaveo-mark-flat-dark.svg`, `artaveo-mark-flat-light.svg`, `artaveo-mark-mono-black.svg`, `artaveo-mark-mono-white.svg` in `public/brand/` were re-traced from the PNGs above (`potrace`, per-colour masks, smoothed for `flat-dark` to remove source JPEG-grain noise before tracing). All four were rendered and the ribbon-crossing fold zoomed in on to confirm no gap: connected, smooth curves, no autotrace jaggedness. **`artaveo-mark-mono-white.svg` was not traced from its defective source PNG** — it was built from `artaveo-mark-mono-black.svg`'s verified-correct silhouette, filled white, since the two mono variants share identical geometry. So the SVG deliverable is correct even though the mono-white **PNG** on disk still isn't.
+
+Colours corrected to the **official** values (`#1A1A1A` charcoal / `#D4A24C` gold — matches the live `--brand` token, `oklch(0.74 0.12 79)`, hue 79) per `docs/design/art-direction.md`'s later supersession note, not the earlier `#333940`/`#D6963D` sampling recorded in §4.1.1 above.
+
+Old defective files removed: `artaveo-mark-flat.svg`, `artaveo-mark-mono-black-approved-shape-REFERENCE.svg`, `artaveo-mark-mono-white-approved-shape-REFERENCE.svg` (all superseded by the 4 files above — no replacement needed, they don't correspond to a mark-only PNG in the current set).
+
+**Still open / new debt:**
+- `artaveo-mark-mono-white.png` (the raster file) should be regenerated properly (or at minimum re-exported from the same source as the black mono) — it's not currently used directly by any production code path (the SVG is), but it's a wrong asset sitting in the repo.
+- `artaveo-mark-flat-dark.png` has no transparency (opaque white background) — fine for the SVG (traced via colour threshold, not alpha), but the PNG itself would show a white box if ever placed on a dark surface directly.
+- Minor, non-blocking: the white mono PNG measures roughly `#FAFAFA` rather than pure `#FFFFFF`, and the black mono PNG measures roughly `#0A0A0A` rather than pure `#000000`.
 
 **Optional, not blocking:** a **Full — Dark** lockup (mark + wordmark + tagline, white text, transparent) would only be needed for a large dark-background hero placement; the compact-dark lockup already covers real UI needs.
 
 **4.1.3 Everything else this sub-phase still owns — ✅ delivered, see `docs/design/art-direction.md` § 4.1.3**
 - benchmarks are used for patterns only; no visual copying (section 4)
 - clear-space and minimum-size rules for every lockup variant above ✅ (measured ratios of the mark's own height, not fixed pixels — survives the eventual approved-shape swap); the wordmark is Latin-only and is never mirrored in RTL contexts (in `fa` layouts it still reads left-to-right, set apart from the surrounding RTL text) ✅ (`dir="ltr"` pinned explicitly everywhere the wordmark renders)
-- favicon, app icons (light/dark), Open Graph image template — replacing the v0 default `icon.svg` and placeholder logos, built from the flat/monochrome variants above, not the 3D render ✅. **Used the `artaveo-mark-mono-black.svg` / `-mono-white.svg` temporary files for this, exactly as instructed** — favicon, app icon, header, and footer are all wired to the real mark now rather than left generic, with a one-line note at every wiring point (see `app/layout.tsx`, `components/site/artaveo-mark.tsx`) flagging it as temporary pending the corrected geometry.
+- favicon, app icons (light/dark), Open Graph image template — replacing the v0 default `icon.svg` and placeholder logos, built from the flat/monochrome variants above, not the 3D render ✅. **Updated 11 Sep 2026** to the corrected, connectivity-verified mono mark: `public/artaveo-icon.svg`, `public/icon.svg`, `app/favicon.ico`, `app/apple-icon.png`, `public/apple-icon.png`, and the four `public/icon-{light,dark}-{16,32}x{16,32}.png` fallbacks were all rebuilt from `artaveo-mark-mono-black.svg` (now correct). `components/site/artaveo-mark.tsx` (header/footer) had its two inline `<path>` values swapped for the same corrected geometry — this was the live-rendered instance of the same disconnected-facet defect, so it's fixed alongside the static assets rather than left stale. The "temporary placeholder" comments in `app/layout.tsx`, `app/manifest.ts` and this component have been updated to drop the temporary framing.
+  - **Not yet updated (new debt, out of this pass's scope):** `public/icon-192.png`, `public/icon-512.png`, `public/icon-512-maskable.png` (PWA manifest icons, `app/manifest.ts`) and `public/brand/og-image.png` are still built from the old defective trace. Same fix applies — swap for the corrected mono mark — recommended before Phase 10 (PWA) or before any public share of the OG image.
 - semantic colours (success / warning / danger / info) in both themes, chosen to sit alongside the charcoal/gold palette without competing with the gold accent ✅ — audited (warning was already fixed in § 4.1.1; success/info/destructive/chart-4/chart-5 checked against the corrected gold this round and found to already have enough hue separation, no changes needed)
 - **typography pairing:** ✅ the wordmark's own geometric, wide-tracked display style is a strong cue for the Latin display face; pair it with a readable Latin text face, and the Persian face (Vazirmatn or a chosen alternative) matched in optical size and weight; separate scales and line-heights per script; numeral rules per D-03 — formalized as: Geist Mono (uppercase, wide-tracked) for display/labels, Geist Sans for text, Vazirmatn for `fa` with its own line-height, numeral rule recorded for Phase 5.3
 - **imagery rules:** ✅ product screenshots only inside frames with demo data; architecture diagrams in one consistent style; no stock photos of people; no AI images of fictional products
@@ -594,7 +606,7 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 - Sticky Mobile CTA
 
 ### 4.6 Visual pass on Shell & Home (requires D-12 approval of the derived variants from 4.1)
-> **Exception — the header/nav mark placeholder.** Swapping the literal "A" placeholder box in the header for the actual mark file (currently the temporary one — see 4.1.3's note) is a small, reversible asset swap, not a design decision — it doesn't need to wait for D-12 or for the rest of this sub-phase. Do it as part of 4.1.3 (or as soon as the mark files exist), same reasoning as the favicon: a placeholder sitting unused while a temporary asset is available and explicitly meant to be used defeats the purpose of having it. The **rest** of 4.6 below (full direction applied to nav/footer/command-palette, Home redesign) still waits for D-12.
+> **Exception — the header/nav mark placeholder.** Swapping the literal "A" placeholder box in the header for the actual mark file is a small, reversible asset swap, not a design decision — it doesn't need to wait for D-12 or for the rest of this sub-phase. Done as part of 4.1.3, now using the corrected, connectivity-verified mark (11 Sep 2026 — see 4.1.2). The **rest** of 4.6 below (full direction applied to nav/footer/command-palette, Home redesign) still waits for D-12.
 - apply the chosen direction to header, mobile navigation, footer, command palette and every Home section
 - redesign the Home "Tech Stack" block into the Expertise-matrix layout (data wiring follows in Phases 7–8)
 - fix known Home issues: Hero code-panel line overflow around 1024 px, "Why Artaveo" heading line break, portrait-placeholder head shape

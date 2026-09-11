@@ -106,6 +106,8 @@ Because these were traced mark-only (the wordmark was never part of the crop), t
 
 ## Known Issues — temporary placeholder mark files (do not treat as final)
 
+> **Resolved 11 Sep 2026 — see `ROAD-MAP-ARTAVEO.md` § 4.1.2.** The corrected mark PNGs (7 variants, connectivity-verified except `artaveo-mark-mono-white.png` which still has the disconnected-facet defect — its SVG was built from the verified-correct `mono-black` silhouette instead) replaced the placeholder sheet described below. All items in the "places that need to be swapped back" list further down were swapped: the four `public/brand/artaveo-mark-*.svg` files, the favicon/app-icon set, and `components/site/artaveo-mark.tsx`. Still outstanding: `public/icon-192.png`, `icon-512.png`, `icon-512-maskable.png`, and `public/brand/og-image.png` — these still reference the old trace and are new debt for a follow-up pass. The historical record below is kept as-is per the roadmap's numbering/history rule.
+
 Four additional files were added to `Data/` after the above (`Flat Gold and Charcoal A Emblem.png`, `Geometric Charcoal and Gold Ribbon Emblem.png`, `Monochrome Angular A Logo.png`, `Abstract White Ribbon A Emblem.png`). Compared against the D-12-approved master (`artaveo-master-reference.png`), all four share **a different silhouette from the approved mark**: they add a separate, detached quadrilateral "flag" shape at the bottom-right of the "A" that does not exist in the approved logo's continuous folded-ribbon silhouette. This is a different design, not a flat/mono rebuild of the approved one — the roadmap's §4.1.2 is explicit that none of the logo-system rows should be a new design.
 
 **Per explicit instruction, these were still traced and installed as working placeholders** (official `#1A1A1A` / `#D4A24C` colours applied, approved-logo geometry not used) so favicon/icon/UI work isn't blocked waiting for a corrected asset:
@@ -124,13 +126,14 @@ The pre-existing, approved-shape versions were **not deleted** — they're kept 
 - `public/brand/artaveo-mark-mono-black-approved-shape-REFERENCE.svg`
 - `public/brand/artaveo-mark-flat.svg` (single flat mark, correct silhouette — the flat-light/flat-dark split doesn't exist yet in the correct geometry)
 
-**When the corrected replacement arrives, these are the places that need to be swapped back** (as of §4.1.3, the temp files are now wired into real, visible UI — favicon, app icon, Open Graph image, and the header/footer mark — so this list is live debt, not a hypothetical):
-- `public/brand/artaveo-mark-flat-light.svg`
-- `public/brand/artaveo-mark-flat-dark.svg`
-- `public/brand/artaveo-mark-mono-white.svg`
-- `public/brand/artaveo-mark-mono-black.svg`
-- `public/artaveo-icon.svg`, `app/favicon.ico`, `app/apple-icon.png`, `public/icon-{light,dark}-{16,32}x{16,32}.png`, `public/icon-192.png`, `public/icon-512.png`, `public/icon-512-maskable.png`, `public/brand/og-image.png` — all favicon/app-icon/OG assets built in §4.1.3, all traced from the temp mono files, all need rebuilding from the corrected geometry.
-- `components/site/artaveo-mark.tsx` — the header/footer mark component; swap the two inline `<path>` values.
+**Swap-back status (updated 11 Sep 2026):**
+- ✅ `public/brand/artaveo-mark-flat-light.svg`
+- ✅ `public/brand/artaveo-mark-flat-dark.svg`
+- ✅ `public/brand/artaveo-mark-mono-white.svg` (built from the verified `mono-black` silhouette — the source PNG itself is still defective, SVG is correct)
+- ✅ `public/brand/artaveo-mark-mono-black.svg`
+- ✅ `public/artaveo-icon.svg`, `public/icon.svg`, `app/favicon.ico`, `app/apple-icon.png`, `public/apple-icon.png`, `public/icon-{light,dark}-{16,32}x{16,32}.png`
+- ❌ still on the old trace: `public/icon-192.png`, `public/icon-512.png`, `public/icon-512-maskable.png`, `public/brand/og-image.png`
+- ✅ `components/site/artaveo-mark.tsx` — both inline `<path>` values swapped.
 
 ## §4.1.3 — Favicon/header wiring, clear-space, semantic colours, typography, imagery, iconography, motion
 
@@ -138,7 +141,7 @@ Everything in this section was built and verified against a real `pnpm build` (T
 
 ### Favicon / app icons / Open Graph image — now wired into real UI
 
-Per the roadmap's explicit instruction, these were built from the **temporary placeholder mark** (`artaveo-mark-mono-black.svg` / `artaveo-mark-mono-white.svg`, see "Known Issues" above), not the approved-shape reference files — deliberately, so the slot isn't left empty while the corrected mark is pending. Every file below carries a code comment marking it temporary.
+Per the roadmap's explicit instruction, these were originally built from the **temporary placeholder mark** (`artaveo-mark-mono-black.svg` / `artaveo-mark-mono-white.svg`, see "Known Issues" above), not the approved-shape reference files — deliberately, so the slot isn't left empty while the corrected mark is pending. **Resolved 11 Sep 2026:** `public/artaveo-icon.svg`, `public/icon.svg`, `app/favicon.ico`, `app/apple-icon.png`, `public/apple-icon.png`, the four `icon-{light,dark}-{16,32}x{16,32}.png` fallbacks, and the `components/site/artaveo-mark.tsx` header/footer component now all use the corrected geometry; the "temporary" code comments were updated accordingly. `icon-192.png`, `icon-512.png`, `icon-512-maskable.png`, and `og-image.png` were not part of that pass and still carry the old trace.
 
 | File | Built from | Notes |
 |---|---|---|

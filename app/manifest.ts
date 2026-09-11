@@ -6,8 +6,8 @@ import { siteConfig } from '@/lib/site'
  * Minimal web-app manifest — enough for "Add to Home Screen" icon quality on
  * mobile, not a PWA install flow (no offline/service-worker work planned).
  * Icons are the mono-white mark on the brand charcoal (#1A1A1A), the same
- * temporary placeholder mark used for the favicon; see
- * docs/design/art-direction.md → "Known Issues" for the swap-back plan.
+ * corrected mark used for the favicon (fixed 11 Sep 2026, see
+ * ROAD-MAP-ARTAVEO.md § 4.1.2).
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
