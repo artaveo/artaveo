@@ -131,6 +131,12 @@ The pre-existing, approved-shape versions were **not deleted** — they're kept 
 - `public/brand/artaveo-mark-mono-black.svg`
 - any favicon / app-icon / Open Graph asset built from the four files above, once that work happens
 
+## Post-delivery fix — `brand-soft` badge unreadable in dark theme
+
+Caught visually on the live site (Hero's "Available for new projects" badge and Featured Work's category tag, both `<Badge variant="brand-soft">`): readable in light theme, unreadable in dark theme. Root cause: `brand-soft`'s background is a **translucent** tint (`bg-brand/10`, 10% opacity over whatever's behind it), so its effective colour follows the page background per theme — light-ish in light theme, dark-ish in dark theme. Its text was `text-brand-foreground`, which this document deliberately fixed earlier to always be **dark** (correct for the *solid* `brand` badge, whose background is always light gold in both themes). Paired with a translucent background, that "always dark" text works in light theme (dark text on a light-tinted background) but fails in dark theme (dark text on a dark-tinted background) — measured contrast **1.05:1**, effectively invisible.
+
+**Fix:** `brand-soft` now uses `text-foreground` — the token that already flips correctly per theme (dark in light theme, light in dark theme) — instead of `text-brand-foreground`. Measured contrast is now 16.4:1 (light theme) and 15.6:1 (dark theme). The small `bg-brand` dot inside the badge still carries the actual brand colour; only the label text changed. `success`/`info`/`destructive`'s soft variants use the same translucent-background pattern but keep `text-{color}` (not `text-{color}-foreground`) directly — checked their contrast in both themes (3.1–7.0:1) and none reproduce this failure, because those base colours (unlike gold) are mid-toned enough to still work as literal text against both a light-tinted and a dark-tinted background. Gold's own lightness (L 0.74–0.8) is what makes it need this special-cased fix — nothing else on the token list needs the same change.
+
 ## Still open in 4.1 (not attempted this session)
 
 - Favicon / app icons (light+dark) / Open Graph template built from the new flat/mono SVGs.
