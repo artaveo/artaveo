@@ -14,6 +14,10 @@ const nav = [
   { href: '#data-content', label: 'Content' },
   { href: '#cards', label: 'Cards' },
   { href: '#layout', label: 'Layout' },
+  { href: '#patterns', label: 'Patterns' },
+  { href: '#states', label: 'States' },
+  { href: '#frames', label: 'Frames' },
+  { href: '#form-layouts', label: 'Form layouts' },
 ]
 
 export function ShowcaseHeader() {

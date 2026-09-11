@@ -4,8 +4,8 @@
 ## Document status
 
 **Last revision:** 11 September 2026 (revision 8 — Phase 4 status updated: §4.2 and §4.3 (a/b/c) marked complete throughout, §8.3 index and Phase 4 header updated; no phase content changed)  
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **IN PROGRESS — 4.1 partial (D-12 sign-off open), 4.2 complete, 4.3 complete (a+b+c), 4.4–4.7 open**.  
-**Next step:** § 4.4 Patterns & states (Page Header, Section Header, CTA Section, Empty/Loading/Error/Success/Rate-limited/Offline states, Browser/Device Frame, form layouts); Phase 3's closure checklist 3.5 and D-12 owner sign-off remain open in parallel, independent of 4.4.
+**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **IN PROGRESS — 4.1 partial (D-12 sign-off open), 4.2 complete, 4.3 complete (a+b+c), 4.4 complete, 4.5–4.7 open**.  
+**Next step:** § 4.5 Identity components (Identity Header, Availability Chip/Card, Response Commitment Note, External Profile Links, Hire/Consultation CTAs, Sticky Mobile CTA); Phase 3's closure checklist 3.5 and D-12 owner sign-off remain open in parallel, independent of 4.5.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -398,7 +398,7 @@ Later phases may inform earlier design decisions, but they are never used as an 
 ```text
 M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 3   Content Truth Pass & Home Page   Remove fake content, publish the real Home page                    ⏳ PARTIAL
-  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ⏳ IN PROGRESS (4.1–4.3 done; 4.4–4.7 open)
+  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ⏳ IN PROGRESS (4.1–4.4 done; 4.5–4.7 open)
   Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav
   Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals
@@ -502,7 +502,7 @@ Compatibility note: this keeps every section of the original v0 plan; "Capabilit
 
 ---
 
-## Phase 4 — Brand Identity & Design System Completion  ⏳ IN PROGRESS (4.1–4.3 complete; 4.4–4.7 open — see `docs/phases/PHASE-4-README.md` and `PHASE-4.3-README.md`)
+## Phase 4 — Brand Identity & Design System Completion  ⏳ IN PROGRESS (4.1–4.4 complete; 4.5–4.7 open — see `docs/phases/PHASE-4-README.md`, `PHASE-4.3-README.md`, `PHASE-4.4-README.md`)
 
 > **Historical debt / added after audit (10 September 2026)** — see 6.6. Phase 1 keeps its status; this phase restores the design scope of the previous roadmap revision and adds the missing brand identity.
 
@@ -591,11 +591,11 @@ Existing: Button, Badge, Card, Input. Add — each RTL-correct, keyboard-accessi
 
 Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · **4.3c** disclosure, data display, content. All three delivered; demoed in `/design-system` (§4.7 still owns turning that into the formal living-documentation deliverable).
 
-### 4.4 Patterns & states
-- Page Header, Section Header (promote the Home one to a shared pattern), CTA Section, feature list, proof row without numbers
-- state patterns: Empty (admin/preview only), Loading (skeletons), Error (inline / section / page), Success, Rate-limited, Offline
-- Browser Frame / Device Frame, diagram container with text alternative
-- form layouts: single-column and multi-step
+### 4.4 Patterns & states — ✅ complete (see `docs/phases/PHASE-4.4-README.md`)
+- Page Header, Section Header (promoted from Home to `components/ui/patterns.tsx`), CTA Section (generalised from Home's `FinalCta`), feature list, proof row without numbers ✅ `components/ui/patterns.tsx`
+- state patterns: Empty (admin/preview only), Loading (skeletons), Error (inline / section / page), Success, Rate-limited, Offline ✅ `components/ui/states.tsx`
+- Browser Frame / Device Frame, diagram container with text alternative ✅ `components/ui/frames.tsx`
+- form layouts: single-column and multi-step ✅ `components/ui/form-layout.tsx`
 
 ### 4.5 Identity components (restores the previous revision's Professional Identity System)
 - Identity Header (name, title, tagline, portrait slot — content per D-02)

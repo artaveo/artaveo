@@ -7,10 +7,14 @@ import { ColorsSection } from '@/components/showcase/colors-section'
 import { DataContentSection } from '@/components/showcase/data-content-section'
 import { DisclosureSection } from '@/components/showcase/disclosure-section'
 import { FormControlsSection } from '@/components/showcase/form-controls-section'
+import { FormLayoutsSection } from '@/components/showcase/form-layouts-section'
 import { FormsSection } from '@/components/showcase/forms-section'
+import { FramesSection } from '@/components/showcase/frames-section'
 import { LayoutSection } from '@/components/showcase/layout-section'
 import { OverlaysSection } from '@/components/showcase/overlays-section'
+import { PatternsSection } from '@/components/showcase/patterns-section'
 import { ShowcaseHeader } from '@/components/showcase/showcase-header'
+import { StatesSection } from '@/components/showcase/states-section'
 import { SpacingSection } from '@/components/showcase/spacing-section'
 import { TypographySection } from '@/components/showcase/typography-section'
 import { Badge } from '@/components/ui/badge'
@@ -70,6 +74,10 @@ export default function DesignSystemPage() {
         <DataContentSection />
         <CardsSection />
         <LayoutSection />
+        <PatternsSection />
+        <StatesSection />
+        <FramesSection />
+        <FormLayoutsSection />
       </main>
 
       <footer className="border-t border-border">
