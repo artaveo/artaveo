@@ -7,6 +7,11 @@ const nav = [
   { href: '#spacing', label: 'Spacing' },
   { href: '#buttons', label: 'Buttons' },
   { href: '#forms', label: 'Forms' },
+  { href: '#actions', label: 'Actions' },
+  { href: '#form-controls', label: 'Controls' },
+  { href: '#overlays', label: 'Overlays' },
+  { href: '#disclosure', label: 'Disclosure' },
+  { href: '#data-content', label: 'Content' },
   { href: '#cards', label: 'Cards' },
   { href: '#layout', label: 'Layout' },
 ]

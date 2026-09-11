@@ -1,6 +1,6 @@
 # PHASE 4 — Brand Identity & Design System Completion
 
-## Status: IN PROGRESS — §4.1 complete (see `PHASE-4.1-README.md`); §4.2 (token refinement & design-system audit, closes P1-A) complete this session; §4.3–4.7 not started
+## Status: IN PROGRESS — §4.1 complete (see `PHASE-4.1-README.md`); §4.2 complete; §4.3 complete in full (see `PHASE-4.3-README.md`); §4.4–4.7 not started
 
 ## Objective
 

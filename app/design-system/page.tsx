@@ -1,10 +1,15 @@
 import type { Metadata } from 'next'
 
+import { ActionsSection } from '@/components/showcase/actions-section'
 import { ButtonsSection } from '@/components/showcase/buttons-section'
 import { CardsSection } from '@/components/showcase/cards-section'
 import { ColorsSection } from '@/components/showcase/colors-section'
+import { DataContentSection } from '@/components/showcase/data-content-section'
+import { DisclosureSection } from '@/components/showcase/disclosure-section'
+import { FormControlsSection } from '@/components/showcase/form-controls-section'
 import { FormsSection } from '@/components/showcase/forms-section'
 import { LayoutSection } from '@/components/showcase/layout-section'
+import { OverlaysSection } from '@/components/showcase/overlays-section'
 import { ShowcaseHeader } from '@/components/showcase/showcase-header'
 import { SpacingSection } from '@/components/showcase/spacing-section'
 import { TypographySection } from '@/components/showcase/typography-section'
@@ -58,6 +63,11 @@ export default function DesignSystemPage() {
         <SpacingSection />
         <ButtonsSection />
         <FormsSection />
+        <ActionsSection />
+        <FormControlsSection />
+        <OverlaysSection />
+        <DisclosureSection />
+        <DataContentSection />
         <CardsSection />
         <LayoutSection />
       </main>

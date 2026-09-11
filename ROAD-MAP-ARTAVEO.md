@@ -3,9 +3,9 @@
 
 ## Document status
 
-**Last revision:** 11 September 2026 (revision 7 — added the end-of-phase delivery rule: deliver changed files, via a branch + PR, before the status line; no phase content changed)  
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open**.  
-**Next step:** close **Phase 3** (checklist 3.5) in a separate session; fix the `public/brand/` folder placement (3 files still misplaced inside `source/`, see 4.1); Phase 4.1's logo intake is now complete — proceed to 4.1.3 onward.
+**Last revision:** 11 September 2026 (revision 8 — Phase 4 status updated: §4.2 and §4.3 (a/b/c) marked complete throughout, §8.3 index and Phase 4 header updated; no phase content changed)  
+**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **IN PROGRESS — 4.1 partial (D-12 sign-off open), 4.2 complete, 4.3 complete (a+b+c), 4.4–4.7 open**.  
+**Next step:** § 4.4 Patterns & states (Page Header, Section Header, CTA Section, Empty/Loading/Error/Success/Rate-limited/Offline states, Browser/Device Frame, form layouts); Phase 3's closure checklist 3.5 and D-12 owner sign-off remain open in parallel, independent of 4.4.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -398,7 +398,7 @@ Later phases may inform earlier design decisions, but they are never used as an 
 ```text
 M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 3   Content Truth Pass & Home Page   Remove fake content, publish the real Home page                    ⏳ PARTIAL
-  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ⬜ NEXT
+  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ⏳ IN PROGRESS (4.1–4.3 done; 4.4–4.7 open)
   Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav
   Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals
@@ -502,13 +502,13 @@ Compatibility note: this keeps every section of the original v0 plan; "Capabilit
 
 ---
 
-## Phase 4 — Brand Identity & Design System Completion  ⬜ NEXT
+## Phase 4 — Brand Identity & Design System Completion  ⏳ IN PROGRESS (4.1–4.3 complete; 4.4–4.7 open — see `docs/phases/PHASE-4-README.md` and `PHASE-4.3-README.md`)
 
 > **Historical debt / added after audit (10 September 2026)** — see 6.6. Phase 1 keeps its status; this phase restores the design scope of the previous roadmap revision and adds the missing brand identity.
 
 **Goal:** a distinctive Artaveo identity and a complete, documented design system, applied to the existing shell and Home — so every later page is assembled from finished parts instead of inventing UI on the fly.
 
-### 4.1 Art direction & brand identity (requires D-12, D-01 — **logo received 10 Sep 2026, spelling resolved**)
+### 4.1 Art direction & brand identity — ⏳ PARTIAL (derived tokens/variants delivered; D-12 owner sign-off still open — see `docs/phases/PHASE-4.1-README.md`) (requires D-12, D-01 — **logo received 10 Sep 2026, spelling resolved**)
 
 The primary mark is approved — a faceted charcoal "A" (folded-ribbon facets) with a gold interior facet, paired with a wide-tracked wordmark **ARTAVEO** and the tagline "Digital Development". This sub-phase no longer proposes direction options from scratch; it **derives the system from the approved logo** and fills the gaps the logo doesn't cover (light theme, small sizes, RTL, motion).
 
@@ -558,26 +558,26 @@ Minor, non-blocking polish for whoever finalizes these: the white mono file meas
 
 **Output:** `docs/design/art-direction.md` records the derived tokens, the approved logo variants (with the files above), and the light-theme + small-size rules — for the owner to confirm rather than choose from scratch.
 
-### 4.2 Token refinement & design-system audit (closes P1-A)
+### 4.2 Token refinement & design-system audit (closes P1-A) — ✅ complete (see `docs/phases/PHASE-4-README.md`)
 - AA contrast for every text/background pair in both themes; one focus-ring token used everywhere
 - surface / elevation levels, border and shadow scales, radius scale, z-index scale, motion tokens
 - layout tokens: container widths, grid, section-spacing rhythm, reading width for prose
 - **responsive matrix:** small mobile 320–374 · mobile 375–639 · tablet 640–1023 · laptop 1024–1279 · desktop 1280–1535 · large 1536–1919 · ultra-wide ≥ 1920 (capped content width, no stretched lines)
 - logical properties only in components (`ms-*`, `me-*`, `ps-*`, `start-*`) — no physical left/right
 
-### 4.3 Missing primitives
+### 4.3 Missing primitives — ✅ complete (4.3a/b/c all done — see `docs/phases/PHASE-4.3-README.md`)
 Existing: Button, Badge, Card, Input. Add — each RTL-correct, keyboard-accessible, both themes, built on the existing Base UI / shadcn foundation:
 
 | Group | Primitives |
 |---|---|
-| Actions | Link (inline, standalone, external with indicator) · IconButton · ButtonGroup · Kbd |
-| Forms | Label · Field (label + hint + error) · Textarea · Select · Checkbox · RadioGroup · Switch · SegmentedControl · FileInput shell (upload wiring in Phase 15) · FormMessage |
-| Overlays | Dialog · Sheet / Drawer · Popover · Tooltip · DropdownMenu · Toast |
-| Disclosure & navigation | Tabs · Accordion · Pagination · Stepper (Brief Builder) · Progress |
-| Data display | Table (with stacked mobile mode) · Tag · Avatar · Separator · Skeleton · Status badge set (*Live · In development · Private · Archived · Concept*) |
-| Content | Callout · Code block (LTR-locked, copy button) · Blockquote · Prose styles for articles in `en` and `fa` |
+| Actions | Link (inline, standalone, external with indicator) · IconButton · ButtonGroup · Kbd — ✅ `components/ui/actions.tsx` |
+| Forms | Label · Field (label + hint + error) · Textarea · Select · Checkbox · RadioGroup · Switch · SegmentedControl · FileInput shell (upload wiring in Phase 15) · FormMessage — ✅ `components/ui/form-controls.tsx`, `select.tsx`, `segmented-control.tsx`, `file-input.tsx` (Label/Textarea were already in `input.tsx` from earlier work) |
+| Overlays | Dialog · Sheet / Drawer · Popover · Tooltip · DropdownMenu · Toast — ✅ `components/ui/dialog.tsx`, `sheet.tsx`, `popover.tsx`, `tooltip.tsx`, `dropdown-menu.tsx`, `toast.tsx` |
+| Disclosure & navigation | Tabs · Accordion · Pagination · Stepper (Brief Builder) · Progress — ✅ `components/ui/tabs.tsx`, `accordion.tsx`, `pagination.tsx`, `stepper.tsx`, `data-display.tsx` |
+| Data display | Table (with stacked mobile mode) · Tag · Avatar · Separator · Skeleton · Status badge set (*Live · In development · Private · Archived · Concept*) — ✅ `components/ui/table.tsx`, `tag.tsx`, `data-display.tsx` |
+| Content | Callout · Code block (LTR-locked, copy button) · Blockquote · Prose styles for articles in `en` and `fa` — ✅ `components/ui/content.tsx`, `prose.tsx` |
 
-Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · **4.3c** disclosure, data display, content.
+Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · **4.3c** disclosure, data display, content. All three delivered; demoed in `/design-system` (§4.7 still owns turning that into the formal living-documentation deliverable).
 
 ### 4.4 Patterns & states
 - Page Header, Section Header (promote the Home one to a shared pattern), CTA Section, feature list, proof row without numbers
