@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 const rows = [
   { project: 'Transportation System', status: 'in-development' as const, stack: 'Next.js · PostgreSQL' },
-  { project: 'Pazhuhesh Complex Portal', status: 'in-development' as const, stack: 'React · Supabase' },
+  { project: 'Pezhohesh Complex Portal', status: 'in-development' as const, stack: 'React · Supabase' },
 ]
 
 export function DataContentSection() {

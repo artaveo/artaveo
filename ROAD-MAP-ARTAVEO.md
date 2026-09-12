@@ -284,7 +284,7 @@ Phase 4   Brand Identity & Design System        ⬜ NEXT      (added after audit
 **Phase 2 — delivered:** `site-header`, `mobile-nav`, `site-footer`, `theme-toggle`, `language-switcher`, `command-palette`, `breadcrumb`, `page-transition`, `site-shell`, `lib/site.ts`, `components/icon.tsx`.  
 **Phase 2 — missing:** `SiteShell` is not used by any route; the language switcher only flips `dir` (no locale routes, no dictionaries); "Home" is missing from navigation; the command palette uses a hard-coded list.
 
-**Phase 3 — delivered in `main` (`4ef6f87`):** `app/page.tsx` renders the Home inside `SiteShell` with Hero, Capability Strip, Featured Work, Services, Why Artaveo, Tech Stack, Process, About Preview, Insights Preview and Final CTA; `types/content.ts` defines content shapes; `lib/home-content.ts` now contains only the two real projects (Transportation System, Pazhuhesh Portal) with facts taken from their repositories; fictional projects and metrics removed.  
+**Phase 3 — delivered in `main` (`4ef6f87`):** `app/page.tsx` renders the Home inside `SiteShell` with Hero, Capability Strip, Featured Work, Services, Why Artaveo, Tech Stack, Process, About Preview, Insights Preview and Final CTA; `types/content.ts` defines content shapes; `lib/home-content.ts` now contains only the two real projects (Transportation System, Pezhohesh Portal) with facts taken from their repositories; fictional projects and metrics removed.  
 **Phase 3 — still open:** closure checklist 3.5 (site-config placeholders, voice, unused fake images, `noindex`, empty-means-hidden for Insights, bilingual content shape, phase document).
 
 ---
@@ -342,7 +342,7 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 | **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.1 |
 | **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.2 · 9.1 |
 | **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.3 · 5.2 (footer) |
-| **D-06** | Publication rights for case studies (Transportation System, Pazhuhesh Portal): client/employer consent, what may be shown | Written consent; screenshots with **demo data only**; no customer PII; confidential details generalised | 6.2 · 6.3 |
+| **D-06** | Publication rights for case studies (Transportation System, Pezhohesh Portal): client/employer consent, what may be shown | Transportation System: resolved 12 Sep 2026 — Zakir's own project, no external client. Pezhohesh Portal: resolved 12 Sep 2026 — Zakir owns the Pezhohesh Complex institute itself and built the site for it; no separate client relationship. Both approved for publication. Screenshots with **demo data only**; no customer/student PII; confidential details generalised | 6.2 · 6.3 |
 | **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 11.2 · 29 |
 | **D-08** | Availability state and response commitment | **Resolved (11 Sep 2026):** response commitment published as **"replies within a few hours, same day"** | 4.5 (Availability) · 14 (SLA) |
 | **D-09** | Consultation format: free intro call length, paid consultation, tool | Free 20–30 min intro call, request-based in v1 | 20 |
@@ -400,7 +400,7 @@ M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 3   Content Truth Pass & Home Page   Remove fake content, publish the real Home page                    ⏳ PARTIAL
   Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ✅ COMPLETE (4.1 debt tracked separately, non-blocking)
   Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav                    ✅ COMPLETE
-  Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects            ⏳ PARTIAL (6.1 engine ✅; 6.2/6.3 content ⏸ BLOCKED on D-06)
+  Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects            ✅ COMPLETE (6.1 engine ✅; 6.2 Transportation System ✅; 6.3 Pezhohesh Portal ✅ — see docs/phases/PHASE-6.2-README.md, PHASE-6.3-README.md)
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals
   Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms
   Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)
@@ -652,7 +652,7 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 
 ---
 
-## Phase 6 — Work & Case Study Engine  ⏳ PARTIAL (see `docs/phases/PHASE-6.1-README.md`)
+## Phase 6 — Work & Case Study Engine  ✅ COMPLETE (see `docs/phases/PHASE-6.1-README.md`, `PHASE-6.2-README.md`, `PHASE-6.3-README.md`)
 
 **Goal:** real projects become the strongest proof on the site.
 
@@ -687,7 +687,7 @@ Metadata that is unknown or not true is omitted, never guessed.
 
 > Merged from the previous revision's separate 6.1 (`/work` index) / 6.2 (case study template) / 6.5 (engineering evidence) / 6.6 (media v1): all four are reusable engine/template infrastructure with no independent decision gate and no per-project content to verify — they are built once and used by both case studies below.
 
-### 6.2 Case study — Transportation System  ⏸ BLOCKED on D-06 (template ready, see § 6.1)
+### 6.2 Case study — Transportation System  ✅ complete (see `docs/phases/PHASE-6.2-README.md`)
 Candidate highlights from the repository (verify each against the code before publishing):
 - intercity booking with a live seat map; seat holds and confirmation enforced server-side, never in the browser
 - PostgreSQL row-level security combined with server-side authorization and a permission center for limited admins
@@ -697,7 +697,7 @@ Candidate highlights from the repository (verify each against the code before pu
 - honest status: in active development; real payment-provider integration pending
 - process evidence: phased roadmap and per-phase implementation documents
 
-### 6.3 Case study — Pazhuhesh Complex Portal  ⏸ BLOCKED on D-06 (template ready, see § 6.1)
+### 6.3 Case study — Pezhohesh Complex Portal  ✅ complete (see `docs/phases/PHASE-6.3-README.md`; project `status` field still needs Zakir's confirmation — see known issues)
 - bilingual Dari/English portal with RTL-native interface
 - two admin roles with role-based routing and department-scoped permissions
 - offline-first data layer and installable PWA with caching tuned per data type; admin excluded from caching
@@ -857,7 +857,7 @@ By this point Phase 6, 7, 8 and 9 have already shipped Work, Services, About/Pro
 - **cache-first** for static assets: fonts, the logo files, icons, CSS/JS bundles
 - **stale-while-revalidate** for content pages: Home, Work (index + case studies), Services (catalogue + detail), About, Process, Insights — a repeat visit opens instantly from cache while a fresh copy loads in the background
 - cache versioned to the deploy; a new publish invalidates the old cache instead of leaving visitors on stale content indefinitely
-- **never cached, network-only:** the Brief Builder's **submit** request itself, and every other server mutation; from Phase 13 onward, every admin route, the lead pipeline, CMS screens, and later the client portal (Phase 28) — excluded from the service worker's scope entirely, the same rule the Pazhuhesh Portal case study already applied to its own admin (section 6.3)
+- **never cached, network-only:** the Brief Builder's **submit** request itself, and every other server mutation; from Phase 13 onward, every admin route, the lead pipeline, CMS screens, and later the client portal (Phase 28) — excluded from the service worker's scope entirely, the same rule the Pezhohesh Portal case study already applied to its own admin (section 6.3)
 
 > Merged from the previous revision's separate 10.2 (caching strategy) / 10.3 (what stays network-only): the exclusion list is the other half of the same caching-strategy decision, not separate work.
 

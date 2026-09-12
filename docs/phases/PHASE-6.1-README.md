@@ -91,7 +91,7 @@ infrastructure.
 
 ## What's deferred (by design, not oversight)
 
-- **§ 6.2 (Transportation System) and § 6.3 (Pazhuhesh Complex Portal)** —
+- **§ 6.2 (Transportation System) and § 6.3 (Pezhohesh Complex Portal)** —
   writing the actual Context / Problem & Goals / Constraints / Architecture
   / Key Decisions / Engineering Highlight / Data Integrity & Security /
   Responsive & RTL / Quality / Current Status & Next / Lessons Learned

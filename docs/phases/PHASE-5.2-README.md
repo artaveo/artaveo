@@ -171,7 +171,7 @@ confirm static generation was restored:
 
 **Phase 6 — Work & Case Study Engine** (`/work` index, case study
 template, and the two real case studies — Transportation System,
-Pazhuhesh Complex Portal). Depends on Phase 5 being fully done (confirmed
+Pezhohesh Complex Portal). Depends on Phase 5 being fully done (confirmed
 above). Recommend a **new chat** for it — different slice of work
 (content/data modeling for real projects) than the shell/chrome this
 session focused on.
