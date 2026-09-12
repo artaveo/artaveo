@@ -7,20 +7,23 @@ import { Accordion, AccordionItem, AccordionPanel, AccordionTrigger } from '@/co
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Prose } from '@/components/ui/prose'
+import { PackageComparison } from '@/components/services/package-comparison'
+import { ServiceAddOns } from '@/components/services/service-addons'
+import { WhatDrivesCost } from '@/components/services/what-drives-cost'
 import { t, type Locale, type Project, type Service } from '@/types/content'
 
 /**
  * ServiceDetail — the shared `/services/[slug]` template (roadmap § 7.1
- * blueprint). Every body section reads from an optional field on `Service`
- * and renders only when that field is present, same "empty means hidden"
- * rule `CaseStudy` uses for `/work/[slug]`.
+ * blueprint, extended in § 7.2 with Packages/Add-ons/What-drives-cost).
+ * Every body section reads from an optional field on `Service` and renders
+ * only when that field is present, same "empty means hidden" rule
+ * `CaseStudy` uses for `/work/[slug]`.
  *
- * The blueprint's "Packages" and "Add-ons" sections are deliberately absent
- * here: they are § 7.2's scope (package tiers, add-on records, pricing —
- * gated by D-04) and simply have no field on `Service` yet to render from.
- * This template is built once now and picks those sections up automatically
- * once § 7.2 adds the data, the same way `CaseStudy` was built once in § 6.1
- * and filled in per project in § 6.2 / § 6.3.
+ * Packages/add-ons prices are all `type: 'quote'` right now (§ 7.2, gated
+ * by D-04 — still an open owner decision). `PackageComparison` /
+ * `ServiceAddOns` render "Ask for a quote" instead of a figure; nothing
+ * here needs to change once D-04 resolves except the `Price` values in
+ * `lib/services-content.ts`.
  */
 export function ServiceDetail({
   service,
@@ -183,6 +186,33 @@ export function ServiceDetail({
               </ol>
             </div>
           ) : null}
+
+          {/* Packages (§ 7.2) */}
+          {service.packages?.length ? (
+            <>
+              <PackageComparison packages={service.packages} serviceSlug={service.slug} />
+              {service.whatDrivesCost?.length || service.paymentScheduleNote ? (
+                <div className="mt-6 rounded-xl border border-border bg-card p-5">
+                  {service.whatDrivesCost?.length ? (
+                    <WhatDrivesCost factors={service.whatDrivesCost} />
+                  ) : null}
+                  {service.paymentScheduleNote ? (
+                    <div className={service.whatDrivesCost?.length ? 'mt-6 border-t border-border pt-6' : ''}>
+                      <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+                        {t18n('paymentSchedule')}
+                      </h3>
+                      <p className="mt-2 text-sm leading-relaxed text-pretty text-muted-foreground">
+                        {t(service.paymentScheduleNote, locale)}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </>
+          ) : null}
+
+          {/* Add-ons (§ 7.2) */}
+          {service.addOns?.length ? <ServiceAddOns addOns={service.addOns} /> : null}
 
           {/* What I need from you */}
           {service.requirements?.length ? (

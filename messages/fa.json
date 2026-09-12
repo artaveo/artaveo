@@ -127,13 +127,22 @@
     "eyebrow": "خدمات",
     "title": "خدمات",
     "description": "هفت خدمت روشن، هرکدام همراه با آنچه شامل می‌شود، آنچه شامل نمی‌شود، روند کار و بازه‌ی زمانی — تا پیش از اولین تماس بتوانید مقایسه کنید و تصمیم بگیرید.",
-    "viewService": "دیدن خدمت"
+    "viewService": "دیدن خدمت",
+    "engagementModelsTitle": "چطور می‌توانیم با هم کار کنیم",
+    "engagementModelsDescription": "هر پروژه زیر یکی از این الگوهای همکاری شروع می‌شود — اینکه کدام‌یک، به میزان روشن‌بودن دامنه‌ی کار از قبل بستگی دارد.",
+    "engagementModel": "الگو",
+    "engagementWhenItFits": "چه‌زمانی مناسب است",
+    "engagementBilling": "نحوه‌ی صورت‌حساب"
   },
   "ServiceType": {
     "productized": "محصول‌محور",
     "custom": "سفارشی",
     "productized-custom": "محصول‌محور + سفارشی",
     "monthly": "ماهانه"
+  },
+  "Price": {
+    "quote": "استعلام قیمت بگیرید",
+    "from": "شروع از"
   },
   "ServiceDetail": {
     "backToServices": "همه‌ی خدمات",
@@ -149,7 +158,13 @@
     "requirements": "چه‌چیزی از شما نیاز دارم",
     "relatedWork": "نمونه‌کار مرتبط",
     "faq": "سوالات متداول",
-    "startThisService": "شروع این خدمت"
+    "startThisService": "شروع این خدمت",
+    "packages": "بسته‌ها",
+    "addOns": "افزونه‌ها",
+    "whatDrivesCost": "چه‌چیزی هزینه را تعیین می‌کند",
+    "paymentSchedule": "زمان‌بندی پرداخت",
+    "choosePackage": "انتخاب این بسته",
+    "deliveryDaysValue": "{min} تا {max} روز کاری"
   },
   "WhyArtaveo": {
     "eyebrow": "چرا آرتاویو",

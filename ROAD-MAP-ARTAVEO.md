@@ -3,9 +3,9 @@
 
 ## Document status
 
-**Last revision:** 12 September 2026 (revision 10 — status header corrected to match the body of this document and actual repo state: revision 9 left this header referring to Phase 5 as in-progress after Phases 5.2, 6.1, 6.2, 6.3 and 7.1 had already shipped and were already recorded as complete in §8.3 and their own phase sections further down. No phase content, numbering or history changed — only this header line, which tracks current status, was brought back in sync. Session convention note: at the start of every session, verify this header against §8.3 and `git log`, not the other way round, since this header is the piece most likely to lag.)  
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE** · Phase 5 **COMPLETE** · Phase 6 **COMPLETE (6.1 engine, 6.2 Transportation System, 6.3 Pezhohesh Portal)** · Phase 7 **IN PROGRESS — 7.1 complete (curated service catalogue & detail blueprint), 7.2 not started**.  
-**Next step:** Phase 3's closure checklist 3.5 (still open, independent of later phases) and Phase 7.2 (package model, add-ons, pricing signals & engagement models — gated by D-04). See `docs/phases/PHASE-7.1-README.md` for what closed 7.1 out.
+**Last revision:** 12 September 2026 (revision 11 — Phase 7.2 marked complete: package tiers, add-ons, "what drives cost" and the site-wide engagement-models table are built and populated for all applicable services. Every `price` in the codebase is `type: 'quote'` — D-04, pricing transparency, is still an open owner decision, so no starting-from or fixed figure has been published anywhere. This is a deliberate reading of § 7.2's own exit criterion — "no price shown that the owner has not approved" — as permission to complete the mechanics honestly now rather than a reason to leave the whole sub-phase BLOCKED; see `docs/phases/PHASE-7.2-README.md` for the reasoning in full. When D-04 resolves, only the `Price` values in `lib/services-content.ts` need to change.)  
+**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE** · Phase 5 **COMPLETE** · Phase 6 **COMPLETE (6.1 engine, 6.2 Transportation System, 6.3 Pezhohesh Portal)** · Phase 7 **COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/pricing signals/engagement models — all prices shown as "Ask for a quote" pending D-04)**.  
+**Next step:** Phase 3's closure checklist 3.5 (still open, independent of later phases) and Phase 8 (About, Process & Working Agreement). Phase 7 is now fully complete. See `docs/phases/PHASE-7.2-README.md` for what closed 7.2 out.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -340,7 +340,7 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 | **D-01** | Brand spelling, production domain, sending e-mail domain | **Spelling resolved: "Artaveo"** (confirmed by the approved logo, 10 Sep 2026). Domain and e-mail still open — register the domain, use it for e-mail with SPF, DKIM and DMARC configured | 4.1 · 9.3 · 11.4 |
 | **D-02** | Public identity: real name, portrait, published location / timezone | **Resolved (11 Sep 2026):** name **Zakir Naseri**; portrait `public/Profile-pic.jpg` (referenced as `/Profile-pic.jpg`); timezone **UTC**, no city published | 3.3 (Hero) · 4.5 · 8.1 |
 | **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.1 |
-| **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.2 · 9.1 |
+| **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.2 · 9.1 — still open; § 7.2's mechanics are built and live with every price as `'quote'` ("Ask for a quote") so nothing invented ships in the meantime |
 | **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.3 · 5.2 (footer) |
 | **D-06** | Publication rights for case studies (Transportation System, Pezhohesh Portal): client/employer consent, what may be shown | Transportation System: resolved 12 Sep 2026 — Zakir's own project, no external client. Pezhohesh Portal: resolved 12 Sep 2026 — Zakir owns the Pezhohesh Complex institute itself and built the site for it; no separate client relationship. Both approved for publication. Screenshots with **demo data only**; no customer/student PII; confidential details generalised | 6.2 · 6.3 |
 | **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 11.2 · 29 |
@@ -401,7 +401,7 @@ M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ✅ COMPLETE (4.1 debt tracked separately, non-blocking)
   Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav                    ✅ COMPLETE
   Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects            ✅ COMPLETE (6.1 engine ✅; 6.2 Transportation System ✅; 6.3 Pezhohesh Portal ✅ — see docs/phases/PHASE-6.2-README.md, PHASE-6.3-README.md)
-  Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals    ⏳ IN PROGRESS (7.1 catalogue & blueprint ✅ — see docs/phases/PHASE-7.1-README.md; 7.2 packages/pricing not started, gated by D-04)
+  Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals    ✅ COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/engagement models — all prices "Ask for a quote" pending D-04; see docs/phases/PHASE-7.1-README.md, PHASE-7.2-README.md)
   Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms
   Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)
   Phase 10  Installable PWA & Offline Shell  Site installs like an app, browsable offline; Brief Builder never fakes success offline
@@ -709,7 +709,7 @@ Candidate highlights from the repository (verify each against the code before pu
 
 ---
 
-## Phase 7 — Services, Packages & Pricing Signals  ⏳ IN PROGRESS (7.1 ✅ — see `docs/phases/PHASE-7.1-README.md`)
+## Phase 7 — Services, Packages & Pricing Signals  ✅ COMPLETE (see `docs/phases/PHASE-7.1-README.md`, `PHASE-7.2-README.md`)
 
 **Goal:** a visitor can understand, compare and pre-qualify an offer without a call.
 
@@ -749,7 +749,7 @@ Start this service  → Brief Builder pre-filled with the service
 
 > Merged from the previous revision's separate 7.1 (catalogue) / 7.2 (detail blueprint): the blueprint is the page template that renders each catalogue entry — there is no catalogue work that doesn't immediately need the blueprint it's rendered through, so they are one page-building task.
 
-### 7.2 Package model, add-ons, pricing signals & engagement models (per D-04)
+### 7.2 Package model, add-ons, pricing signals & engagement models (per D-04)  ✅ complete (see `docs/phases/PHASE-7.2-README.md`) — every `price` is `type: 'quote'`; D-04 itself is still open
 - tiers: **Starter · Standard · Custom** (Custom = "scoped after discovery", never a fake price)
 - fields per tier: `summary`, `forWhom`, `included[]`, `notIncluded[]`, `deliverables[]`, `deliveryDays {min,max}`, `revisions`, `supportDays`, `requirements[]`, `price {amount, currency, type: fixed | from | quote}`
 - mobile: stacked cards with a sticky tier switcher; desktop: side-by-side table with a "Not included" row
@@ -769,7 +769,7 @@ Start this service  → Brief Builder pre-filled with the service
 
 > Merged from the previous revision's separate 7.3 (package model) / 7.4 (add-ons) / 7.5 (pricing signals) / 7.6 (engagement models): all four are the pricing/commerce data mechanics that feed the same package-comparison section of the 7.1 blueprint, and D-04/D-11 gate them together. Kept as its own sub-phase rather than folded into 7.1 because the combined catalogue + blueprint + packages + add-ons + pricing + engagement models is genuinely too large for one session — the same size exception already used for the old Phase 4.3 (a/b/c) split.
 
-**Exit criteria:** every published service has all blueprint sections in both locales; no price shown that the owner has not approved; package table accessible (real table semantics on desktop, labelled cards on mobile).
+**Exit criteria:** ✅ met — every published service has all blueprint sections in both locales; no price shown that the owner has not approved (every `Price` is `type: 'quote'`, since D-04 remains open); package table accessible (real table semantics on desktop via `PackageComparison`, sticky tier switcher + labelled cards on mobile).
 
 ---
 

@@ -3,8 +3,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { SiteShell } from '@/components/site/site-shell'
 import { ServiceGrid } from '@/components/services/service-grid'
+import { EngagementModelsTable } from '@/components/services/engagement-models-table'
 import { PageHeader } from '@/components/ui/patterns'
-import { getAllServices } from '@/lib/services-content'
+import { getAllServices, getEngagementModels } from '@/lib/services-content'
 
 export async function generateMetadata({
   params,
@@ -29,15 +30,20 @@ export default async function ServicesPage({
 
   const t = await getTranslations('ServicesIndex')
   const services = getAllServices()
+  const engagementModels = getEngagementModels()
 
   return (
     <SiteShell>
       <div className="container-page">
         <PageHeader eyebrow={t('eyebrow')} title={t('title')} description={t('description')} />
-        <div className="pb-24">
+        <div className="pb-16">
           <ServiceGrid services={services} />
+        </div>
+        <div className="border-t border-border pb-24 pt-16">
+          <EngagementModelsTable models={engagementModels} />
         </div>
       </div>
     </SiteShell>
   )
 }
+

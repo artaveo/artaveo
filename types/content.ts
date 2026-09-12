@@ -119,11 +119,6 @@ export type Service = {
    * deliverables above) and the `/services/[slug]` template can share one
    * shape; a blueprint section renders only when its field is present —
    * same "empty means hidden" rule the case-study template uses.
-   *
-   * `packages`, `addOns` and per-tier pricing are deliberately **not**
-   * modelled here: they are § 7.2's scope (gated by D-04), built once that
-   * decision and the package/add-on data mechanics land. This blueprint's
-   * "Packages" section is written to simply not render until then.
    */
   type?: ServiceType
   /** One-line promise shown under the title on the detail page. */
@@ -143,6 +138,79 @@ export type Service = {
   /** Slugs of real, published projects that demonstrate this service — omitted when no project is a genuine fit. */
   relatedProjectSlugs?: string[]
   faq?: FaqItem[]
+
+  /**
+   * Package tiers (roadmap § 7.2, gated by D-04). Present only on
+   * productized / productized-custom services where tiering the scope
+   * genuinely makes sense — pure `custom` services (Web Application / MVP,
+   * Backend/API/Database) have none: their engagement is the Discovery
+   * Sprint `EngagementModel` instead, not a tier table.
+   */
+  packages?: ServicePackage[]
+  /** Configurable add-ons offered alongside this service's packages. */
+  addOns?: ServiceAddon[]
+  /** "What drives cost" factors shown next to the package table. */
+  whatDrivesCost?: LocalizedText[]
+  /** Payment-schedule summary shown near the package table. */
+  paymentScheduleNote?: LocalizedText
+}
+
+/**
+ * A price signal (roadmap § 7.2). `type` is the only field guaranteed to be
+ * meaningful:
+ * - `'quote'` — no `amount`/`currency` at all. This is the only type in use
+ *   anywhere in this codebase right now: D-04 (pricing transparency) is
+ *   still an open owner decision, so no starting-from or fixed figure has
+ *   been approved to publish. Rendering `'quote'` as "Ask for a quote" /
+ *   "Scoped after a short call" is not a placeholder — it is the accurate,
+ *   current pricing signal until D-04 resolves.
+ * - `'from'` / `'fixed'` — reserved for once D-04 is resolved with real,
+ *   owner-approved figures; `amount`/`currency` are required for these.
+ */
+export type PriceType = 'fixed' | 'from' | 'quote'
+
+export type Price = {
+  type: PriceType
+  amount?: number
+  currency?: string
+}
+
+/**
+ * One tier of a service's package table (roadmap § 7.2). Convention:
+ * `id: 'custom'` always means "scoped after discovery" — `price.type` is
+ * always `'quote'` for that tier and `deliveryDays`/`revisions`/
+ * `supportDays` are omitted rather than guessed.
+ */
+export type ServicePackage = {
+  id: 'starter' | 'standard' | 'custom'
+  name: LocalizedText
+  summary: LocalizedText
+  forWhom: LocalizedText
+  included: LocalizedText[]
+  notIncluded: LocalizedText[]
+  deliverables: LocalizedText[]
+  deliveryDays?: { min: number; max: number }
+  revisions?: number
+  supportDays?: number
+  requirements?: LocalizedText[]
+  price: Price
+}
+
+/** A configurable add-on record (roadmap § 7.2) — never hard-coded in a component. */
+export type ServiceAddon = {
+  id: string
+  title: LocalizedText
+  description: LocalizedText
+  price: Price
+  deliveryImpactDays?: number
+}
+
+/** One row of the site-wide engagement-models table (roadmap § 7.2). */
+export type EngagementModel = {
+  id: string
+  name: LocalizedText
+  whenItFits: LocalizedText
+  billing: LocalizedText
 }
 
 export type Capability = {

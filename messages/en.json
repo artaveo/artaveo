@@ -127,13 +127,22 @@
     "eyebrow": "Services",
     "title": "Services",
     "description": "Seven clear services, each with what's included, what isn't, the process and the timeline — so you can compare and decide before the first call.",
-    "viewService": "View service"
+    "viewService": "View service",
+    "engagementModelsTitle": "How we could work together",
+    "engagementModelsDescription": "Every project starts under one of these engagement models — which one depends on how clear the scope already is.",
+    "engagementModel": "Model",
+    "engagementWhenItFits": "When it fits",
+    "engagementBilling": "Billing"
   },
   "ServiceType": {
     "productized": "Productized",
     "custom": "Custom",
     "productized-custom": "Productized + Custom",
     "monthly": "Monthly"
+  },
+  "Price": {
+    "quote": "Ask for a quote",
+    "from": "From"
   },
   "ServiceDetail": {
     "backToServices": "All services",
@@ -149,7 +158,13 @@
     "requirements": "What I need from you",
     "relatedWork": "Related work",
     "faq": "FAQ",
-    "startThisService": "Start this service"
+    "startThisService": "Start this service",
+    "packages": "Packages",
+    "addOns": "Add-ons",
+    "whatDrivesCost": "What drives cost",
+    "paymentSchedule": "Payment schedule",
+    "choosePackage": "Choose this package",
+    "deliveryDaysValue": "{min}–{max} business days"
   },
   "WhyArtaveo": {
     "eyebrow": "Why Artaveo",
