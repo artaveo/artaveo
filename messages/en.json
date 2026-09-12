@@ -123,6 +123,34 @@
     "allServices": "All services",
     "deliverables": "Deliverables"
   },
+  "ServicesIndex": {
+    "eyebrow": "Services",
+    "title": "Services",
+    "description": "Seven clear services, each with what's included, what isn't, the process and the timeline — so you can compare and decide before the first call.",
+    "viewService": "View service"
+  },
+  "ServiceType": {
+    "productized": "Productized",
+    "custom": "Custom",
+    "productized-custom": "Productized + Custom",
+    "monthly": "Monthly"
+  },
+  "ServiceDetail": {
+    "backToServices": "All services",
+    "forWhom": "Who it's for",
+    "notForWhom": "Who it's not for",
+    "problem": "The problem",
+    "whatIDo": "What I do",
+    "included": "Included",
+    "notIncluded": "Not included",
+    "deliverables": "Deliverables",
+    "process": "Process",
+    "timeline": "Timeline",
+    "requirements": "What I need from you",
+    "relatedWork": "Related work",
+    "faq": "FAQ",
+    "startThisService": "Start this service"
+  },
   "WhyArtaveo": {
     "eyebrow": "Why Artaveo",
     "titleLine1": "One developer. One workflow.",

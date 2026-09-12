@@ -85,13 +85,64 @@ export type Project = {
   relatedServiceSlug?: string
 }
 
+/**
+ * Engagement shape a service is sold under (roadmap § 7.1). Determines the
+ * badge shown on the catalogue and detail page — never invented per service,
+ * only what the Phase 7 table actually assigns.
+ */
+export type ServiceType = 'productized' | 'custom' | 'productized-custom' | 'monthly'
+
+/** One entry in a service's FAQ accordion (roadmap § 7.1 blueprint). */
+export type FaqItem = {
+  question: LocalizedText
+  answer: LocalizedText
+}
+
+/** One step in a service's own process (roadmap § 7.1 blueprint "Process — steps specific to this service"). */
+export type ServiceProcessStep = {
+  title: LocalizedText
+  description: LocalizedText
+}
+
 export type Service = {
   id: string
   slug: string
   icon: string
   title: LocalizedText
+  /** Short line used on the home preview tile and the catalogue card. */
   description: LocalizedText
   deliverables: LocalizedText[]
+
+  /**
+   * Full service-detail blueprint (roadmap § 7.1). Every field below is
+   * optional so the `/services` catalogue card (title, description,
+   * deliverables above) and the `/services/[slug]` template can share one
+   * shape; a blueprint section renders only when its field is present —
+   * same "empty means hidden" rule the case-study template uses.
+   *
+   * `packages`, `addOns` and per-tier pricing are deliberately **not**
+   * modelled here: they are § 7.2's scope (gated by D-04), built once that
+   * decision and the package/add-on data mechanics land. This blueprint's
+   * "Packages" section is written to simply not render until then.
+   */
+  type?: ServiceType
+  /** One-line promise shown under the title on the detail page. */
+  tagline?: LocalizedText
+  forWhom?: LocalizedText[]
+  notForWhom?: LocalizedText[]
+  problem?: LocalizedText
+  whatIDo?: LocalizedText[]
+  included?: LocalizedText[]
+  /** Always present once the blueprint is filled in — an explicit boundary, never omitted to look bigger. */
+  notIncluded?: LocalizedText[]
+  process?: ServiceProcessStep[]
+  /** Range and what changes it, e.g. "2–4 weeks, depending on page count and content readiness." */
+  timeline?: LocalizedText
+  /** "What I need from you" — inputs the client must provide for the timeline to hold. */
+  requirements?: LocalizedText[]
+  /** Slugs of real, published projects that demonstrate this service — omitted when no project is a genuine fit. */
+  relatedProjectSlugs?: string[]
+  faq?: FaqItem[]
 }
 
 export type Capability = {

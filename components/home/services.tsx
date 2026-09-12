@@ -2,11 +2,11 @@ import { useLocale, useTranslations } from 'next-intl'
 
 import { Icon } from '@/components/icon'
 import { SectionHeader } from '@/components/home/section-header'
-import { getServices } from '@/lib/home-content'
+import { getAllServices } from '@/lib/services-content'
 import { t, type Locale } from '@/types/content'
 
 export function Services() {
-  const services = getServices()
+  const services = getAllServices()
   const locale = useLocale() as Locale
   const tSection = useTranslations('Services')
 

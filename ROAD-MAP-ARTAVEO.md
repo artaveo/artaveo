@@ -3,9 +3,9 @@
 
 ## Document status
 
-**Last revision:** 12 September 2026 (revision 9 — sub-phase consolidation for Phases 5–11 only: over-split sub-phases with no independent decision gate, owner-approval step or size justification were merged so future sessions aren't fragmented below what a phase actually needs; no information removed, only renumbered/regrouped; all cross-references — Decision Register "Blocks" column, §6.2 debt note, §10.2's forward reference — updated to match. Phases 1–4 (including all of 4.1–4.7) are untouched: content, numbering and structure exactly as in revision 8, since they are already built, pushed and committed. Phases 12–32 were checked and found to already have no sub-phase numbering, so nothing there needed consolidation.)  
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE — 4.1 delivered (D-12 resolved; placeholder-mark swap-back tracked as separate, non-blocking debt), 4.2–4.7 complete** · Phase 5 **IN PROGRESS — 5.1 complete (real `en`/`fa` routing, dictionaries, Persian specifics), 5.2 not started**.  
-**Next step:** Phase 3's closure checklist 3.5 (still open, independent of Phase 4) and Phase 5.2 (shell completion & global boundaries). See `docs/phases/PHASE-5.1-README.md` for what closed 5.1 out.
+**Last revision:** 12 September 2026 (revision 10 — status header corrected to match the body of this document and actual repo state: revision 9 left this header referring to Phase 5 as in-progress after Phases 5.2, 6.1, 6.2, 6.3 and 7.1 had already shipped and were already recorded as complete in §8.3 and their own phase sections further down. No phase content, numbering or history changed — only this header line, which tracks current status, was brought back in sync. Session convention note: at the start of every session, verify this header against §8.3 and `git log`, not the other way round, since this header is the piece most likely to lag.)  
+**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE** · Phase 5 **COMPLETE** · Phase 6 **COMPLETE (6.1 engine, 6.2 Transportation System, 6.3 Pezhohesh Portal)** · Phase 7 **IN PROGRESS — 7.1 complete (curated service catalogue & detail blueprint), 7.2 not started**.  
+**Next step:** Phase 3's closure checklist 3.5 (still open, independent of later phases) and Phase 7.2 (package model, add-ons, pricing signals & engagement models — gated by D-04). See `docs/phases/PHASE-7.1-README.md` for what closed 7.1 out.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -401,7 +401,7 @@ M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ✅ COMPLETE (4.1 debt tracked separately, non-blocking)
   Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav                    ✅ COMPLETE
   Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects            ✅ COMPLETE (6.1 engine ✅; 6.2 Transportation System ✅; 6.3 Pezhohesh Portal ✅ — see docs/phases/PHASE-6.2-README.md, PHASE-6.3-README.md)
-  Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals
+  Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals    ⏳ IN PROGRESS (7.1 catalogue & blueprint ✅ — see docs/phases/PHASE-7.1-README.md; 7.2 packages/pricing not started, gated by D-04)
   Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms
   Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)
   Phase 10  Installable PWA & Offline Shell  Site installs like an app, browsable offline; Brief Builder never fakes success offline
@@ -709,11 +709,11 @@ Candidate highlights from the repository (verify each against the code before pu
 
 ---
 
-## Phase 7 — Services, Packages & Pricing Signals
+## Phase 7 — Services, Packages & Pricing Signals  ⏳ IN PROGRESS (7.1 ✅ — see `docs/phases/PHASE-7.1-README.md`)
 
 **Goal:** a visitor can understand, compare and pre-qualify an offer without a call.
 
-### 7.1 Curated service catalogue & detail blueprint
+### 7.1 Curated service catalogue & detail blueprint  ✅ complete (see `docs/phases/PHASE-7.1-README.md`)
 
 | Service | Type | Notes |
 |---|---|---|

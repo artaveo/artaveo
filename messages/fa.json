@@ -123,6 +123,34 @@
     "allServices": "همه‌ی خدمات",
     "deliverables": "تحویلی‌ها"
   },
+  "ServicesIndex": {
+    "eyebrow": "خدمات",
+    "title": "خدمات",
+    "description": "هفت خدمت روشن، هرکدام همراه با آنچه شامل می‌شود، آنچه شامل نمی‌شود، روند کار و بازه‌ی زمانی — تا پیش از اولین تماس بتوانید مقایسه کنید و تصمیم بگیرید.",
+    "viewService": "دیدن خدمت"
+  },
+  "ServiceType": {
+    "productized": "محصول‌محور",
+    "custom": "سفارشی",
+    "productized-custom": "محصول‌محور + سفارشی",
+    "monthly": "ماهانه"
+  },
+  "ServiceDetail": {
+    "backToServices": "همه‌ی خدمات",
+    "forWhom": "برای چه‌کسانی مناسب است",
+    "notForWhom": "برای چه‌کسانی مناسب نیست",
+    "problem": "مسئله",
+    "whatIDo": "چه‌کاری انجام می‌دهم",
+    "included": "شامل می‌شود",
+    "notIncluded": "شامل نمی‌شود",
+    "deliverables": "تحویلی‌ها",
+    "process": "روند کار",
+    "timeline": "بازه‌ی زمانی",
+    "requirements": "چه‌چیزی از شما نیاز دارم",
+    "relatedWork": "نمونه‌کار مرتبط",
+    "faq": "سوالات متداول",
+    "startThisService": "شروع این خدمت"
+  },
   "WhyArtaveo": {
     "eyebrow": "چرا آرتاویو",
     "titleLine1": "یک توسعه‌دهنده. یک روند کاری.",

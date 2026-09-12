@@ -6,7 +6,6 @@ import type {
   Principle,
   ProcessStep,
   Project,
-  Service,
   TechCategory,
 } from '@/types/content'
 
@@ -309,99 +308,6 @@ const featuredProjectsData: Project[] = [
   },
 ]
 
-const servicesData: Service[] = [
-  {
-    id: 'web-development',
-    slug: 'web-development',
-    icon: 'Globe',
-    title: tx('Web development', 'توسعه‌ی وب'),
-    description: tx(
-      'Fast, accessible business websites with a clean, maintainable codebase behind them.',
-      'وب‌سایت‌های تجاری سریع و در دسترس، با کدی تمیز و قابل نگهداری پشت آن.',
-    ),
-    deliverables: [
-      tx('Responsive website', 'وب‌سایت واکنش‌گرا'),
-      tx('Content structure ready for a CMS', 'ساختار محتوایی آماده برای CMS'),
-      tx('Metadata and SEO setup', 'تنظیمات متادیتا و سئو'),
-    ],
-  },
-  {
-    id: 'full-stack-development',
-    slug: 'full-stack-development',
-    icon: 'Layers',
-    title: tx('Full-stack development', 'توسعه‌ی فول‌استک'),
-    description: tx(
-      'One developer across interface, API and database, so the whole product follows one consistent design.',
-      'یک توسعه‌دهنده در سراسر رابط کاربری، API و پایگاه داده، تا کل محصول از یک طراحی یکدست پیروی کند.',
-    ),
-    deliverables: [
-      tx('Frontend and backend', 'فرانت‌اند و بک‌اند'),
-      tx('Database schema', 'طرح پایگاه داده'),
-      tx('Deployment', 'استقرار'),
-    ],
-  },
-  {
-    id: 'web-applications',
-    slug: 'web-applications',
-    icon: 'AppWindow',
-    title: tx('Web applications', 'اپلیکیشن‌های وب'),
-    description: tx(
-      'Dashboards, portals and internal tools with real authentication, user roles and data workflows.',
-      'داشبورد، پورتال و ابزارهای داخلی با احراز هویت واقعی، نقش‌های کاربری و روند کار داده.',
-    ),
-    deliverables: [
-      tx('Authentication and roles', 'احراز هویت و نقش‌ها'),
-      tx('Admin panels', 'پنل‌های مدیریت'),
-      tx('Data-heavy interfaces', 'رابط‌های کاربری داده‌محور'),
-    ],
-  },
-  {
-    id: 'frontend-development',
-    slug: 'frontend-development',
-    icon: 'PanelsTopLeft',
-    title: tx('Frontend development', 'توسعه‌ی فرانت‌اند'),
-    description: tx(
-      'Component-based interfaces in React and Next.js, built on a design system, with RTL and dark mode where needed.',
-      'رابط‌های کاربری کامپوننت‌محور در React و Next.js، ساخته‌شده روی یک سیستم طراحی، همراه با پشتیبانی RTL و حالت تاریک در صورت نیاز.',
-    ),
-    deliverables: [
-      tx('Design system and components', 'سیستم طراحی و کامپوننت‌ها'),
-      tx('Responsive layouts', 'چیدمان‌های واکنش‌گرا'),
-      tx('Accessibility', 'دسترس‌پذیری'),
-    ],
-  },
-  {
-    id: 'backend-apis',
-    slug: 'backend-apis',
-    icon: 'Server',
-    title: tx('Backend and APIs', 'بک‌اند و API'),
-    description: tx(
-      'Typed APIs, server-side validation and relational data models that keep business rules on the server.',
-      'APIهای تایپ‌شده، اعتبارسنجی سمت سرور و مدل‌های داده‌ی رابطه‌ای که قواعد کسب‌وکار را روی سرور نگه می‌دارند.',
-    ),
-    deliverables: [
-      tx('API endpoints', 'endpointهای API'),
-      tx('PostgreSQL data model', 'مدل داده‌ی PostgreSQL'),
-      tx('Authorization rules', 'قواعد سطح دسترسی'),
-    ],
-  },
-  {
-    id: 'maintenance',
-    slug: 'maintenance',
-    icon: 'Wrench',
-    title: tx('Maintenance and improvement', 'نگهداری و بهبود'),
-    description: tx(
-      'Taking over an existing codebase: fixing issues, improving performance and making it easier to change.',
-      'در دست گرفتن یک کدبیس موجود: رفع مشکلات، بهبود کارایی و ساده‌تر کردن تغییرات آینده.',
-    ),
-    deliverables: [
-      tx('Code review', 'بازبینی کد'),
-      tx('Performance fixes', 'رفع مشکلات کارایی'),
-      tx('Ongoing updates', 'به‌روزرسانی‌های مستمر'),
-    ],
-  },
-]
-
 /** The single delivery chain Artaveo covers end to end. */
 const workflowStagesData: LocalizedText[] = [
   tx('Idea', 'ایده'),
@@ -634,10 +540,6 @@ export function getAllProjects(): Project[] {
 /** A single published project by slug, or `undefined` — backs `/work/[slug]` (§ 6.1). */
 export function getProjectBySlug(slug: string): Project | undefined {
   return featuredProjectsData.find((project) => project.slug === slug && project.published)
-}
-
-export function getServices(): Service[] {
-  return servicesData
 }
 
 export function getWorkflowStages(): LocalizedText[] {
