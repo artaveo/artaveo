@@ -18,21 +18,46 @@ export const siteConfig = {
  * `key` maps to `Nav.<key>` / `Nav.<key>Description` in `messages/*.json`
  * (§ 5.1) — the href is locale-independent structure, the copy is not.
  */
-export type NavKey = 'work' | 'services' | 'process' | 'about' | 'insights' | 'designSystem' | 'contact'
+export type NavKey =
+  | 'home'
+  | 'work'
+  | 'services'
+  | 'process'
+  | 'about'
+  | 'insights'
+  | 'designSystem'
+  | 'contact'
 
 export type NavItem = {
   href: string
   key: NavKey
   hasDescription?: boolean
+  /**
+   * Set to `false` to hide this item from every nav surface (header,
+   * mobile nav, footer, command palette) without deleting the route
+   * definition — § 5.2's "Insights hidden until content exists" rule.
+   * Flip to `true` (or drop the field) once Phase 17 publishes real
+   * articles behind `/insights`.
+   */
+  hasContent?: boolean
 }
 
 export const mainNav: NavItem[] = [
+  { href: '/', key: 'home' },
   { href: '/work', key: 'work', hasDescription: true },
   { href: '/services', key: 'services', hasDescription: true },
   { href: '/process', key: 'process', hasDescription: true },
   { href: '/about', key: 'about', hasDescription: true },
-  { href: '/insights', key: 'insights', hasDescription: true },
+  { href: '/insights', key: 'insights', hasDescription: true, hasContent: false },
 ]
+
+/**
+ * The only list nav surfaces (header, mobile nav, footer) should render —
+ * filters out items whose `hasContent` is explicitly `false`. `mainNav`
+ * itself stays the full, canonical route list for anything that needs it
+ * (active-state checks, sitemap generation, etc.).
+ */
+export const visibleMainNav: NavItem[] = mainNav.filter((item) => item.hasContent !== false)
 
 export const utilityNav: NavItem[] = [
   { href: '/design-system', key: 'designSystem' },
@@ -60,11 +85,13 @@ export const socialLinks = [
 export type CommandGroup = 'navigate' | 'resources' | 'actions'
 
 export type CommandItem = {
-  labelKey: NavKey | 'home' | 'emailArtaveo'
+  labelKey: NavKey | 'emailArtaveo'
   labelNamespace: 'Nav' | 'CommandPalette'
   href: string
   group: CommandGroup
   keywords?: string
+  /** Same hiding rule as `NavItem.hasContent` (§ 5.2) — kept in sync with `mainNav`. */
+  hasContent?: boolean
 }
 
 export const commandItems: CommandItem[] = [
@@ -73,8 +100,13 @@ export const commandItems: CommandItem[] = [
   { labelKey: 'services', labelNamespace: 'Nav', href: '/services', group: 'navigate', keywords: 'offerings help services' },
   { labelKey: 'process', labelNamespace: 'Nav', href: '/process', group: 'navigate', keywords: 'method steps how process' },
   { labelKey: 'about', labelNamespace: 'Nav', href: '/about', group: 'navigate', keywords: 'developer about' },
-  { labelKey: 'insights', labelNamespace: 'Nav', href: '/insights', group: 'navigate', keywords: 'blog writing notes insights' },
+  { labelKey: 'insights', labelNamespace: 'Nav', href: '/insights', group: 'navigate', keywords: 'blog writing notes insights', hasContent: false },
   { labelKey: 'designSystem', labelNamespace: 'Nav', href: '/design-system', group: 'resources', keywords: 'tokens components ui design system' },
   { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'start project hire contact' },
   { labelKey: 'emailArtaveo', labelNamespace: 'CommandPalette', href: 'mailto:artaveo.dev@gmail.com', group: 'actions', keywords: 'mail email reach contact' },
 ]
+
+/** Command palette's visible set — same `hasContent` filter as `visibleMainNav`. */
+export const visibleCommandItems: CommandItem[] = commandItems.filter(
+  (item) => item.hasContent !== false,
+)

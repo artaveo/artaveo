@@ -399,7 +399,7 @@ Later phases may inform earlier design decisions, but they are never used as an 
 M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 3   Content Truth Pass & Home Page   Remove fake content, publish the real Home page                    ⏳ PARTIAL
   Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ✅ COMPLETE (4.1 debt tracked separately, non-blocking)
-  Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav
+  Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav                    ✅ COMPLETE
   Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals
   Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms
@@ -619,11 +619,11 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 
 ---
 
-## Phase 5 — Internationalization & Shell Completion
+## Phase 5 — Internationalization & Shell Completion  ✅ COMPLETE (see `docs/phases/PHASE-5.1-README.md`, `PHASE-5.2-README.md`)
 
 **Goal:** real bilingual routing and a finished global shell **before** any new page is built.
 
-### 5.1 Locale infrastructure (routing, dictionaries, Persian specifics — per D-03)
+### 5.1 Locale infrastructure (routing, dictionaries, Persian specifics — per D-03) — ✅ complete (see `docs/phases/PHASE-5.1-README.md`)
 - `app/[locale]/…` with `en` and `fa`; middleware negotiates the locale on first visit and respects a stored choice
 - the language switcher maps to the **equivalent route** in the other locale (never back to Home)
 - `<html lang dir>` set server-side per locale — no client-side direction flip, no flash
@@ -637,7 +637,7 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 
 > Merged from the previous revision's separate 5.1 (routing) / 5.2 (dictionaries) / 5.3 (Persian specifics): routing without dictionaries has nothing to render, and the Persian rules apply to the same locale layer — none of the three has an independent decision gate or owner-approval step (D-03 is already resolved), so they are one unit of work.
 
-### 5.2 Shell completion & global boundaries
+### 5.2 Shell completion & global boundaries — ✅ complete (see `docs/phases/PHASE-5.2-README.md`)
 - "Home" added; navigation: Work · Services · Process · About · Insights (Insights hidden until content exists) · Contact
 - right controls: Search · Language · Theme · **Start a Project**
 - mobile: accessible navigation (decide sheet vs full overlay and record the decision) + wire the **Sticky Mobile CTA** (built in 4.5) on content pages

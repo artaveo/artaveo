@@ -1,5 +1,6 @@
 {
   "Nav": {
+    "home": "Home",
     "work": "Work",
     "workDescription": "Selected projects and case studies",
     "services": "Services",
@@ -15,6 +16,9 @@
   },
   "Common": {
     "startProject": "Start a project",
+    "bookConsultation": "Book a consultation",
+    "skipToContent": "Skip to content",
+    "backHome": "Back to home",
     "search": "Search",
     "searchPlaceholder": "Search…",
     "openMenu": "Open menu",
@@ -121,5 +125,25 @@
   "DesignSystemPage": {
     "title": "Design System — Artaveo",
     "description": "The visual foundation of Artaveo: color tokens, typography, spacing, and core UI components."
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has moved. Check the address, or head back to the homepage.",
+    "backHome": "Back to home"
+  },
+  "ErrorPage": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred while loading this page. You can try again, or head back to the homepage.",
+    "retry": "Try again",
+    "backHome": "Back to home"
+  },
+  "Loading": {
+    "label": "Loading…"
+  },
+  "Availability": {
+    "available": "Available for new projects",
+    "limited": "Limited availability",
+    "unavailable": "Not taking new projects",
+    "updatedLabel": "Updated"
   }
 }

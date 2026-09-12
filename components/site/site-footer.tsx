@@ -4,8 +4,16 @@ import { Link } from '@/i18n/navigation'
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { Link as ActionLink } from '@/components/ui/actions'
 import { ExternalProfileLinks } from '@/components/ui/identity'
-import { mainNav, siteConfig, utilityNav, type NavItem } from '@/lib/site'
+import { siteConfig, utilityNav, visibleMainNav, type NavItem } from '@/lib/site'
 
+/**
+ * § 5.2 also asks for "locale-aware legal links" in the footer. There is
+ * no privacy/terms page to link to yet — those are built in § 11.2 — so
+ * no placeholder link is added here (§ 3's "no fake content" rule). When
+ * § 11.2 ships real legal pages, add them to a `legalNav` list in
+ * `lib/site.ts` and render it in the bottom bar below via `Link` (already
+ * locale-aware), not as a new hardcoded block.
+ */
 export function SiteFooter() {
   const year = new Date().getFullYear()
   const t = useTranslations('Footer')
@@ -35,7 +43,7 @@ export function SiteFooter() {
           </div>
 
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
-            <FooterCol title={t('explore')} items={mainNav} />
+            <FooterCol title={t('explore')} items={visibleMainNav} />
             <FooterCol title={t('more')} items={utilityNav} />
             <div>
               <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">

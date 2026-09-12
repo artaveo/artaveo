@@ -1,5 +1,6 @@
 import { CircleCheck, CircleDashed, Clock } from 'lucide-react'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 
 import { Link as IntlLink } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
@@ -97,24 +98,29 @@ function IdentityHeader({
  * Availability — chip, card, and the response-commitment note both read from
  * ---------------------------------------------------------------------- */
 
+/**
+ * Visual metadata only — labels now come from `Availability.<state>` in
+ * `messages/*.json` (§ 5.2), read inside `AvailabilityChip` below. They
+ * used to be hardcoded English here; that was fine while this component
+ * only rendered inside the internal English-only design-system demo, but
+ * § 5.2 wires it into the real, live `StickyMobileCta`, so it now needs
+ * to read correctly in `fa` too.
+ */
 const availabilityMeta: Record<
   Availability['state'],
-  { label: string; icon: typeof CircleCheck; tone: string; dot: string }
+  { icon: typeof CircleCheck; tone: string; dot: string }
 > = {
   available: {
-    label: 'Available for new projects',
     icon: CircleCheck,
     tone: 'text-success-text',
     dot: 'bg-success',
   },
   limited: {
-    label: 'Limited availability',
     icon: Clock,
     tone: 'text-warning-text',
     dot: 'bg-warning',
   },
   unavailable: {
-    label: 'Not taking new projects',
     icon: CircleDashed,
     tone: 'text-muted-foreground',
     dot: 'bg-muted-foreground',
@@ -141,6 +147,7 @@ function AvailabilityChip({
   availability: Availability
   className?: string
 }) {
+  const t = useTranslations('Availability')
   const meta = availabilityMeta[availability.state]
   return (
     <span
@@ -151,7 +158,7 @@ function AvailabilityChip({
       )}
     >
       <span aria-hidden="true" className={cn('size-1.5 shrink-0 rounded-full', meta.dot)} />
-      <span className={meta.tone}>{meta.label}</span>
+      <span className={meta.tone}>{t(availability.state)}</span>
     </span>
   )
 }
@@ -181,6 +188,7 @@ function AvailabilityCard({
   locale?: Locale
   className?: string
 }) {
+  const t = useTranslations('Availability')
   const meta = availabilityMeta[availability.state]
   const Icon = meta.icon
 
@@ -191,7 +199,7 @@ function AvailabilityCard({
     >
       <div className="flex items-center gap-2">
         <Icon aria-hidden="true" className={cn('size-4 shrink-0', meta.tone)} />
-        <p className="font-medium text-foreground">{meta.label}</p>
+        <p className="font-medium text-foreground">{t(availability.state)}</p>
       </div>
       <ResponseCommitmentNote
         commitment={availability.responseCommitment}
@@ -199,7 +207,7 @@ function AvailabilityCard({
         className="mt-2"
       />
       <p className="mt-3 font-mono text-[0.7rem] tracking-wide text-muted-foreground/70 uppercase">
-        Updated {formatUpdatedAt(availability.updatedAt, locale)}
+        {t('updatedLabel')} {formatUpdatedAt(availability.updatedAt, locale)}
       </p>
     </div>
   )
@@ -238,14 +246,18 @@ function ExternalProfileLinks({
 
 type IdentityCtaVariant = 'hire' | 'consultation'
 
-const identityCtaCopy: Record<IdentityCtaVariant, { label: string; variant: 'default' | 'outline' }> = {
-  hire: { label: 'Start a project', variant: 'default' },
-  consultation: { label: 'Book a consultation', variant: 'outline' },
+const identityCtaStyle: Record<IdentityCtaVariant, { variant: 'default' | 'outline' }> = {
+  hire: { variant: 'default' },
+  consultation: { variant: 'outline' },
 }
 
 /**
  * Both variants point at `/contact` for now — the Discovery Sprint /
  * consultation booking path itself is wired in a later phase (§ 7, § 20).
+ * Labels resolve from `Common` (`startProject` / `bookConsultation`) so
+ * this reads correctly in both `en` and `fa` — closes the "IdentityCta
+ * labels stay English" debt noted in the Phase 5.1 README now that § 5.2
+ * wires this into the real shell instead of only the design-system demo.
  */
 function IdentityCta({
   variant,
@@ -258,15 +270,16 @@ function IdentityCta({
   size?: 'default' | 'lg'
   className?: string
 }) {
-  const copy = identityCtaCopy[variant]
+  const tCommon = useTranslations('Common')
+  const style = identityCtaStyle[variant]
   return (
     <Button
-      variant={copy.variant}
+      variant={style.variant}
       size={size}
       className={className}
       render={<IntlLink href={href} />}
     >
-      {copy.label}
+      {variant === 'hire' ? tCommon('startProject') : tCommon('bookConsultation')}
     </Button>
   )
 }
@@ -276,9 +289,11 @@ function IdentityCta({
  * ---------------------------------------------------------------------- */
 
 /**
- * Fixed bottom bar, mobile only. Not wired into the root layout yet — § 5.4
- * (Phase 5) decides which content pages it appears on; for now it is only
- * demoed in isolation on `/design-system`.
+ * Fixed bottom bar, mobile only. Wired into `SiteShell` (§ 5.2) on every
+ * content page except Home (which already has the Hero's own CTAs above
+ * the fold) and the internal `/design-system` tool. See
+ * `components/site/site-shell.tsx` for the exact rule and the availability
+ * data source.
  */
 function StickyMobileCta({
   availability,

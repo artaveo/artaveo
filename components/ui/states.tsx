@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock,
+  FileQuestion,
   Inbox,
   RefreshCw,
   WifiOff,
@@ -179,6 +180,40 @@ function ErrorState({
   )
 }
 
+/**
+ * NotFoundState — a route or resource genuinely doesn't exist (`size="page"`
+ * pairs with `app/[locale]/not-found.tsx`; `size="section"` for a missing
+ * item inside an otherwise-fine page, e.g. a bad case-study slug in § 6).
+ * Distinct from `ErrorState`: this isn't a failure, it's an honest "not
+ * here" — different icon, no destructive tone, default action points home
+ * rather than retrying.
+ */
+function NotFoundState({
+  title = 'Page not found',
+  description,
+  action,
+  size = 'page',
+  className,
+}: {
+  title?: React.ReactNode
+  description?: React.ReactNode
+  action?: StateAction
+  size?: StateSize
+  className?: string
+}) {
+  return (
+    <StateShell
+      icon={FileQuestion}
+      iconClassName="text-muted-foreground"
+      title={title}
+      description={description}
+      action={action}
+      size={size}
+      className={className}
+    />
+  )
+}
+
 /** SuccessState — confirms a completed action (form submitted, brief sent…). */
 function SuccessState({
   title = 'Done',
@@ -264,5 +299,5 @@ function OfflineState({
   )
 }
 
-export { EmptyState, LoadingState, ErrorState, SuccessState, RateLimitedState, OfflineState }
+export { EmptyState, LoadingState, ErrorState, NotFoundState, SuccessState, RateLimitedState, OfflineState }
 export { RefreshCw as RetryIcon }

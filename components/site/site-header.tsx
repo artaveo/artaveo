@@ -12,7 +12,7 @@ import { LanguageSwitcher } from '@/components/site/language-switcher'
 import { MobileNav } from '@/components/site/mobile-nav'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
-import { mainNav } from '@/lib/site'
+import { visibleMainNav } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 export function SiteHeader() {
@@ -22,6 +22,13 @@ export function SiteHeader() {
   const [cmdOpen, setCmdOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const isHome = pathname === '/'
+  /**
+   * § 5.2: solid on content pages. Home keeps the transparent-until-scroll
+   * treatment (its hero sits directly under the header), every other route
+   * is solid immediately since there's no hero to show through.
+   */
+  const solid = scrolled || !isHome
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -45,10 +52,17 @@ export function SiteHeader() {
 
   return (
     <>
+      <a
+        href="#main"
+        className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-3 focus-visible:start-3 focus-visible:z-toast focus-visible:rounded-md focus-visible:bg-background focus-visible:px-4 focus-visible:py-2 focus-visible:text-sm focus-visible:font-medium focus-visible:text-foreground focus-visible:shadow-lg focus-visible:outline-2 focus-visible:outline-brand"
+      >
+        {tCommon('skipToContent')}
+      </a>
+
       <header
         className={cn(
           'sticky top-0 z-sticky border-b transition-colors ease-standard',
-          scrolled
+          solid
             ? 'border-border bg-background/80 backdrop-blur-md'
             : 'border-transparent bg-background',
         )}
@@ -63,7 +77,7 @@ export function SiteHeader() {
             </Link>
 
             <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
-              {mainNav.map((item) => {
+              {visibleMainNav.map((item) => {
                 const active =
                   pathname === item.href || pathname.startsWith(`${item.href}/`)
                 return (

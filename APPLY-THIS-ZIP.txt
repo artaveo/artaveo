@@ -1,0 +1,37 @@
+Phase 5.2 delivery — no deletions this time
+============================================================
+
+Every path in this zip is either a new file or an in-place edit to an
+existing path. Just drop the zip's contents into the repo root and
+overwrite — GitHub Desktop will pick up the changes/new files correctly,
+then commit as usual.
+
+16 files: 10 modified + 6 new.
+
+New:
+  app/[locale]/error.tsx
+  app/[locale]/loading.tsx
+  app/[locale]/not-found.tsx
+  app/not-found.tsx
+  docs/phases/PHASE-5.2-README.md
+
+Modified:
+  ROAD-MAP-ARTAVEO.md
+  components/site/command-palette.tsx
+  components/site/mobile-nav.tsx
+  components/site/site-footer.tsx
+  components/site/site-header.tsx
+  components/site/site-shell.tsx
+  components/ui/identity.tsx
+  components/ui/states.tsx
+  lib/site.ts
+  messages/en.json
+  messages/fa.json
+
+See docs/phases/PHASE-5.2-README.md for the full list of what changed and
+why, plus known debt items tracked for later phases.
+
+Verified with a real `next build` (Turbopack) — /en, /fa, /en/design-system
+and /fa/design-system all still statically generate (SSG). Also ran a real
+production server and checked the rendered HTML for lang/dir, the skip
+link, and the Home/Insights nav changes.

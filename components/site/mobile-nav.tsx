@@ -8,9 +8,18 @@ import { Link, usePathname } from '@/i18n/navigation'
 import { LanguageSwitcher } from '@/components/site/language-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
-import { mainNav, siteConfig, utilityNav } from '@/lib/site'
+import { siteConfig, utilityNav, visibleMainNav } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
+/**
+ * § 5.2 decision: **sheet**, not a full-screen overlay. A side sheet
+ * (fixed width, slides in from the inline-end edge) keeps the header's
+ * logo/close affordance visible for orientation and matches the same
+ * pattern already used by `components/ui/sheet.tsx` elsewhere in the app,
+ * rather than introducing a second full-viewport takeover pattern just
+ * for navigation. Reasoning `dir`-aware: "end" flips to the left edge in
+ * RTL automatically via the `end-0`/`start-0` logical properties below.
+ */
 export function MobileNav({
   open,
   onClose,
@@ -57,7 +66,7 @@ export function MobileNav({
         </div>
 
         <nav aria-label="Mobile" className="flex flex-1 flex-col gap-1 overflow-y-auto p-4">
-          {mainNav.map((item) => {
+          {visibleMainNav.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
             return (
               <Link

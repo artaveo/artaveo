@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useRouter } from '@/i18n/navigation'
 import { Kbd } from '@/components/ui/actions'
-import { commandItems, type CommandGroup } from '@/lib/site'
+import { visibleCommandItems, type CommandGroup } from '@/lib/site'
 import { cn } from '@/lib/utils'
 
 export function CommandPalette({
@@ -32,7 +32,7 @@ export function CommandPalette({
 
   const items = useMemo(
     () =>
-      commandItems.map((item) => ({
+      visibleCommandItems.map((item) => ({
         ...item,
         label:
           item.labelNamespace === 'Nav'
