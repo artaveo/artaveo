@@ -27,6 +27,7 @@ export type NavKey =
   | 'insights'
   | 'designSystem'
   | 'contact'
+  | 'start'
 
 export type NavItem = {
   href: string
@@ -109,7 +110,8 @@ export const commandItems: CommandItem[] = [
   { labelKey: 'about', labelNamespace: 'Nav', href: '/about', group: 'navigate', keywords: 'developer about' },
   { labelKey: 'insights', labelNamespace: 'Nav', href: '/insights', group: 'navigate', keywords: 'blog writing notes insights', hasContent: false },
   { labelKey: 'designSystem', labelNamespace: 'Nav', href: '/design-system', group: 'resources', keywords: 'tokens components ui design system' },
-  { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'start project hire contact' },
+  { labelKey: 'start', labelNamespace: 'Nav', href: '/start', group: 'actions', keywords: 'start project brief builder inquiry hire' },
+  { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'contact email whatsapp hire channels' },
   { labelKey: 'emailArtaveo', labelNamespace: 'CommandPalette', href: 'mailto:artaveo.dev@gmail.com', group: 'actions', keywords: 'mail email reach contact' },
 ]
 

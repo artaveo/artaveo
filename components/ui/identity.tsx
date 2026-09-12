@@ -252,16 +252,23 @@ const identityCtaStyle: Record<IdentityCtaVariant, { variant: 'default' | 'outli
 }
 
 /**
- * Both variants point at `/contact` for now — the Discovery Sprint /
- * consultation booking path itself is wired in a later phase (§ 7, § 20).
- * Labels resolve from `Common` (`startProject` / `bookConsultation`) so
- * this reads correctly in both `en` and `fa` — closes the "IdentityCta
- * labels stay English" debt noted in the Phase 5.1 README now that § 5.2
- * wires this into the real shell instead of only the design-system demo.
+ * `hire` now defaults to `/start` — the real Brief Builder (roadmap § 9.1)
+ * — instead of `/contact`; `consultation` still defaults to `/contact`
+ * since the consultation booking path itself is wired in a later phase
+ * (§ 20) and isn't part of the Brief Builder flow. Labels resolve from
+ * `Common` (`startProject` / `bookConsultation`) so this reads correctly
+ * in both `en` and `fa` — closes the "IdentityCta labels stay English"
+ * debt noted in the Phase 5.1 README now that § 5.2 wires this into the
+ * real shell instead of only the design-system demo.
  */
+const identityCtaDefaultHref: Record<IdentityCtaVariant, string> = {
+  hire: '/start',
+  consultation: '/contact',
+}
+
 function IdentityCta({
   variant,
-  href = '/contact',
+  href,
   size = 'default',
   className,
 }: {
@@ -277,7 +284,7 @@ function IdentityCta({
       variant={style.variant}
       size={size}
       className={className}
-      render={<IntlLink href={href} />}
+      render={<IntlLink href={href ?? identityCtaDefaultHref[variant]} />}
     >
       {variant === 'hire' ? tCommon('startProject') : tCommon('bookConsultation')}
     </Button>

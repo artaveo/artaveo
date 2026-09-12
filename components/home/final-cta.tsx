@@ -14,7 +14,7 @@ export function FinalCta() {
         </>
       }
       description={t('description')}
-      primaryAction={{ href: '/contact', label: t('startProject') }}
+      primaryAction={{ href: '/start', label: t('startProject') }}
       secondaryAction={{ href: '/work', label: t('viewWork') }}
     />
   )

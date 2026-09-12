@@ -172,7 +172,7 @@ export function ProcessContent() {
       <CTASection
         title={t18n('ctaTitle')}
         description={t18n('ctaDescription')}
-        primaryAction={{ href: '/contact', label: t18n('ctaPrimary') }}
+        primaryAction={{ href: '/start', label: t18n('ctaPrimary') }}
         secondaryAction={{ href: '/services', label: t18n('ctaSecondary') }}
       />
     </Fragment>

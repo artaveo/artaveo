@@ -16,12 +16,14 @@ import { cn } from '@/lib/utils'
  * future content page (Work, Services, About, …) opts in automatically
  * without needing to remember to wire the CTA itself.
  *
- * `/contact` (§ 8.3) is exempt for the same reason as Home: the page
- * itself *is* the "Start a project" destination every other CTA points
- * to, so a floating duplicate of the same action would be redundant
- * rather than helpful.
+ * `/start` (§ 9.1) is exempt for the same reason as Home: the page itself
+ * *is* the "Start a project" destination every other CTA points to now,
+ * so a floating duplicate of the same action would be redundant rather
+ * than helpful. `/contact` (§ 8.3) stays exempt too — it's still a real,
+ * direct "Start a project" alternative (email/WhatsApp/hire channels),
+ * just no longer the primary one.
  */
-const STICKY_CTA_EXEMPT_PATHS = ['/', '/design-system', '/contact']
+const STICKY_CTA_EXEMPT_PATHS = ['/', '/design-system', '/contact', '/start']
 
 export function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

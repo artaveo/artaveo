@@ -37,7 +37,7 @@ export function ServiceDetail({
   const t18n = useTranslations('ServiceDetail')
   const tType = useTranslations('ServiceType')
   const tNav = useTranslations('Nav')
-  const startHref = `/contact?service=${service.slug}`
+  const startHref = `/start?service=${service.slug}`
 
   return (
     <article className="container-page py-16 md:py-24">

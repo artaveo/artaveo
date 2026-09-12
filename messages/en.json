@@ -12,7 +12,8 @@
     "insights": "Insights",
     "insightsDescription": "Notes on engineering and craft",
     "designSystem": "Design System",
-    "contact": "Contact"
+    "contact": "Contact",
+    "start": "Start a project"
   },
   "Common": {
     "startProject": "Start a project",
@@ -283,6 +284,87 @@
     "hireChannelsTitle": "Choose how to hire",
     "hireChannelsDescription": "The website stays the canonical source either way — a platform profile only ever links back here.",
     "hireChannelsNote": "Not sure which fits? Direct is the faster path for most conversations — message me and I'll point you the right way if a platform makes more sense for you.",
-    "directTitle": "Direct contact"
+    "directTitle": "Direct contact",
+    "briefBuilderNote": "Prefer a guided form instead? The Brief Builder walks through scope, timeline and budget step by step.",
+    "briefBuilderCta": "Start the Brief Builder"
+  },
+  "StartPage": {
+    "eyebrow": "Start a project",
+    "title": "Let's scope your project",
+    "description": "A short, structured brief — ten minutes now saves back-and-forth later. Answer what you know; skip what you don't.",
+    "metaTitle": "Start a project"
+  },
+  "BriefBuilder": {
+    "stepService": "Service",
+    "stepProject": "Project",
+    "stepScope": "Scope",
+    "stepTimeline": "Timeline",
+    "stepLinks": "Links",
+    "stepContact": "Contact",
+    "stepReview": "Review",
+
+    "serviceStepTitle": "What are you looking for?",
+    "serviceStepDescription": "Pick the closest match — this only helps me prepare, it doesn't lock you in.",
+    "serviceLabel": "Service",
+    "servicePlaceholder": "Select a service",
+    "noServiceOption": "Not sure / none of these",
+    "packagePrefilledNote": "Package: {package}",
+    "engagementModelLabel": "How would you like to work together?",
+    "engagementModelPlaceholder": "Select an engagement model",
+    "noEngagementOption": "Not sure yet",
+
+    "projectStepTitle": "Tell me about the project",
+    "projectTypeLabel": "Project type",
+    "goalLabel": "What outcome are you trying to reach?",
+    "goalPlaceholder": "Describe the problem or goal in a few sentences…",
+    "goalHint": "A few sentences is enough — the call is where we go deeper.",
+
+    "scopeStepTitle": "What does it need to do?",
+    "scopeStepDescription": "Check anything that applies. It's fine to leave this empty if you're not sure yet.",
+    "featuresLabel": "Key features",
+    "featureOtherLabel": "Tell me more",
+    "featureOtherPlaceholder": "What else does it need?",
+
+    "timelineStepTitle": "Timeline & budget",
+    "timelineLabel": "Timeline",
+    "budgetLabel": "Budget range (optional)",
+    "budgetHint": "A rough range only — this helps me suggest the right engagement model, not a fixed quote.",
+
+    "linksStepTitle": "Links & references",
+    "linksStepDescription": "A current site, a competitor, a design reference — anything that helps me understand the project. Optional.",
+    "linkPlaceholder": "https://…",
+    "addLink": "Add another link",
+    "removeLink": "Remove link",
+
+    "contactStepTitle": "How should I reach you?",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "phoneLabel": "Phone / WhatsApp",
+    "phonePlaceholder": "+1 555 000 0000",
+    "phoneHint": "Only needed if WhatsApp is your preferred channel.",
+    "preferredChannelLabel": "Preferred contact channel",
+    "consentLabel": "I agree that Artaveo may contact me about this project using the details above.",
+
+    "reviewStepTitle": "Review your brief",
+    "reviewStepDescription": "Here's everything as it stands. Go back to change anything before sending.",
+
+    "back": "Back",
+    "next": "Next",
+    "submit": "Send brief",
+
+    "errorRequired": "This field is required.",
+    "errorTooShort": "A little more detail would help — a few sentences is enough.",
+    "errorInvalidEmail": "Enter a valid email address.",
+    "errorInvalidUrl": "Enter a full URL, starting with https://",
+
+    "submittingTitle": "Sending your brief…",
+    "notLiveTitle": "Submissions aren't live yet",
+    "notLiveDescription": "The Brief Builder's backend hasn't shipped yet (roadmap Phase 9.2) — nothing was lost, but it wasn't saved on this site either. Send it by email instead and I'll reply directly; your answers above are already in the message.",
+    "emailInstead": "Email this brief",
+    "startOver": "Edit brief",
+    "successTitle": "Brief sent",
+    "successDescription": "Thanks — I'll reply with next steps."
   }
 }

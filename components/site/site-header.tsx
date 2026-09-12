@@ -122,7 +122,7 @@ export function SiteHeader() {
               <LanguageSwitcher />
             </div>
 
-            <Button className="hidden sm:inline-flex" render={<Link href="/contact" />}>
+            <Button className="hidden sm:inline-flex" render={<Link href="/start" />}>
               {tCommon('startProject')}
               <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
             </Button>

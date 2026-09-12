@@ -20,9 +20,11 @@ import { t, type Locale } from '@/types/content'
  * whichever way a visitor prefers to reach out, it's one click away
  * without scrolling past the comparison first.
  *
- * The Brief Builder (roadmap § 9.1, `/start`) is a later phase; until it
- * ships, email and WhatsApp are the only ways to start a project, and
- * every "Start a project" CTA site-wide already points here.
+ * The Brief Builder (roadmap § 9.1, `/start`) now ships as the site's
+ * primary "Start a project" destination — every such CTA site-wide points
+ * there instead of here. This page remains the secondary path for anyone
+ * who'd rather just email or message directly without the guided form,
+ * with a small cross-link to the Brief Builder for the other direction.
  */
 export function ContactContent() {
   const locale = useLocale() as Locale
@@ -94,6 +96,15 @@ export function ContactContent() {
 
                 <div className="mt-5 border-t border-border pt-5">
                   <ExternalProfileLinks className="flex-col items-start gap-2.5" />
+                </div>
+
+                <div className="mt-5 border-t border-border pt-5">
+                  <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
+                    {t18n('briefBuilderNote')}
+                  </p>
+                  <Link href="/start" variant="standalone" showExternalIcon={false} className="mt-2 inline-flex">
+                    {t18n('briefBuilderCta')}
+                  </Link>
                 </div>
               </div>
             </div>

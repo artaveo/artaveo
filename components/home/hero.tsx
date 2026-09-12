@@ -47,7 +47,7 @@ export function Hero() {
               size="lg"
               variant="outline"
               className="h-11 px-5 text-[0.95rem]"
-              render={<Link href="/contact" />}
+              render={<Link href="/start" />}
             >
               {t('ctaContact')}
             </Button>

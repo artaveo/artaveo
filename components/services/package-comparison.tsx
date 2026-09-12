@@ -111,7 +111,7 @@ export function PackageComparison({
         <div className="mt-4">
           <TierBody
             pkg={activePkg}
-            startHref={`/contact?service=${serviceSlug}&package=${activePkg.id}`}
+            startHref={`/start?service=${serviceSlug}&package=${activePkg.id}`}
             formatted={formatPrice(activePkg.price, locale, tPrice)}
           />
         </div>
@@ -183,7 +183,7 @@ export function PackageComparison({
                   <div className="rounded-b-xl border border-t-0 border-border bg-card p-5">
                     <Button
                       className="w-full justify-center"
-                      render={<Link href={`/contact?service=${serviceSlug}&package=${pkg.id}`} />}
+                      render={<Link href={`/start?service=${serviceSlug}&package=${pkg.id}`} />}
                     >
                       {t18n('choosePackage')}
                     </Button>

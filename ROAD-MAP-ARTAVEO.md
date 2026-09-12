@@ -3,9 +3,9 @@
 
 ## Document status
 
-**Last revision:** 12 September 2026 (revision 12 — Phase 8 marked complete: § 8.3's Hire Channel Selector shipped at the new `/contact` route, implementing D-05's own recommended default — Direct + Fiverr, real profiles only — which was already live sitewide in `lib/site.ts#socialLinks` since Phase 5.2. D-05 is not marked formally "Resolved" in the register; owner sign-off to record it in `docs/decisions.md` is still open. See `docs/phases/PHASE-8.3-README.md` for the reasoning in full.)  
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE** · Phase 5 **COMPLETE** · Phase 6 **COMPLETE (6.1 engine, 6.2 Transportation System, 6.3 Pezhohesh Portal)** · Phase 7 **COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/pricing signals/engagement models — all prices shown as "Ask for a quote" pending D-04)** · Phase 8 **COMPLETE (8.1 About/Process/Quality, 8.2 Working Agreement, 8.3 Hire Channel Selector at `/contact`)**.  
-**Next step:** Phase 3's closure checklist 3.5 (still open, independent of later phases) and Phase 9 (Start a Project — Inquiry v1, the first real backend slice; note D-04 blocks part of 9.1 and D-01's domain/e-mail piece blocks 9.3). See `docs/phases/PHASE-8.3-README.md` for what closed Phase 8 out.
+**Last revision:** 13 September 2026 (revision 13 — Phase 9.1 marked complete: the Brief Builder shipped at the new `/start` route — 6 data-entry steps + Brief Summary, per-step validation, `?service=`/`?package=` prefill, and the full 9-state form-state model from § 9.1's spec. § 9.2 (server persistence) does not exist yet, so Submit honestly reports that and offers a working mailto fallback with the same summary — never a fabricated success (principle 15). D-04 turned out **not** to block any part of 9.1 after all: the budget-range step is a generic, self-reported client bucket, not a price Artaveo publishes — see `docs/phases/PHASE-9.1-README.md` for the full reasoning. Every "Start a project" CTA site-wide now points to `/start` instead of `/contact`, which remains live as the secondary direct-contact path.)  
+**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE** · Phase 5 **COMPLETE** · Phase 6 **COMPLETE (6.1 engine, 6.2 Transportation System, 6.3 Pezhohesh Portal)** · Phase 7 **COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/pricing signals/engagement models — all prices shown as "Ask for a quote" pending D-04)** · Phase 8 **COMPLETE (8.1 About/Process/Quality, 8.2 Working Agreement, 8.3 Hire Channel Selector at `/contact`)** · Phase 9 **PARTIAL (9.1 Brief Builder ✅ at `/start` — see `docs/phases/PHASE-9.1-README.md`; 9.2 server handling & persistence and 9.3 notifications not started)**.  
+**Next step:** Phase 3's closure checklist 3.5 (still open, independent of later phases) and Phase 9.2 (server handling & persistence — the minimal `inquiries`/`inquiry_events` schema slice, gated by D-10, Supabase plan/region). 9.3 (notifications) stays blocked on D-01's domain/DNS piece independently of 9.2. See `docs/phases/PHASE-9.1-README.md` for what closed 9.1 out and exactly what 9.2 still needs to wire up (the Brief Builder's own submit flow already has the seam ready).
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -340,7 +340,7 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 | **D-01** | Brand spelling, production domain, sending e-mail domain | **Spelling resolved: "Artaveo"** (confirmed by the approved logo, 10 Sep 2026). Domain and e-mail still open — register the domain, use it for e-mail with SPF, DKIM and DMARC configured | 4.1 · 9.3 · 11.4 |
 | **D-02** | Public identity: real name, portrait, published location / timezone | **Resolved (11 Sep 2026):** name **Zakir Naseri**; portrait `public/Profile-pic.jpg` (referenced as `/Profile-pic.jpg`); timezone **UTC**, no city published | 3.3 (Hero) · 4.5 · 8.1 |
 | **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.1 |
-| **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.2 · 9.1 — still open; § 7.2's mechanics are built and live with every price as `'quote'` ("Ask for a quote") so nothing invented ships in the meantime |
+| **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.2 — still open; § 7.2's mechanics are built and live with every price as `'quote'` ("Ask for a quote") so nothing invented ships in the meantime. (§ 9.1's Brief Builder budget-range step turned out not to depend on this after all — it's a generic, self-reported client budget bucket, not a published price; see `docs/phases/PHASE-9.1-README.md`.) |
 | **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.3 · 5.2 (footer) — **default applied 12 Sep 2026** in § 8.3's Hire Channel Selector and (since § 5.2) the footer; not yet marked formally "Resolved" pending owner sign-off in `docs/decisions.md` |
 | **D-06** | Publication rights for case studies (Transportation System, Pezhohesh Portal): client/employer consent, what may be shown | Transportation System: resolved 12 Sep 2026 — Zakir's own project, no external client. Pezhohesh Portal: resolved 12 Sep 2026 — Zakir owns the Pezhohesh Complex institute itself and built the site for it; no separate client relationship. Both approved for publication. Screenshots with **demo data only**; no customer/student PII; confidential details generalised | 6.2 · 6.3 |
 | **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 11.2 · 29 |
@@ -404,7 +404,7 @@ M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects            ✅ COMPLETE (6.1 engine ✅; 6.2 Transportation System ✅; 6.3 Pezhohesh Portal ✅ — see docs/phases/PHASE-6.2-README.md, PHASE-6.3-README.md)
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals    ✅ COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/engagement models — all prices "Ask for a quote" pending D-04; see docs/phases/PHASE-7.1-README.md, PHASE-7.2-README.md)
   Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms    ⏳ PARTIAL (8.1 ✅ + 8.2 ✅ complete — see docs/phases/PHASE-8.1-README.md, PHASE-8.2-README.md; 8.3 Hire channels blocked on D-05)
-  Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)
+  Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)    ⏳ PARTIAL (9.1 Brief Builder ✅ at /start; 9.2 persistence, 9.3 notifications not started — see docs/phases/PHASE-9.1-README.md)
   Phase 10  Installable PWA & Offline Shell  Site installs like an app, browsable offline; Brief Builder never fakes success offline
   Phase 11  Launch Readiness (M1 gate)       SEO, legal pages, analytics, performance/a11y check, deploy
 
@@ -805,11 +805,11 @@ Start this service  → Brief Builder pre-filled with the service
 
 ---
 
-## Phase 9 — Start a Project (Inquiry v1 — first real backend slice)
+## Phase 9 — Start a Project (Inquiry v1 — first real backend slice)  ⏳ PARTIAL (9.1 ✅ complete — see `docs/phases/PHASE-9.1-README.md`; 9.2, 9.3 not started)
 
 **Goal:** qualified, persisted, notified inquiries — no fake success.
 
-### 9.1 Brief Builder
+### 9.1 Brief Builder  ✅ COMPLETE (13 September 2026 — see `docs/phases/PHASE-9.1-README.md`)
 Steps: engagement model / service → project type → goal → key features (checklist) → timeline → budget range (optional; ranges per D-04) → links / references → contact details → preferred language and channel → consent.
 - pre-fill from the page that launched it (`?service=`, `?package=`)
 - per-step validation, back/forward without data loss, keyboard and screen-reader friendly
@@ -818,6 +818,8 @@ Steps: engagement model / service → project type → goal → key features (ch
 - scope limit: file attachments are deferred to Phase 15 (uploads are a security surface); v1 accepts links
 
 > Merged from the previous revision's separate 9.1 (Brief Builder) / 9.5 (states) / 9.6 (scope limits): the state list is the Brief Builder's own UI/flow behaviour, and the scope-limit note is a one-line caveat on the same form — neither is independent build work.
+
+**Shipped 13 September 2026** at `/start` (`docs/phases/PHASE-9.1-README.md`): all steps above, per-step validation, `?service=`/`?package=` prefill, and the full state list as `BriefBuilderStatus` (`types/inquiry.ts`). Since § 9.2 doesn't exist yet, Submit honestly reports that (never a fabricated success) and offers a working mailto fallback with the same Brief Summary; `persisted-notification-pending` and `success` are defined but intentionally unreachable until § 9.2/§ 9.3 exist. The budget-range step turned out not to need D-04 at all — it is a generic, self-reported client bucket, not a published price. Every site-wide "Start a project" CTA now targets `/start` instead of `/contact`.
 
 ### 9.2 Server handling & persistence (minimal slice of the Phase 12 schema)
 - one schema shared by client and server; server re-validates everything

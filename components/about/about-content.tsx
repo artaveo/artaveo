@@ -181,7 +181,7 @@ export function AboutContent() {
     <CTASection
       title={t18n('ctaTitle')}
       description={t18n('ctaDescription')}
-      primaryAction={{ href: '/contact', label: t18n('ctaPrimary') }}
+      primaryAction={{ href: '/start', label: t18n('ctaPrimary') }}
       secondaryAction={{ href: '/work', label: t18n('ctaSecondary') }}
     />
     </Fragment>

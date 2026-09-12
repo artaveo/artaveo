@@ -118,7 +118,7 @@ export function MobileNav({
         <div className="px-4 pb-5">
           <Button
             className="w-full"
-            render={<Link href="/contact" onClick={onClose} />}
+            render={<Link href="/start" onClick={onClose} />}
           >
             {tCommon('startProject')}
             <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
