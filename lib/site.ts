@@ -59,6 +59,13 @@ export const mainNav: NavItem[] = [
  */
 export const visibleMainNav: NavItem[] = mainNav.filter((item) => item.hasContent !== false)
 
+/**
+ * `/work` shows category/technology filters only once there are enough
+ * projects to need them (roadmap § 6.1). With today's two projects the
+ * grid renders unfiltered; raise this only alongside real published work.
+ */
+export const WORK_FILTER_THRESHOLD = 6
+
 export const utilityNav: NavItem[] = [
   { href: '/design-system', key: 'designSystem' },
   { href: '/contact', key: 'contact' },

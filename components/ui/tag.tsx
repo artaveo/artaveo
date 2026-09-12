@@ -3,6 +3,7 @@ import type * as React from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import type { ProjectStatus } from '@/types/content'
 
 /**
  * Tag — an interactive chip (selected filter, removable keyword), distinct
@@ -44,32 +45,44 @@ function Tag({
 
 /**
  * StatusBadge — the project-status vocabulary from § 6.1: honest states
- * only, never invented ones. Wraps `Badge` so status color mapping lives
- * in exactly one place.
+ * only, never invented ones. Wraps `Badge` so status → color mapping lives
+ * in exactly one place (`statusVariant`, also used directly wherever a
+ * status needs to be shown without the English fallback label below —
+ * e.g. the bilingual `/work` pages, which pass their own translated
+ * `label`).
  */
-type ProjectStatus = 'live' | 'in-development' | 'private' | 'archived' | 'concept'
+const statusVariant: Record<ProjectStatus, React.ComponentProps<typeof Badge>['variant']> = {
+  live: 'success',
+  'in-development': 'warning',
+  private: 'muted',
+  archived: 'outline',
+  concept: 'info',
+}
 
-const statusConfig: Record<ProjectStatus, { label: string; variant: React.ComponentProps<typeof Badge>['variant'] }> = {
-  live: { label: 'Live', variant: 'success' },
-  'in-development': { label: 'In development', variant: 'warning' },
-  private: { label: 'Internal / private', variant: 'muted' },
-  archived: { label: 'Archived', variant: 'outline' },
-  concept: { label: 'Concept', variant: 'info' },
+/** English-only fallback labels — used by the internal, noindex design-system showcase. */
+const statusDefaultLabel: Record<ProjectStatus, string> = {
+  live: 'Live',
+  'in-development': 'In development',
+  private: 'Internal / private',
+  archived: 'Archived',
+  concept: 'Concept',
 }
 
 function StatusBadge({
   status,
+  label,
   className,
 }: {
   status: ProjectStatus
+  /** Translated label. Falls back to the English showcase label when omitted. */
+  label?: string
   className?: string
 }) {
-  const { label, variant } = statusConfig[status]
   return (
-    <Badge variant={variant} className={className}>
-      {label}
+    <Badge variant={statusVariant[status]} className={className}>
+      {label ?? statusDefaultLabel[status]}
     </Badge>
   )
 }
 
-export { Tag, StatusBadge, type ProjectStatus }
+export { Tag, StatusBadge, statusVariant, type ProjectStatus }

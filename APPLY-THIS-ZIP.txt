@@ -1,4 +1,4 @@
-Phase 5.2 delivery — no deletions this time
+Phase 6.1 delivery — no deletions this time
 ============================================================
 
 Every path in this zip is either a new file or an in-place edit to an
@@ -6,32 +6,33 @@ existing path. Just drop the zip's contents into the repo root and
 overwrite — GitHub Desktop will pick up the changes/new files correctly,
 then commit as usual.
 
-16 files: 10 modified + 6 new.
+14 files: 8 modified + 6 new.
 
 New:
-  app/[locale]/error.tsx
-  app/[locale]/loading.tsx
-  app/[locale]/not-found.tsx
-  app/not-found.tsx
-  docs/phases/PHASE-5.2-README.md
+  app/[locale]/work/page.tsx
+  app/[locale]/work/[slug]/page.tsx
+  components/work/case-study.tsx
+  components/work/project-card.tsx
+  components/work/work-grid.tsx
+  docs/phases/PHASE-6.1-README.md
 
 Modified:
   ROAD-MAP-ARTAVEO.md
-  components/site/command-palette.tsx
-  components/site/mobile-nav.tsx
-  components/site/site-footer.tsx
-  components/site/site-header.tsx
-  components/site/site-shell.tsx
-  components/ui/identity.tsx
-  components/ui/states.tsx
+  components/home/featured-work.tsx
+  components/ui/tag.tsx
+  lib/home-content.ts
   lib/site.ts
   messages/en.json
   messages/fa.json
+  types/content.ts
 
-See docs/phases/PHASE-5.2-README.md for the full list of what changed and
-why, plus known debt items tracked for later phases.
+See docs/phases/PHASE-6.1-README.md for the full list of what changed and
+why, plus what's intentionally deferred (§ 6.2 / § 6.3 case-study content,
+still blocked on D-06).
 
-Verified with a real `next build` (Turbopack) — /en, /fa, /en/design-system
-and /fa/design-system all still statically generate (SSG). Also ran a real
-production server and checked the rendered HTML for lang/dir, the skip
-link, and the Home/Insights nav changes.
+Verified with a real `next build` (Turbopack, font-stub workaround applied
+and reverted) — /en/work, /fa/work and all four `/work/[slug]` locale ×
+project combinations statically generate. Also ran `tsc --noEmit` clean,
+the content-placeholder guard clean, and a real production server smoke
+test of the new routes. One known environment nuance (not a code bug) is
+documented in the phase README under "Verification".

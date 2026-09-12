@@ -23,7 +23,21 @@ export function t(field: LocalizedText, locale: Locale = 'en'): string {
   return field[locale] ?? field.en
 }
 
-export type ProjectStatus = 'in-development' | 'live' | 'archived'
+/**
+ * Honest status vocabulary (roadmap § 6.1): the only states a project may
+ * be labelled with. Never invent a state outside this set.
+ */
+export type ProjectStatus = 'live' | 'in-development' | 'private' | 'archived' | 'concept'
+
+/**
+ * One "context → decision → trade-off" card for a case study's Key
+ * Decisions section (roadmap § 6.1 template).
+ */
+export type DecisionRecord = {
+  context: LocalizedText
+  decision: LocalizedText
+  tradeoff: LocalizedText
+}
 
 export type Project = {
   id: string
@@ -41,8 +55,34 @@ export type Project = {
   githubUrl?: string
   liveUrl?: string
   year?: string
+  /** What was done personally on this project. Omitted when not yet written up. */
+  role?: LocalizedText
   featured: boolean
   published: boolean
+
+  /**
+   * Case study body (roadmap § 6.1 template). Every field below is
+   * optional and independently gated: a section renders only when its
+   * field is present, so the `/work/[slug]` template can be built once
+   * (this phase) and filled in per project later (§ 6.2 / § 6.3), once
+   * publication rights are resolved (D-06). Never invent a value here —
+   * an absent field means "not yet verified against the code", not "empty
+   * on purpose".
+   */
+  context?: LocalizedText
+  problemAndGoals?: LocalizedText
+  /** Real constraints only — time, budget, infrastructure, language, connectivity… */
+  constraints?: LocalizedText[]
+  architecture?: LocalizedText
+  keyDecisions?: DecisionRecord[]
+  engineeringHighlight?: LocalizedText
+  dataIntegrityAndSecurity?: LocalizedText
+  responsiveAndRtl?: LocalizedText
+  quality?: LocalizedText
+  currentStatusAndNext?: LocalizedText
+  lessonsLearned?: LocalizedText
+  /** A related service page to link to from the case study's Links section. */
+  relatedServiceSlug?: string
 }
 
 export type Service = {

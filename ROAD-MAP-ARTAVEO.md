@@ -400,7 +400,7 @@ M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 3   Content Truth Pass & Home Page   Remove fake content, publish the real Home page                    ⏳ PARTIAL
   Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ✅ COMPLETE (4.1 debt tracked separately, non-blocking)
   Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav                    ✅ COMPLETE
-  Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects
+  Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects            ⏳ PARTIAL (6.1 engine ✅; 6.2/6.3 content ⏸ BLOCKED on D-06)
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals
   Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms
   Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)
@@ -652,11 +652,11 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 
 ---
 
-## Phase 6 — Work & Case Study Engine
+## Phase 6 — Work & Case Study Engine  ⏳ PARTIAL (see `docs/phases/PHASE-6.1-README.md`)
 
 **Goal:** real projects become the strongest proof on the site.
 
-### 6.1 `/work` index, case study template & shared infrastructure
+### 6.1 `/work` index, case study template & shared infrastructure  ✅ complete (see `docs/phases/PHASE-6.1-README.md`)
 - project grid (1 / 2 / 2–3 columns), featured first
 - filters (category, technology) appear **only when there are enough projects to need them** (threshold recorded in config; with two projects, no filters)
 - honest status badges: *Live* · *In development* · *Internal / private* · *Archived* · *Concept*
@@ -687,7 +687,7 @@ Metadata that is unknown or not true is omitted, never guessed.
 
 > Merged from the previous revision's separate 6.1 (`/work` index) / 6.2 (case study template) / 6.5 (engineering evidence) / 6.6 (media v1): all four are reusable engine/template infrastructure with no independent decision gate and no per-project content to verify — they are built once and used by both case studies below.
 
-### 6.2 Case study — Transportation System (requires D-06)
+### 6.2 Case study — Transportation System  ⏸ BLOCKED on D-06 (template ready, see § 6.1)
 Candidate highlights from the repository (verify each against the code before publishing):
 - intercity booking with a live seat map; seat holds and confirmation enforced server-side, never in the browser
 - PostgreSQL row-level security combined with server-side authorization and a permission center for limited admins
@@ -697,7 +697,7 @@ Candidate highlights from the repository (verify each against the code before pu
 - honest status: in active development; real payment-provider integration pending
 - process evidence: phased roadmap and per-phase implementation documents
 
-### 6.3 Case study — Pazhuhesh Complex Portal (requires D-06)
+### 6.3 Case study — Pazhuhesh Complex Portal  ⏸ BLOCKED on D-06 (template ready, see § 6.1)
 - bilingual Dari/English portal with RTL-native interface
 - two admin roles with role-based routing and department-scoped permissions
 - offline-first data layer and installable PWA with caching tuned per data type; admin excluded from caching

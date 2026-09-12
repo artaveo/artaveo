@@ -7,20 +7,16 @@ import { SectionHeader } from '@/components/home/section-header'
 import { LatinTerm } from '@/components/site/latin-term'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { StatusBadge } from '@/components/ui/tag'
 import { getFeaturedProjects } from '@/lib/home-content'
 import { cn } from '@/lib/utils'
-import { t, type Locale, type Project, type ProjectStatus } from '@/types/content'
+import { t, type Locale, type Project } from '@/types/content'
 
 export function FeaturedWork() {
   const projects = getFeaturedProjects()
   const locale = useLocale() as Locale
   const tSection = useTranslations('FeaturedWork')
-
-  const statusLabel: Record<ProjectStatus, { label: string; variant: 'info' | 'success' | 'muted' }> = {
-    'in-development': { label: tSection('statusInDevelopment'), variant: 'info' },
-    live: { label: tSection('statusLive'), variant: 'success' },
-    archived: { label: tSection('statusArchived'), variant: 'muted' },
-  }
+  const tStatus = useTranslations('ProjectStatus')
 
   return (
     <section aria-labelledby="work-title" className="section-y">
@@ -39,8 +35,8 @@ export function FeaturedWork() {
               key={project.id}
               project={project}
               locale={locale}
-              statusLabel={statusLabel}
               t={tSection}
+              tStatus={tStatus}
               reversed={index % 2 === 1}
               priority={index === 0}
             />
@@ -54,21 +50,20 @@ export function FeaturedWork() {
 function ProjectFeature({
   project,
   locale,
-  statusLabel,
   t: tSection,
+  tStatus,
   reversed,
   priority,
 }: {
   project: Project
   locale: Locale
-  statusLabel: Record<ProjectStatus, { label: string; variant: 'info' | 'success' | 'muted' }>
   t: ReturnType<typeof useTranslations<'FeaturedWork'>>
+  tStatus: ReturnType<typeof useTranslations<'ProjectStatus'>>
   reversed: boolean
   priority: boolean
 }) {
   const href = `/work/${project.slug}`
   const titleId = `project-${project.slug}`
-  const status = project.status ? statusLabel[project.status] : null
 
   return (
     <article
@@ -90,7 +85,9 @@ function ProjectFeature({
       <div className="lg:col-span-5">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="brand-soft">{t(project.category, locale)}</Badge>
-          {status ? <Badge variant={status.variant}>{status.label}</Badge> : null}
+          {project.status ? (
+            <StatusBadge status={project.status} label={tStatus(project.status)} />
+          ) : null}
           {project.year ? (
             <span className="font-mono text-xs text-muted-foreground">
               {project.year}

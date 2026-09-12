@@ -97,6 +97,10 @@ const featuredProjectsData: Project[] = [
     technologies: ['Next.js', 'React', 'TypeScript', 'PostgreSQL', 'Supabase', 'Tailwind CSS'],
     status: 'in-development',
     githubUrl: 'https://github.com/artaveo/Transportation-System',
+    role: tx(
+      'Sole developer: architecture, database schema, frontend, backend and admin, planned and built end to end.',
+      'توسعه‌دهنده‌ی یگانه: معماری، طرح پایگاه داده، فرانت‌اند، بک‌اند و پنل مدیریت، از ابتدا تا انتها برنامه‌ریزی و ساخته‌شده.',
+    ),
     featured: true,
     published: true,
   },
@@ -125,6 +129,10 @@ const featuredProjectsData: Project[] = [
     ],
     technologies: ['React', 'Vite', 'Supabase', 'PostgreSQL', 'Tailwind CSS', 'PWA'],
     githubUrl: 'https://github.com/artaveo/pezhohesh-portal',
+    role: tx(
+      'Sole developer: architecture, database schema, frontend, backend and admin, planned and built end to end.',
+      'توسعه‌دهنده‌ی یگانه: معماری، طرح پایگاه داده، فرانت‌اند، بک‌اند و پنل مدیریت، از ابتدا تا انتها برنامه‌ریزی و ساخته‌شده.',
+    ),
     featured: true,
     published: true,
   },
@@ -443,6 +451,18 @@ export function getCapabilities(): Capability[] {
 
 export function getFeaturedProjects(): Project[] {
   return featuredProjectsData.filter((project) => project.featured && project.published)
+}
+
+/** Every published project, featured-first — backs `/work` (§ 6.1). */
+export function getAllProjects(): Project[] {
+  return featuredProjectsData
+    .filter((project) => project.published)
+    .sort((a, b) => Number(b.featured) - Number(a.featured))
+}
+
+/** A single published project by slug, or `undefined` — backs `/work/[slug]` (§ 6.1). */
+export function getProjectBySlug(slug: string): Project | undefined {
+  return featuredProjectsData.find((project) => project.slug === slug && project.published)
 }
 
 export function getServices(): Service[] {
