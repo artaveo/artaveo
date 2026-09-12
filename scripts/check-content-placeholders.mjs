@@ -20,7 +20,12 @@ import { fileURLToPath } from 'node:url'
 const PLACEHOLDER_PATTERN = /\[[A-Z][A-Z0-9_]*\]/g
 
 /** Files that hold published, user-facing content. Extend as `content/` grows. */
-const CONTENT_FILES = ['lib/home-content.ts', 'lib/site.ts', 'lib/services-content.ts']
+const CONTENT_FILES = [
+  'lib/home-content.ts',
+  'lib/site.ts',
+  'lib/services-content.ts',
+  'lib/about-content.ts',
+]
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 let hasPlaceholder = false

@@ -402,7 +402,7 @@ M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav                    ✅ COMPLETE
   Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects            ✅ COMPLETE (6.1 engine ✅; 6.2 Transportation System ✅; 6.3 Pezhohesh Portal ✅ — see docs/phases/PHASE-6.2-README.md, PHASE-6.3-README.md)
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals    ✅ COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/engagement models — all prices "Ask for a quote" pending D-04; see docs/phases/PHASE-7.1-README.md, PHASE-7.2-README.md)
-  Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms
+  Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms    ⏳ PARTIAL (8.1 ✅ complete — see docs/phases/PHASE-8.1-README.md; 8.2 Working Agreement and 8.3 Hire channels not started)
   Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)
   Phase 10  Installable PWA & Offline Shell  Site installs like an app, browsable offline; Brief Builder never fakes success offline
   Phase 11  Launch Readiness (M1 gate)       SEO, legal pages, analytics, performance/a11y check, deploy
@@ -773,11 +773,11 @@ Start this service  → Brief Builder pre-filled with the service
 
 ---
 
-## Phase 8 — About, Process & Working Agreement
+## Phase 8 — About, Process & Working Agreement  ⏳ PARTIAL (8.1 ✅ complete, see `docs/phases/PHASE-8.1-README.md`)
 
 **Goal:** answer the questions clients are afraid to ask.
 
-### 8.1 About, Process & Quality baseline
+### 8.1 About, Process & Quality baseline  ✅ complete (see `docs/phases/PHASE-8.1-README.md`)
 - **About:** story (not a CV) · the person (D-02) · technical focus · how I work · values · languages · timezone and overlap hours · tools · external profiles (verified only) · CTA
 - **Process:** `01 Discover · 02 Define · 03 Design · 04 Architect · 05 Build · 06 Test · 07 Launch · 08 Support` — each with purpose, activities, output, client involvement, decisions and risks
 - **Quality baseline:** a short, honest page of what every project receives — only commitments the owner actually keeps (e.g. TypeScript, tests on critical flows, WCAG 2.2 AA target, security review, documentation, handover)

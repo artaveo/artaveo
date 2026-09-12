@@ -68,3 +68,33 @@ Checked against commit `0ae2484` (2026-09-03), checked on 2026-09-12.
 - Exact current project `status` (live vs. in-development) — not set in
   `lib/home-content.ts` yet; needs Zakir's confirmation, not assumed.
 
+## About, Process & Quality baseline (Phase 8.1)
+
+Source: this repository (`lib/about-content.ts`, `lib/home-content.ts`,
+`ROAD-MAP-ARTAVEO.md`). Checked on 2026-09-12.
+
+| Claim | Evidence | Checked |
+|---|---|---|
+| Sole developer plans, designs, builds and deploys every project end to end | Already established (D-06 resolutions above); consistent with single-author git history on both case-study repos | 2026-09-12 |
+| Two real products back the "not a CV" story (Transportation System, Pezhohesh Portal) | `lib/home-content.ts` — both projects' full case-study fields; linked from `/work` | 2026-09-12 |
+| Works in Dari/Persian and English | This site's own bilingual content — `messages/fa.json` and `messages/en.json` are both real, directly-written copy (not machine-translated), per § 16.2 | 2026-09-12 |
+| Technical focus, tools & technologies listed on `/about` | `lib/home-content.ts` — `getDeveloperProfile().focus` and `getTechStack()`, both already verified for Phase 3/Home | 2026-09-12 |
+| "How I work" differentiators | `lib/home-content.ts` — `getDifferentiators()`, already verified for Phase 3/Home's "Why Artaveo" section; reused unmodified, not re-invented | 2026-09-12 |
+| Timezone UTC, no city published | D-02 resolution (11 Sep 2026), Decision Register | 2026-09-12 |
+| Response commitment: "replies within a few hours, same day" | D-08 resolution (11 Sep 2026), Decision Register | 2026-09-12 |
+| Quality baseline commitments (typed code, server-enforced mutations, WCAG 2.2 AA target, both locales verified, data validated before shipping, documented handover) | `ROAD-MAP-ARTAVEO.md` § 2 (architecture principles), § 3 (target standards), § 17 (Definition of Done) — each commitment quotes an existing roadmap standard, not a new promise | 2026-09-12 |
+| No dedicated automated test suite exists today (stated on the Test process phase) | Already established fact, consistent with both case studies' own "no dedicated automated test suite" claims above | 2026-09-12 |
+| Warranty window / change-request pricing specifics deferred to the Working Agreement (§ 8.2, not yet published) | `ROAD-MAP-ARTAVEO.md` § 8.2 — page doesn't exist yet; the Support process phase states this deferral explicitly rather than inventing figures | 2026-09-12 |
+
+### Removed / not used (insufficient evidence)
+- Any specific years-of-experience count, client list, testimonial, or
+  rating on the About story — banned outright by § 16.5, not just
+  unevidenced.
+- Self-rated language fluency levels ("native", "fluent", "conversational")
+  — replaced with the checkable fact of which language each `messages/*.json`
+  file is written in, since a proficiency self-rating isn't independently
+  verifiable.
+- Specific overlap-hour ranges (e.g. "9am–5pm CET") — not published;
+  `/about` states the timezone (D-02) and points to the Availability card's
+  response commitment (D-08) instead of an invented overlap window.
+

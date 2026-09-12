@@ -186,6 +186,24 @@
     "description": "Seven defined stages, each with a visible result, so you always know where the project stands.",
     "seeFullProcess": "See the full process"
   },
+  "ProcessPage": {
+    "eyebrow": "Process",
+    "title": "How I build, step by step",
+    "description": "Eight defined phases from first call to ongoing support — open each one for what it actually involves.",
+    "metaTitle": "Process",
+    "purpose": "Purpose",
+    "activities": "Activities",
+    "output": "Output",
+    "clientInvolvement": "Your involvement",
+    "decisionsAndRisks": "Decisions & risks",
+    "qualityTitle": "Quality baseline",
+    "qualityDescription": "A short, honest list of what every project receives — only commitments I actually keep.",
+    "engagementModelsNote": "Looking for engagement models and pricing signals (Discovery Sprint, fixed-scope, productized, Care Plan)? Those live on the Services page, next to the package comparisons they price.",
+    "ctaTitle": "Ready to start?",
+    "ctaDescription": "Pick a service to see its packages, or get in touch to talk through what you need.",
+    "ctaPrimary": "Get in touch",
+    "ctaSecondary": "Browse services"
+  },
   "AboutPreview": {
     "eyebrow": "About",
     "headingWithName": "<name>{name}</name>, the developer behind Artaveo",
@@ -195,6 +213,25 @@
     "portraitAltNamed": "Portrait of {name}",
     "portraitAltGeneric": "Portrait of the developer behind Artaveo",
     "portraitPlaceholder": "Portrait"
+  },
+  "AboutPage": {
+    "eyebrow": "About",
+    "titleWithName": "<name>{name}</name>, the developer behind Artaveo",
+    "titleNoName": "The developer behind Artaveo",
+    "description": "One independent full-stack developer, planning, designing, building and deploying every project end to end.",
+    "metaTitle": "About",
+    "identityTitle": "Independent full-stack developer",
+    "timezoneLabel": "Timezone:",
+    "timezoneNote": "no fixed city published (see the Decision Register).",
+    "technicalFocus": "Technical focus",
+    "howIWork": "How I work",
+    "howIWorkDescription": "The same six principles run through every project, whether it is a client build or one of my own products.",
+    "languages": "Languages",
+    "tools": "Tools & technologies",
+    "ctaTitle": "Have a project in mind?",
+    "ctaDescription": "Tell me what you're building. I'll reply with next steps, not a sales pitch.",
+    "ctaPrimary": "Get in touch",
+    "ctaSecondary": "See the work"
   },
   "Insights": {
     "eyebrow": "Insights",
