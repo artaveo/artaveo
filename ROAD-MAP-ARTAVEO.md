@@ -3,9 +3,9 @@
 
 ## Document status
 
-**Last revision:** 12 September 2026 (revision 11 — Phase 7.2 marked complete: package tiers, add-ons, "what drives cost" and the site-wide engagement-models table are built and populated for all applicable services. Every `price` in the codebase is `type: 'quote'` — D-04, pricing transparency, is still an open owner decision, so no starting-from or fixed figure has been published anywhere. This is a deliberate reading of § 7.2's own exit criterion — "no price shown that the owner has not approved" — as permission to complete the mechanics honestly now rather than a reason to leave the whole sub-phase BLOCKED; see `docs/phases/PHASE-7.2-README.md` for the reasoning in full. When D-04 resolves, only the `Price` values in `lib/services-content.ts` need to change.)  
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE** · Phase 5 **COMPLETE** · Phase 6 **COMPLETE (6.1 engine, 6.2 Transportation System, 6.3 Pezhohesh Portal)** · Phase 7 **COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/pricing signals/engagement models — all prices shown as "Ask for a quote" pending D-04)**.  
-**Next step:** Phase 3's closure checklist 3.5 (still open, independent of later phases) and Phase 8.3 (Hire channels — still blocked on D-05). Phases 7, 8.1 and 8.2 are now complete. See `docs/phases/PHASE-8.2-README.md` for what closed 8.2 out.
+**Last revision:** 12 September 2026 (revision 12 — Phase 8 marked complete: § 8.3's Hire Channel Selector shipped at the new `/contact` route, implementing D-05's own recommended default — Direct + Fiverr, real profiles only — which was already live sitewide in `lib/site.ts#socialLinks` since Phase 5.2. D-05 is not marked formally "Resolved" in the register; owner sign-off to record it in `docs/decisions.md` is still open. See `docs/phases/PHASE-8.3-README.md` for the reasoning in full.)  
+**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE** · Phase 5 **COMPLETE** · Phase 6 **COMPLETE (6.1 engine, 6.2 Transportation System, 6.3 Pezhohesh Portal)** · Phase 7 **COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/pricing signals/engagement models — all prices shown as "Ask for a quote" pending D-04)** · Phase 8 **COMPLETE (8.1 About/Process/Quality, 8.2 Working Agreement, 8.3 Hire Channel Selector at `/contact`)**.  
+**Next step:** Phase 3's closure checklist 3.5 (still open, independent of later phases) and Phase 9 (Start a Project — Inquiry v1, the first real backend slice; note D-04 blocks part of 9.1 and D-01's domain/e-mail piece blocks 9.3). See `docs/phases/PHASE-8.3-README.md` for what closed Phase 8 out.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -341,7 +341,7 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 | **D-02** | Public identity: real name, portrait, published location / timezone | **Resolved (11 Sep 2026):** name **Zakir Naseri**; portrait `public/Profile-pic.jpg` (referenced as `/Profile-pic.jpg`); timezone **UTC**, no city published | 3.3 (Hero) · 4.5 · 8.1 |
 | **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.1 |
 | **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.2 · 9.1 — still open; § 7.2's mechanics are built and live with every price as `'quote'` ("Ask for a quote") so nothing invented ships in the meantime |
-| **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.3 · 5.2 (footer) |
+| **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.3 · 5.2 (footer) — **default applied 12 Sep 2026** in § 8.3's Hire Channel Selector and (since § 5.2) the footer; not yet marked formally "Resolved" pending owner sign-off in `docs/decisions.md` |
 | **D-06** | Publication rights for case studies (Transportation System, Pezhohesh Portal): client/employer consent, what may be shown | Transportation System: resolved 12 Sep 2026 — Zakir's own project, no external client. Pezhohesh Portal: resolved 12 Sep 2026 — Zakir owns the Pezhohesh Complex institute itself and built the site for it; no separate client relationship. Both approved for publication. Screenshots with **demo data only**; no customer/student PII; confidential details generalised | 6.2 · 6.3 |
 | **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 11.2 · 29 |
 | **D-08** | Availability state and response commitment | **Resolved (11 Sep 2026):** response commitment published as **"replies within a few hours, same day"** | 4.5 (Availability) · 14 (SLA) |
@@ -774,7 +774,7 @@ Start this service  → Brief Builder pre-filled with the service
 
 ---
 
-## Phase 8 — About, Process & Working Agreement  ⏳ PARTIAL (8.1 ✅ + 8.2 ✅ complete, see `docs/phases/PHASE-8.1-README.md`, `PHASE-8.2-README.md`)
+## Phase 8 — About, Process & Working Agreement  ✅ COMPLETE (see `docs/phases/PHASE-8.1-README.md`, `PHASE-8.2-README.md`, `PHASE-8.3-README.md`)
 
 **Goal:** answer the questions clients are afraid to ask.
 
@@ -796,10 +796,10 @@ Start this service  → Brief Builder pre-filled with the service
 
 > Kept as its own sub-phase: this page carries the heaviest legally-adjacent commitments (IP transfer, payment timing, warranty) and is the most likely to need its own separate round of owner review before publishing.
 
-### 8.3 Hire channels (per D-05)
-**Hire Channel Selector** comparing: *Direct* (direct contact, no platform fee) vs *Via platform* (buyer protection/escrow, platform fees and rules). The website stays canonical; platform profiles link back to it.
+### 8.3 Hire channels (per D-05)  ✅ complete (see `docs/phases/PHASE-8.3-README.md`)
+**Hire Channel Selector** comparing: *Direct* (direct contact, no platform fee) vs *Via platform* (buyer protection/escrow, platform fees and rules). The website stays canonical; platform profiles link back to it. Shipped at `/contact` (page map § 15) alongside direct contact (email, WhatsApp), the response commitment (D-08) and `ExternalProfileLinks` — the route the rest of the site's "Start a project" CTAs already pointed to.
 
-> Kept as its own sub-phase: gated by D-05, which is not yet marked resolved in the Decision Register — it may need to proceed on its own timeline if that decision lags behind the rest of Phase 8.
+> D-05 itself is not formally marked "Resolved" in the Decision Register below — this phase did not invent an answer. It implements D-05's own recommended default (Direct + Fiverr, real profiles only), which was already live sitewide in `lib/site.ts#socialLinks` since Phase 5.2; § 8.3 surfaces that same, already-shipped strategy as the comparison the roadmap calls for, rather than picking a new one. Owner sign-off to formally record D-05 in `docs/decisions.md` is still open (that file itself remains a pre-existing gap — noted since Phase 3, not created here).
 
 **Exit criteria:** every commitment on these pages is approved by the owner and recorded in `docs/decisions.md`.
 

@@ -340,3 +340,24 @@ export type WorkingAgreementItem = {
   summary: LocalizedText
   points?: LocalizedText[]
 }
+
+/**
+ * One option in the Hire Channel Selector (roadmap § 8.3, component
+ * inventory § 14 — "Direct vs via platform, with trade-offs" — gated by
+ * D-05). `href` must always resolve to a real, verified channel (a mailto
+ * link, `wa.me` link, or an existing platform profile from
+ * `lib/site.ts#socialLinks`) — never an invented or placeholder link, per
+ * the same honesty rule `ExternalProfileLinks` already enforces.
+ */
+export type HireChannelKind = 'direct' | 'platform'
+
+export type HireChannel = {
+  id: string
+  kind: HireChannelKind
+  icon: string
+  title: LocalizedText
+  summary: LocalizedText
+  points: LocalizedText[]
+  href: string
+  ctaLabel: LocalizedText
+}

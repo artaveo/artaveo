@@ -274,5 +274,15 @@
     "limited": "Limited availability",
     "unavailable": "Not taking new projects",
     "updatedLabel": "Updated"
+  },
+  "ContactPage": {
+    "eyebrow": "Contact",
+    "title": "Let's start a conversation",
+    "description": "Two real ways to work with me — pick whichever fits how you like to hire.",
+    "metaTitle": "Contact",
+    "hireChannelsTitle": "Choose how to hire",
+    "hireChannelsDescription": "The website stays the canonical source either way — a platform profile only ever links back here.",
+    "hireChannelsNote": "Not sure which fits? Direct is the faster path for most conversations — message me and I'll point you the right way if a platform makes more sense for you.",
+    "directTitle": "Direct contact"
   }
 }

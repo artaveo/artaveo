@@ -15,8 +15,13 @@ import { cn } from '@/lib/utils'
  * visitor is trying to hire from. This is a deny-list on purpose: every
  * future content page (Work, Services, About, …) opts in automatically
  * without needing to remember to wire the CTA itself.
+ *
+ * `/contact` (§ 8.3) is exempt for the same reason as Home: the page
+ * itself *is* the "Start a project" destination every other CTA points
+ * to, so a floating duplicate of the same action would be redundant
+ * rather than helpful.
  */
-const STICKY_CTA_EXEMPT_PATHS = ['/', '/design-system']
+const STICKY_CTA_EXEMPT_PATHS = ['/', '/design-system', '/contact']
 
 export function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

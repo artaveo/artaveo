@@ -124,3 +124,24 @@ Source: this repository (`lib/about-content.ts`, `ROAD-MAP-ARTAVEO.md`
 - Any claim about how quickly a signed NDA can be turned around — not
   stated; "available on request" is the only claim made.
 
+## Hire channels (Phase 8.3)
+
+Source: this repository (`lib/contact-content.ts`, `lib/site.ts`,
+`ROAD-MAP-ARTAVEO.md` § 8.3 and § 7 Decision Register D-05). Checked on
+2026-09-12.
+
+| Claim | Evidence | Checked |
+|---|---|---|
+| Direct channel: email and WhatsApp, no platform fee | `lib/site.ts#siteConfig.email` (`artaveo.dev@gmail.com`, D-01 interim) and `#socialLinks` (`wa.me/93790685832`) — both real, already-verified channels since Phase 3/5.2 | 2026-09-12 |
+| Via-platform channel: Fiverr only, with escrow/buyer-protection and platform fees | `lib/site.ts#socialLinks` — the only real platform profile in the codebase; no Contra/Toptal/Upwork profile exists, so none is claimed | 2026-09-12 |
+| "The website stays canonical; platform profiles link back to it" | `ROAD-MAP-ARTAVEO.md` § 8.3's own roadmap line, quoted directly — not a new claim | 2026-09-12 |
+| D-05 not yet formally "Resolved" — this phase applies its recommended default, doesn't invent a new one | `ROAD-MAP-ARTAVEO.md` § 7 Decision Register — D-05 row has no resolution date, unlike D-02/D-08/D-12 | 2026-09-12 |
+
+### Removed / not used (insufficient evidence)
+- Any third hire channel (e.g. Contra, Toptal, Upwork) — no such profile
+  exists for Zakir; § 16.5 forbids inventing one to make the comparison
+  look more populated.
+- Any claim that D-05 is formally resolved — it isn't; the Decision
+  Register still shows it open pending owner sign-off in
+  `docs/decisions.md`.
+
