@@ -122,3 +122,52 @@ export type BriefBuilderStatus =
   | 'offline'
 
 export type StepId = 'service' | 'project' | 'scope' | 'timeline' | 'links' | 'contact' | 'review'
+
+/**
+ * § 9.2 — Server handling & persistence.
+ *
+ * Everything below is new in this phase. It is deliberately kept separate
+ * from `InquiryDraft`: the draft mirrors the future `inquiries` row
+ * (principle 9), while this metadata is submission-time-only (spam
+ * signals, idempotency, source attribution) and is never itself a column
+ * a visitor's draft would round-trip through.
+ */
+
+/**
+ * Sent alongside the draft on submit. `honeypot` and `formRenderedAt` are
+ * anti-spam signals (§ 9.2: "honeypot + rate limit … + optional
+ * privacy-friendly challenge") — a real visitor never fills the honeypot
+ * field and never submits faster than a human can read+fill the form.
+ * `idempotencyKey` prevents duplicate rows on double-click or retry (§
+ * 9.2). Source fields satisfy "source attribution … stored without extra
+ * personal data" — referrer/UTM only, nothing about the visitor.
+ */
+export type InquirySubmissionMeta = {
+  idempotencyKey: string
+  /** Must be empty for a real submission — see `brief-builder.tsx`'s hidden field. */
+  honeypot: string
+  /** `Date.now()` when the form/component mounted, compared server-side against submit time. */
+  formRenderedAt: number
+  sourceReferrer?: string
+  sourceUtmSource?: string
+  sourceUtmMedium?: string
+  sourceUtmCampaign?: string
+  sourceChannel?: string
+}
+
+/**
+ * `not-configured`: D-10 (Supabase plan/region) unresolved — no live
+ * project/env vars yet. Distinct from `error` (a real, unexpected failure
+ * against a live database) so the UI can be honest about which one
+ * happened rather than collapsing both into one generic message.
+ * `rejected` covers every anti-spam rejection (honeypot, too-fast, rate
+ * limit) under one code on purpose — never tell a caller which specific
+ * check tripped (that would help a bot adapt).
+ * `invalid` means the server's own re-validation (`validateAllSteps`)
+ * failed — the client should never be able to reach this in practice
+ * since it validates the same way first, but the server never trusts
+ * that alone (§ 9.2: "server re-validates everything").
+ */
+export type InquirySubmissionResult =
+  | { ok: true; id: string; replay?: boolean }
+  | { ok: false; code: 'not-configured' | 'rejected' | 'invalid' | 'error' }

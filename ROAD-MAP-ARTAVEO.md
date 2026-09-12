@@ -346,7 +346,7 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 | **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | Document it; if EU-based, GDPR-grade privacy policy and data-processing choices | 11.2 · 29 |
 | **D-08** | Availability state and response commitment | **Resolved (11 Sep 2026):** response commitment published as **"replies within a few hours, same day"** | 4.5 (Availability) · 14 (SLA) |
 | **D-09** | Consultation format: free intro call length, paid consultation, tool | Free 20–30 min intro call, request-based in v1 | 20 |
-| **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 25's external dump first | 9.2 · 25 |
+| **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 25's external dump first | 9.2 · 25 — still open; § 9.2's code (migration, server action, RLS) is complete and waiting on this decision alone, see `docs/phases/PHASE-9.2-README.md` |
 | **D-11** | Optional early-client offer | None unless the owner explicitly wants one; if used, it is labelled clearly and time-boxed | 7.2 |
 | **D-12** | Visual direction and light-theme / small-size logo variants | **Resolved (12 Sep 2026):** owner approved the primary mark (`Artaveo_-_Logo.png`, received 10 Sep 2026) and the derived tokens/variants delivered in § 4.1 (colour tokens, all logo variants, light-theme + small-size rules per `docs/design/art-direction.md`). § 4.6 unblocked. | 4.1 · 4.6 |
 | **D-13** | Sitewide deposit percentage / warranty window length for the Working Agreement | **No single sitewide figure invented.** § 8.2 states the mechanism instead: deposit split and warranty length are agreed per engagement during Define (§ 8.1 Process, phase 02) and written into that project's own agreement — a $500 fix and a $50,000 build don't carry the same risk profile, so one blanket number would either overstate small work or understate large work. Same reasoning § 7.2 already used for D-04 (ship the honest mechanism, not an invented figure) | 8.2 |
@@ -805,7 +805,7 @@ Start this service  → Brief Builder pre-filled with the service
 
 ---
 
-## Phase 9 — Start a Project (Inquiry v1 — first real backend slice)  ⏳ PARTIAL (9.1 ✅ complete — see `docs/phases/PHASE-9.1-README.md`; 9.2, 9.3 not started)
+## Phase 9 — Start a Project (Inquiry v1 — first real backend slice)  ⏳ PARTIAL (9.1 ✅ complete — see `docs/phases/PHASE-9.1-README.md`; 9.2 ⏳ PARTIAL/BLOCKED — code complete, live wiring blocked on D-10, see `docs/phases/PHASE-9.2-README.md`; 9.3 not started, blocked on D-01)
 
 **Goal:** qualified, persisted, notified inquiries — no fake success.
 
@@ -821,7 +821,7 @@ Steps: engagement model / service → project type → goal → key features (ch
 
 **Shipped 13 September 2026** at `/start` (`docs/phases/PHASE-9.1-README.md`): all steps above, per-step validation, `?service=`/`?package=` prefill, and the full state list as `BriefBuilderStatus` (`types/inquiry.ts`). Since § 9.2 doesn't exist yet, Submit honestly reports that (never a fabricated success) and offers a working mailto fallback with the same Brief Summary; `persisted-notification-pending` and `success` are defined but intentionally unreachable until § 9.2/§ 9.3 exist. The budget-range step turned out not to need D-04 at all — it is a generic, self-reported client bucket, not a published price. Every site-wide "Start a project" CTA now targets `/start` instead of `/contact`.
 
-### 9.2 Server handling & persistence (minimal slice of the Phase 12 schema)
+### 9.2 Server handling & persistence (minimal slice of the Phase 12 schema)  ⏳ PARTIAL — BLOCKED on D-10 for live wiring (see `docs/phases/PHASE-9.2-README.md`)
 - one schema shared by client and server; server re-validates everything
 - honeypot + rate limit per IP/e-mail + optional privacy-friendly challenge
 - idempotency key per submission to prevent duplicates on double click or retry
@@ -829,6 +829,8 @@ Steps: engagement model / service → project type → goal → key features (ch
 - source attribution (referrer, UTM, channel) stored without extra personal data
 
 > Merged from the previous revision's separate 9.2 (server handling) / 9.3 (persistence): validation, rate-limiting and idempotency only make sense in the context of what they're protecting — the same insert path into the same tables — so these were never separable work.
+
+**Blocked (13 September 2026):** D-10 (Supabase plan and region for Artaveo) is still open in the Decision Register — no Artaveo Supabase project exists (only the unrelated `pajouhesh-portal` and `Transportation-System` projects are provisioned under the same account). Every part of this sub-phase that is pure code has been built and verified: the migration (`db/migrations/0001_inquiries.sql`), the server-only Supabase client (`lib/supabase/server.ts`), the Server Action doing re-validation/honeypot/timing-check/rate-limiting/idempotency/insert (`app/actions/inquiries.ts`), and the Brief Builder wired to call it (`components/start/brief-builder.tsx`, `success` is now genuinely reachable). What is **not** done: no live Supabase project has been created and the migration has not been applied anywhere — `getSupabaseServerClient()` returns `null` until `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` are set (see `.env.example`), so the Brief Builder currently shows an honest "not configured yet" error with a working mailto fallback, same principle as § 9.1. **Next action:** owner resolves D-10 (region + plan, e.g. a paid tier with backups per D-10's own recommended default) and either provisions the project directly or asks the agent to do so via the Supabase connector; then apply `db/migrations/0001_inquiries.sql` and set the three env vars.
 
 ### 9.3 Notifications (requires D-01 domain + DNS authentication)
 - owner alert + client confirmation through a provider abstraction

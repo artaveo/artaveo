@@ -361,7 +361,9 @@
 
     "submittingTitle": "Sending your brief…",
     "notLiveTitle": "Submissions aren't live yet",
-    "notLiveDescription": "The Brief Builder's backend hasn't shipped yet (roadmap Phase 9.2) — nothing was lost, but it wasn't saved on this site either. Send it by email instead and I'll reply directly; your answers above are already in the message.",
+    "notLiveDescription": "The Brief Builder's backend is built but not yet connected to a live database (roadmap Phase 9.2, pending the Supabase project setup) — nothing was lost, but it wasn't saved on this site either. Send it by email instead and I'll reply directly; your answers above are already in the message.",
+    "genericErrorTitle": "Something went wrong",
+    "genericErrorDescription": "Your brief wasn't saved due to an unexpected error. Nothing was lost — send it by email instead and I'll reply directly; your answers above are already in the message.",
     "emailInstead": "Email this brief",
     "startOver": "Edit brief",
     "successTitle": "Brief sent",
