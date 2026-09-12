@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { Breadcrumb } from '@/components/site/breadcrumb'
 import { Accordion, AccordionItem, AccordionPanel, AccordionTrigger } from '@/components/ui/accordion'
+import { Link as StandaloneLink } from '@/components/ui/actions'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Prose } from '@/components/ui/prose'
@@ -204,6 +205,14 @@ export function ServiceDetail({
                       <p className="mt-2 text-sm leading-relaxed text-pretty text-muted-foreground">
                         {t(service.paymentScheduleNote, locale)}
                       </p>
+                      <StandaloneLink
+                        href="/process#working-agreement"
+                        variant="standalone"
+                        showExternalIcon={false}
+                        className="mt-2 inline-flex text-sm"
+                      >
+                        {t18n('paymentScheduleLink')}
+                      </StandaloneLink>
                     </div>
                   ) : null}
                 </div>

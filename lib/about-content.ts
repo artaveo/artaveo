@@ -1,4 +1,10 @@
-import type { LocalizedText, ProcessPhase, QualityCommitment, WorkingLanguage } from '@/types/content'
+import type {
+  LocalizedText,
+  ProcessPhase,
+  QualityCommitment,
+  WorkingAgreementItem,
+  WorkingLanguage,
+} from '@/types/content'
 
 /**
  * About, Process & Quality baseline content (roadmap § 8.1).
@@ -332,6 +338,169 @@ const qualityCommitmentsData: QualityCommitment[] = [
   },
 ]
 
+/**
+ * Working Agreement — "How we'll work" (roadmap § 8.2). Per D-13, no
+ * sitewide deposit percentage or warranty day-count is invented: payment
+ * split and warranty length are stated as a mechanism (agreed per
+ * engagement, during Define) rather than one fixed figure applied to
+ * every project regardless of size. Everything else here quotes a
+ * commitment already written into this roadmap (ownership, handover,
+ * response commitment/D-08) — nothing new is promised beyond what the
+ * roadmap itself already states.
+ */
+const workingAgreementItemsData: WorkingAgreementItem[] = [
+  {
+    id: 'communication',
+    icon: 'MessagesSquare',
+    title: tx('Communication & cadence', 'ارتباط و ریتم گزارش‌دهی'),
+    summary: tx(
+      'Direct contact with me, on a predictable rhythm — not silence until the very end.',
+      'ارتباط مستقیم با من، با ریتمی قابل‌پیش‌بینی — نه سکوت تا لحظه‌ی آخر.',
+    ),
+    points: [
+      tx(
+        'A short written update at least once a week while a project is active',
+        'یک گزارش نوشتاری کوتاه، دست‌کم هفته‌ای یک‌بار، تا زمانی که پروژه فعال است',
+      ),
+      tx(
+        'A demo at the end of every milestone (§ Process — Build), not only at final delivery',
+        'یک دمو در پایان هر نقطه‌ی عطف (§ روند کار — ساخت)، نه فقط در تحویل نهایی',
+      ),
+      tx(
+        'No account manager and no hand-off — you talk to the person who made the last decision on your project',
+        'بدون مدیر حساب و بدون تحویل‌گیری — مستقیم با کسی صحبت می‌کنی که آخرین تصمیم را روی پروژه‌ات گرفته',
+      ),
+    ],
+  },
+  {
+    id: 'response',
+    icon: 'Clock',
+    title: tx('Response commitment', 'تعهد پاسخ‌گویی'),
+    summary: tx(
+      'Replies within a few hours, same day (D-08) — published, and tracked once the admin lead pipeline ships (Phase 14).',
+      'پاسخ‌گویی در همان روز، طی چند ساعت (D-08) — منتشرشده، و پس از راه‌اندازی پایپ‌لاین سرنخ‌های ادمین (فاز ۱۴) ردیابی می‌شود.',
+    ),
+  },
+  {
+    id: 'payment',
+    icon: 'Wallet',
+    title: tx('Payment, milestones & deposits', 'پرداخت، نقاط عطف و پیش‌پرداخت'),
+    summary: tx(
+      'Payment follows the schedule of the engagement model you start under (§ Process — Define), not one number applied to every project alike.',
+      'پرداخت از برنامه‌ی مدل همکاری‌ای که با آن شروع می‌کنی پیروی می‌کند (§ روند کار — تعریف)، نه یک عدد یکسان برای همه‌ی پروژه‌ها.',
+    ),
+    points: [
+      tx(
+        'Discovery Sprint: fixed price, paid upfront for a fixed deliverable',
+        'Discovery Sprint: قیمت ثابت، پیش‌پرداخت کامل برای یک خروجی مشخص',
+      ),
+      tx(
+        'Fixed-scope Project: billed by milestone, agreed during Define — larger projects split across more milestones instead of one lump sum',
+        'پروژه با محدوده‌ی ثابت: صورت‌حساب بر اساس نقطه‌ی عطف، توافق‌شده در فاز تعریف — پروژه‌های بزرگ‌تر بین نقاط عطف بیشتری تقسیم می‌شوند، نه یک مبلغ یک‌جا',
+      ),
+      tx(
+        'Productized Service: package price plus any add-ons, due per that package\u2019s own delivery timeline',
+        'سرویس پکیج‌شده: قیمت پکیج به‌علاوه‌ی هر add-on، طبق زمان‌بندی تحویل همان پکیج',
+      ),
+      tx(
+        'Care Plan / Long-term Part-time: billed monthly, in advance',
+        'Care Plan / همکاری پاره‌وقت بلندمدت: صورت‌حساب ماهانه، پیش از شروع ماه',
+      ),
+      tx(
+        'A deposit is due before work begins on any new engagement; the exact split is written into that project\u2019s own agreement during Define, sized to the project rather than fixed sitewide (D-13)',
+        'برای هر همکاری تازه، پیش از شروع کار یک پیش‌پرداخت لازم است؛ نسبت دقیق آن در قرارداد همان پروژه، در فاز تعریف مشخص می‌شود — متناسب با پروژه، نه یک عدد ثابت برای همه (D-13)',
+      ),
+      tx(
+        'No online payment gateway is wired into this site yet (Phase 9); invoices are sent and paid through the channel agreed during Define',
+        'هنوز هیچ درگاه پرداخت آنلاینی به این سایت وصل نیست (فاز ۹)؛ فاکتورها از طریق کانالی که در فاز تعریف توافق می‌شود ارسال و پرداخت می‌شوند',
+      ),
+    ],
+  },
+  {
+    id: 'ownership',
+    icon: 'KeyRound',
+    title: tx('Ownership', 'مالکیت'),
+    summary: tx(
+      'Code and intellectual property transfer to you on payment — nothing is held back as leverage.',
+      'کد و مالکیت معنوی پس از پرداخت به تو منتقل می‌شود — چیزی به‌عنوان اهرم فشار نگه‌داشته نمی‌شود.',
+    ),
+    points: [
+      tx(
+        'Every deliverable\u2019s source code and IP transfers to you once it\u2019s paid for',
+        'کد منبع و مالکیت معنوی هر خروجی، به‌محض پرداخت‌شدنش، به تو منتقل می‌شود',
+      ),
+      tx(
+        'Third-party accounts your project depends on — domain registrar, hosting, database, analytics — are created in your name from the start, not mine',
+        'حساب‌های شخص‌ثالثی که پروژه‌ات به آن‌ها وابسته است — ثبت دامنه، هاست، پایگاه‌داده، آنالیتیکس — از همان ابتدا به‌نام تو ساخته می‌شوند، نه به‌نام من',
+      ),
+      tx(
+        'If an account genuinely has to be created under my name first for a technical reason, ownership transfers to you as part of handover — not left running under my account indefinitely',
+        'اگر یک حساب به دلیل فنی واقعاً ابتدا باید به‌نام من ساخته شود، مالکیتش بخشی از فرایند تحویل به تو منتقل می‌شود — نه این‌که تا ابد زیر حساب من باقی بماند',
+      ),
+    ],
+  },
+  {
+    id: 'handover',
+    icon: 'FileText',
+    title: tx('Handover package', 'بسته‌ی تحویل'),
+    summary: tx(
+      'A complete, working handover — not a code drop with no instructions.',
+      'یک تحویل کامل و کاربردی — نه یک ریختن کد بدون هیچ راهنمایی.',
+    ),
+    points: [
+      tx('The full repository, with commit history intact', 'کل ریپازیتوری، با تاریخچه‌ی کامل commitها'),
+      tx(
+        'Documentation covering what was built and how it fits together (§ Quality baseline)',
+        'مستنداتی که پوشش می‌دهد چه‌چیزی ساخته شده و چطور کنار هم قرار می‌گیرد (§ خط پایه‌ی کیفیت)',
+      ),
+      tx(
+        'An environment template (`.env.example`) so the project can be set up on a clean machine without guessing which variables it needs',
+        'یک الگوی محیط (`.env.example`) تا پروژه روی یک سیستم تازه، بدون حدس‌زدن متغیرهای لازم، راه‌اندازی شود',
+      ),
+      tx(
+        'A short runbook: how to deploy, how to roll back, who to contact if something breaks',
+        'یک راهنمای کوتاه اجرایی: چطور دیپلوی کنیم، چطور rollback کنیم، در صورت مشکل با چه‌کسی تماس بگیریم',
+      ),
+      tx(
+        'Credentials transfer for anything still under my access, coordinated during Launch and Support (§ Process)',
+        'انتقال اطلاعات دسترسی برای هرچیزی که هنوز زیر دسترسی من است، هماهنگ‌شده در فازهای راه‌اندازی و پشتیبانی (§ روند کار)',
+      ),
+    ],
+  },
+  {
+    id: 'warranty',
+    icon: 'ShieldCheck',
+    title: tx('Warranty & change requests', 'ضمانت و درخواست‌های تغییر'),
+    summary: tx(
+      'A warranty window covers defects after delivery; anything beyond the agreed scope is a change request, priced before it\u2019s built.',
+      'یک بازه‌ی ضمانت، نقص‌های پس از تحویل را پوشش می‌دهد؛ هرچیز فراتر از محدوده‌ی توافق‌شده، یک درخواست تغییر است که پیش از ساخته‌شدن قیمت‌گذاری می‌شود.',
+    ),
+    points: [
+      tx(
+        'A specific warranty length is written into every project\u2019s own agreement during Define — not one blanket number here, since a landing page and a payment platform carry very different risk (D-13)',
+        'طول دقیق بازه‌ی ضمانت در قرارداد همان پروژه، در فاز تعریف مشخص می‌شود — نه یک عدد یکسان اینجا، چون یک صفحه‌ی فرود و یک پلتفرم پرداخت ریسک بسیار متفاوتی دارند (D-13)',
+      ),
+      tx(
+        'A defect is something that doesn\u2019t match the agreed scope; a change request is something new or different from what was agreed — the distinction is made explicit before work starts, not argued about after',
+        'نقص یعنی چیزی که با محدوده‌ی توافق‌شده مطابقت ندارد؛ درخواست تغییر یعنی چیزی تازه یا متفاوت از آنچه توافق شده — این تفاوت پیش از شروع کار روشن می‌شود، نه بعد از آن مورد بحث قرار می‌گیرد',
+      ),
+      tx(
+        'Change requests are scoped and quoted the same way the original engagement was (§ Process — Define) before they\u2019re built — never silently absorbed or invoiced as a surprise',
+        'درخواست‌های تغییر، دقیقاً مثل خودِ همکاری اولیه (§ روند کار — تعریف)، پیش از ساخته‌شدن محدوده‌بندی و قیمت‌گذاری می‌شوند — هرگز بی‌صدا جذب یا به‌عنوان یک غافلگیری صورت‌حساب نمی‌شوند',
+      ),
+    ],
+  },
+  {
+    id: 'confidentiality',
+    icon: 'Lock',
+    title: tx('Confidentiality', 'محرمانگی'),
+    summary: tx(
+      'An NDA is available on request, signed before Discover begins, if your project needs one.',
+      'در صورت نیاز پروژه‌ات، یک توافق‌نامه‌ی محرمانگی (NDA) پیش از شروع فاز شناخت، بنا به درخواست تو قابل‌امضا است.',
+    ),
+  },
+]
+
 export function getAboutStory(): LocalizedText[] {
   return storyData
 }
@@ -346,4 +515,8 @@ export function getProcessPhases(): ProcessPhase[] {
 
 export function getQualityCommitments(): QualityCommitment[] {
   return qualityCommitmentsData
+}
+
+export function getWorkingAgreementItems(): WorkingAgreementItem[] {
+  return workingAgreementItemsData
 }

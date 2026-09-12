@@ -163,6 +163,7 @@
     "addOns": "Add-ons",
     "whatDrivesCost": "What drives cost",
     "paymentSchedule": "Payment schedule",
+    "paymentScheduleLink": "See how payment, ownership and handover work",
     "choosePackage": "Choose this package",
     "deliveryDaysValue": "{min}–{max} business days"
   },
@@ -199,6 +200,8 @@
     "qualityTitle": "Quality baseline",
     "qualityDescription": "A short, honest list of what every project receives — only commitments I actually keep.",
     "engagementModelsNote": "Looking for engagement models and pricing signals (Discovery Sprint, fixed-scope, productized, Care Plan)? Those live on the Services page, next to the package comparisons they price.",
+    "agreementTitle": "Working Agreement — how we’ll work",
+    "agreementDescription": "Communication, payment, ownership, handover, warranty and confidentiality — the terms that apply once you start a project, published before the first call.",
     "ctaTitle": "Ready to start?",
     "ctaDescription": "Pick a service to see its packages, or get in touch to talk through what you need.",
     "ctaPrimary": "Get in touch",

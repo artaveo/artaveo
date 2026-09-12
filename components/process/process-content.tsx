@@ -4,23 +4,26 @@ import { useLocale, useTranslations } from 'next-intl'
 import { Icon } from '@/components/icon'
 import { Accordion, AccordionItem, AccordionPanel, AccordionTrigger } from '@/components/ui/accordion'
 import { CTASection, FeatureList, PageHeader } from '@/components/ui/patterns'
-import { getProcessPhases, getQualityCommitments } from '@/lib/about-content'
+import { getProcessPhases, getQualityCommitments, getWorkingAgreementItems } from '@/lib/about-content'
 import { t, type Locale } from '@/types/content'
 
 /**
- * ProcessContent — the `/process` page (roadmap § 8.1). The canonical
- * 8-phase process (Discover · Define · Design · Architect · Build · Test ·
- * Launch · Support), each expandable to its five dimensions, followed by
- * the Quality baseline. Engagement models and pricing already live on
- * `/services` (§ 7.2); the Working Agreement (payment, ownership, handover)
- * is Phase 8.2 and isn't published yet — this page doesn't invent or
- * duplicate either, only links out to the one that already exists.
+ * ProcessContent — the `/process` page (roadmap § 8.1 + § 8.2), matching
+ * the page map's "Process + engagement models + working agreement" (§ 15)
+ * — one route, not three. The canonical 8-phase process (Discover ·
+ * Define · Design · Architect · Build · Test · Launch · Support), each
+ * expandable to its five dimensions, then the Quality baseline (§ 8.1),
+ * then the Working Agreement (§ 8.2: communication, response commitment,
+ * payment, ownership, handover, warranty & change requests,
+ * confidentiality). Engagement models and pricing stay on `/services`
+ * (§ 7.2) — this page links out rather than duplicating them.
  */
 export function ProcessContent() {
   const locale = useLocale() as Locale
   const t18n = useTranslations('ProcessPage')
   const phases = getProcessPhases()
   const qualityCommitments = getQualityCommitments()
+  const workingAgreementItems = getWorkingAgreementItems()
 
   const qualityItems = qualityCommitments.map((item) => ({
     id: item.title.en,
@@ -117,6 +120,52 @@ export function ProcessContent() {
         {/* Bridge to engagement models & pricing (already live on /services) */}
         <div className="mt-12 rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">
           {t18n('engagementModelsNote')}
+        </div>
+
+        {/* Working Agreement (§ 8.2) */}
+        <div id="working-agreement" className="mt-16 scroll-mt-24 border-t border-border pt-16 md:mt-24 md:pt-24">
+          <h2 className="text-2xl font-semibold tracking-tight text-balance md:text-3xl">
+            {t18n('agreementTitle')}
+          </h2>
+          <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground text-pretty">
+            {t18n('agreementDescription')}
+          </p>
+
+          <Accordion multiple defaultValue={[]} className="mt-8">
+            {workingAgreementItems.map((item) => (
+              <AccordionItem key={item.id} value={item.id}>
+                <AccordionTrigger>
+                  <span className="flex items-center gap-4">
+                    <span
+                      aria-hidden
+                      className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-elevated text-brand-text"
+                    >
+                      <Icon name={item.icon} className="size-4" />
+                    </span>
+                    <span className="text-base">{t(item.title, locale)}</span>
+                  </span>
+                </AccordionTrigger>
+                <AccordionPanel>
+                  <div className="ps-13">
+                    <p className="text-pretty">{t(item.summary, locale)}</p>
+                    {item.points?.length ? (
+                      <ul className="mt-3 flex flex-col gap-1.5">
+                        {item.points.map((point) => (
+                          <li key={point.en} className="flex gap-2.5">
+                            <span
+                              aria-hidden
+                              className="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground/60"
+                            />
+                            <span className="text-pretty">{t(point, locale)}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                </AccordionPanel>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       </div>
 

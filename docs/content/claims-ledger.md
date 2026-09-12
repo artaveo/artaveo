@@ -98,3 +98,29 @@ Source: this repository (`lib/about-content.ts`, `lib/home-content.ts`,
   `/about` states the timezone (D-02) and points to the Availability card's
   response commitment (D-08) instead of an invented overlap window.
 
+## Working Agreement (Phase 8.2)
+
+Source: this repository (`lib/about-content.ts`, `ROAD-MAP-ARTAVEO.md`
+§ 8.2, § 7.2's `engagementModelsData`). Checked on 2026-09-12.
+
+| Claim | Evidence | Checked |
+|---|---|---|
+| Communication cadence: weekly written update, demo per milestone, no account manager | `ROAD-MAP-ARTAVEO.md` § 8.1's own Build-phase content (`lib/about-content.ts` `processPhasesData.build`), quoted consistently rather than re-invented | 2026-09-12 |
+| Response commitment: "replies within a few hours, same day" | D-08 resolution (11 Sep 2026), Decision Register — restated verbatim, not reworded | 2026-09-12 |
+| Payment billed per engagement model (Discovery Sprint fixed/upfront, Fixed-scope milestone-billed, Productized Service package-priced, Care Plan/Long-term Part-time monthly) | `lib/services-content.ts` — `engagementModelsData`, already published and verified on `/services` (Phase 7.2) | 2026-09-12 |
+| No sitewide deposit percentage or warranty day-count published — decided per engagement during Define instead | D-13 (new, this phase), Decision Register — explicit, disclosed non-invention, same pattern as D-04/§ 7.2 | 2026-09-12 |
+| No online payment gateway wired into this site yet | Absence of any payment-provider integration in the repo; consistent with Phase 9 (Inquiry v1) not yet started | 2026-09-12 |
+| Ownership: code/IP transfers to client on payment; third-party accounts created in client's name | `ROAD-MAP-ARTAVEO.md` § 8.2's own roadmap bullet, quoted directly | 2026-09-12 |
+| Handover package: repository, documentation, environment template, runbook, credentials transfer | `ROAD-MAP-ARTAVEO.md` § 8.2's own roadmap bullet, quoted directly | 2026-09-12 |
+| Warranty covers defects against agreed scope; anything else is a priced change request | `ROAD-MAP-ARTAVEO.md` § 8.2's own roadmap bullet ("warranty window for defects... what counts as a change request and how it is priced") | 2026-09-12 |
+| An NDA is available on request before Discover begins | Stated capability, not requiring third-party evidence — any independent developer can offer to sign an NDA without further infrastructure | 2026-09-12 |
+
+### Removed / not used (insufficient evidence)
+- Any specific deposit percentage (e.g. "50% upfront") — not approved by
+  the owner anywhere in this codebase; recorded as open in D-13 rather
+  than invented.
+- Any specific warranty window length (e.g. "30 days") — same reasoning;
+  open in D-13.
+- Any claim about how quickly a signed NDA can be turned around — not
+  stated; "available on request" is the only claim made.
+

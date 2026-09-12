@@ -5,7 +5,7 @@
 
 **Last revision:** 12 September 2026 (revision 11 — Phase 7.2 marked complete: package tiers, add-ons, "what drives cost" and the site-wide engagement-models table are built and populated for all applicable services. Every `price` in the codebase is `type: 'quote'` — D-04, pricing transparency, is still an open owner decision, so no starting-from or fixed figure has been published anywhere. This is a deliberate reading of § 7.2's own exit criterion — "no price shown that the owner has not approved" — as permission to complete the mechanics honestly now rather than a reason to leave the whole sub-phase BLOCKED; see `docs/phases/PHASE-7.2-README.md` for the reasoning in full. When D-04 resolves, only the `Price` values in `lib/services-content.ts` need to change.)  
 **Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE** · Phase 5 **COMPLETE** · Phase 6 **COMPLETE (6.1 engine, 6.2 Transportation System, 6.3 Pezhohesh Portal)** · Phase 7 **COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/pricing signals/engagement models — all prices shown as "Ask for a quote" pending D-04)**.  
-**Next step:** Phase 3's closure checklist 3.5 (still open, independent of later phases) and Phase 8 (About, Process & Working Agreement). Phase 7 is now fully complete. See `docs/phases/PHASE-7.2-README.md` for what closed 7.2 out.
+**Next step:** Phase 3's closure checklist 3.5 (still open, independent of later phases) and Phase 8.3 (Hire channels — still blocked on D-05). Phases 7, 8.1 and 8.2 are now complete. See `docs/phases/PHASE-8.2-README.md` for what closed 8.2 out.
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
 **Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
@@ -349,6 +349,7 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 | **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 25's external dump first | 9.2 · 25 |
 | **D-11** | Optional early-client offer | None unless the owner explicitly wants one; if used, it is labelled clearly and time-boxed | 7.2 |
 | **D-12** | Visual direction and light-theme / small-size logo variants | **Resolved (12 Sep 2026):** owner approved the primary mark (`Artaveo_-_Logo.png`, received 10 Sep 2026) and the derived tokens/variants delivered in § 4.1 (colour tokens, all logo variants, light-theme + small-size rules per `docs/design/art-direction.md`). § 4.6 unblocked. | 4.1 · 4.6 |
+| **D-13** | Sitewide deposit percentage / warranty window length for the Working Agreement | **No single sitewide figure invented.** § 8.2 states the mechanism instead: deposit split and warranty length are agreed per engagement during Define (§ 8.1 Process, phase 02) and written into that project's own agreement — a $500 fix and a $50,000 build don't carry the same risk profile, so one blanket number would either overstate small work or understate large work. Same reasoning § 7.2 already used for D-04 (ship the honest mechanism, not an invented figure) | 8.2 |
 
 Decisions and their dates are recorded in `docs/decisions.md`.
 
@@ -402,7 +403,7 @@ M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
   Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav                    ✅ COMPLETE
   Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects            ✅ COMPLETE (6.1 engine ✅; 6.2 Transportation System ✅; 6.3 Pezhohesh Portal ✅ — see docs/phases/PHASE-6.2-README.md, PHASE-6.3-README.md)
   Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals    ✅ COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/engagement models — all prices "Ask for a quote" pending D-04; see docs/phases/PHASE-7.1-README.md, PHASE-7.2-README.md)
-  Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms    ⏳ PARTIAL (8.1 ✅ complete — see docs/phases/PHASE-8.1-README.md; 8.2 Working Agreement and 8.3 Hire channels not started)
+  Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms    ⏳ PARTIAL (8.1 ✅ + 8.2 ✅ complete — see docs/phases/PHASE-8.1-README.md, PHASE-8.2-README.md; 8.3 Hire channels blocked on D-05)
   Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)
   Phase 10  Installable PWA & Offline Shell  Site installs like an app, browsable offline; Brief Builder never fakes success offline
   Phase 11  Launch Readiness (M1 gate)       SEO, legal pages, analytics, performance/a11y check, deploy
@@ -773,7 +774,7 @@ Start this service  → Brief Builder pre-filled with the service
 
 ---
 
-## Phase 8 — About, Process & Working Agreement  ⏳ PARTIAL (8.1 ✅ complete, see `docs/phases/PHASE-8.1-README.md`)
+## Phase 8 — About, Process & Working Agreement  ⏳ PARTIAL (8.1 ✅ + 8.2 ✅ complete, see `docs/phases/PHASE-8.1-README.md`, `PHASE-8.2-README.md`)
 
 **Goal:** answer the questions clients are afraid to ask.
 
@@ -784,7 +785,7 @@ Start this service  → Brief Builder pre-filled with the service
 
 > Merged from the previous revision's separate 8.1 (About) / 8.2 (Process) / 8.5 (Quality baseline): three straightforward content pages with no independent decision gate and no owner-approval iteration beyond the phase's normal exit criteria.
 
-### 8.2 Working Agreement ("How we'll work")
+### 8.2 Working Agreement ("How we'll work")  ✅ complete (see `docs/phases/PHASE-8.2-README.md`)
 - communication channel and cadence (e.g. weekly written update, demo per milestone)
 - response commitment (D-08)
 - milestones, deposits and payment timing

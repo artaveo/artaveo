@@ -323,3 +323,20 @@ export type QualityCommitment = {
   title: LocalizedText
   description: LocalizedText
 }
+
+/**
+ * One topic of the Working Agreement (roadmap § 8.2 — "How we'll work"):
+ * communication, response commitment, payment, ownership, handover,
+ * warranty & change requests, confidentiality. `points` is optional —
+ * some topics (confidentiality) are a single sentence, others need a
+ * short bulleted breakdown. Per D-13, no sitewide deposit percentage or
+ * warranty day-count is invented here; those are decided per engagement
+ * during Define and stated in the mechanism, not as one fixed figure.
+ */
+export type WorkingAgreementItem = {
+  id: string
+  icon: string
+  title: LocalizedText
+  summary: LocalizedText
+  points?: LocalizedText[]
+}
