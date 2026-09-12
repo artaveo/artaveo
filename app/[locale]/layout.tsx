@@ -7,6 +7,8 @@ import { notFound } from 'next/navigation'
 
 import { routing } from '@/i18n/routing'
 import { siteConfig } from '@/lib/site'
+import { THEME_STORAGE_KEY } from '@/lib/theme'
+import { ThemeSync } from '@/components/theme-sync'
 import '../globals.css'
 
 const geistSans = Geist({
@@ -107,12 +109,17 @@ export const viewport: Viewport = {
  * `dir` are now set server-side below from the `[locale]` segment, with no
  * client-side flip and no flash. `artaveo-lang` in `localStorage` is dead;
  * the source of truth is the `artaveo-locale` cookie set by the middleware.
+ *
+ * This blocking script only prevents a flash on the very first paint of a
+ * hard page load. Client-side navigations (e.g. the language switcher) are
+ * handled separately by `<ThemeSync>` below — see its doc comment for why
+ * that's needed on top of this script.
  */
 const themeScript = `
 (function () {
   try {
     var root = document.documentElement;
-    var stored = localStorage.getItem('artaveo-theme');
+    var stored = localStorage.getItem('${THEME_STORAGE_KEY}');
     var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     var isDark = stored ? stored === 'dark' : systemDark;
     root.classList.toggle('dark', isDark);
@@ -153,6 +160,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="font-sans antialiased">
+        <ThemeSync />
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

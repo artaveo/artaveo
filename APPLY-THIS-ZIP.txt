@@ -1,38 +1,71 @@
-Phase 6.1 delivery — no deletions this time
+Bugfix: dark mode resets to light on language switch
 ============================================================
 
-Every path in this zip is either a new file or an in-place edit to an
-existing path. Just drop the zip's contents into the repo root and
-overwrite — GitHub Desktop will pick up the changes/new files correctly,
-then commit as usual.
+Not tied to a roadmap phase number — a cross-cutting bug in the theme
+system that's existed since it was first built, only now reported. Drop
+the zip's contents into the repo root and overwrite, then commit.
 
-14 files: 8 modified + 6 new.
+4 files: 2 modified + 2 new.
 
 New:
-  app/[locale]/work/page.tsx
-  app/[locale]/work/[slug]/page.tsx
-  components/work/case-study.tsx
-  components/work/project-card.tsx
-  components/work/work-grid.tsx
-  docs/phases/PHASE-6.1-README.md
+  components/theme-sync.tsx
+  lib/theme.ts
 
 Modified:
-  ROAD-MAP-ARTAVEO.md
-  components/home/featured-work.tsx
-  components/ui/tag.tsx
-  lib/home-content.ts
-  lib/site.ts
-  messages/en.json
-  messages/fa.json
-  types/content.ts
+  app/[locale]/layout.tsx
+  components/theme-toggle.tsx
 
-See docs/phases/PHASE-6.1-README.md for the full list of what changed and
-why, plus what's intentionally deferred (§ 6.2 / § 6.3 case-study content,
-still blocked on D-06).
+--------------------------------------------------------------------------
+Root cause
+--------------------------------------------------------------------------
+The `dark`/`light` class on `<html>` was only ever applied imperatively
+(`classList.toggle`, from a blocking inline script on first paint and from
+`ThemeToggle` on click) — never as part of what React actually renders.
+That's fine for a hard page load, but `app/[locale]/layout.tsx` is the
+*root* layout and reads `params.locale` directly, and `[locale]` is the
+very first URL segment for every route. Switching language calls
+`router.replace(..., { locale })` — a real client-side navigation, no full
+reload — but because the root layout's own dynamic param changes, Next.js
+re-renders it from a fresh server payload and `<html>` gets reconciled as
+part of that. In practice this wipes the class that lived outside React's
+own render output, so the page silently falls back to light every time.
 
-Verified with a real `next build` (Turbopack, font-stub workaround applied
-and reverted) — /en/work, /fa/work and all four `/work/[slug]` locale ×
-project combinations statically generate. Also ran `tsc --noEmit` clean,
-the content-placeholder guard clean, and a real production server smoke
-test of the new routes. One known environment nuance (not a code bug) is
-documented in the phase README under "Verification".
+This is the same class of bug the locale/`dir` flip itself used to have,
+already fixed in § 5.1 by moving `lang`/`dir` to be computed server-side
+from the URL segment instead of flipped client-side. Theme was never
+migrated off the old client-only pattern — this fix brings it in line.
+
+--------------------------------------------------------------------------
+Fix
+--------------------------------------------------------------------------
+`components/theme-sync.tsx` — a new, invisible client component mounted in
+`app/[locale]/layout.tsx`'s `<body>`. It watches the (raw) pathname and
+re-applies the stored/system theme on mount and after every change —
+i.e. right after a locale switch — so the class is always correct
+regardless of whether that particular navigation actually remounted
+`<html>` or not. `lib/theme.ts` holds the one shared "read
+localStorage/system preference and apply the class" function, used by the
+new component, `ThemeToggle`, and (as a literal string constant only,
+`THEME_STORAGE_KEY`) the blocking inline script — so there's exactly one
+place that owns the storage key and the apply logic.
+
+The original blocking script in the `<head>` is untouched in behavior; it
+still only handles the very first paint of a hard load (no flash). It was
+not removed because removing it would bring back a flash-of-wrong-theme on
+first load — `ThemeSync`'s `useEffect` runs after paint, which is fine for
+a same-page navigation but too late for the very first request.
+
+--------------------------------------------------------------------------
+Verification
+--------------------------------------------------------------------------
+- `next build` (font-stub workaround applied and reverted, as before) —
+  compiles clean, all routes (including the new `/work` pages from Phase
+  6.1) still statically generate.
+- `tsc --noEmit` — zero errors.
+- Reasoned through Next.js's App Router navigation model in detail rather
+  than guessing — no headless browser is reachable from this sandbox
+  (Playwright's browser download host isn't on the allowed domain list),
+  so I could not click through it end-to-end myself. Please click dark
+  mode → switch language a couple of times on your end to confirm before
+  merging; if it's still off anywhere, tell me exactly which page/locale
+  pair and I'll dig further.

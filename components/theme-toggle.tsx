@@ -4,6 +4,7 @@ import { Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { THEME_STORAGE_KEY } from '@/lib/theme'
 
 export function ThemeToggle() {
   const [isDark, setIsDark] = useState(false)
@@ -21,7 +22,7 @@ export function ThemeToggle() {
     root.classList.toggle('dark', next)
     root.classList.toggle('light', !next)
     try {
-      localStorage.setItem('artaveo-theme', next ? 'dark' : 'light')
+      localStorage.setItem(THEME_STORAGE_KEY, next ? 'dark' : 'light')
     } catch {}
   }
 
