@@ -1,7 +1,7 @@
 # Phase 9.2 — Start a Project: Server handling & persistence
 
-**Status:** ⏳ PARTIAL — database provisioned & migration applied; awaiting env-var configuration + end-to-end verification (code complete)
-**Date:** 13 September 2026 (code) · 13 September 2026 (database provisioned, same day, follow-up session)
+**Status:** ✅ COMPLETE — live and verified end-to-end
+**Date:** 13 September 2026 (code) · 13 September 2026 (database provisioned + verified, same day, follow-up sessions)
 
 ## Objective
 
@@ -12,7 +12,63 @@ privacy-friendly timing challenge, an idempotency key to prevent
 duplicate rows, the `inquiries` / `inquiry_events` tables with RLS, and
 source attribution without extra personal data.
 
-## Update — D-10 resolved, database provisioned (13 September 2026, same day)
+## Update 2 — env vars configured, end-to-end verified (13 September 2026, same day)
+
+Two configuration issues came up getting from "database provisioned" to
+"actually working," both diagnosed from Supabase's own logs rather than
+guesswork:
+
+**Issue 1 — `.env.local` set locally, but the owner tested on the live
+Vercel deployment.** `.env.local` only affects local dev; it's
+gitignored and Vercel never reads it. Result: the Brief Builder on the
+live site still showed the `not-configured` error. Fixed by adding the
+same three variables directly in Vercel's project settings
+(Environment Variables) and redeploying. Confirmed by checking
+`Supabase:query_logs` (`postgres_logs`, `postgrest_logs`): no request
+had reached Postgres or PostgREST at all for the failed attempt — the
+Server Action was still short-circuiting before ever calling Supabase,
+consistent with `getSupabaseServerClient()` still returning `null`.
+
+**Issue 2 — the `anon` key was pasted instead of `service_role`.** After
+setting Vercel's env vars and redeploying, the error changed to the
+`unexpected` (generic) server-error state — progress, since it meant
+`getSupabaseServerClient()` now returned a real client. Checked
+`Supabase:query_logs` (`edge_logs`) for the exact request path and got a
+direct answer: `401` on every `/rest/v1/inquiries` call. This is
+consistent with either an invalid or wrong-role key. The owner had
+copied the visually-truncated key from Supabase's legacy API keys page;
+`anon` and `service_role` JWTs share an identical header and early
+payload (both start `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIs…`)
+since the `role` claim that actually differs sits later in the string —
+so the two looked identical at a glance in the truncated UI. Fixed by
+using "Reveal" on the `service_role` row specifically and copying the
+full revealed value.
+
+**Verified end-to-end** after the fix: the owner submitted a real brief
+through the deployed `/start` page and got the `success` state. This
+session then queried the live database directly
+(`Supabase:execute_sql`) rather than trusting the UI alone — principle
+15 applies to verification, not just to what the app shows the visitor:
+
+```
+select id, created_at, name, preferred_channel, stage, source_channel,
+       (submitter_ip_hash is not null) as has_ip_hash,
+       (idempotency_key is not null) as has_idempotency_key
+from public.inquiries order by created_at desc limit 5;
+```
+
+Returned one real row — name, idempotency key, and IP hash all present
+— plus a matching `inquiry_events` row (`type: 'created'`, confirmed via
+`select count(*) from public.inquiry_events` returning `1`). This is the
+first real lead the Brief Builder has ever actually persisted.
+
+**This closes § 9.2 out.** Nothing about the design changed from the
+original build — the schema, the anti-spam logic, the idempotency
+handling, and the RLS setup all worked exactly as written the first time
+a real request reached them. Both issues were configuration (env var
+scope, key selection), not code defects.
+
+## Update 1 — D-10 resolved, database provisioned (13 September 2026, same day)
 
 The owner resolved D-10 by creating a **new, separate Supabase account**
 and a dedicated `Artaveo` project (`ukzovqnpqjcrwofycalc`, region
@@ -86,7 +142,7 @@ This is the same disclosure pattern already used for D-04 (§ 7.2), D-13
 session actually owns, and say plainly what still depends on a decision
 only the owner can make.
 
-## What's done vs. what's left
+## What's done
 
 | Item | Status |
 |---|---|
@@ -95,11 +151,11 @@ only the owner can make.
 | Timing-based challenge | ✅ done |
 | Rate limiting per IP/e-mail | ✅ done |
 | Idempotency key | ✅ done |
-| `inquiries` / `inquiry_events` schema + RLS | ✅ done — applied to the live `Artaveo` project, verified via `list_tables` + `get_advisors` |
+| `inquiries` / `inquiry_events` schema + RLS | ✅ done — live, verified via `list_tables` + `get_advisors` |
 | Source attribution | ✅ done |
 | Live Supabase project (region, plan) | ✅ done — `Artaveo`, `ap-southeast-1`, free plan (D-10 resolved) |
-| Env vars set (`SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `INQUIRY_IP_HASH_SECRET`) | ❌ owner's own action — agent deliberately doesn't hold the service-role key |
-| End-to-end persistence verified against the live database | ❌ pending the above |
+| Env vars set in Vercel | ✅ done |
+| End-to-end persistence verified against the live database | ✅ done — real row confirmed via direct SQL query, not just the UI |
 
 ## Decisions touched
 
@@ -231,22 +287,43 @@ ROAD-MAP-ARTAVEO.md                       edited (this phase marked partial/bloc
 - `node scripts/check-content-placeholders.mjs`: passes.
 - Built-and-served smoke test (`next start`, `curl`): `/en/start` and
   `/fa/start` both return `200` and render the Brief Builder correctly
-  with **no env vars set** — confirms the page itself never crashes while
-  D-10 is unresolved; the "not configured" path only triggers on actual
-  submit, which requires interaction and wasn't exercised as scripted
-  browser automation this session (see Known issues).
-- **Not verified this session (requires a live database, which doesn't
-  exist yet):** an actual successful insert, the idempotency replay path,
-  the rate-limit thresholds, and the honeypot/timing rejection paths
-  against a real request. These are logically verified by code review
-  against the spec but not exercised end-to-end — flagged explicitly
-  rather than asserted as tested.
+  with no env vars set — confirms the page itself never crashes while
+  unconfigured.
+- Live database schema: `Supabase:list_tables` confirmed both tables
+  with every column matching the migration exactly, RLS enabled on both.
+  `Supabase:get_advisors` (security) returned exactly one informational
+  finding, `rls_enabled_no_policy`, on both tables — the intended design.
+- **End-to-end submission, verified for real:** the owner submitted an
+  actual brief through the deployed `/start` page. This session then
+  queried the live database directly (`Supabase:execute_sql`) rather
+  than trusting the success screen alone:
+
+  ```sql
+  select id, created_at, name, preferred_channel, stage, source_channel,
+         (submitter_ip_hash is not null) as has_ip_hash,
+         (idempotency_key is not null) as has_idempotency_key
+  from public.inquiries order by created_at desc limit 5;
+  ```
+
+  Returned one real row with the name, idempotency key, and IP hash all
+  present, plus a matching `inquiry_events` row (`type: 'created'`,
+  `count(*) = 1`). This is the strongest verification available short of
+  the owner reading the row in the Supabase dashboard themselves — a
+  database query independent of the application code path, not just the
+  UI reporting success.
+- **Not independently verified:** the idempotency-replay path (submitting
+  the same `idempotencyKey` twice), the rate-limit thresholds, and the
+  honeypot/timing rejection paths. These were exercised by code review
+  against the spec and are logically sound, but no scripted test drove a
+  second submission or a spam-shaped request against the live database —
+  flagged explicitly rather than asserted as tested. Worth a deliberate
+  test pass before real traffic arrives.
 
 ## Known issues / new debt
 
-- **End-to-end persistence is unverified** (see Verification) — this is
-  the phase's own central blocker, not an oversight: there is nothing to
-  test end-to-end until D-10 resolves and a project exists.
+- **Idempotency replay, rate-limit thresholds, and honeypot/timing
+  rejection are untested against the live database** (see Verification)
+  — logically sound, not empirically exercised.
 - **Rate-limit thresholds (5/hour per IP, 3/day per e-mail) are
   reasonable starting defaults, not owner-approved figures** — worth a
   second look once real traffic patterns exist.
@@ -259,26 +336,34 @@ ROAD-MAP-ARTAVEO.md                       edited (this phase marked partial/bloc
   ever intercept a real user's tab order or autofill in some browser)
   wasn't done this session — the implementation follows a standard
   pattern, but no cross-browser check was run.
+- **Free plan has no platform backups** — Phase 25's external dump (or a
+  plan upgrade) is needed before real leads accumulate (see D-10 in the
+  Decision Register).
+- **The one real row currently in `inquiries` is test data** from this
+  verification (name: Zakir Hussain Naseri, `preferred_channel: email`,
+  `stage: new`) — worth deleting before the Brief Builder goes live to
+  real visitors, so it doesn't show up as a "lead" later. Not deleted
+  this session since destroying data wasn't asked for.
 - Carried over from § 9.1, still open: manual keyboard/screen-reader/
   visual QA of the Brief Builder itself.
 
 ## Rollback
 
-Every new file is additive (`db/migrations/0001_inquiries.sql` is inert
-until applied — nothing runs it automatically). `lib/supabase/server.ts`
-and `app/actions/inquiries.ts` can be deleted with no effect on any other
+Every new file is additive (`db/migrations/0001_inquiries.sql`'s own
+rollback note: `drop table if exists public.inquiry_events; drop table
+if exists public.inquiries;`). `lib/supabase/server.ts` and
+`app/actions/inquiries.ts` can be deleted with no effect on any other
 phase. Reverting `brief-builder.tsx` and the two message files to their
-pre-9.2 versions restores § 9.1's exact honest-failure behavior. No data
-exists anywhere to roll back, since nothing has been persisted (no live
-database).
+pre-9.2 versions restores § 9.1's exact honest-failure behavior. One
+real row now exists in the live database (see Known issues) — rolling
+back the code does not delete it; that would need the DROP TABLE above
+or a manual DELETE.
 
 ## Final status
 
 ```text
 PHASE: 9.2
-STATUS: PARTIAL — database provisioned & migration applied; awaiting
-        owner's env-var configuration + end-to-end verification (not a
-        decision gate, routine deployment step)
+STATUS: COMPLETE — live and verified end-to-end
 
 IMPLEMENTED:
 - Shared client/server validation, honeypot, timing challenge, DB-backed
@@ -287,7 +372,7 @@ IMPLEMENTED:
 - inquiries / inquiry_events schema + RLS applied to the live `Artaveo`
   Supabase project (ukzovqnpqjcrwofycalc, ap-southeast-1, free plan)
 - Brief Builder wired to the real Server Action; `success` genuinely
-  reachable once env vars are set
+  reachable and confirmed working in production
 
 VERIFIED:
 - typecheck · build (Turbopack) · content-placeholder guard · built-and-
@@ -295,33 +380,40 @@ VERIFIED:
 - Live database: list_tables confirms both tables + RLS enabled exactly
   as migrated; get_advisors confirms only the expected informational
   rls_enabled_no_policy finding (by design)
-- NOT verified: an actual insert, idempotency replay, rate-limit
-  behaviour, honeypot/timing rejection against a real request — needs
-  the owner's own env vars, which the agent doesn't hold
+- Real end-to-end submission through the deployed site, confirmed by
+  direct SQL query against the live database (not just the UI) — see
+  Verification above
+- NOT independently verified: idempotency replay, rate-limit thresholds,
+  honeypot/timing rejection against a real request (logically sound,
+  not empirically exercised — see Known issues)
 
 FILES CHANGED:
 - see "Files changed" above
 
 DATABASE / MIGRATIONS:
 - db/migrations/0001_inquiries.sql applied to project ukzovqnpqjcrwofycalc
+- one real (test) row currently in inquiries — see Known issues
 
 KNOWN ISSUES:
 - see "Known issues / new debt" above
 - free plan has no platform backups — tracked as a Phase 25 follow-up
 
 NEW DEBT:
-- end-to-end persistence verification owed once env vars are set
+- idempotency/rate-limit/honeypot paths worth a deliberate test pass
+  before real traffic
 - rate-limit thresholds and timing-challenge duration are defaults worth
   revisiting after real traffic
-- Phase 25 (backup) more urgent now that a real (if pre-launch) database
-  exists on a no-backup plan
+- Phase 25 (backup) more urgent now that a real database exists on a
+  no-backup plan
+- delete the test row in `inquiries` before real visitors start using
+  the form
 
 DECISIONS NEEDED:
-- none — D-10 resolved this session
+- none
 
-ARTIFACT: artaveo-phase-9-2-partial.zip
+ARTIFACT: artaveo-phase-9-2-complete.zip
 ROADMAP UPDATED: YES
-NEXT PHASE: owner sets the three env vars locally + in production, then
-a real end-to-end submission test closes this sub-phase out. § 9.3
-(notifications) remains separately blocked on D-01.
+NEXT PHASE: § 9.3 (notifications — confirmation e-mail on submit),
+blocked on D-01 (domain/DNS). Phase 3's closure checklist 3.5 remains
+open independently.
 ```
