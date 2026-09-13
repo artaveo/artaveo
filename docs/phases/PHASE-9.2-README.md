@@ -1,7 +1,7 @@
 # Phase 9.2 — Start a Project: Server handling & persistence
 
-**Status:** ⏳ PARTIAL — BLOCKED on D-10 for live wiring (code complete; see "What this phase does not do")
-**Date:** 13 September 2026
+**Status:** ⏳ PARTIAL — database provisioned & migration applied; awaiting env-var configuration + end-to-end verification (code complete)
+**Date:** 13 September 2026 (code) · 13 September 2026 (database provisioned, same day, follow-up session)
 
 ## Objective
 
@@ -12,7 +12,51 @@ privacy-friendly timing challenge, an idempotency key to prevent
 duplicate rows, the `inquiries` / `inquiry_events` tables with RLS, and
 source attribution without extra personal data.
 
-## The blocker (full disclosure, as requested)
+## Update — D-10 resolved, database provisioned (13 September 2026, same day)
+
+The owner resolved D-10 by creating a **new, separate Supabase account**
+and a dedicated `Artaveo` project (`ukzovqnpqjcrwofycalc`, region
+`ap-southeast-1`, **free plan** — explicitly not the paid-with-backups
+default D-10 recommended, to avoid cost pre-launch; tracked as a Phase 25
+follow-up, not a new open decision).
+
+The first attempt to create the project via the Supabase connector
+failed: the owner's *original* account had already hit the free-plan
+limit of 2 active projects (`pajouhesh-portal`, `Transportation-System`).
+Rather than pause or delete either of those existing real projects, the
+owner created a second Supabase account and connected Claude to it
+instead — the new account starts with the same 2-project free allowance,
+unused.
+
+Applied directly via the Supabase connector this session:
+
+- `db/migrations/0001_inquiries.sql` — applied as-is, no changes
+- Verified via `Supabase:list_tables` (verbose): both tables exist with
+  every column matching the migration exactly, `rls_enabled: true` on
+  both
+- Verified via `Supabase:get_advisors` (security): exactly one
+  informational finding, `rls_enabled_no_policy`, on both tables — this
+  is the intended design (§ 9.2: "no public select … inserts only
+  through the server"), not an oversight
+
+**What's genuinely left** — none of it a decision gate, all of it routine
+deployment configuration the owner does directly:
+
+1. Set `SUPABASE_URL` (`https://ukzovqnpqjcrwofycalc.supabase.co`),
+   `SUPABASE_SERVICE_ROLE_KEY` (from the Supabase dashboard → Settings →
+   API — the agent never requested or received this key, by design: it
+   never needs to see it, only the running server does) and
+   `INQUIRY_IP_HASH_SECRET` in `.env.local` for local dev and in the
+   production host's environment variables.
+2. Exercise an actual submission end-to-end — a real insert, the
+   idempotency-replay path, the rate-limit thresholds, and the
+   honeypot/timing rejection paths — none of which were testable before
+   a live database existed, and none of which were re-verified in this
+   same session (no env vars were shared with the agent to do so).
+
+Once both are done, this sub-phase can move to ✅ COMPLETE.
+
+## The blocker (original, now resolved — full disclosure, as requested)
 
 D-10 ("Supabase plan and region") is still open in the Decision Register.
 Checking the connected Supabase account confirms no Artaveo project
@@ -42,20 +86,20 @@ This is the same disclosure pattern already used for D-04 (§ 7.2), D-13
 session actually owns, and say plainly what still depends on a decision
 only the owner can make.
 
-## What's done vs. what's blocked
+## What's done vs. what's left
 
 | Item | Status |
 |---|---|
-| Shared client/server validation | ✅ done — server re-validates via the same `validateAllSteps` the client already uses |
-| Honeypot | ✅ done — hidden field in the Brief Builder, checked server-side |
-| Timing-based challenge | ✅ done — rejects submissions faster than 3s from form mount (privacy-friendly, no third-party CAPTCHA/dependency) |
-| Rate limiting per IP/e-mail | ✅ done — DB-backed (no new dependency), 5/hour per IP-hash, 3/day per e-mail |
-| Idempotency key | ✅ done — client-generated UUID, DB unique constraint, race-safe replay handling |
-| `inquiries` / `inquiry_events` schema + RLS | ✅ written (`db/migrations/0001_inquiries.sql`) — **not applied to any live database** |
-| Source attribution | ✅ done — referrer/UTM/channel only, no extra PII |
-| Server Action wiring `success` end-to-end | ✅ code done — **not reachable in production until D-10 resolves and env vars are set** |
-| Live Supabase project (region, plan, backups) | ❌ blocked on D-10 — owner decision |
-| Migration applied to a live database | ❌ blocked on the above |
+| Shared client/server validation | ✅ done |
+| Honeypot | ✅ done |
+| Timing-based challenge | ✅ done |
+| Rate limiting per IP/e-mail | ✅ done |
+| Idempotency key | ✅ done |
+| `inquiries` / `inquiry_events` schema + RLS | ✅ done — applied to the live `Artaveo` project, verified via `list_tables` + `get_advisors` |
+| Source attribution | ✅ done |
+| Live Supabase project (region, plan) | ✅ done — `Artaveo`, `ap-southeast-1`, free plan (D-10 resolved) |
+| Env vars set (`SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `INQUIRY_IP_HASH_SECRET`) | ❌ owner's own action — agent deliberately doesn't hold the service-role key |
+| End-to-end persistence verified against the live database | ❌ pending the above |
 
 ## Decisions touched
 
@@ -232,46 +276,52 @@ database).
 
 ```text
 PHASE: 9.2
-STATUS: PARTIAL — BLOCKED (on D-10, for live wiring only; code complete)
+STATUS: PARTIAL — database provisioned & migration applied; awaiting
+        owner's env-var configuration + end-to-end verification (not a
+        decision gate, routine deployment step)
 
 IMPLEMENTED:
 - Shared client/server validation, honeypot, timing challenge, DB-backed
   rate limiting, idempotency key with race-safe replay, source
   attribution — all in app/actions/inquiries.ts
-- inquiries / inquiry_events schema + RLS as a versioned migration
-  (db/migrations/0001_inquiries.sql) — written, not applied
+- inquiries / inquiry_events schema + RLS applied to the live `Artaveo`
+  Supabase project (ukzovqnpqjcrwofycalc, ap-southeast-1, free plan)
 - Brief Builder wired to the real Server Action; `success` genuinely
-  reachable once a live database exists
+  reachable once env vars are set
 
 VERIFIED:
 - typecheck · build (Turbopack) · content-placeholder guard · built-and-
   served smoke test of /start in both locales with no env vars set
-- NOT verified: actual persistence, idempotency replay, rate-limit
-  behaviour, honeypot/timing rejection against a real request (needs a
-  live database — see Known issues)
+- Live database: list_tables confirms both tables + RLS enabled exactly
+  as migrated; get_advisors confirms only the expected informational
+  rls_enabled_no_policy finding (by design)
+- NOT verified: an actual insert, idempotency replay, rate-limit
+  behaviour, honeypot/timing rejection against a real request — needs
+  the owner's own env vars, which the agent doesn't hold
 
 FILES CHANGED:
 - see "Files changed" above
 
 DATABASE / MIGRATIONS:
-- db/migrations/0001_inquiries.sql written; NOT applied to any project
+- db/migrations/0001_inquiries.sql applied to project ukzovqnpqjcrwofycalc
 
 KNOWN ISSUES:
 - see "Known issues / new debt" above
+- free plan has no platform backups — tracked as a Phase 25 follow-up
 
 NEW DEBT:
-- end-to-end persistence verification owed once D-10 resolves
+- end-to-end persistence verification owed once env vars are set
 - rate-limit thresholds and timing-challenge duration are defaults worth
   revisiting after real traffic
+- Phase 25 (backup) more urgent now that a real (if pre-launch) database
+  exists on a no-backup plan
 
 DECISIONS NEEDED:
-- D-10 (Supabase plan and region for Artaveo) — this phase's own blocker;
-  see "The blocker" above for the exact next action
+- none — D-10 resolved this session
 
 ARTIFACT: artaveo-phase-9-2-partial.zip
 ROADMAP UPDATED: YES
-NEXT PHASE: once D-10 resolves — provision the project, apply the
-migration, set the three env vars, then verify end-to-end persistence
-before this phase can be marked complete. Until then, § 9.3
-(notifications) remains separately blocked on D-01 regardless.
+NEXT PHASE: owner sets the three env vars locally + in production, then
+a real end-to-end submission test closes this sub-phase out. § 9.3
+(notifications) remains separately blocked on D-01.
 ```
