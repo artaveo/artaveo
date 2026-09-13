@@ -4,20 +4,19 @@ import { Link } from '@/i18n/navigation'
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { Link as ActionLink } from '@/components/ui/actions'
 import { ExternalProfileLinks } from '@/components/ui/identity'
-import { siteConfig, utilityNav, visibleMainNav, type NavItem } from '@/lib/site'
+import { legalNav, siteConfig, utilityNav, visibleMainNav, type NavItem } from '@/lib/site'
 
 /**
- * § 5.2 also asks for "locale-aware legal links" in the footer. There is
- * no privacy/terms page to link to yet — those are built in § 11.2 — so
- * no placeholder link is added here (§ 3's "no fake content" rule). When
- * § 11.2 ships real legal pages, add them to a `legalNav` list in
- * `lib/site.ts` and render it in the bottom bar below via `Link` (already
- * locale-aware), not as a new hardcoded block.
+ * § 5.2 asked for "locale-aware legal links" in the footer; § 11.2 now
+ * ships the real `/privacy` and `/terms` pages this was waiting on —
+ * rendered below from `legalNav` (`lib/site.ts`) via the same
+ * locale-aware `Link` every other footer link already uses.
  */
 export function SiteFooter() {
   const year = new Date().getFullYear()
   const t = useTranslations('Footer')
   const tCommon = useTranslations('Common')
+  const tNav = useTranslations('Nav')
 
   return (
     <footer className="border-t border-border bg-elevated">
@@ -58,6 +57,17 @@ export function SiteFooter() {
           <p className="text-sm text-muted-foreground">
             © {year} {siteConfig.name}. {tCommon('location')}.
           </p>
+          <nav aria-label={t('legal')} className="flex items-center gap-5">
+            {legalNav.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {tNav(item.key)}
+              </Link>
+            ))}
+          </nav>
           <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
             {t('tagline')}
           </p>

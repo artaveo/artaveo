@@ -30,6 +30,8 @@ export type NavKey =
   | 'designSystem'
   | 'contact'
   | 'start'
+  | 'privacy'
+  | 'terms'
 
 export type NavItem = {
   href: string
@@ -75,6 +77,17 @@ export const utilityNav: NavItem[] = [
 ]
 
 /**
+ * § 11.2 (per D-07). Rendered in the footer's bottom bar via `Link`
+ * (already locale-aware) — see `components/site/site-footer.tsx`'s own
+ * doc comment, which flagged exactly this as the place to add them once
+ * real pages existed.
+ */
+export const legalNav: NavItem[] = [
+  { href: '/privacy', key: 'privacy' },
+  { href: '/terms', key: 'terms' },
+]
+
+/**
  * Real profiles and channels only (§ 3.5 / D-05). No X/Twitter profile —
  * it isn't part of the hire-channel strategy. WhatsApp and the phone
  * number behind it (+93 790685832) are the same real contact channel.
@@ -114,6 +127,8 @@ export const commandItems: CommandItem[] = [
   { labelKey: 'designSystem', labelNamespace: 'Nav', href: '/design-system', group: 'resources', keywords: 'tokens components ui design system' },
   { labelKey: 'start', labelNamespace: 'Nav', href: '/start', group: 'actions', keywords: 'start project brief builder inquiry hire' },
   { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'contact email whatsapp hire channels' },
+  { labelKey: 'privacy', labelNamespace: 'Nav', href: '/privacy', group: 'resources', keywords: 'privacy policy data' },
+  { labelKey: 'terms', labelNamespace: 'Nav', href: '/terms', group: 'resources', keywords: 'terms of service legal' },
   { labelKey: 'emailArtaveo', labelNamespace: 'CommandPalette', href: 'mailto:artaveo.dev@gmail.com', group: 'actions', keywords: 'mail email reach contact' },
 ]
 

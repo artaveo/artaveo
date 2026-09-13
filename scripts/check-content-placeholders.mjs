@@ -27,6 +27,7 @@ const CONTENT_FILES = [
   'lib/about-content.ts',
   'lib/contact-content.ts',
   'lib/inquiry-content.ts',
+  'lib/legal-content.ts',
 ]
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')

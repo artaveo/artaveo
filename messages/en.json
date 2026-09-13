@@ -13,7 +13,9 @@
     "insightsDescription": "Notes on engineering and craft",
     "designSystem": "Design System",
     "contact": "Contact",
-    "start": "Start a project"
+    "start": "Start a project",
+    "privacy": "Privacy",
+    "terms": "Terms"
   },
   "Common": {
     "startProject": "Start a project",
@@ -45,7 +47,8 @@
     "explore": "Explore",
     "more": "More",
     "social": "Social",
-    "tagline": "Built full-stack, shipped end to end"
+    "tagline": "Built full-stack, shipped end to end",
+    "legal": "Legal"
   },
   "Hero": {
     "badge": "Available for new projects",
@@ -370,5 +373,19 @@
     "installDescription": "Add Artaveo to your device for quick, full-screen access.",
     "install": "Install",
     "dismiss": "Dismiss"
+  },
+  "PrivacyPage": {
+    "eyebrow": "Privacy",
+    "title": "Privacy Policy",
+    "metaTitle": "Privacy Policy",
+    "description": "What this website collects, why, where it's stored, and what you can do about it.",
+    "lastUpdatedLabel": "Last updated"
+  },
+  "TermsPage": {
+    "eyebrow": "Terms",
+    "title": "Terms of Service",
+    "metaTitle": "Terms of Service",
+    "description": "The terms that cover using this website.",
+    "lastUpdatedLabel": "Last updated"
   }
 }

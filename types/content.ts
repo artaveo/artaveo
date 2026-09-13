@@ -342,6 +342,28 @@ export type WorkingAgreementItem = {
 }
 
 /**
+ * One section of a legal document (Privacy Policy / Terms — roadmap
+ * § 11.2, per D-07). `paragraphs` are rendered as separate `<p>`s inside
+ * `<Prose>`; `list`, when present, as a bulleted list under them —
+ * mirrors the optional-field, "render only what's present" pattern the
+ * rest of the content layer already uses (`Project`, `Service`).
+ */
+export type LegalSection = {
+  id: string
+  title: LocalizedText
+  paragraphs: LocalizedText[]
+  list?: LocalizedText[]
+}
+
+/** A full legal document (`getPrivacyPolicy()` / `getTermsOfService()`, `lib/legal-content.ts`). */
+export type LegalDocument = {
+  /** ISO date this document was last substantively edited — shown to the reader, not auto-generated. */
+  lastUpdated: string
+  sections: LegalSection[]
+}
+
+
+/**
  * One option in the Hire Channel Selector (roadmap § 8.3, component
  * inventory § 14 — "Direct vs via platform, with trade-offs" — gated by
  * D-05). `href` must always resolve to a real, verified channel (a mailto
