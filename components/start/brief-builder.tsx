@@ -8,9 +8,16 @@ import { Button } from '@/components/ui/button'
 import { Stepper, type StepStatus } from '@/components/ui/stepper'
 import { ErrorState, OfflineState, RateLimitedState, SuccessState } from '@/components/ui/states'
 import { FormMessage } from '@/components/ui/form-controls'
-import { createEmptyInquiryDraft, type BriefBuilderStatus, type InquiryDraft, type StepId } from '@/types/inquiry'
+import {
+  createEmptyInquiryDraft,
+  type BriefBuilderStatus,
+  type InquiryDraft,
+  type InquirySubmissionMeta,
+  type StepId,
+} from '@/types/inquiry'
 import { dataSteps, validateStep, type StepErrors } from '@/lib/inquiry-validation'
 import { buildInquiryMailtoHref } from '@/lib/inquiry-summary'
+import { clearQueuedInquiry, readQueuedInquiry, writeQueuedInquiry } from '@/lib/inquiry-offline-queue'
 import { type Locale } from '@/types/content'
 import { ContactStep, LinksStep, ProjectStep, ScopeStep, ServiceStep, TimelineStep } from '@/components/start/steps'
 import { ReviewStep } from '@/components/start/review'
@@ -54,13 +61,31 @@ export function BriefBuilder({
   const [stepIndex, setStepIndex] = useState(0)
   const [status, setStatus] = useState<BriefBuilderStatus>('idle')
   const [touchedSteps, setTouchedSteps] = useState<Set<StepId>>(new Set())
-  const [isOnline, setIsOnline] = useState(true)
+  /**
+   * Read directly at mount rather than defaulting to `true` and
+   * correcting inside an effect: the § 10.3 auto-retry effect below also
+   * runs on this same first mount, and needs the *real* value from the
+   * very start — a briefly-stale `true` default while actually offline
+   * could let it attempt a submit it should have queued instead. Doesn't
+   * affect hydration: `isOnline` plays no part in what the very first
+   * render's JSX looks like (only `status`, which is unrelated, does).
+   */
+  const [isOnline, setIsOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine))
   const [honeypot, setHoneypot] = useState('')
   const [serverErrorReason, setServerErrorReason] = useState<'not-configured' | 'unexpected'>('unexpected')
+  /**
+   * Set only when the just-shown `success` screen followed a queued,
+   * delayed send (§ 10.3) — lets the success copy honestly say "you were
+   * offline for part of this" instead of implying a normal, immediate
+   * send. Never set for the ordinary online-submit path.
+   */
+  const [deliveredFromQueue, setDeliveredFromQueue] = useState(false)
   const lastSubmitAttempt = useRef<number>(0)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const idempotencyKey = useRef<string>(randomId())
   const formRenderedAt = useRef<number>(Date.now())
+  /** Guards against the mount-hydration effect and the online-transition effect both firing an auto-retry for the same queued item. */
+  const retryInFlight = useRef(false)
   const sourceMeta = useRef<{
     referrer?: string
     utmSource?: string
@@ -85,7 +110,6 @@ export function BriefBuilder({
   const currentStep = steps[stepIndex]
 
   useEffect(() => {
-    setIsOnline(typeof navigator === 'undefined' ? true : navigator.onLine)
     function onOnline() {
       setIsOnline(true)
     }
@@ -109,12 +133,79 @@ export function BriefBuilder({
     }
   }, [stepIndex, status])
 
+  /**
+   * § 10.3 — a previous visit (this tab reloaded, or the visitor closed
+   * and reopened the site) may have left a queued submission behind. If
+   * so: restore the exact draft and submission metadata it was queued
+   * with (not fresh ones — a retry must reuse the same idempotency key),
+   * jump to Review so the visitor can see what's about to send, and
+   * attempt it immediately if already online. `navigator.onLine` is read
+   * directly here rather than through the `isOnline` state, which may not
+   * have been corrected from its default yet in the same commit.
+   */
+  useEffect(() => {
+    const queued = readQueuedInquiry()
+    if (!queued) return
+    idempotencyKey.current = queued.meta.idempotencyKey
+    formRenderedAt.current = queued.meta.formRenderedAt
+    sourceMeta.current = {
+      referrer: queued.meta.sourceReferrer,
+      utmSource: queued.meta.sourceUtmSource,
+      utmMedium: queued.meta.sourceUtmMedium,
+      utmCampaign: queued.meta.sourceUtmCampaign,
+      channel: queued.meta.sourceChannel,
+    }
+    setDraft(queued.draft)
+    setStepIndex(steps.length - 1)
+    const online = typeof navigator === 'undefined' || navigator.onLine
+    if (online) {
+      retryInFlight.current = true
+      setStatus('submitting')
+      void attemptSubmit(queued, { fromQueue: true }).finally(() => {
+        retryInFlight.current = false
+      })
+    } else {
+      setStatus('offline')
+    }
+    // Deliberately mount-only — the effect below handles a *later*
+    // regain of connectivity for a queued item that was already restored
+    // here (or queued fresh during this same session).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /**
+   * § 10.3 — the other half of "retry automatically once back online":
+   * connectivity returning while a queued submission is still sitting
+   * there (queued during this same session, or left over from the mount
+   * effect above if it started offline). Guarded against the queued
+   * item's own idempotency key so this never resends something the
+   * visitor has since abandoned by editing the form again — `updateDraft`
+   * below clears the queue on any real edit, which is what "abandoned"
+   * means here.
+   */
+  useEffect(() => {
+    if (!isOnline || retryInFlight.current) return
+    const queued = readQueuedInquiry()
+    if (!queued || queued.meta.idempotencyKey !== idempotencyKey.current) return
+    retryInFlight.current = true
+    setStatus('submitting')
+    void attemptSubmit(queued, { fromQueue: true }).finally(() => {
+      retryInFlight.current = false
+    })
+  }, [isOnline])
+
   const errors: StepErrors = useMemo(() => validateStep(currentStep, draft), [currentStep, draft])
   const showErrors = touchedSteps.has(currentStep)
 
   function updateDraft(patch: Partial<InquiryDraft>) {
     setStatus('editing')
     setDraft((prev) => ({ ...prev, ...patch }))
+    // Any real edit invalidates a previously queued submission — "queued"
+    // means "this exact brief is waiting to send", so once the visitor
+    // changes something, resending the old snapshot automatically later
+    // would be sending something they no longer agreed to. They'll queue
+    // a fresh one if they go offline again before their next Submit.
+    clearQueuedInquiry()
   }
 
   function goNext() {
@@ -133,12 +224,65 @@ export function BriefBuilder({
     setStepIndex((i) => Math.max(i - 1, 0))
   }
 
-  async function handleSubmit() {
-    if (!isOnline) {
-      setStatus('offline')
-      return
-    }
+  /**
+   * The one place that actually calls the server action, shared by a
+   * normal Submit click, the mount-time queue hydration, and the
+   * online-transition retry — so "never fake success" (principle 15) is
+   * enforced in exactly one spot regardless of which path got here.
+   *
+   * § 10.3's real gap this closes beyond the pre-flight `isOnline` check:
+   * connectivity can drop *during* the request itself (a flaky mobile
+   * connection is the obvious case), which previously had no `catch` at
+   * all and would have surfaced as an unhandled rejection instead of an
+   * honest offline message. Any thrown error here — not just a
+   * `navigator.onLine`-detected one — now queues the payload and shows
+   * the same offline/queued state.
+   */
+  async function attemptSubmit(
+    { draft: payloadDraft, meta }: { draft: InquiryDraft; meta: InquirySubmissionMeta },
+    { fromQueue = false }: { fromQueue?: boolean } = {},
+  ) {
+    try {
+      const result = await submitInquiry(payloadDraft, meta)
 
+      if (result.ok) {
+        // Real persistence, confirmed by the server — `success` is set
+        // only here, never at queue time, regardless of how long the
+        // queued payload waited for a connection.
+        clearQueuedInquiry()
+        setDeliveredFromQueue(fromQueue)
+        setStatus('success')
+        return
+      }
+
+      if (result.code === 'rejected') {
+        // Anti-spam rejection (honeypot / too-fast / rate limit) — a real
+        // visitor essentially never sees this; reusing the client-side
+        // cooldown's copy is fine since the cause reads the same from
+        // their side (submitting too fast or too often). Retrying this
+        // one automatically again wouldn't change the outcome, so the
+        // queue is cleared rather than left to retry forever.
+        clearQueuedInquiry()
+        setStatus('rate-limited')
+        return
+      }
+
+      clearQueuedInquiry()
+      setServerErrorReason(result.code === 'not-configured' ? 'not-configured' : 'unexpected')
+      setStatus('server-error')
+    } catch {
+      // A real network failure — either the pre-flight check in
+      // `handleSubmit` was already stale, or connectivity dropped mid
+      // request (this is the case that previously had no handling at
+      // all). Save/keep the queued payload and show the same
+      // offline/queued state either way; the online-transition effect
+      // above will retry once connectivity genuinely returns.
+      writeQueuedInquiry(payloadDraft, meta)
+      setStatus('offline')
+    }
+  }
+
+  async function handleSubmit() {
     const now = Date.now()
     if (now - lastSubmitAttempt.current < RESUBMIT_COOLDOWN_MS) {
       setStatus('rate-limited')
@@ -146,9 +290,7 @@ export function BriefBuilder({
     }
     lastSubmitAttempt.current = now
 
-    setStatus('submitting')
-
-    const result = await submitInquiry(draft, {
+    const meta: InquirySubmissionMeta = {
       idempotencyKey: idempotencyKey.current,
       honeypot,
       formRenderedAt: formRenderedAt.current,
@@ -157,27 +299,20 @@ export function BriefBuilder({
       sourceUtmMedium: sourceMeta.current.utmMedium,
       sourceUtmCampaign: sourceMeta.current.utmCampaign,
       sourceChannel: sourceMeta.current.channel,
-    })
+    }
 
-    if (result.ok) {
-      // Real persistence, confirmed by the server (principle 15: a form
-      // shows success only after the record is persisted) — `success` is
-      // reachable for the first time as of § 9.2.
-      setStatus('success')
+    if (!isOnline) {
+      // Known offline before even trying — queue now rather than firing
+      // a request already known to fail (principle 15: never pretend
+      // this could succeed right now). The online-transition effect
+      // above sends it the moment connectivity returns.
+      writeQueuedInquiry(draft, meta)
+      setStatus('offline')
       return
     }
 
-    if (result.code === 'rejected') {
-      // Anti-spam rejection (honeypot / too-fast / rate limit) — a real
-      // visitor essentially never sees this; reusing the client-side
-      // cooldown's copy is fine since the cause reads the same from their
-      // side (submitting too fast or too often).
-      setStatus('rate-limited')
-      return
-    }
-
-    setServerErrorReason(result.code === 'not-configured' ? 'not-configured' : 'unexpected')
-    setStatus('server-error')
+    setStatus('submitting')
+    await attemptSubmit({ draft, meta })
   }
 
   function resetToEditing() {
@@ -200,9 +335,19 @@ export function BriefBuilder({
   }))
 
   if (status === 'offline') {
+    // § 10.3: this is a queued, not a dead-end, state — the payload is
+    // already saved (writeQueuedInquiry, called just before this status
+    // was set) and will send on its own the moment connectivity returns
+    // (the online-transition effect above). "Back" lets the visitor keep
+    // editing in the meantime without losing the queued copy unless they
+    // actually change something (updateDraft clears it on a real edit).
     return (
       <div className="rounded-xl border border-border bg-card p-6 md:p-8">
-        <OfflineState action={{ label: t18n('back'), onClick: () => setStatus('editing') }} />
+        <OfflineState
+          title={t18n('offlineQueuedTitle')}
+          description={t18n('offlineQueuedDescription')}
+          action={{ label: t18n('back'), onClick: () => setStatus('editing') }}
+        />
       </div>
     )
   }
@@ -239,11 +384,25 @@ export function BriefBuilder({
 
   if (status === 'success') {
     // Reachable as of § 9.2: set only after `submitInquiry` confirms the
-    // row was actually persisted (see `handleSubmit` above) — never on
-    // queueing or optimistic UI alone.
+    // row was actually persisted (see `attemptSubmit` above) — never on
+    // queueing or optimistic UI alone, whether the send was immediate or
+    // (§ 10.3) followed a period offline. `deliveredFromQueue` only adds
+    // an honest extra line for the latter case; it never changes when
+    // `success` itself is reachable.
     return (
       <div className="rounded-xl border border-border bg-card p-6 md:p-8">
-        <SuccessState title={t18n('successTitle')} description={t18n('successDescription')} />
+        <SuccessState
+          title={t18n('successTitle')}
+          description={
+            deliveredFromQueue ? (
+              <>
+                {t18n('successDescription')} {t18n('successQueuedNote')}
+              </>
+            ) : (
+              t18n('successDescription')
+            )
+          }
+        />
       </div>
     )
   }

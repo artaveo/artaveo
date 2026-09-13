@@ -357,7 +357,10 @@
     "emailInstead": "Email this brief",
     "startOver": "Edit brief",
     "successTitle": "Brief sent",
-    "successDescription": "Thanks — I'll reply with next steps."
+    "successDescription": "Thanks — I'll reply with next steps.",
+    "offlineQueuedTitle": "You're offline",
+    "offlineQueuedDescription": "Your brief is saved on this device and will send automatically the moment you're back online — you don't need to do anything else. You can also go back and keep editing while you wait.",
+    "successQueuedNote": "You were offline when you first tried to send this — good news, it went through as soon as you reconnected."
   },
   "Pwa": {
     "updateTitle": "Update available",
