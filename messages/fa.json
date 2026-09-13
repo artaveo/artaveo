@@ -302,7 +302,6 @@
     "stepLinks": "لینک‌ها",
     "stepContact": "تماس",
     "stepReview": "بازبینی",
-
     "serviceStepTitle": "دنبال چه چیزی هستی؟",
     "serviceStepDescription": "نزدیک‌ترین گزینه را انتخاب کن — این فقط به آماده‌شدنم کمک می‌کند و تو را متعهد نمی‌کند.",
     "serviceLabel": "خدمت",
@@ -312,30 +311,25 @@
     "engagementModelLabel": "دوست داری چطور با هم کار کنیم؟",
     "engagementModelPlaceholder": "یک الگوی همکاری انتخاب کن",
     "noEngagementOption": "هنوز مطمئن نیستم",
-
     "projectStepTitle": "درباره‌ی پروژه بگو",
     "projectTypeLabel": "نوع پروژه",
     "goalLabel": "به دنبال چه نتیجه‌ای هستی؟",
     "goalPlaceholder": "مسئله یا هدف را در چند جمله توضیح بده…",
     "goalHint": "چند جمله کافی است — جزئیات بیشتر را در تماس بررسی می‌کنیم.",
-
     "scopeStepTitle": "چه کاری باید انجام بدهد؟",
     "scopeStepDescription": "هرچه صدق می‌کند را تیک بزن. اگر هنوز مطمئن نیستی، خالی گذاشتنش هم اشکالی ندارد.",
     "featuresLabel": "ویژگی‌های کلیدی",
     "featureOtherLabel": "بیشتر توضیح بده",
     "featureOtherPlaceholder": "چه چیز دیگری لازم دارد؟",
-
     "timelineStepTitle": "زمان‌بندی و بودجه",
     "timelineLabel": "زمان‌بندی",
     "budgetLabel": "بازه‌ی بودجه (اختیاری)",
     "budgetHint": "فقط یک بازه‌ی تقریبی — این به من کمک می‌کند الگوی همکاری مناسب را پیشنهاد بدهم، نه یک قیمت قطعی.",
-
     "linksStepTitle": "لینک‌ها و مرجع‌ها",
     "linksStepDescription": "یک سایت فعلی، یک رقیب، یک نمونه‌ی طراحی — هرچیزی که به فهم بهتر پروژه کمک کند. اختیاری.",
     "linkPlaceholder": "https://…",
     "addLink": "افزودن لینک دیگر",
     "removeLink": "حذف لینک",
-
     "contactStepTitle": "چطور بهت دسترسی داشته باشم؟",
     "nameLabel": "نام",
     "namePlaceholder": "نام تو",
@@ -346,19 +340,15 @@
     "phoneHint": "فقط اگر واتس‌اپ روش ارتباطی ترجیحی‌ات است لازم است.",
     "preferredChannelLabel": "روش ارتباط ترجیحی",
     "consentLabel": "موافقم که آرتاویو با استفاده از اطلاعات بالا درباره‌ی این پروژه با من تماس بگیرد.",
-
     "reviewStepTitle": "بریف خود را بازبینی کن",
     "reviewStepDescription": "همه‌چیز تا این‌جا همین است. پیش از ارسال، برای تغییر هرکدام می‌توانی برگردی.",
-
     "back": "قبلی",
     "next": "بعدی",
     "submit": "ارسال بریف",
-
     "errorRequired": "این فیلد الزامی است.",
     "errorTooShort": "کمی توضیح بیشتر کمک می‌کند — چند جمله کافی است.",
     "errorInvalidEmail": "یک ایمیل معتبر وارد کن.",
     "errorInvalidUrl": "یک آدرس کامل با شروع https:// وارد کن.",
-
     "submittingTitle": "در حال ارسال بریف…",
     "notLiveTitle": "ارسال هنوز فعال نیست",
     "notLiveDescription": "بک‌اند Brief Builder ساخته شده، اما هنوز به پایگاه‌داده‌ی زنده وصل نیست (فاز ۹.۲ نقشه‌راه، در انتظار راه‌اندازی پروژه‌ی Supabase) — چیزی از دست نرفت، اما در سایت هم ذخیره نشد. به‌جایش آن را با ایمیل بفرست تا مستقیم جواب بدهم؛ پاسخ‌های بالا از قبل در پیام آماده است.",
@@ -368,5 +358,14 @@
     "startOver": "ویرایش بریف",
     "successTitle": "بریف ارسال شد",
     "successDescription": "ممنون — با قدم‌های بعدی جواب می‌دهم."
+  },
+  "Pwa": {
+    "updateTitle": "نسخه‌ی جدید موجود است",
+    "updateDescription": "نسخه‌ی تازه‌ی آرتاویو آماده است.",
+    "reload": "بارگذاری مجدد",
+    "installTitle": "نصب آرتاویو",
+    "installDescription": "آرتاویو را روی دستگاه‌تان نصب کنید برای دسترسی سریع و تمام‌صفحه.",
+    "install": "نصب",
+    "dismiss": "رد کردن"
   }
 }

@@ -302,7 +302,6 @@
     "stepLinks": "Links",
     "stepContact": "Contact",
     "stepReview": "Review",
-
     "serviceStepTitle": "What are you looking for?",
     "serviceStepDescription": "Pick the closest match — this only helps me prepare, it doesn't lock you in.",
     "serviceLabel": "Service",
@@ -312,30 +311,25 @@
     "engagementModelLabel": "How would you like to work together?",
     "engagementModelPlaceholder": "Select an engagement model",
     "noEngagementOption": "Not sure yet",
-
     "projectStepTitle": "Tell me about the project",
     "projectTypeLabel": "Project type",
     "goalLabel": "What outcome are you trying to reach?",
     "goalPlaceholder": "Describe the problem or goal in a few sentences…",
     "goalHint": "A few sentences is enough — the call is where we go deeper.",
-
     "scopeStepTitle": "What does it need to do?",
     "scopeStepDescription": "Check anything that applies. It's fine to leave this empty if you're not sure yet.",
     "featuresLabel": "Key features",
     "featureOtherLabel": "Tell me more",
     "featureOtherPlaceholder": "What else does it need?",
-
     "timelineStepTitle": "Timeline & budget",
     "timelineLabel": "Timeline",
     "budgetLabel": "Budget range (optional)",
     "budgetHint": "A rough range only — this helps me suggest the right engagement model, not a fixed quote.",
-
     "linksStepTitle": "Links & references",
     "linksStepDescription": "A current site, a competitor, a design reference — anything that helps me understand the project. Optional.",
     "linkPlaceholder": "https://…",
     "addLink": "Add another link",
     "removeLink": "Remove link",
-
     "contactStepTitle": "How should I reach you?",
     "nameLabel": "Name",
     "namePlaceholder": "Your name",
@@ -346,19 +340,15 @@
     "phoneHint": "Only needed if WhatsApp is your preferred channel.",
     "preferredChannelLabel": "Preferred contact channel",
     "consentLabel": "I agree that Artaveo may contact me about this project using the details above.",
-
     "reviewStepTitle": "Review your brief",
     "reviewStepDescription": "Here's everything as it stands. Go back to change anything before sending.",
-
     "back": "Back",
     "next": "Next",
     "submit": "Send brief",
-
     "errorRequired": "This field is required.",
     "errorTooShort": "A little more detail would help — a few sentences is enough.",
     "errorInvalidEmail": "Enter a valid email address.",
     "errorInvalidUrl": "Enter a full URL, starting with https://",
-
     "submittingTitle": "Sending your brief…",
     "notLiveTitle": "Submissions aren't live yet",
     "notLiveDescription": "The Brief Builder's backend is built but not yet connected to a live database (roadmap Phase 9.2, pending the Supabase project setup) — nothing was lost, but it wasn't saved on this site either. Send it by email instead and I'll reply directly; your answers above are already in the message.",
@@ -368,5 +358,14 @@
     "startOver": "Edit brief",
     "successTitle": "Brief sent",
     "successDescription": "Thanks — I'll reply with next steps."
+  },
+  "Pwa": {
+    "updateTitle": "Update available",
+    "updateDescription": "A new version of Artaveo is ready.",
+    "reload": "Reload",
+    "installTitle": "Install Artaveo",
+    "installDescription": "Add Artaveo to your device for quick, full-screen access.",
+    "install": "Install",
+    "dismiss": "Dismiss"
   }
 }

@@ -9,6 +9,7 @@ import { routing } from '@/i18n/routing'
 import { siteConfig } from '@/lib/site'
 import { THEME_STORAGE_KEY } from '@/lib/theme'
 import { ThemeSync } from '@/components/theme-sync'
+import { PwaManager } from '@/components/site/pwa-manager'
 import '../globals.css'
 
 const geistSans = Geist({
@@ -161,7 +162,10 @@ export default async function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <ThemeSync />
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          {children}
+          <PwaManager />
+        </NextIntlClientProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
