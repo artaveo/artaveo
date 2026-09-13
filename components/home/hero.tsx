@@ -1,9 +1,12 @@
+'use client'
+
 import { ArrowRight } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import { Link } from '@/i18n/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { trackEvent } from '@/lib/analytics'
 
 export function Hero() {
   const t = useTranslations('Hero')
@@ -39,7 +42,12 @@ export function Hero() {
           </p>
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button size="lg" className="h-11 px-5 text-[0.95rem]" render={<Link href="/work" />}>
+            <Button
+              size="lg"
+              className="h-11 px-5 text-[0.95rem]"
+              onClick={() => trackEvent('cta_click', { target: 'hero_view_work' })}
+              render={<Link href="/work" />}
+            >
               {t('ctaWork')}
               <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
             </Button>
@@ -47,6 +55,7 @@ export function Hero() {
               size="lg"
               variant="outline"
               className="h-11 px-5 text-[0.95rem]"
+              onClick={() => trackEvent('cta_click', { target: 'hero_start_project' })}
               render={<Link href="/start" />}
             >
               {t('ctaContact')}

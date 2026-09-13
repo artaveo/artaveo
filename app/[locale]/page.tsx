@@ -12,6 +12,7 @@ import { Services } from '@/components/home/services'
 import { TechStack } from '@/components/home/tech-stack'
 import { WhyArtaveo } from '@/components/home/why-artaveo'
 import { SiteShell } from '@/components/site/site-shell'
+import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
 
 export async function generateMetadata({
   params,
@@ -20,11 +21,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params
   const t = await getTranslations({ locale, namespace: 'Hero' })
+  const title = `Artaveo — ${t('titleLine1')} ${t('titleLine2')}`
   return {
-    title: {
-      absolute: `Artaveo — ${t('titleLine1')} ${t('titleLine2')}`,
-    },
+    title: { absolute: title },
     description: t('description'),
+    alternates: buildAlternates(locale, ''),
+    ...buildPageOpenGraph({ locale, title, description: t('description') }),
   }
 }
 

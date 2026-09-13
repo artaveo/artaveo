@@ -18,6 +18,7 @@ import {
 import { dataSteps, validateStep, type StepErrors } from '@/lib/inquiry-validation'
 import { buildInquiryMailtoHref } from '@/lib/inquiry-summary'
 import { clearQueuedInquiry, readQueuedInquiry, writeQueuedInquiry } from '@/lib/inquiry-offline-queue'
+import { trackEvent } from '@/lib/analytics'
 import { type Locale } from '@/types/content'
 import { ContactStep, LinksStep, ProjectStep, ScopeStep, ServiceStep, TimelineStep } from '@/components/start/steps'
 import { ReviewStep } from '@/components/start/review'
@@ -93,6 +94,15 @@ export function BriefBuilder({
     utmCampaign?: string
     channel?: string
   }>({})
+
+  useEffect(() => {
+    // § 11.1 analytics — fired once per mount regardless of whether this
+    // turns out to be a fresh session or a queued-submission restore
+    // (§ 10.3): both are a visitor arriving at the Brief Builder. No form
+    // contents here, just the fact of a start.
+    trackEvent('brief_start', { prefilled: Boolean(initialServiceSlug) })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -216,12 +226,20 @@ export function BriefBuilder({
       return
     }
     setStatus('editing')
-    setStepIndex((i) => Math.min(i + 1, steps.length - 1))
+    setStepIndex((i) => {
+      const next = Math.min(i + 1, steps.length - 1)
+      trackEvent('brief_step', { step: steps[next], direction: 'next' })
+      return next
+    })
   }
 
   function goBack() {
     setStatus('editing')
-    setStepIndex((i) => Math.max(i - 1, 0))
+    setStepIndex((i) => {
+      const next = Math.max(i - 1, 0)
+      trackEvent('brief_step', { step: steps[next], direction: 'back' })
+      return next
+    })
   }
 
   /**
@@ -252,6 +270,11 @@ export function BriefBuilder({
         clearQueuedInquiry()
         setDeliveredFromQueue(fromQueue)
         setStatus('success')
+        // § 11.1 — fired only after genuine server-confirmed persistence,
+        // same event `attemptSubmit` itself enforces for `success`. No
+        // form contents in the payload, just whether this was a delayed
+        // (§ 10.3 queued) send.
+        trackEvent('brief_submit', { fromQueue })
         return
       }
 

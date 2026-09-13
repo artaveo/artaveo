@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { Link } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
+import { trackEvent } from '@/lib/analytics'
 import { t, type Locale, type Price, type ServicePackage } from '@/types/content'
 
 function formatPrice(price: Price, locale: Locale, tPrice: (key: string) => string): string {
@@ -24,10 +25,12 @@ function TierBody({
   pkg,
   startHref,
   formatted,
+  serviceSlug,
 }: {
   pkg: ServicePackage
   startHref: string
   formatted: string
+  serviceSlug: string
 }) {
   const locale = useLocale() as Locale
   const t18n = useTranslations('ServiceDetail')
@@ -60,7 +63,11 @@ function TierBody({
         ))}
       </ul>
 
-      <Button className="mt-6 w-full justify-center" render={<Link href={startHref} />}>
+      <Button
+        className="mt-6 w-full justify-center"
+        onClick={() => trackEvent('cta_click', { target: 'choose_package', serviceSlug, packageId: pkg.id })}
+        render={<Link href={startHref} />}
+      >
         {t18n('choosePackage')}
       </Button>
     </div>
@@ -99,7 +106,11 @@ export function PackageComparison({
       <div className="mt-5 md:hidden">
         <SegmentedControl
           value={activeId ? [activeId] : []}
-          onValueChange={(value) => setActiveId(value[0] as string)}
+          onValueChange={(value) => {
+            const nextId = value[0] as string
+            setActiveId(nextId)
+            trackEvent('package_compare', { serviceSlug, packageId: nextId })
+          }}
           className="sticky top-16 z-10 w-full bg-background shadow-sm"
         >
           {packages.map((pkg) => (
@@ -113,6 +124,7 @@ export function PackageComparison({
             pkg={activePkg}
             startHref={`/start?service=${serviceSlug}&package=${activePkg.id}`}
             formatted={formatPrice(activePkg.price, locale, tPrice)}
+            serviceSlug={serviceSlug}
           />
         </div>
       </div>
@@ -183,6 +195,9 @@ export function PackageComparison({
                   <div className="rounded-b-xl border border-t-0 border-border bg-card p-5">
                     <Button
                       className="w-full justify-center"
+                      onClick={() =>
+                        trackEvent('cta_click', { target: 'choose_package', serviceSlug, packageId: pkg.id })
+                      }
                       render={<Link href={`/start?service=${serviceSlug}&package=${pkg.id}`} />}
                     >
                       {t18n('choosePackage')}

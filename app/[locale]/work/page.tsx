@@ -2,9 +2,13 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { SiteShell } from '@/components/site/site-shell'
+import { JsonLd } from '@/components/site/json-ld'
 import { PageHeader } from '@/components/ui/patterns'
 import { WorkGrid } from '@/components/work/work-grid'
 import { getAllProjects } from '@/lib/home-content'
+import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
+import { buildBreadcrumbJsonLd } from '@/lib/structured-data'
+import type { Locale } from '@/types/content'
 
 export async function generateMetadata({
   params,
@@ -16,6 +20,8 @@ export async function generateMetadata({
   return {
     title: t('title'),
     description: t('description'),
+    alternates: buildAlternates(locale, '/work'),
+    ...buildPageOpenGraph({ locale, title: t('title'), description: t('description'), eyebrow: t('eyebrow') }),
   }
 }
 
@@ -28,10 +34,17 @@ export default async function WorkPage({
   setRequestLocale(locale)
 
   const t = await getTranslations('Work')
+  const tNav = await getTranslations('Nav')
   const projects = getAllProjects()
 
   return (
     <SiteShell>
+      <JsonLd
+        data={buildBreadcrumbJsonLd(locale as Locale, [
+          { name: tNav('home'), path: '/' },
+          { name: t('title'), path: '/work' },
+        ])}
+      />
       <div className="container-page">
         <PageHeader eyebrow={t('eyebrow')} title={t('title')} description={t('description')} />
         <div className="pb-24">

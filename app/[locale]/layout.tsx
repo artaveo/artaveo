@@ -7,9 +7,13 @@ import { notFound } from 'next/navigation'
 
 import { routing } from '@/i18n/routing'
 import { siteConfig } from '@/lib/site'
+import { SITE_URL, buildAlternates } from '@/lib/seo'
+import { buildSiteJsonLd } from '@/lib/structured-data'
 import { THEME_STORAGE_KEY } from '@/lib/theme'
 import { ThemeSync } from '@/components/theme-sync'
 import { PwaManager } from '@/components/site/pwa-manager'
+import { JsonLd } from '@/components/site/json-ld'
+import type { Locale } from '@/types/content'
 import '../globals.css'
 
 const geistSans = Geist({
@@ -49,6 +53,18 @@ export async function generateMetadata({
     generator: 'v0.app',
     manifest: '/manifest.webmanifest',
     /**
+     * `metadataBase` — resolved against `SITE_URL` (`lib/seo.ts`), which
+     * defaults to the interim Vercel URL while D-01 (production domain) is
+     * open. Every relative image/URL below (and in every page's own
+     * `generateMetadata`) now resolves to an absolute URL for crawlers
+     * instead of being silently left relative, which was this layout's
+     * previous state. Swap only needs `NEXT_PUBLIC_SITE_URL` set once the
+     * real domain is DNS-authenticated — no code change, same pattern as
+     * § 9.3's `EMAIL_PROVIDER` switch.
+     */
+    metadataBase: new URL(SITE_URL),
+    alternates: buildAlternates(locale, ''),
+    /**
      * Favicon: `/artaveo-icon.svg` (in `public/`, deliberately *not* named
      * `app/icon.svg`) already swaps light/dark via a `prefers-color-scheme`
      * media query inside the SVG itself. It lives outside `app/` because
@@ -73,12 +89,6 @@ export async function generateMetadata({
       ],
       apple: '/apple-icon.png',
     },
-    /**
-     * `metadataBase` is intentionally omitted — no production domain is
-     * registered yet (D-01 open, see lib/site.ts). Image paths below resolve
-     * relative to whatever host actually serves the site for now; set
-     * `metadataBase` once the domain lands so crawlers get absolute URLs.
-     */
     openGraph: {
       type: 'website',
       title,
@@ -161,6 +171,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="font-sans antialiased">
+        <JsonLd data={buildSiteJsonLd(locale as Locale)} />
         <ThemeSync />
         <NextIntlClientProvider>
           {children}

@@ -1,13 +1,17 @@
 import type { Metadata } from 'next'
-import { setRequestLocale } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 
 import { SiteShell } from '@/components/site/site-shell'
+import { JsonLd } from '@/components/site/json-ld'
+import { ViewTracker } from '@/components/site/view-tracker'
 import { ServiceDetail } from '@/components/services/service-detail'
 import { getProjectBySlug } from '@/lib/home-content'
 import { getAllServices, getServiceBySlug } from '@/lib/services-content'
 import { routing } from '@/i18n/routing'
-import { t } from '@/types/content'
+import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
+import { buildBreadcrumbJsonLd, buildFaqPageJsonLd, buildServiceJsonLd } from '@/lib/structured-data'
+import { t, type Locale } from '@/types/content'
 
 export function generateStaticParams() {
   const services = getAllServices()
@@ -26,9 +30,13 @@ export async function generateMetadata({
   if (!service) return {}
 
   const localeKey = locale === 'fa' ? 'fa' : 'en'
+  const title = t(service.title, localeKey)
+  const description = t(service.description, localeKey)
   return {
-    title: t(service.title, localeKey),
-    description: t(service.description, localeKey),
+    title,
+    description,
+    alternates: buildAlternates(locale, `/services/${slug}`),
+    ...buildPageOpenGraph({ locale, title, description }),
   }
 }
 
@@ -49,8 +57,24 @@ export default async function ServiceDetailPage({
     .map((projectSlug) => getProjectBySlug(projectSlug))
     .filter((project): project is NonNullable<typeof project> => Boolean(project))
 
+  const localeKey = locale as Locale
+  const tNav = await getTranslations('Nav')
+  const tServices = await getTranslations('ServicesIndex')
+
   return (
     <SiteShell>
+      <JsonLd data={buildServiceJsonLd(localeKey, service)} />
+      {service.faq && service.faq.length > 0 ? (
+        <JsonLd data={buildFaqPageJsonLd(localeKey, service.faq)} />
+      ) : null}
+      <JsonLd
+        data={buildBreadcrumbJsonLd(localeKey, [
+          { name: tNav('home'), path: '/' },
+          { name: tServices('title'), path: '/services' },
+          { name: t(service.title, localeKey), path: `/services/${service.slug}` },
+        ])}
+      />
+      <ViewTracker event="service_view" properties={{ slug: service.slug }} />
       <ServiceDetail service={service} relatedProjects={relatedProjects} />
     </SiteShell>
   )

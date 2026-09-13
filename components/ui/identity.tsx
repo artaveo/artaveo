@@ -1,3 +1,5 @@
+'use client'
+
 import { CircleCheck, CircleDashed, Clock } from 'lucide-react'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
@@ -5,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { Link as IntlLink } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/actions'
+import { trackEvent } from '@/lib/analytics'
 import { socialLinks } from '@/lib/site'
 import { t, type Availability, type DeveloperProfile, type Locale } from '@/types/content'
 import { cn } from '@/lib/utils'
@@ -231,7 +234,11 @@ function ExternalProfileLinks({
     <ul className={cn('flex flex-wrap items-center gap-x-5 gap-y-2', className)}>
       {links.map((link) => (
         <li key={link.href}>
-          <Link href={link.href} variant="standalone">
+          <Link
+            href={link.href}
+            variant="standalone"
+            onClick={() => trackEvent('external_profile_click', { label: link.label })}
+          >
             {link.label}
           </Link>
         </li>
@@ -284,6 +291,7 @@ function IdentityCta({
       variant={style.variant}
       size={size}
       className={className}
+      onClick={() => trackEvent('cta_click', { target: variant, href: href ?? identityCtaDefaultHref[variant] })}
       render={<IntlLink href={href ?? identityCtaDefaultHref[variant]} />}
     >
       {variant === 'hire' ? tCommon('startProject') : tCommon('bookConsultation')}

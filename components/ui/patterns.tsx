@@ -1,10 +1,9 @@
 import { ArrowRight, Check } from 'lucide-react'
 import type * as React from 'react'
 
-import { Link as IntlLink } from '@/i18n/navigation'
 import { Link } from '@/components/ui/actions'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { CtaButtons } from '@/components/ui/cta-buttons'
 import { cn } from '@/lib/utils'
 
 /** Tailwind needs each responsive-grid class spelled out literally to pick it up at build time. */
@@ -174,24 +173,13 @@ function CTASection({
               </p>
             ) : null}
             <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-              <Button
-                size="lg"
-                className="h-11 px-5 text-[0.95rem]"
-                render={<IntlLink href={primaryAction.href} />}
-              >
-                {primaryAction.label}
-                <ArrowRight data-icon="inline-end" aria-hidden="true" className="rtl:rotate-180" />
-              </Button>
-              {secondaryAction ? (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-11 px-5 text-[0.95rem]"
-                  render={<IntlLink href={secondaryAction.href} />}
-                >
-                  {secondaryAction.label}
-                </Button>
-              ) : null}
+              <CtaButtons
+                primaryHref={primaryAction.href}
+                primaryLabel={primaryAction.label}
+                secondaryHref={secondaryAction?.href}
+                secondaryLabel={secondaryAction?.label}
+                trackTarget="cta_section"
+              />
             </div>
           </div>
         </div>

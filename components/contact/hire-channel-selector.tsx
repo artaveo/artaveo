@@ -1,9 +1,12 @@
+'use client'
+
 import { Check } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 
 import { Link } from '@/components/ui/actions'
 import { Button } from '@/components/ui/button'
 import { Icon } from '@/components/icon'
+import { trackEvent } from '@/lib/analytics'
 import { t, type HireChannel, type Locale } from '@/types/content'
 
 /**
@@ -55,6 +58,12 @@ export function HireChannelSelector({ channels }: { channels: HireChannel[] }) {
           <Button
             className="mt-6 w-full justify-center"
             variant={channel.kind === 'direct' ? 'default' : 'outline'}
+            onClick={() => {
+              trackEvent('cta_click', { target: 'hire_channel', channel: channel.kind })
+              if (channel.kind === 'platform') {
+                trackEvent('external_profile_click', { label: channel.id })
+              }
+            }}
             render={<Link href={channel.href} showExternalIcon={channel.kind === 'platform'} />}
           >
             {t(channel.ctaLabel, locale)}

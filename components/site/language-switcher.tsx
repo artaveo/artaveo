@@ -6,6 +6,7 @@ import { useTransition } from 'react'
 
 import { usePathname, useRouter } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
+import { trackEvent } from '@/lib/analytics'
 import { cn } from '@/lib/utils'
 
 const langs: { code: (typeof routing.locales)[number]; label: string }[] = [
@@ -29,6 +30,7 @@ export function LanguageSwitcher() {
 
   function apply(nextLocale: (typeof routing.locales)[number]) {
     if (nextLocale === locale) return
+    trackEvent('language_switch', { from: locale, to: nextLocale })
     startTransition(() => {
       router.replace(
         // @ts-expect-error -- `params` is a generic Record here; next-intl

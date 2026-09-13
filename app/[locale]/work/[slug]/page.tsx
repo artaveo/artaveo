@@ -1,12 +1,16 @@
 import type { Metadata } from 'next'
-import { setRequestLocale } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 
 import { SiteShell } from '@/components/site/site-shell'
+import { JsonLd } from '@/components/site/json-ld'
+import { ViewTracker } from '@/components/site/view-tracker'
 import { CaseStudy } from '@/components/work/case-study'
 import { getAllProjects, getProjectBySlug } from '@/lib/home-content'
 import { routing } from '@/i18n/routing'
-import { t } from '@/types/content'
+import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
+import { buildBreadcrumbJsonLd, buildCreativeWorkJsonLd } from '@/lib/structured-data'
+import { t, type Locale } from '@/types/content'
 
 export function generateStaticParams() {
   const projects = getAllProjects()
@@ -25,9 +29,13 @@ export async function generateMetadata({
   if (!project) return {}
 
   const localeKey = locale === 'fa' ? 'fa' : 'en'
+  const title = t(project.title, localeKey)
+  const description = t(project.summary, localeKey)
   return {
-    title: t(project.title, localeKey),
-    description: t(project.summary, localeKey),
+    title,
+    description,
+    alternates: buildAlternates(locale, `/work/${slug}`),
+    ...buildPageOpenGraph({ locale, title, description, eyebrow: t(project.category, localeKey) }),
   }
 }
 
@@ -49,8 +57,21 @@ export default async function CaseStudyPage({
   const nextProject =
     projects.length > 1 ? projects[(currentIndex + 1) % projects.length] : undefined
 
+  const localeKey = locale as Locale
+  const tNav = await getTranslations('Nav')
+  const tWork = await getTranslations('Work')
+
   return (
     <SiteShell>
+      <JsonLd data={buildCreativeWorkJsonLd(localeKey, project)} />
+      <JsonLd
+        data={buildBreadcrumbJsonLd(localeKey, [
+          { name: tNav('home'), path: '/' },
+          { name: tWork('title'), path: '/work' },
+          { name: t(project.title, localeKey), path: `/work/${project.slug}` },
+        ])}
+      />
+      <ViewTracker event="project_view" properties={{ slug: project.slug }} />
       <CaseStudy project={project} nextProject={nextProject} />
     </SiteShell>
   )
