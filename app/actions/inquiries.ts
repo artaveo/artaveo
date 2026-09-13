@@ -5,6 +5,7 @@ import crypto from 'node:crypto'
 
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { validateAllSteps } from '@/lib/inquiry-validation'
+import { enqueueInquiryNotifications, processOutboxBatch } from '@/lib/notifications/outbox'
 import type { InquiryDraft, InquirySubmissionMeta, InquirySubmissionResult } from '@/types/inquiry'
 
 /**
@@ -167,6 +168,21 @@ export async function submitInquiry(
   })
   if (eventError) {
     console.error('inquiry_events insert failed (inquiry itself was saved):', eventError)
+  }
+
+  // 8. § 9.3 — Notifications: outbox pattern. Enqueue first (persisted
+  //    regardless of whether sending works), then make one best-effort
+  //    inline attempt so the common case sends immediately. Both steps
+  //    are best-effort: a failure here must never undo or mask the
+  //    successful inquiry insert above. The daily cron sweep
+  //    (app/api/cron/notifications) retries anything left pending/failed.
+  const outboxRows = await enqueueInquiryNotifications(supabase, inserted.id, draft)
+  if (outboxRows.length) {
+    try {
+      await processOutboxBatch(supabase, { ids: outboxRows.map((row) => row.id) })
+    } catch (notifyError) {
+      console.error('notification send attempt failed (inquiry itself was saved):', notifyError)
+    }
   }
 
   return { ok: true, id: inserted.id as string }

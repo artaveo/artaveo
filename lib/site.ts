@@ -3,7 +3,9 @@
  * `hello@artaveo.studio` placeholder removed in § 3.5). It is an interim
  * contact channel until a production domain is registered and D-01 is
  * fully resolved with a domain-backed address (SPF/DKIM/DMARC) for
- * Phase 9.4's automated notifications.
+ * § 9.3's automated notifications — it is also the current owner-alert
+ * recipient there (`lib/notifications/templates.ts`) while sending stays
+ * on the console provider.
  */
 export const siteConfig = {
   name: 'Artaveo',
