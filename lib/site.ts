@@ -95,7 +95,7 @@ export const legalNav: NavItem[] = [
 export const socialLinks = [
   { href: 'https://github.com/artaveo', label: 'GitHub' },
   { href: 'https://www.linkedin.com/in/artaveodevelops', label: 'LinkedIn' },
-  { href: 'https://www.fiverr.com/sellers/zakir_naseri', label: 'Fiverr' },
+  { href: 'https://www.fiverr.com/zakir_naseri', label: 'Fiverr' },
   { href: 'https://wa.me/93790685832', label: 'WhatsApp' },
 ]
 
