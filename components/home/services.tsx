@@ -1,14 +1,25 @@
-import { useLocale, useTranslations } from 'next-intl'
+import { getLocale, getTranslations } from 'next-intl/server'
 
 import { Icon } from '@/components/icon'
 import { SectionHeader } from '@/components/home/section-header'
 import { getAllServices } from '@/lib/services-content'
 import { t, type Locale } from '@/types/content'
 
+/**
+ * Bug fix (found on the first real production build — the sandbox never
+ * had network access to reach Supabase and hit static generation, so
+ * this never actually ran until now): `getAllServices()` became `async`
+ * in Phase 12.2, which makes this an async Server Component — and
+ * `useLocale`/`useTranslations` (the client-safe hooks from `next-intl`)
+ * throw inside an async component (`useLocale is not callable within an
+ * async component`, per next-intl's own docs). `getLocale`/
+ * `getTranslations` from `next-intl/server` are the async-safe
+ * equivalents; same calling convention, just awaited.
+ */
 export async function Services() {
   const services = await getAllServices()
-  const locale = useLocale() as Locale
-  const tSection = useTranslations('Services')
+  const locale = (await getLocale()) as Locale
+  const tSection = await getTranslations('Services')
 
   return (
     <section

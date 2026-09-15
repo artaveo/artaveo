@@ -1,5 +1,6 @@
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
-import { useLocale, useTranslations } from 'next-intl'
+import type { useTranslations } from 'next-intl'
+import { getLocale, getTranslations } from 'next-intl/server'
 import Image from 'next/image'
 
 import { Link } from '@/i18n/navigation'
@@ -12,11 +13,20 @@ import { getFeaturedProjects } from '@/lib/home-content-projects'
 import { cn } from '@/lib/utils'
 import { t, type Locale, type Project } from '@/types/content'
 
+/**
+ * Bug fix (found on the first real production build — see the matching
+ * note in `components/home/services.tsx`): `getFeaturedProjects()` is
+ * `async` since Phase 12.2, so this is an async Server Component, and
+ * the client-safe `useLocale`/`useTranslations` throw inside one.
+ * `getLocale`/`getTranslations` (`next-intl/server`) are the async-safe
+ * equivalents — `useTranslations` stays imported below only as a
+ * `type`, for `ProjectFeature`'s prop signatures.
+ */
 export async function FeaturedWork() {
   const projects = await getFeaturedProjects()
-  const locale = useLocale() as Locale
-  const tSection = useTranslations('FeaturedWork')
-  const tStatus = useTranslations('ProjectStatus')
+  const locale = (await getLocale()) as Locale
+  const tSection = await getTranslations('FeaturedWork')
+  const tStatus = await getTranslations('ProjectStatus')
 
   return (
     <section aria-labelledby="work-title" className="section-y">
