@@ -1104,14 +1104,45 @@ const engagementModelsData: EngagementModel[] = [
   ),
 ]
 
-export function getAllServices(): Service[] {
+/**
+ * Phase 12.2 (roadmap § 12): these three now read from Supabase — see
+ * `lib/supabase/content-queries.ts` — instead of `servicesData`/
+ * `engagementModelsData` above. The import into `content-queries.ts` is
+ * dynamic (`await import(...)`), not a static top-level import, for a
+ * concrete reason: `scripts/import-content-to-db.ts` loads this whole
+ * file directly via Node (`--experimental-strip-types`), which cannot
+ * resolve the `@/` path alias `content-queries.ts` would need — only
+ * Next's bundler resolves that alias. A static import would break the
+ * import script the moment this file loads, even though the script only
+ * ever calls `getAllServicesRaw()`/`getEngagementModelsRaw()` below, never
+ * these three. A dynamic import is only resolved when actually awaited,
+ * so it never runs for the import script's use of this file.
+ */
+
+export async function getAllServices(): Promise<Service[]> {
+  const { queryAllServices } = await import('@/lib/supabase/content-queries')
+  return queryAllServices()
+}
+
+export async function getServiceBySlug(slug: string): Promise<Service | undefined> {
+  const { queryServiceBySlug } = await import('@/lib/supabase/content-queries')
+  return queryServiceBySlug(slug)
+}
+
+export async function getEngagementModels(): Promise<EngagementModel[]> {
+  const { queryEngagementModels } = await import('@/lib/supabase/content-queries')
+  return queryEngagementModels()
+}
+
+/**
+ * The raw, file-based arrays — for `scripts/import-content-to-db.ts` only.
+ * Every page/component reads `getAllServices()`/`getServiceBySlug()`/
+ * `getEngagementModels()` above (now Supabase-backed), never these.
+ */
+export function getAllServicesRaw(): Service[] {
   return servicesData
 }
 
-export function getServiceBySlug(slug: string): Service | undefined {
-  return servicesData.find((service) => service.slug === slug)
-}
-
-export function getEngagementModels(): EngagementModel[] {
+export function getEngagementModelsRaw(): EngagementModel[] {
   return engagementModelsData
 }

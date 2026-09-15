@@ -36,8 +36,8 @@ export default async function ServicesPage({
 
   const t = await getTranslations('ServicesIndex')
   const tNav = await getTranslations('Nav')
-  const services = getAllServices()
-  const engagementModels = getEngagementModels()
+  const services = await getAllServices()
+  const engagementModels = await getEngagementModels()
 
   return (
     <SiteShell>

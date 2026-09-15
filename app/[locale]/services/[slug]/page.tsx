@@ -6,15 +6,15 @@ import { SiteShell } from '@/components/site/site-shell'
 import { JsonLd } from '@/components/site/json-ld'
 import { ViewTracker } from '@/components/site/view-tracker'
 import { ServiceDetail } from '@/components/services/service-detail'
-import { getProjectBySlug } from '@/lib/home-content'
+import { getProjectBySlug } from '@/lib/home-content-projects'
 import { getAllServices, getServiceBySlug } from '@/lib/services-content'
 import { routing } from '@/i18n/routing'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
 import { buildBreadcrumbJsonLd, buildFaqPageJsonLd, buildServiceJsonLd } from '@/lib/structured-data'
 import { t, type Locale } from '@/types/content'
 
-export function generateStaticParams() {
-  const services = getAllServices()
+export async function generateStaticParams() {
+  const services = await getAllServices()
   return routing.locales.flatMap((locale) =>
     services.map((service) => ({ locale, slug: service.slug })),
   )
@@ -26,7 +26,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>
 }): Promise<Metadata> {
   const { locale, slug } = await params
-  const service = getServiceBySlug(slug)
+  const service = await getServiceBySlug(slug)
   if (!service) return {}
 
   const localeKey = locale === 'fa' ? 'fa' : 'en'
@@ -48,14 +48,14 @@ export default async function ServiceDetailPage({
   const { locale, slug } = await params
   setRequestLocale(locale)
 
-  const service = getServiceBySlug(slug)
+  const service = await getServiceBySlug(slug)
   if (!service) {
     notFound()
   }
 
-  const relatedProjects = (service.relatedProjectSlugs ?? [])
-    .map((projectSlug) => getProjectBySlug(projectSlug))
-    .filter((project): project is NonNullable<typeof project> => Boolean(project))
+  const relatedProjects = (
+    await Promise.all((service.relatedProjectSlugs ?? []).map((projectSlug) => getProjectBySlug(projectSlug)))
+  ).filter((project): project is NonNullable<typeof project> => Boolean(project))
 
   const localeKey = locale as Locale
   const tNav = await getTranslations('Nav')

@@ -21,7 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { getAllServices, getEngagementModels } from '@/lib/services-content'
+import { t, type Locale, type EngagementModel, type Service } from '@/types/content'
+import type { InquiryDraft } from '@/types/inquiry'
 import {
   budgetBandOptions,
   featureTagOptions,
@@ -29,8 +30,6 @@ import {
   projectTypeOptions,
   timelineOptions,
 } from '@/lib/inquiry-content'
-import { t, type Locale } from '@/types/content'
-import type { InquiryDraft } from '@/types/inquiry'
 import type { StepErrors } from '@/lib/inquiry-validation'
 import { X } from 'lucide-react'
 
@@ -58,10 +57,14 @@ function useFieldError() {
  * Step 1 — Service & engagement model
  * ---------------------------------------------------------------------- */
 
-export function ServiceStep({ draft, locale, onChange }: StepProps) {
+export function ServiceStep({
+  draft,
+  locale,
+  onChange,
+  services,
+  engagementModels,
+}: StepProps & { services: Service[]; engagementModels: EngagementModel[] }) {
   const t18n = useTranslations('BriefBuilder')
-  const services = getAllServices()
-  const engagementModels = getEngagementModels()
 
   return (
     <div className="flex flex-col gap-6">

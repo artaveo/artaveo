@@ -5,8 +5,8 @@ import { SectionHeader } from '@/components/home/section-header'
 import { getAllServices } from '@/lib/services-content'
 import { t, type Locale } from '@/types/content'
 
-export function Services() {
-  const services = getAllServices()
+export async function Services() {
+  const services = await getAllServices()
   const locale = useLocale() as Locale
   const tSection = useTranslations('Services')
 

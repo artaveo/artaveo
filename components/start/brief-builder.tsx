@@ -19,7 +19,7 @@ import { dataSteps, validateStep, type StepErrors } from '@/lib/inquiry-validati
 import { buildInquiryMailtoHref } from '@/lib/inquiry-summary'
 import { clearQueuedInquiry, readQueuedInquiry, writeQueuedInquiry } from '@/lib/inquiry-offline-queue'
 import { trackEvent } from '@/lib/analytics'
-import { type Locale } from '@/types/content'
+import { type Locale, type EngagementModel, type Service } from '@/types/content'
 import { ContactStep, LinksStep, ProjectStep, ScopeStep, ServiceStep, TimelineStep } from '@/components/start/steps'
 import { ReviewStep } from '@/components/start/review'
 import { submitInquiry } from '@/app/actions/inquiries'
@@ -46,9 +46,13 @@ function randomId(): string {
 }
 
 export function BriefBuilder({
+  services,
+  engagementModels,
   initialServiceSlug,
   initialPackageId,
 }: {
+  services: Service[]
+  engagementModels: EngagementModel[]
   initialServiceSlug?: string
   initialPackageId?: string
 }) {
@@ -394,7 +398,10 @@ export function BriefBuilder({
         <ErrorState
           title={isNotConfigured ? t18n('notLiveTitle') : t18n('genericErrorTitle')}
           description={isNotConfigured ? t18n('notLiveDescription') : t18n('genericErrorDescription')}
-          action={{ label: t18n('emailInstead'), href: buildInquiryMailtoHref(draft, locale) }}
+          action={{
+            label: t18n('emailInstead'),
+            href: buildInquiryMailtoHref(draft, locale, services, engagementModels),
+          }}
         />
         <div className="mt-4 flex justify-center">
           <Button type="button" variant="ghost" size="sm" onClick={resetToEditing}>
@@ -467,13 +474,15 @@ export function BriefBuilder({
           {stepLabels[currentStep]}
         </h2>
 
-        {currentStep === 'service' ? <ServiceStep {...stepProps} /> : null}
+        {currentStep === 'service' ? <ServiceStep {...stepProps} services={services} engagementModels={engagementModels} /> : null}
         {currentStep === 'project' ? <ProjectStep {...stepProps} /> : null}
         {currentStep === 'scope' ? <ScopeStep {...stepProps} /> : null}
         {currentStep === 'timeline' ? <TimelineStep {...stepProps} /> : null}
         {currentStep === 'links' ? <LinksStep {...stepProps} /> : null}
         {currentStep === 'contact' ? <ContactStep {...stepProps} /> : null}
-        {isReview ? <ReviewStep draft={draft} locale={locale} /> : null}
+        {isReview ? (
+          <ReviewStep draft={draft} locale={locale} services={services} engagementModels={engagementModels} />
+        ) : null}
 
         {isSubmitting ? (
           <FormMessage variant="info" className="mt-6">

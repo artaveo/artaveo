@@ -1,4 +1,4 @@
-import type { Locale } from '@/types/content'
+import type { EngagementModel, Locale, Service } from '@/types/content'
 import type { InquiryDraft } from '@/types/inquiry'
 import { buildInquirySummaryText } from '@/lib/inquiry-summary'
 import { siteConfig } from '@/lib/site'
@@ -15,12 +15,14 @@ import { siteConfig } from '@/lib/site'
 export function buildOwnerAlertEmail(
   draft: InquiryDraft,
   inquiryId: string,
+  services: Service[],
+  engagementModels: EngagementModel[],
 ): { subject: string; text: string } {
   const subject = `New inquiry — ${draft.name.trim() || 'unnamed'}`
   const text = [
     `A new project brief was submitted via ${siteConfig.name}'s Start a Project flow.`,
     '',
-    buildInquirySummaryText(draft, 'en'),
+    buildInquirySummaryText(draft, 'en', services, engagementModels),
     '',
     `Inquiry ID: ${inquiryId}`,
   ].join('\n')
@@ -35,6 +37,8 @@ function responseCommitment(locale: Locale): string {
 export function buildClientConfirmationEmail(
   draft: InquiryDraft,
   locale: Locale,
+  services: Service[],
+  engagementModels: EngagementModel[],
 ): { subject: string; text: string } {
   const subject =
     locale === 'fa' ? 'بریف پروژه‌ی شما دریافت شد — آرتاویو' : 'Your project brief was received — Artaveo'
@@ -49,6 +53,6 @@ export function buildClientConfirmationEmail(
       ? 'اگر نیاز به اصلاح یا افزودن چیزی دارید، کافی‌ست به همین ایمیل پاسخ دهید.'
       : 'If you need to correct or add anything, just reply to this email.'
 
-  const text = [intro, '', buildInquirySummaryText(draft, locale), '', outro].join('\n')
+  const text = [intro, '', buildInquirySummaryText(draft, locale, services, engagementModels), '', outro].join('\n')
   return { subject, text }
 }

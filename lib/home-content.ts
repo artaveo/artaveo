@@ -526,20 +526,25 @@ export function getCapabilities(): Capability[] {
   return capabilitiesData
 }
 
-export function getFeaturedProjects(): Project[] {
-  return featuredProjectsData.filter((project) => project.featured && project.published)
-}
+/**
+ * Phase 12.2 (roadmap § 12): the project selectors — `getFeaturedProjects`,
+ * `getAllProjects`, `getProjectBySlug` — moved to `./home-content-projects`
+ * and now read from Supabase instead of `featuredProjectsData` below. They
+ * are not re-exported from here because that file imports `server-only`
+ * (via `lib/supabase/content-queries.ts`) — this file (`home-content.ts`)
+ * is still imported by a genuine Client Component (`site-shell.tsx`, for
+ * `getDeveloperProfile()`), and a `server-only` import anywhere in this
+ * file's module graph would break that component's build. Import the
+ * project selectors from `@/lib/home-content-projects` directly.
+ */
 
-/** Every published project, featured-first — backs `/work` (§ 6.1). */
-export function getAllProjects(): Project[] {
+/**
+ * The raw, file-based project array — for `scripts/import-content-to-db.ts`
+ * only. Every page/component reads the Supabase-backed selectors in
+ * `@/lib/home-content-projects`, never this.
+ */
+export function getAllProjectsRaw(): Project[] {
   return featuredProjectsData
-    .filter((project) => project.published)
-    .sort((a, b) => Number(b.featured) - Number(a.featured))
-}
-
-/** A single published project by slug, or `undefined` — backs `/work/[slug]` (§ 6.1). */
-export function getProjectBySlug(slug: string): Project | undefined {
-  return featuredProjectsData.find((project) => project.slug === slug && project.published)
 }
 
 export function getWorkflowStages(): LocalizedText[] {

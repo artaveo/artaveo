@@ -1,6 +1,5 @@
-import { t, type Locale } from '@/types/content'
+import { t, type Locale, type EngagementModel, type Service } from '@/types/content'
 import type { InquiryDraft } from '@/types/inquiry'
-import { getAllServices, getEngagementModels } from '@/lib/services-content'
 import {
   budgetBandOptions,
   featureTagOptions,
@@ -14,15 +13,26 @@ import { siteConfig } from '@/lib/site'
  * Turns the draft into the same plain-text summary the Brief Summary step
  * shows and the honest mailto fallback sends (`brief-builder.tsx`) — one
  * function, one source of truth, so the two never drift apart.
+ *
+ * `services`/`engagementModels` are passed in rather than fetched here
+ * (Phase 12.2, roadmap § 12): this function is called both from a Client
+ * Component during render (`review.tsx`, which can't await Supabase) and
+ * from server-side email-template code (`lib/notifications/templates.ts`,
+ * already async) — a plain, synchronous function taking the data as
+ * parameters works for both, where importing the now-async
+ * `getAllServices()`/`getEngagementModels()` selectors here would not.
  */
-export function buildInquirySummaryLines(draft: InquiryDraft, locale: Locale): { label: string; value: string }[] {
+export function buildInquirySummaryLines(
+  draft: InquiryDraft,
+  locale: Locale,
+  services: Service[],
+  engagementModels: EngagementModel[],
+): { label: string; value: string }[] {
   const lines: { label: string; value: string }[] = []
 
-  const service = draft.serviceSlug
-    ? getAllServices().find((s) => s.slug === draft.serviceSlug)
-    : undefined
+  const service = draft.serviceSlug ? services.find((s) => s.slug === draft.serviceSlug) : undefined
   const engagementModel = draft.engagementModelId
-    ? getEngagementModels().find((m) => m.id === draft.engagementModelId)
+    ? engagementModels.find((m) => m.id === draft.engagementModelId)
     : undefined
 
   if (service) {
@@ -92,8 +102,13 @@ export function buildInquirySummaryLines(draft: InquiryDraft, locale: Locale): {
   return lines
 }
 
-export function buildInquirySummaryText(draft: InquiryDraft, locale: Locale): string {
-  return buildInquirySummaryLines(draft, locale)
+export function buildInquirySummaryText(
+  draft: InquiryDraft,
+  locale: Locale,
+  services: Service[],
+  engagementModels: EngagementModel[],
+): string {
+  return buildInquirySummaryLines(draft, locale, services, engagementModels)
     .map((line) => `${line.label}: ${line.value}`)
     .join('\n')
 }
@@ -104,8 +119,13 @@ export function buildInquirySummaryText(draft: InquiryDraft, locale: Locale): st
  * full brief pre-filled, addressed to the same real inbox
  * `lib/site.ts#siteConfig.email` already uses everywhere else on the site.
  */
-export function buildInquiryMailtoHref(draft: InquiryDraft, locale: Locale): string {
+export function buildInquiryMailtoHref(
+  draft: InquiryDraft,
+  locale: Locale,
+  services: Service[],
+  engagementModels: EngagementModel[],
+): string {
   const subject = locale === 'fa' ? 'بریف پروژه از طریق آرتاویو' : 'Project brief from Artaveo'
-  const body = buildInquirySummaryText(draft, locale)
+  const body = buildInquirySummaryText(draft, locale, services, engagementModels)
   return `mailto:${siteConfig.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }

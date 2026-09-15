@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-import { getAllProjects } from '@/lib/home-content'
+import { getAllProjects } from '@/lib/home-content-projects'
 import { getAllServices } from '@/lib/services-content'
 import { routing } from '@/i18n/routing'
 import { absoluteUrl } from '@/lib/seo'
@@ -35,7 +35,7 @@ function languageAlternates(path: string): Record<string, string> {
   return languages
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date()
   const entries: MetadataRoute.Sitemap = []
 
@@ -51,7 +51,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  for (const project of getAllProjects()) {
+  for (const project of await getAllProjects()) {
     const path = `/work/${project.slug}`
     for (const locale of routing.locales) {
       entries.push({
@@ -64,7 +64,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  for (const service of getAllServices()) {
+  for (const service of await getAllServices()) {
     const path = `/services/${service.slug}`
     for (const locale of routing.locales) {
       entries.push({

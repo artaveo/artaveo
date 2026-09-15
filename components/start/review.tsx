@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 
 import { buildInquirySummaryLines } from '@/lib/inquiry-summary'
-import type { Locale } from '@/types/content'
+import type { EngagementModel, Locale, Service } from '@/types/content'
 import type { InquiryDraft } from '@/types/inquiry'
 
 /**
@@ -12,9 +12,19 @@ import type { InquiryDraft } from '@/types/inquiry'
  * used on every other step) returns here to Contact to fix an answer, so
  * this step doesn't need a second, redundant edit affordance.
  */
-export function ReviewStep({ draft, locale }: { draft: InquiryDraft; locale: Locale }) {
+export function ReviewStep({
+  draft,
+  locale,
+  services,
+  engagementModels,
+}: {
+  draft: InquiryDraft
+  locale: Locale
+  services: Service[]
+  engagementModels: EngagementModel[]
+}) {
   const t18n = useTranslations('BriefBuilder')
-  const lines = buildInquirySummaryLines(draft, locale)
+  const lines = buildInquirySummaryLines(draft, locale, services, engagementModels)
 
   return (
     <div className="flex flex-col gap-6">

@@ -6,6 +6,7 @@ import type { InquiryDraft } from '@/types/inquiry'
 import { siteConfig } from '@/lib/site'
 import { getEmailProvider } from '@/lib/notifications/provider'
 import { buildClientConfirmationEmail, buildOwnerAlertEmail } from '@/lib/notifications/templates'
+import { getAllServices, getEngagementModels } from '@/lib/services-content'
 
 /**
  * § 9.3 — Notifications: outbox pattern ("persist first, send after").
@@ -50,8 +51,12 @@ export async function enqueueInquiryNotifications(
   inquiryId: string,
   draft: InquiryDraft,
 ): Promise<{ id: string }[]> {
-  const owner = buildOwnerAlertEmail(draft, inquiryId)
-  const client = buildClientConfirmationEmail(draft, draft.preferredLocale)
+  // Phase 12.2 (roadmap § 12): services/engagement models are now
+  // Supabase-backed — fetched here rather than threaded as parameters,
+  // since this function is already server-only and async.
+  const [services, engagementModels] = await Promise.all([getAllServices(), getEngagementModels()])
+  const owner = buildOwnerAlertEmail(draft, inquiryId, services, engagementModels)
+  const client = buildClientConfirmationEmail(draft, draft.preferredLocale, services, engagementModels)
 
   const { data, error } = await supabase
     .from('notification_outbox')

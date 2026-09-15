@@ -6,14 +6,14 @@ import { SiteShell } from '@/components/site/site-shell'
 import { JsonLd } from '@/components/site/json-ld'
 import { ViewTracker } from '@/components/site/view-tracker'
 import { CaseStudy } from '@/components/work/case-study'
-import { getAllProjects, getProjectBySlug } from '@/lib/home-content'
+import { getAllProjects, getProjectBySlug } from '@/lib/home-content-projects'
 import { routing } from '@/i18n/routing'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
 import { buildBreadcrumbJsonLd, buildCreativeWorkJsonLd } from '@/lib/structured-data'
 import { t, type Locale } from '@/types/content'
 
-export function generateStaticParams() {
-  const projects = getAllProjects()
+export async function generateStaticParams() {
+  const projects = await getAllProjects()
   return routing.locales.flatMap((locale) =>
     projects.map((project) => ({ locale, slug: project.slug })),
   )
@@ -25,7 +25,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>
 }): Promise<Metadata> {
   const { locale, slug } = await params
-  const project = getProjectBySlug(slug)
+  const project = await getProjectBySlug(slug)
   if (!project) return {}
 
   const localeKey = locale === 'fa' ? 'fa' : 'en'
@@ -47,12 +47,12 @@ export default async function CaseStudyPage({
   const { locale, slug } = await params
   setRequestLocale(locale)
 
-  const project = getProjectBySlug(slug)
+  const project = await getProjectBySlug(slug)
   if (!project) {
     notFound()
   }
 
-  const projects = getAllProjects()
+  const projects = await getAllProjects()
   const currentIndex = projects.findIndex((item) => item.slug === project.slug)
   const nextProject =
     projects.length > 1 ? projects[(currentIndex + 1) % projects.length] : undefined

@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteShell } from '@/components/site/site-shell'
 import { JsonLd } from '@/components/site/json-ld'
 import { StartContent } from '@/components/start/start-content'
-import { getServiceBySlug } from '@/lib/services-content'
+import { getAllServices, getEngagementModels } from '@/lib/services-content'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
 import { buildBreadcrumbJsonLd } from '@/lib/structured-data'
 import type { Locale } from '@/types/content'
@@ -45,11 +45,13 @@ export default async function StartPage({
   const serviceSlug = firstValue(query.service)
   const packageId = firstValue(query.package)
 
+  const [services, engagementModels] = await Promise.all([getAllServices(), getEngagementModels()])
+
   // Only prefill from a real, existing service — an unrecognised
   // `?service=` value (typo, stale link) is silently ignored rather than
   // shown as a broken selection (same "empty means hidden" honesty rule
   // the rest of the site follows for unknown/missing data).
-  const initialServiceSlug = serviceSlug && getServiceBySlug(serviceSlug) ? serviceSlug : undefined
+  const initialServiceSlug = serviceSlug && services.some((s) => s.slug === serviceSlug) ? serviceSlug : undefined
   const initialPackageId = initialServiceSlug ? packageId : undefined
 
   const t = await getTranslations('StartPage')
@@ -63,7 +65,12 @@ export default async function StartPage({
           { name: t('metaTitle'), path: '/start' },
         ])}
       />
-      <StartContent initialServiceSlug={initialServiceSlug} initialPackageId={initialPackageId} />
+      <StartContent
+        services={services}
+        engagementModels={engagementModels}
+        initialServiceSlug={initialServiceSlug}
+        initialPackageId={initialPackageId}
+      />
     </SiteShell>
   )
 }

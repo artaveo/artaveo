@@ -5,7 +5,7 @@ import { SiteShell } from '@/components/site/site-shell'
 import { JsonLd } from '@/components/site/json-ld'
 import { PageHeader } from '@/components/ui/patterns'
 import { WorkGrid } from '@/components/work/work-grid'
-import { getAllProjects } from '@/lib/home-content'
+import { getAllProjects } from '@/lib/home-content-projects'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
 import { buildBreadcrumbJsonLd } from '@/lib/structured-data'
 import type { Locale } from '@/types/content'
@@ -35,7 +35,7 @@ export default async function WorkPage({
 
   const t = await getTranslations('Work')
   const tNav = await getTranslations('Nav')
-  const projects = getAllProjects()
+  const projects = await getAllProjects()
 
   return (
     <SiteShell>

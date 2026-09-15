@@ -8,12 +8,12 @@ import { LatinTerm } from '@/components/site/latin-term'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/tag'
-import { getFeaturedProjects } from '@/lib/home-content'
+import { getFeaturedProjects } from '@/lib/home-content-projects'
 import { cn } from '@/lib/utils'
 import { t, type Locale, type Project } from '@/types/content'
 
-export function FeaturedWork() {
-  const projects = getFeaturedProjects()
+export async function FeaturedWork() {
+  const projects = await getFeaturedProjects()
   const locale = useLocale() as Locale
   const tSection = useTranslations('FeaturedWork')
   const tStatus = useTranslations('ProjectStatus')
