@@ -7,8 +7,26 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  /**
+   * § 11.3 — "images sized and modern formats". This used to be
+   * `{ unoptimized: true }`, which disables Next's Image Optimization API
+   * entirely: every `next/image` in the app already passes correct `fill`
+   * + `sizes` (verified across `identity.tsx`, `case-study.tsx`,
+   * `project-card.tsx`, `featured-work.tsx`, `about-preview.tsx`), so the
+   * responsive-sizing half of this requirement was already done — but with
+   * optimization off, the browser still received the original PNG at its
+   * original ~480–750 KB (the `work-*.png` case-study covers), just scaled
+   * down by CSS instead of actually being smaller. Vercel's own hosting
+   * runs the optimizer at the edge with no extra setup (no `sharp`
+   * install needed, unlike self-hosting), so this has no deployment cost
+   * on the target platform. `next build` doesn't exercise this path
+   * itself — optimization happens at request time — so the smaller
+   * payload and AVIF/WebP negotiation are confirmed by config here and
+   * still need a live-deployment check (real `Content-Type`/size on the
+   * deployed image endpoint), same caveat as § 11.1's OG image previews.
+   */
   images: {
-    unoptimized: true,
+    formats: ['image/avif', 'image/webp'],
   },
   /**
    * § 10.1 — `/sw.js` must never be served from a cache. Browsers already

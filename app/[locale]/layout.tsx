@@ -160,12 +160,30 @@ export default async function RootLayout({
 
   const dir = locale === 'fa' ? 'rtl' : 'ltr'
 
+  /**
+   * § 11.3 — fonts subset and preloaded carefully. `--font-vazirmatn` only
+   * ever gets read inside a `[dir='rtl']` rule (`app/globals.css`), so on
+   * `en` pages the variable is dead weight: Next.js preloads a font the
+   * moment its `.variable` class is present in the rendered `<html>`,
+   * regardless of whether any visible text actually resolves to it. Gating
+   * it on `dir` keeps English requests from spending preload priority
+   * (competing with the hero image / LCP element) on a font family they
+   * never paint a single glyph with. Geist Sans/Mono stay unconditional —
+   * both are genuinely used on every locale (Latin fallback in the
+   * `font-persian` stack, and `font-mono` eyebrows/labels which render in
+   * both directions per the letter-spacing reset above).
+   */
+  const fontVariables =
+    dir === 'rtl'
+      ? `${geistSans.variable} ${geistMono.variable} ${vazirmatn.variable}`
+      : `${geistSans.variable} ${geistMono.variable}`
+
   return (
     <html
       lang={locale}
       dir={dir}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${vazirmatn.variable} bg-background`}
+      className={`${fontVariables} bg-background`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />

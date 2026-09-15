@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from '@/i18n/navigation'
 import { Kbd } from '@/components/ui/actions'
 import { visibleCommandItems, type CommandGroup } from '@/lib/site'
+import { useFocusTrap } from '@/lib/use-focus-trap'
 import { cn } from '@/lib/utils'
 
 export function CommandPalette({
@@ -23,6 +24,7 @@ export function CommandPalette({
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   const groupLabel: Record<CommandGroup, string> = {
     navigate: t('groupNavigate'),
@@ -60,8 +62,6 @@ export function CommandPalette({
     if (open) {
       setQuery('')
       setActive(0)
-      const id = requestAnimationFrame(() => inputRef.current?.focus())
-      return () => cancelAnimationFrame(id)
     }
   }, [open])
 
@@ -73,6 +73,16 @@ export function CommandPalette({
       document.body.style.overflow = original
     }
   }, [open])
+
+  // Tab-trap, initial focus on the search input, and focus restoration to
+  // whatever opened the palette (the header's search button, or nothing —
+  // ⌘K has no trigger element — on close. Also the actual Escape handler:
+  // previously the "ESC" hint below was purely decorative, since the only
+  // key handling lived in `onKeyDown` on the popup and never checked for it.
+  useFocusTrap(open, panelRef, {
+    initialFocusRef: inputRef,
+    onEscape: () => onOpenChange(false),
+  })
 
   const select = useCallback(
     (href: string) => {
@@ -118,6 +128,7 @@ export function CommandPalette({
         onClick={() => onOpenChange(false)}
       />
       <div
+        ref={panelRef}
         className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-lg animate-in fade-in zoom-in-95 slide-in-from-top-2 duration-150"
         onKeyDown={onKeyDown}
       >

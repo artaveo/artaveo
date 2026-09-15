@@ -18,6 +18,12 @@ import { cn } from '@/lib/utils'
  * owner edits one object, not six. Every field here is optional-safe: a
  * missing portrait, name, or availability degrades gracefully instead of
  * breaking layout — none of it should ever be invented client-side.
+ *
+ * § 11.3 contrast fix: the timezone and "updated at" labels below used to
+ * sit at `text-muted-foreground/70` — measured at 3.04:1 against the light
+ * background (WCAG AA needs 4.5:1 for text this small). Dropped to plain
+ * `text-muted-foreground` (5.74:1 light / 7.29:1 dark), same token every
+ * other secondary label in the app already uses at full opacity.
  */
 
 /* -------------------------------------------------------------------------
@@ -88,7 +94,7 @@ function IdentityHeader({
           {title}
         </p>
         {profile.timezone ? (
-          <p className="mt-0.5 font-mono text-[0.7rem] tracking-wide text-muted-foreground/70 uppercase">
+          <p className="mt-0.5 font-mono text-[0.7rem] tracking-wide text-muted-foreground uppercase">
             {profile.timezone}
           </p>
         ) : null}
@@ -209,7 +215,7 @@ function AvailabilityCard({
         locale={locale}
         className="mt-2"
       />
-      <p className="mt-3 font-mono text-[0.7rem] tracking-wide text-muted-foreground/70 uppercase">
+      <p className="mt-3 font-mono text-[0.7rem] tracking-wide text-muted-foreground uppercase">
         {t('updatedLabel')} {formatUpdatedAt(availability.updatedAt, locale)}
       </p>
     </div>

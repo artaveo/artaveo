@@ -2,13 +2,14 @@
 
 import { ArrowRight, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { Link, usePathname } from '@/i18n/navigation'
 import { LanguageSwitcher } from '@/components/site/language-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { siteConfig, utilityNav, visibleMainNav } from '@/lib/site'
+import { useFocusTrap } from '@/lib/use-focus-trap'
 import { cn } from '@/lib/utils'
 
 /**
@@ -30,20 +31,22 @@ export function MobileNav({
   const pathname = usePathname()
   const tNav = useTranslations('Nav')
   const tCommon = useTranslations('Common')
+  const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!open) return
     const original = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', onKey)
     return () => {
       document.body.style.overflow = original
-      window.removeEventListener('keydown', onKey)
     }
-  }, [open, onClose])
+  }, [open])
+
+  // Tab-trap, initial focus (first focusable in the panel — the close
+  // button, since it renders before the nav links) and focus restoration
+  // to whatever opened the menu. Escape is wired here too, replacing the
+  // separate `window` listener this used to carry.
+  useFocusTrap(open, panelRef, { onEscape: onClose })
 
   if (!open) return null
 
@@ -55,7 +58,10 @@ export function MobileNav({
         className="fixed inset-0 bg-overlay backdrop-blur-sm animate-in fade-in"
         onClick={onClose}
       />
-      <div className="fixed inset-y-0 end-0 flex w-[min(20rem,85vw)] flex-col border-s border-border bg-background shadow-lg animate-in slide-in-from-right duration-200">
+      <div
+        ref={panelRef}
+        className="fixed inset-y-0 end-0 flex w-[min(20rem,85vw)] flex-col border-s border-border bg-background shadow-lg animate-in slide-in-from-right duration-200"
+      >
         <div className="flex h-16 items-center justify-between border-b border-border px-5">
           <span dir="ltr" className="font-mono text-sm font-semibold tracking-[0.2em]">
             ARTAVEO
