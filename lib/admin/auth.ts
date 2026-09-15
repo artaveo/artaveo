@@ -82,3 +82,15 @@ export function mfaSatisfied(session: AdminSession): boolean {
 export function mfaDestination(session: AdminSession): 'mfa-challenge' | 'security' {
   return session.aal.next === 'aal2' ? 'mfa-challenge' : 'security'
 }
+
+/**
+ * Roadmap § 13's own role definition: "roles: `owner`, `editor` (content
+ * only, no leads)". Unlike every other admin area, the Lead Pipeline
+ * (§ 14) is owner-only — editors get everything else Phase 15 onward
+ * adds, but never `/admin/leads`. Every leads page and every pipeline
+ * Server Action calls this itself, same "never trust a single gate"
+ * pattern `getAdminSession` callers already follow.
+ */
+export function canAccessLeads(session: AdminSession): boolean {
+  return session.role === 'owner'
+}

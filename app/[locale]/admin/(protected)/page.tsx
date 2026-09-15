@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { FormMessage } from '@/components/ui/form-controls'
-import { getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
+import { canAccessLeads, getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
 
 export async function generateMetadata({
   params,
@@ -71,6 +71,17 @@ export default async function AdminDashboardPage({
           </div>
         </CardContent>
       </Card>
+
+      {canAccessLeads(session) ? (
+        <Card>
+          <CardContent className="flex items-center justify-between gap-4 pt-6">
+            <span className="text-sm font-medium">{t('leadsNavLink')}</span>
+            <Link href="/admin/leads" className="text-sm text-primary underline-offset-4 hover:underline">
+              {t('leadsDashboardLink')}
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <FormMessage variant="info">{t('comingSoonNotice')}</FormMessage>
     </div>

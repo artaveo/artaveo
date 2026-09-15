@@ -1,9 +1,10 @@
 import { getTranslations } from 'next-intl/server'
 
 import { adminSignOut } from '@/app/actions/admin-auth'
+import { Link } from '@/i18n/navigation'
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { Button } from '@/components/ui/button'
-import type { AdminSession } from '@/lib/admin/auth'
+import { canAccessLeads, type AdminSession } from '@/lib/admin/auth'
 
 export async function AdminChrome({
   session,
@@ -20,9 +21,20 @@ export async function AdminChrome({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="flex items-center justify-between gap-4 border-b border-border px-4 py-3 sm:px-6">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <ArtaveoMark className="h-5 w-auto text-foreground" />
           <span className="text-sm font-medium text-muted-foreground">{t('dashboardEyebrow')}</span>
+          {/* § 13's own role definition: leads are owner-only ("editor: content only, no leads") — editors never see this link. */}
+          {canAccessLeads(session) ? (
+            <nav className="flex items-center gap-3">
+              <Link
+                href="/admin/leads"
+                className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                {t('leadsNavLink')}
+              </Link>
+            </nav>
+          ) : null}
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden text-sm text-muted-foreground sm:inline">{session.email}</span>
