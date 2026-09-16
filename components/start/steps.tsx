@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 
 import {
@@ -31,6 +32,7 @@ import {
   timelineOptions,
 } from '@/lib/inquiry-content'
 import type { StepErrors } from '@/lib/inquiry-validation'
+import { removeInquiryAttachment, uploadInquiryAttachment } from '@/app/actions/inquiry-attachments'
 import { X } from 'lucide-react'
 
 type StepProps = {
@@ -333,6 +335,10 @@ export function TimelineStep({ draft, errors, locale, onChange }: StepProps) {
 export function LinksStep({ draft, errors, onChange }: StepProps) {
   const t18n = useTranslations('BriefBuilder')
   const fieldError = useFieldError()
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [fileNames, setFileNames] = useState<Record<string, string>>({})
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function updateLink(id: string, url: string) {
     onChange({ links: draft.links.map((link) => (link.id === id ? { ...link, url } : link)) })
@@ -344,6 +350,43 @@ export function LinksStep({ draft, errors, onChange }: StepProps) {
 
   function removeLink(id: string) {
     onChange({ links: draft.links.filter((link) => link.id !== id) })
+  }
+
+  async function handleFileSelected(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    if (draft.attachmentMediaIds.length >= 3) {
+      setUploadError(t18n('attachmentLimitReached'))
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      return
+    }
+
+    setUploading(true)
+    setUploadError(null)
+    const formData = new FormData()
+    formData.set('file', file)
+    const result = await uploadInquiryAttachment(formData)
+    if (!result.ok) {
+      const messages: Record<string, string> = {
+        'invalid-type': t18n('attachmentInvalidType'),
+        'too-large': t18n('attachmentTooLarge'),
+        rejected: t18n('attachmentRejected'),
+      }
+      setUploadError(messages[result.code] ?? t18n('attachmentUploadFailed'))
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      return
+    }
+
+    setFileNames((current) => ({ ...current, [result.mediaId]: result.fileName }))
+    onChange({ attachmentMediaIds: [...draft.attachmentMediaIds, result.mediaId] })
+    setUploading(false)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  async function handleRemoveAttachment(mediaId: string) {
+    onChange({ attachmentMediaIds: draft.attachmentMediaIds.filter((id) => id !== mediaId) })
+    await removeInquiryAttachment(mediaId)
   }
 
   return (
@@ -384,6 +427,37 @@ export function LinksStep({ draft, errors, onChange }: StepProps) {
         <Button type="button" variant="outline" size="sm" className="self-start" onClick={addLink}>
           {t18n('addLink')}
         </Button>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <FieldLabel>{t18n('attachmentsLabel')}</FieldLabel>
+        <FieldDescription>{t18n('attachmentsDescription')}</FieldDescription>
+
+        {draft.attachmentMediaIds.length > 0 ? (
+          <ul className="flex flex-col gap-1.5">
+            {draft.attachmentMediaIds.map((mediaId) => (
+              <li key={mediaId} className="flex items-center justify-between gap-2 rounded-md border border-border px-3 py-1.5 text-sm">
+                <span className="truncate">{fileNames[mediaId] ?? mediaId}</span>
+                <Button type="button" variant="ghost" size="icon-sm" aria-label={t18n('removeAttachment')} onClick={() => handleRemoveAttachment(mediaId)}>
+                  <X aria-hidden="true" />
+                </Button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        {draft.attachmentMediaIds.length < 3 ? (
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+            disabled={uploading}
+            onChange={handleFileSelected}
+            className="text-sm"
+          />
+        ) : null}
+        {uploadError ? <FieldError>{uploadError}</FieldError> : null}
+        <FieldDescription>{t18n('attachmentsRules')}</FieldDescription>
       </div>
     </div>
   )

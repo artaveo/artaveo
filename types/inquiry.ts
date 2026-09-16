@@ -70,6 +70,8 @@ export type InquiryDraft = {
   timeline?: TimelineId
   budgetBand?: BudgetBandId
   links: InquiryLink[]
+  /** § 15's Brief Builder attachments — ids of `media_assets` rows already uploaded via `uploadInquiryAttachment` before submission; linked to the inquiry via `inquiry_attachments` once the inquiry itself is inserted. */
+  attachmentMediaIds: string[]
   name: string
   email: string
   /** Optional — only meaningful when `preferredChannel` is `'whatsapp'`. */
@@ -91,6 +93,7 @@ export function createEmptyInquiryDraft(locale: Locale): InquiryDraft {
     timeline: undefined,
     budgetBand: undefined,
     links: [],
+    attachmentMediaIds: [],
     name: '',
     email: '',
     phone: '',

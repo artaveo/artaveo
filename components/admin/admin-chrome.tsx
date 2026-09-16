@@ -24,17 +24,23 @@ export async function AdminChrome({
         <div className="flex items-center gap-4">
           <ArtaveoMark className="h-5 w-auto text-foreground" />
           <span className="text-sm font-medium text-muted-foreground">{t('dashboardEyebrow')}</span>
-          {/* § 13's own role definition: leads are owner-only ("editor: content only, no leads") — editors never see this link. */}
-          {canAccessLeads(session) ? (
-            <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-3">
+            <Link
+              href="/admin/content"
+              className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+            >
+              {t('cmsNavLink')}
+            </Link>
+            {/* § 13's own role definition: leads are owner-only ("editor: content only, no leads") — editors never see this link. */}
+            {canAccessLeads(session) ? (
               <Link
                 href="/admin/leads"
                 className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
               >
                 {t('leadsNavLink')}
               </Link>
-            </nav>
-          ) : null}
+            ) : null}
+          </nav>
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden text-sm text-muted-foreground sm:inline">{session.email}</span>

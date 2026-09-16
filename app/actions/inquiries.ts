@@ -170,6 +170,21 @@ export async function submitInquiry(
     console.error('inquiry_events insert failed (inquiry itself was saved):', eventError)
   }
 
+  // 7b. § 15's Brief Builder attachments: link whatever was already
+  //     uploaded (via `uploadInquiryAttachment`) before this submit.
+  //     Best-effort, capped defensively at 3 even though the client UI
+  //     already enforces that limit — never trust the client alone.
+  //     Never undoes or masks the successful inquiry insert above.
+  const attachmentIds = draft.attachmentMediaIds.slice(0, 3)
+  if (attachmentIds.length > 0) {
+    const { error: attachmentError } = await supabase
+      .from('inquiry_attachments')
+      .insert(attachmentIds.map((media_id) => ({ inquiry_id: inserted.id, media_id })))
+    if (attachmentError) {
+      console.error('inquiry_attachments insert failed (inquiry itself was saved):', attachmentError)
+    }
+  }
+
   // 8. § 9.3 — Notifications: outbox pattern. Enqueue first (persisted
   //    regardless of whether sending works), then make one best-effort
   //    inline attempt so the common case sends immediately. Both steps
