@@ -408,8 +408,7 @@
     "errorNoFactor": "هنوز اپ احراز هویتی برای این حساب تنظیم نشده است.",
     "securityEyebrow": "امنیت",
     "securityTitle": "تأیید دومرحله‌ای",
-    "mfaRequiredNotice": "برای نقش مالک الزامی است — برای ادامه آن را تنظیم کنید.",
-    "mfaOptionalNotice": "برای ویراستاران اختیاری است — توصیه می‌شود.",
+    "mfaOptionalNotice": "اختیاری است — برای امنیت بیشتر حساب توصیه می‌شود.",
     "mfaEnrolledNotice": "تأیید دومرحله‌ای روی این حساب فعال است.",
     "startEnrollButton": "تنظیم اپ احراز هویت",
     "scanInstruction": "این کد QR را با اپ احراز هویت خود اسکن کنید، یا کلید تنظیم را دستی وارد کنید.",
@@ -526,6 +525,8 @@
     "fieldLinks": "لینک‌ها",
     "sourceSectionTitle": "منبع",
     "fieldSourceChannel": "کانال",
-    "fieldSourceReferrer": "ارجاع‌دهنده"
+    "fieldSourceReferrer": "ارجاع‌دهنده",
+    "mfaQrAlt": "کد QR برای تنظیم احراز هویت دومرحله‌ای",
+    "mfaQrTroubleHint": "نمی‌توانید اسکن کنید؟ به‌جای آن کلید تنظیم زیر را در اپ خود دستی وارد کنید."
   }
 }

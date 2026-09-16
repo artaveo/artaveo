@@ -68,15 +68,20 @@ export const getAdminSession = cache(async (): Promise<AdminSession | null> => {
 })
 
 /**
- * Owner role requires MFA (roadmap § 13); editor does not. `false` means
- * the caller should route to whichever of `/admin/mfa-challenge` (a
- * verified factor exists — needs verifying this session) or
- * `/admin/security` (no factor enrolled yet) `mfaDestination` names —
- * both require the same aal1 session this function already assumes, just
- * not the full aal2 a real admin action needs.
+ * MFA is optional for both roles — this was mandatory for `owner` per
+ * the original § 13 design, but the owner asked (16 September 2026) to
+ * make it opt-in instead; see ROAD-MAP-ARTAVEO.md revision 27 for the
+ * security trade-off that decision carries. `false` now only means "a
+ * verified TOTP factor already exists and Supabase itself expects this
+ * session to complete the aal2 challenge" (`aal.next === 'aal2'`, still
+ * `aal1` this session) — real, working two-factor protection for anyone
+ * who does enroll, without forcing anyone to. `mfaDestination` in that
+ * case is always `/admin/mfa-challenge`; `/admin/security` remains
+ * reachable on its own as the voluntary place to enroll or manage a
+ * factor, not as something a caller is ever redirected to.
  */
 export function mfaSatisfied(session: AdminSession): boolean {
-  return session.role !== 'owner' || session.aal.current === 'aal2'
+  return session.aal.next !== 'aal2' || session.aal.current === 'aal2'
 }
 
 export function mfaDestination(session: AdminSession): 'mfa-challenge' | 'security' {

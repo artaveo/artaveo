@@ -298,3 +298,52 @@ other instances. `tsc --noEmit` and `next build` both clean afterward
 `/[locale]/services/[slug]` gap, unrelated to this fix). See
 `ROAD-MAP-ARTAVEO.md` revision 26 for the same note.
 
+## Addendum 2 — 16 September 2026 (revision 27)
+
+Two more issues from the same onboarding attempt, once the double-locale
+404 above was fixed and the owner reached `/admin/security` for real.
+
+**QR code rendered as literal text, not an image.**
+`components/admin/mfa-enrollment-panel.tsx` was doing
+`dangerouslySetInnerHTML={{ __html: state.qrCodeSvg }}` on the
+assumption `qrCodeSvg` was bare SVG markup — it's actually Supabase's own
+full `data:image/svg+xml;utf-8,<svg>...` data URI
+(`app/actions/admin-auth.ts`'s `enrollMfaStart` passes `data.totp.qr_code`
+straight through, correctly — the bug was only in how the panel
+rendered it). Injecting that string as innerHTML rendered the
+`data:image/svg+xml;utf-8,` prefix as a literal text node, with the
+browser then separately parsing the embedded `<svg>` tag that happened
+to follow it. Fixed with a plain `<img src={state.qrCodeSvg} />` — what
+a data URI is actually for, and no `dangerouslySetInnerHTML` needed at
+all now. Added a "can't scan it? use the setup key below" hint next to
+it, since the setup key field already existed as a fallback but nothing
+pointed a user at it (two new `Admin` keys: `mfaQrAlt`, `mfaQrTroubleHint`).
+
+**MFA made optional for every role, at the owner's explicit request.**
+This reverses part of this phase's original design ("owner role
+requires MFA... MFA required and enforced for the owner role").
+`lib/admin/auth.ts#mfaSatisfied` no longer force-redirects an owner who
+hasn't enrolled a factor; it now only requires completing the aal2
+challenge for a session where Supabase itself reports a verified factor
+already exists and hasn't been confirmed yet this session
+(`aal.next === 'aal2'`) — real protection for anyone who does enroll, no
+forced first-time enrollment for anyone. `/admin/security` stays
+reachable as a voluntary place to enroll (already linked from the
+dashboard); the old role-conditional "required"/"optional" notice on
+that page collapsed to one neutral, always-shown message, and the
+now-dead `mfaRequiredNotice` key was removed from both locale files
+rather than left unused.
+
+**Security trade-off, disclosed rather than silently applied:** the
+admin panel — including the Phase 14 Lead Pipeline, which holds every
+prospective client's contact details and project brief — can now be
+reached with a password alone if the owner (or a future editor) never
+enrolls a factor. This was the owner's own explicit call, not a default
+assumed here; worth revisiting if the admin account is ever shared
+beyond the owner or if lead data volume/sensitivity grows enough to
+matter.
+
+`tsc --noEmit`: 0 errors. `next build`: clean, same pre-existing
+Supabase-network gap, unrelated to either fix. i18n parity: 462/462.
+See `ROAD-MAP-ARTAVEO.md` revision 27 for the same note.
+

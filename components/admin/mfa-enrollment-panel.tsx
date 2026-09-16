@@ -108,13 +108,16 @@ export function MfaEnrollmentPanel({
     <Card>
       <CardContent className="flex flex-col gap-5 pt-6">
         <p className="text-sm text-muted-foreground">{t('scanInstruction')}</p>
-        {/* Trusted markup — this SVG string comes from our own enrollMfaStart
-            Server Action, which returns Supabase's own generated QR code, not
-            anything user-supplied. */}
-        <div
-          className="mx-auto h-48 w-48 [&_svg]:h-full [&_svg]:w-full"
-          dangerouslySetInnerHTML={{ __html: state.qrCodeSvg }}
+        {/* `qrCodeSvg` (from our own `enrollMfaStart` Server Action) is
+            Supabase's own `data:image/svg+xml;utf-8,<svg>...` data URI, not
+            bare SVG markup — an `<img>` renders it correctly and avoids
+            `dangerouslySetInnerHTML` entirely. */}
+        <img
+          src={state.qrCodeSvg}
+          alt={t('mfaQrAlt')}
+          className="mx-auto h-48 w-48"
         />
+        <p className="text-center text-xs text-muted-foreground">{t('mfaQrTroubleHint')}</p>
         <Field>
           <FieldLabel>{t('secretLabel')}</FieldLabel>
           <Input readOnly value={state.secret} className="font-mono text-xs" dir="ltr" />

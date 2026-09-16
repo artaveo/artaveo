@@ -408,8 +408,7 @@
     "errorNoFactor": "No authenticator app is set up on this account yet.",
     "securityEyebrow": "Security",
     "securityTitle": "Two-factor authentication",
-    "mfaRequiredNotice": "Required for the owner role — set this up to continue.",
-    "mfaOptionalNotice": "Optional for editors — recommended.",
+    "mfaOptionalNotice": "Optional — recommended for extra account security.",
     "mfaEnrolledNotice": "Two-factor authentication is enabled on this account.",
     "startEnrollButton": "Set up authenticator app",
     "scanInstruction": "Scan this QR code with your authenticator app, or enter the setup key manually.",
@@ -526,6 +525,8 @@
     "fieldLinks": "Links",
     "sourceSectionTitle": "Source",
     "fieldSourceChannel": "Channel",
-    "fieldSourceReferrer": "Referrer"
+    "fieldSourceReferrer": "Referrer",
+    "mfaQrAlt": "QR code for two-factor authentication setup",
+    "mfaQrTroubleHint": "Can't scan it? Enter the setup key below manually in your app instead."
   }
 }

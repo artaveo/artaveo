@@ -48,9 +48,7 @@ export default async function AdminSecurityPage({
         <h1 className="mt-1 text-xl font-semibold tracking-tight">{t('securityTitle')}</h1>
       </div>
 
-      <FormMessage variant={session.role === 'owner' ? 'warning' : 'info'}>
-        {session.role === 'owner' ? t('mfaRequiredNotice') : t('mfaOptionalNotice')}
-      </FormMessage>
+      <FormMessage variant="info">{t('mfaOptionalNotice')}</FormMessage>
 
       <MfaEnrollmentPanel
         locale={locale}
