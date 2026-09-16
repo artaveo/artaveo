@@ -527,6 +527,7 @@
     "fieldSourceChannel": "Channel",
     "fieldSourceReferrer": "Referrer",
     "mfaQrAlt": "QR code for two-factor authentication setup",
-    "mfaQrTroubleHint": "Can't scan it? Enter the setup key below manually in your app instead."
+    "mfaQrTroubleHint": "Can't scan it? Enter the setup key below manually in your app instead.",
+    "skipMfaButton": "Skip for now"
   }
 }

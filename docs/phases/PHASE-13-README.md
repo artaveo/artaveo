@@ -347,3 +347,28 @@ matter.
 Supabase-network gap, unrelated to either fix. i18n parity: 462/462.
 See `ROAD-MAP-ARTAVEO.md` revision 27 for the same note.
 
+## Addendum 3 — 16 September 2026 (revision 28)
+
+One more real gap, found by the owner actually testing the revision-27
+change live: `/admin/security`'s not-yet-enrolled screen had exactly one
+control — "Set up authenticator app" — and no way to leave without
+either using it or knowing to click the header nav. For a page revision
+27 had just made voluntary rather than forced, that's a genuine dead
+end, not what "optional" should feel like.
+
+Re-traced the whole redirect chain end to end first, to rule out a
+remaining forced-redirect bug rather than assume the fix: for an account
+with no verified TOTP factor, `getAdminSession()`'s `aal.next` and
+`aal.current` both resolve to `'aal1'`, so `mfaSatisfied` (unchanged
+since revision 27) is `true` and nothing redirects there — confirmed by
+the owner's own screenshot already showing the "Leads" nav link
+rendered, meaning they'd reached a protected page without being sent to
+`/admin/security` first. The redirect logic was correct; this was purely
+a missing exit control on a screen reachable only by choice.
+
+`components/admin/mfa-enrollment-panel.tsx`'s not-enrolled state now
+shows a "Skip for now" link (→ `/admin`) next to "Set up authenticator
+app", not just the one button. New `Admin.skipMfaButton` key, both
+locales, 463/463 parity. `tsc --noEmit`: 0 errors. `next build`: clean,
+same pre-existing gap, unrelated.
+

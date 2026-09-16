@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 
 import { enrollMfaStart, enrollMfaVerify, unenrollMfaFactor } from '@/app/actions/admin-auth'
-import { useRouter } from '@/i18n/navigation'
+import { Link, useRouter } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldLabel, FormMessage } from '@/components/ui/form-controls'
@@ -96,9 +96,18 @@ export function MfaEnrollmentPanel({
       <Card>
         <CardContent className="flex flex-col gap-4 pt-6">
           {error ? <FormMessage variant="destructive">{error}</FormMessage> : null}
-          <Button type="button" onClick={handleStart} disabled={pending}>
-            {t('startEnrollButton')}
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button type="button" onClick={handleStart} disabled={pending}>
+              {t('startEnrollButton')}
+            </Button>
+            {/* MFA is optional (see `lib/admin/auth.ts#mfaSatisfied`) — this
+                page is reachable voluntarily, not a forced step, so it needs
+                its own unambiguous way out rather than relying on the header
+                nav alone. */}
+            <Button type="button" variant="ghost" render={<Link href="/admin" />}>
+              {t('skipMfaButton')}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     )
