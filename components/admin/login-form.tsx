@@ -12,17 +12,20 @@ import { Field, FieldLabel, FormMessage } from '@/components/ui/form-controls'
 import { Input } from '@/components/ui/input'
 
 /**
- * `next` is only ever used for the `dashboard` outcome, and only when it
- * points back inside `/admin` for the current locale — anything else
- * (missing, cross-origin, a different section of the site) is ignored in
- * favor of the plain `/admin` default, so this can never become an open
- * redirect off a query param.
+ * `next` arrives from `proxy.ts`'s redirect (`request.nextUrl.pathname`,
+ * which includes the locale — e.g. `/en/admin/leads`), but `router` here
+ * is the locale-aware one from `@/i18n/navigation`: it prepends the
+ * active locale to whatever href it's given, the same as a plain
+ * `<Link href="/admin/security">` elsewhere in this codebase. Passing it
+ * an already-locale-prefixed path double-prefixes the result
+ * (`/en/en/admin/security`, a real 404) — this strips the locale back
+ * off before handing anything to `router.push`.
  */
 function resolveNextPath(next: string | null, locale: string): string {
   if (next && next.startsWith(`/${locale}/admin`)) {
-    return next
+    return next.slice(`/${locale}`.length)
   }
-  return `/${locale}/admin`
+  return '/admin'
 }
 
 export function LoginForm({ locale }: { locale: string }) {
@@ -48,7 +51,8 @@ export function LoginForm({ locale }: { locale: string }) {
     if (result.next === 'dashboard') {
       router.push(resolveNextPath(searchParams.get('next'), locale))
     } else {
-      router.push(`/${locale}/admin/${result.next}`)
+      // Same locale-aware `router` — no `/${locale}` prefix needed here either.
+      router.push(`/admin/${result.next}`)
     }
   }
 

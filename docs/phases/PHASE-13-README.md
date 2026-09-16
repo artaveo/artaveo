@@ -267,3 +267,34 @@ something any session can do on the owner's behalf.
 **Next recommended phase:** 14 — Lead Pipeline. It's the first phase
 that actually needs an authenticated admin to do anything with, so
 running the onboarding runbook is worth doing before or during it.
+
+## Addendum — 16 September 2026 (revision 26)
+
+A real production bug in this phase's own code, found while the owner
+ran `docs/runbooks/admin-onboarding.md` for the first time: signing in
+as the newly-provisioned owner landed on `/en/en/admin/security` — a
+genuine 404, not a missing page.
+
+**Root cause:** `components/admin/login-form.tsx`,
+`mfa-challenge-form.tsx` and `mfa-enrollment-panel.tsx` all call
+`router.push()` from the locale-aware `useRouter` (`@/i18n/navigation`),
+which — like a plain `<Link href="/admin/security">` elsewhere in this
+codebase — prepends the *active* locale to whatever href it's given. All
+three were instead building already-locale-prefixed `/${locale}/admin...`
+paths before handing them to that same router, so the locale landed
+twice.
+
+**Fix:** dropped the manual `/${locale}` prefix in all three call sites;
+`resolveNextPath` in `login-form.tsx` now strips the locale off an
+incoming `next` query param instead of assuming the router won't re-add
+it. `next`'s value itself was always correct — `proxy.ts`'s redirect
+sets it from `request.nextUrl.pathname`, which does include the locale,
+the right shape for a raw URL, just not for this locale-aware router.
+
+Grepped the rest of the codebase for the same `${locale}` +
+`router.push`/`href` pattern via the i18n-aware router or `Link` — no
+other instances. `tsc --noEmit` and `next build` both clean afterward
+(the latter reaching the same pre-existing, already-disclosed
+`/[locale]/services/[slug]` gap, unrelated to this fix). See
+`ROAD-MAP-ARTAVEO.md` revision 26 for the same note.
+

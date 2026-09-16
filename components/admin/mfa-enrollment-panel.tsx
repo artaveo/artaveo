@@ -55,7 +55,9 @@ export function MfaEnrollmentPanel({
       setError(result.code === 'not-configured' ? t('errorNotConfigured') : t('errorInvalidCode'))
       return
     }
-    router.push(`/${locale}/admin`)
+    // Locale-aware `router` — no `/${locale}` prefix (see login-form.tsx's
+    // `resolveNextPath` comment for why the doubled prefix was a real 404).
+    router.push('/admin')
     router.refresh()
   }
 

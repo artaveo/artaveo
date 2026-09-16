@@ -29,7 +29,10 @@ export function MfaChallengeForm({ locale }: { locale: string }) {
       return
     }
 
-    router.push(`/${locale}/admin`)
+    // `router` is the locale-aware one (`@/i18n/navigation`) — it prepends
+    // the active locale itself, so no `/${locale}` prefix here (that was
+    // producing `/en/en/admin`, a real 404 users were hitting).
+    router.push('/admin')
   }
 
   const errorCopy = {
