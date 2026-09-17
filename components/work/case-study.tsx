@@ -7,9 +7,10 @@ import { Breadcrumb } from '@/components/site/breadcrumb'
 import { LatinTerm } from '@/components/site/latin-term'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { BrowserFrame } from '@/components/ui/frames'
+import { BrowserFrame, DeviceFrame } from '@/components/ui/frames'
 import { Prose } from '@/components/ui/prose'
 import { StatusBadge } from '@/components/ui/tag'
+import { ProjectGallery } from '@/components/work/project-gallery'
 import { t, type Locale, type Project } from '@/types/content'
 
 /**
@@ -52,6 +53,9 @@ export function CaseStudy({
     project.quality ||
     project.currentStatusAndNext ||
     project.lessonsLearned
+
+  const mainMedia = project.media?.filter((m) => m.placement === 'main') ?? []
+  const galleryMedia = project.media?.filter((m) => m.placement === 'gallery') ?? []
 
   return (
     <article className="container-page py-16 md:py-24">
@@ -108,28 +112,67 @@ export function CaseStudy({
         </dl>
       </header>
 
-      {/* Media */}
-      <div className="mt-12 md:mt-16">
-        <BrowserFrame url={`artaveo.dev/work/${project.slug}`}>
-          <div className="relative aspect-[16/9] bg-muted">
-            {project.coverImage ? (
-              <Image
-                src={project.coverImage}
-                alt={`${t(project.title, locale)} interface`}
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover object-top"
-              />
+      {/* Media — roadmap § 6.1 "Media" names this BrowserFrame/DeviceFrame
+          pattern; rendering real `placement: 'main'` items here is
+          out-of-sequence work (§ 23.1, not a phase): each item gets its
+          own frame matching how it was actually captured (BrowserFrame for
+          'desktop', DeviceFrame for 'mobile'). Projects with no `media`
+          yet fall back to the single `coverImage` this template originally
+          rendered, so a not-yet-photographed project still shows
+          something rather than nothing. */}
+      <div className="mt-12 space-y-8 md:mt-16">
+        {mainMedia.length > 0 ? (
+          mainMedia.map((item, index) =>
+            item.kind === 'mobile' ? (
+              <DeviceFrame key={item.src} variant="phone">
+                <div className="relative aspect-[9/19.5] bg-muted">
+                  <Image
+                    src={item.src}
+                    alt={t(item.alt, locale)}
+                    fill
+                    priority={index === 0}
+                    sizes="300px"
+                    className="object-cover object-top"
+                  />
+                </div>
+              </DeviceFrame>
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
-                <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-                  {project.slug}
-                </span>
-              </div>
-            )}
-          </div>
-        </BrowserFrame>
+              <BrowserFrame key={item.src} url={`artaveo.dev/work/${project.slug}`}>
+                <div className="relative aspect-[16/9] bg-muted">
+                  <Image
+                    src={item.src}
+                    alt={t(item.alt, locale)}
+                    fill
+                    priority={index === 0}
+                    sizes="100vw"
+                    className="object-cover object-top"
+                  />
+                </div>
+              </BrowserFrame>
+            ),
+          )
+        ) : (
+          <BrowserFrame url={`artaveo.dev/work/${project.slug}`}>
+            <div className="relative aspect-[16/9] bg-muted">
+              {project.coverImage ? (
+                <Image
+                  src={project.coverImage}
+                  alt={`${t(project.title, locale)} interface`}
+                  fill
+                  priority
+                  sizes="100vw"
+                  className="object-cover object-top"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
+                  <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+                    {project.slug}
+                  </span>
+                </div>
+              )}
+            </div>
+          </BrowserFrame>
+        )}
       </div>
 
       <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16">
@@ -295,6 +338,21 @@ export function CaseStudy({
           </div>
         </aside>
       </div>
+
+      {/* Gallery — the supporting `placement: 'gallery'` screenshots
+          (out-of-sequence work, roadmap § 23.1, not a phase). Hidden
+          entirely when a project has none yet, same
+          "empty means hidden" rule the rest of this template follows. */}
+      {galleryMedia.length > 0 ? (
+        <div className="mt-16 border-t border-border pt-10 md:mt-20">
+          <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+            {t18n('gallery')}
+          </h2>
+          <div className="mt-6">
+            <ProjectGallery items={galleryMedia} />
+          </div>
+        </div>
+      ) : null}
 
       {nextProject ? (
         <div className="mt-20 border-t border-border pt-10 md:mt-28">

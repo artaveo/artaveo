@@ -118,7 +118,8 @@
     "opensNewTab": "(opens in a new tab)",
     "nextProject": "Next project",
     "pendingNotice": "The full write-up — architecture, key decisions and lessons learned — is being verified against the codebase and is not published yet. What follows is confirmed and accurate today.",
-    "technologies": "Technologies"
+    "technologies": "Technologies",
+    "gallery": "Gallery"
   },
   "Services": {
     "eyebrow": "Services",

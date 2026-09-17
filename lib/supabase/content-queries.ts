@@ -7,6 +7,7 @@ import type {
   FaqItem,
   LocalizedText,
   Project,
+  ProjectMediaItem,
   Service,
   ServiceAddon,
   ServicePackage,
@@ -65,10 +66,19 @@ const SINGLE_SECTION_TYPES: Record<string, keyof Project> = {
   'lessons-learned': 'lessonsLearned',
 }
 
+type ProjectMediaRow = {
+  kind: string
+  placement: string
+  caption: LocalizedText | null
+  sort_order: number
+  media_assets: { url: string; alt: LocalizedText } | null
+}
+
 function assembleProject(
   row: Record<string, any>,
   sections: ProjectSectionRow[],
   technologyNames: string[],
+  mediaRows: ProjectMediaRow[],
 ): Project {
   const project: Project = {
     id: row.id,
@@ -106,6 +116,18 @@ function assembleProject(
   if (constraints.length > 0) project.constraints = constraints
   if (keyDecisions.length > 0) project.keyDecisions = keyDecisions
 
+  const media: ProjectMediaItem[] = [...mediaRows]
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .filter((m) => m.media_assets)
+    .map((m) => ({
+      src: m.media_assets!.url,
+      alt: m.media_assets!.alt,
+      caption: m.caption ?? undefined,
+      kind: m.kind as ProjectMediaItem['kind'],
+      placement: m.placement as ProjectMediaItem['placement'],
+    }))
+  if (media.length > 0) project.media = media
+
   return project
 }
 
@@ -128,19 +150,27 @@ async function fetchProjectsByFilter(filter: (query: any) => any): Promise<Proje
 
   const projectIds = projectRows.map((p: any) => p.id)
 
-  const [{ data: sectionRows, error: sectionError }, { data: techLinkRows, error: techLinkError }] =
-    await Promise.all([
-      client
-        .from('project_sections')
-        .select('project_id, type, body, sort_order')
-        .in('project_id', projectIds),
-      client
-        .from('project_technologies')
-        .select('project_id, technologies(name)')
-        .in('project_id', projectIds),
-    ])
+  const [
+    { data: sectionRows, error: sectionError },
+    { data: techLinkRows, error: techLinkError },
+    { data: mediaRows, error: mediaError },
+  ] = await Promise.all([
+    client
+      .from('project_sections')
+      .select('project_id, type, body, sort_order')
+      .in('project_id', projectIds),
+    client
+      .from('project_technologies')
+      .select('project_id, technologies(name)')
+      .in('project_id', projectIds),
+    client
+      .from('project_media')
+      .select('project_id, kind, placement, caption, sort_order, media_assets(url, alt)')
+      .in('project_id', projectIds),
+  ])
   if (sectionError) throw new Error(`Failed to load project_sections: ${sectionError.message}`)
   if (techLinkError) throw new Error(`Failed to load project_technologies: ${techLinkError.message}`)
+  if (mediaError) throw new Error(`Failed to load project_media: ${mediaError.message}`)
 
   const sectionsByProject = new Map<string, ProjectSectionRow[]>()
   for (const row of sectionRows ?? []) {
@@ -156,8 +186,20 @@ async function fetchProjectsByFilter(filter: (query: any) => any): Promise<Proje
     techNamesByProject.set(row.project_id, list)
   }
 
+  const mediaByProject = new Map<string, ProjectMediaRow[]>()
+  for (const row of (mediaRows ?? []) as any[]) {
+    const list = mediaByProject.get(row.project_id) ?? []
+    list.push(row)
+    mediaByProject.set(row.project_id, list)
+  }
+
   return projectRows.map((row: any) =>
-    assembleProject(row, sectionsByProject.get(row.id) ?? [], techNamesByProject.get(row.id) ?? []),
+    assembleProject(
+      row,
+      sectionsByProject.get(row.id) ?? [],
+      techNamesByProject.get(row.id) ?? [],
+      mediaByProject.get(row.id) ?? [],
+    ),
   )
 }
 

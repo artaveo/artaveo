@@ -39,6 +39,34 @@ export type DecisionRecord = {
   tradeoff: LocalizedText
 }
 
+/**
+ * Real device/context a screenshot was captured in (`project_media.kind`,
+ * migration 0003). 'diagram' is reserved for a future architecture
+ * diagram — no project has one yet.
+ */
+export type ProjectMediaKind = 'desktop' | 'mobile' | 'diagram'
+
+/**
+ * One verified screenshot attached to a project (`project_media` joined
+ * to `media_assets` — migrations 0003/0007/0013). `placement` decides
+ * where it renders on the case study (roadmap § 6.1 "Media" describes the
+ * BrowserFrame/DeviceFrame pattern; the `placement` column and this public
+ * wiring itself is out-of-sequence work — roadmap § 23.1, not a phase):
+ * 'main' images form the hero sequence, 'gallery' images render in the
+ * supporting grid below the write-up. `kind` is independent of
+ * `placement` — a shot can be any combination of the two. Never invented:
+ * every entry is a real screenshot of the running app, captured and
+ * reviewed against its source repo before being attached here.
+ */
+export type ProjectMediaItem = {
+  src: string
+  alt: LocalizedText
+  /** Short line shown under the image in the gallery grid. Omitted for main/hero images, which already have page-level context. */
+  caption?: LocalizedText
+  kind: ProjectMediaKind
+  placement: 'main' | 'gallery'
+}
+
 export type Project = {
   id: string
   slug: string
@@ -50,8 +78,10 @@ export type Project = {
   /** Proper nouns — not translated. */
   technologies: string[]
   status?: ProjectStatus
-  /** Path to a real screenshot. When missing, a neutral placeholder is shown. */
+  /** Path to a real screenshot. When missing, a neutral placeholder is shown. Kept for the catalogue card/Featured Work tile; case studies read `media` instead. */
   coverImage?: string
+  /** Real, verified screenshots (roadmap § 23.1, out-of-sequence work). Absent means none have been captured yet — never filled with a placeholder. */
+  media?: ProjectMediaItem[]
   githubUrl?: string
   liveUrl?: string
   year?: string
