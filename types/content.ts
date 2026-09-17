@@ -48,23 +48,38 @@ export type ProjectMediaKind = 'desktop' | 'mobile' | 'diagram'
 
 /**
  * One verified screenshot attached to a project (`project_media` joined
- * to `media_assets` — migrations 0003/0007/0013). `placement` decides
- * where it renders on the case study (roadmap § 6.1 "Media" describes the
- * BrowserFrame/DeviceFrame pattern; the `placement` column and this public
- * wiring itself is out-of-sequence work — roadmap § 23.1, not a phase):
- * 'main' images form the hero sequence, 'gallery' images render in the
- * supporting grid below the write-up. `kind` is independent of
- * `placement` — a shot can be any combination of the two. Never invented:
- * every entry is a real screenshot of the running app, captured and
- * reviewed against its source repo before being attached here.
+ * to `media_assets` — migrations 0003/0007/0013/0014). `placement`
+ * decides where it renders on the case study: 'hero' is the single
+ * lead image at the top of the page; 'story' images render inline next
+ * to the case-study section named by `storyKey`'s anchor (see
+ * `CASE_STUDY_STORY_ANCHORS` in `case-study.tsx`) — 0014 turned the
+ * former single `'main'` sequence (a "screenshot wall" of every hero
+ * image stacked before any prose) into this narrative-driven model;
+ * 'gallery' images render in the supporting grid below the write-up,
+ * unchanged since 0013. `storyKey` groups the 'story' rows that form
+ * one visual "evidence moment" (e.g. three screenshots that are one
+ * booking flow) so they render together, not as separate stacked
+ * blocks. `kind` is independent of `placement` — a shot can be any
+ * combination of the two. `width`/`height` (from `media_assets`, 0007)
+ * let the case study preserve each screenshot's real aspect ratio
+ * instead of forcing a fixed crop. Never invented: every entry is a
+ * real screenshot of the running app, captured and reviewed against
+ * its source repo before being attached here.
  */
 export type ProjectMediaItem = {
   src: string
   alt: LocalizedText
-  /** Short line shown under the image in the gallery grid. Omitted for main/hero images, which already have page-level context. */
+  /** Short line shown under the image (gallery grid, or a story evidence group). Omitted for the hero image, which already has page-level context. */
   caption?: LocalizedText
   kind: ProjectMediaKind
-  placement: 'main' | 'gallery'
+  placement: 'hero' | 'story' | 'gallery'
+  /** Only set when `placement === 'story'` — groups rows into one evidence moment. */
+  storyKey?: string
+  /** Only set when `placement === 'story'` — the `Project` case-study field this evidence group renders directly after. */
+  storyAnchor?: string
+  /** Real pixel dimensions from `media_assets`, used to render each screenshot at its true aspect ratio. */
+  width?: number
+  height?: number
 }
 
 export type Project = {

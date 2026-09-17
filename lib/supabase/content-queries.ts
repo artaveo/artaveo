@@ -69,9 +69,11 @@ const SINGLE_SECTION_TYPES: Record<string, keyof Project> = {
 type ProjectMediaRow = {
   kind: string
   placement: string
+  story_key: string | null
+  story_anchor: string | null
   caption: LocalizedText | null
   sort_order: number
-  media_assets: { url: string; alt: LocalizedText } | null
+  media_assets: { url: string; alt: LocalizedText; width: number | null; height: number | null } | null
 }
 
 function assembleProject(
@@ -125,6 +127,10 @@ function assembleProject(
       caption: m.caption ?? undefined,
       kind: m.kind as ProjectMediaItem['kind'],
       placement: m.placement as ProjectMediaItem['placement'],
+      storyKey: m.story_key ?? undefined,
+      storyAnchor: m.story_anchor ?? undefined,
+      width: m.media_assets!.width ?? undefined,
+      height: m.media_assets!.height ?? undefined,
     }))
   if (media.length > 0) project.media = media
 
@@ -165,7 +171,9 @@ async function fetchProjectsByFilter(filter: (query: any) => any): Promise<Proje
       .in('project_id', projectIds),
     client
       .from('project_media')
-      .select('project_id, kind, placement, caption, sort_order, media_assets(url, alt)')
+      .select(
+        'project_id, kind, placement, story_key, story_anchor, caption, sort_order, media_assets(url, alt, width, height)',
+      )
       .in('project_id', projectIds),
   ])
   if (sectionError) throw new Error(`Failed to load project_sections: ${sectionError.message}`)
