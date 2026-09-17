@@ -48,7 +48,7 @@ const capabilitiesData: Capability[] = [
     title: tx('Modern architecture', 'معماری مدرن'),
     description: tx(
       'Clear boundaries between UI, logic and data.',
-      'مرزهای شفاف میان رابط کاربری، منطق و داده.',
+      'رابط کاربری، منطق و داده در لایه‌های جدا.',
     ),
   },
   {
@@ -285,7 +285,7 @@ const featuredProjectsData: Project[] = [
     ),
     dataIntegrityAndSecurity: tx(
       'Two admin roles are enforced with a database-level check constraint, not just an app-side assumption. Department-scoped writes go through a fail-closed allow-list function — an unlisted settings key is denied by default, not silently accepted, if the admin panel grows later. Row-Level Security policies scope what each role can read and write, and portal request submissions go through a server-side, rate-limited Supabase Edge Function rather than an unthrottled client-side insert.',
-      'دو نقش ادمین با یک check constraint در سطح دیتابیس اجرا می‌شوند، نه فقط یک فرض در سمت اپ. نوشتن‌های محدود به یک بخش، از یک تابع allow-list با رویکرد fail-closed استفاده می‌کنند — کلید فهرست‌نشده رد می‌شود، نه بی‌صدا پذیرفته، اگر پنل ادمین بعداً بزرگ‌تر شود. سیاست‌های Row-Level Security مشخص می‌کنند هر نقش چه چیزی را می‌تواند بخواند و بنویسد، و ارسال درخواست‌های پورتال از یک Supabase Edge Function با محدودیت نرخ درخواست در سمت سرور عبور می‌کند، نه یک insert بی‌محدودیت مستقیم از کلاینت.',
+      'دو نقش ادمین با یک check constraint در سطح دیتابیس اجرا می‌شوند، نه فقط یک فرض در سمت اپ. نوشتن‌های محدود به یک بخش از یک تابع fail-closed عبور می‌کنند: کلید فهرست‌نشده رد می‌شود، نه بی‌صدا پذیرفته — حتی اگر پنل ادمین بعداً بزرگ‌تر شود. سیاست‌های Row-Level Security مشخص می‌کنند هر نقش چه چیزی را می‌تواند بخواند و بنویسد. ارسال درخواست‌های پورتال هم از یک Supabase Edge Function با محدودیت نرخ درخواست در سمت سرور عبور می‌کند، نه از یک insert بی‌محدودیت مستقیم روی کلاینت.',
     ),
     responsiveAndRtl: tx(
       'RTL-first from the ground up — logical layout properties and perceptually uniform color tokens rather than an LTR layout patched with a right-to-left flag. Dari is the default language; English is available via a language-preference prompt shown once to first-time visitors.',
@@ -349,7 +349,7 @@ const differentiatorsData: Principle[] = [
     title: tx('Maintainable architecture', 'معماری قابل‌نگهداری'),
     description: tx(
       'Clear boundaries between interface, business logic and data keep the product easy to change after launch.',
-      'مرزهای شفاف میان رابط کاربری، منطق کسب‌وکار و داده، تغییر محصول را پس از راه‌اندازی ساده نگه می‌دارد.',
+      'رابط کاربری، منطق کسب‌وکار و پایگاه‌داده در لایه‌های جدا می‌مانند، پس تغییر محصول بعد از راه‌اندازی ساده است.',
     ),
   },
   {
