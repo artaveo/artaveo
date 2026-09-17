@@ -296,6 +296,54 @@ export type ArticlePreview = {
   readingMinutes: number | null
 }
 
+/**
+ * Verification labels shown publicly (roadmap § 16): the only three
+ * values that ever appear on the public site, each meaning exactly one
+ * thing —
+ * - `verified-request` — submitted through the owner's single-use
+ *   request link (`recommendation_requests`); the request itself is the
+ *   verification.
+ * - `platform-review` — a real review the owner copied from an existing
+ *   platform profile (Fiverr, Contra…), with `sourceUrl` pointing at it.
+ * - `public-profile` — a recommendation the owner found on the person's
+ *   own public profile (e.g. a LinkedIn recommendation), `sourceUrl`
+ *   pointing at it.
+ * Never invented per row — always one of these three, and always
+ * traceable to the real evidence it names.
+ */
+export type RecommendationVerification = 'verified-request' | 'platform-review' | 'public-profile'
+
+/**
+ * § 16's own distinction: "recommendation = about working with the
+ * developer; testimonial = tied to a delivered project/service." Fully
+ * derived from whether `relatedProjectSlug`/`relatedServiceSlug` is
+ * present — never a separately stored value that could drift from it.
+ */
+export type RecommendationKind = 'recommendation' | 'testimonial'
+
+/**
+ * A published, approved recommendation or testimonial (`recommendations`,
+ * 0005/0015). Only ever the public, `status = 'approved'` shape — the
+ * admin moderation queue reads the richer `AdminRecommendation`
+ * (`types/cms.ts`) instead, which also carries the still-pending and
+ * rejected rows. No rating/score field — § 14's own component inventory
+ * is explicit: "no ratings."
+ */
+export type Recommendation = {
+  id: string
+  personName: string
+  personTitle?: string
+  company?: string
+  relationship: string
+  statement: LocalizedText
+  recommendationDate?: string
+  sourceUrl?: string
+  verification: RecommendationVerification
+  relatedProjectSlug?: string
+  relatedServiceSlug?: string
+  kind: RecommendationKind
+}
+
 export type AvailabilityState = 'available' | 'limited' | 'unavailable'
 
 /**

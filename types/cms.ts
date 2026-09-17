@@ -7,6 +7,7 @@ import type {
   Price,
   Project,
   ProjectStatus,
+  RecommendationVerification,
   Service,
   ServiceAddon,
   ServicePackage,
@@ -259,6 +260,110 @@ export type AdminProjectMediaItem = {
 }
 
 export type ProjectMediaInput = { mediaId: string; kind: 'desktop' | 'mobile' | 'diagram'; caption: LocalizedText | null }
+
+// ---------------------------------------------------------------------------
+// recommendations & recommendation requests (roadmap § 16, 0005/0015)
+// ---------------------------------------------------------------------------
+
+/** Every value `recommendations.status` can hold — 0015 adds `'changes-requested'` to 0005's original three. */
+export type RecommendationStatus = 'pending' | 'approved' | 'rejected' | 'changes-requested'
+
+/**
+ * The moderation-queue shape — every row regardless of status, unlike
+ * `types/content.ts#Recommendation` (public, `status = 'approved'`
+ * only). Carries the real row id, `status`, `consentToPublish` and
+ * `moderationNote` the admin UI needs and the public shape has no
+ * reason to expose. `relatedProjectTitle`/`relatedServiceTitle` are
+ * joined in for the admin list to display without a second round trip
+ * — `types/content.ts#Recommendation` only ever needs the slug.
+ */
+export type AdminRecommendation = {
+  id: string
+  personName: string
+  personTitle: string | null
+  company: string | null
+  relationship: string
+  statement: LocalizedText
+  recommendationDate: string | null
+  sourceUrl: string | null
+  verification: RecommendationVerification | null
+  status: RecommendationStatus
+  consentToPublish: boolean
+  moderationNote: string | null
+  relatedProjectId: string | null
+  relatedProjectTitle: LocalizedText | null
+  relatedServiceId: string | null
+  relatedServiceTitle: LocalizedText | null
+  requestId: string | null
+  sortOrder: number
+  createdAt: string
+}
+
+/** Shared input for both the admin's own manual entries (platform-review / public-profile) and an admin edit of a request-flow submission (typo/translation fix — see § 16: "meaning is never edited, typos only with consent"). */
+export type RecommendationInput = {
+  personName: string
+  personTitle: string | null
+  company: string | null
+  relationship: string
+  statement: LocalizedText
+  recommendationDate: string | null
+  sourceUrl: string | null
+  verification: RecommendationVerification
+  relatedProjectId: string | null
+  relatedServiceId: string | null
+  consentToPublish: boolean
+}
+
+/**
+ * One single-use request link (`recommendation_requests`, 0015).
+ * `status` here is a derived display value, not a stored column —
+ * computed the same way every time from `usedAt`/`revokedAt`/
+ * `expiresAt`/`recommendationId`, see `lib/admin/content.ts#requestLinkStatus`.
+ */
+export type RecommendationRequestStatus = 'awaiting' | 'submitted' | 'revoked' | 'expired'
+
+export type AdminRecommendationRequest = {
+  id: string
+  token: string
+  note: string | null
+  suggestedRelatedProjectId: string | null
+  suggestedRelatedProjectTitle: LocalizedText | null
+  suggestedRelatedServiceId: string | null
+  suggestedRelatedServiceTitle: LocalizedText | null
+  createdAt: string
+  expiresAt: string | null
+  usedAt: string | null
+  revokedAt: string | null
+  recommendationId: string | null
+  recommendationStatus: RecommendationStatus | null
+  status: RecommendationRequestStatus
+}
+
+export type RecommendationRequestInput = {
+  note: string
+  suggestedRelatedProjectId: string | null
+  suggestedRelatedServiceId: string | null
+  /** Days from creation until the link stops accepting a submission — `null` means no expiry. */
+  expiresInDays: number | null
+}
+
+/**
+ * What the public `/recommend/[token]` page collects (§ 16: "the
+ * recommender submits statement, role, relationship, optional profile
+ * URL and explicit consent to publish"). `statement` is plain text, not
+ * `LocalizedText` — the recommender writes in one language only (the
+ * page's current locale); the admin fills in the other locale during
+ * moderation, same as every other bilingual entity's completeness gate.
+ */
+export type RecommendationSubmissionInput = {
+  personName: string
+  personTitle: string
+  company: string
+  relationship: string
+  statement: string
+  profileUrl: string
+  consentToPublish: boolean
+}
 
 /** `site_settings` (0007) — the one singleton row. */
 export type AdminSiteSettings = {

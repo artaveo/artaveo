@@ -8,6 +8,7 @@ import type {
   LocalizedText,
   Project,
   ProjectMediaItem,
+  Recommendation,
   Service,
   ServiceAddon,
   ServicePackage,
@@ -391,6 +392,53 @@ export async function queryServiceBySlug(slug: string): Promise<Service | undefi
 // ---------------------------------------------------------------------------
 // engagement_models
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// recommendations (roadmap § 16)
+// ---------------------------------------------------------------------------
+
+/**
+ * Public reads only ever see `status = 'approved'` rows — the same
+ * `recommendations` RLS policy already enforces this at the database
+ * level (0005); the explicit `.eq('status', 'approved')` here is the
+ * same defense-in-depth every other selector in this file already
+ * applies on top of RLS, not a substitute for it. `kind` is derived,
+ * never stored (see 0015's migration header) — `'testimonial'` whenever
+ * either related row is present, `'recommendation'` otherwise.
+ */
+export async function queryApprovedRecommendations(): Promise<Recommendation[]> {
+  const client = requireClient()
+
+  const { data, error } = await client
+    .from('recommendations')
+    .select(
+      'id, person_name, person_title, company, relationship, statement, recommendation_date, ' +
+        'source_url, verification, sort_order, projects(slug), services(slug)',
+    )
+    .eq('status', 'approved')
+    .order('sort_order', { ascending: true })
+
+  if (error) throw new Error(`Failed to load recommendations: ${error.message}`)
+
+  return (data ?? []).map((row: any): Recommendation => {
+    const relatedProjectSlug = row.projects?.slug ?? undefined
+    const relatedServiceSlug = row.services?.slug ?? undefined
+    return {
+      id: row.id,
+      personName: row.person_name,
+      personTitle: row.person_title ?? undefined,
+      company: row.company ?? undefined,
+      relationship: row.relationship,
+      statement: row.statement,
+      recommendationDate: row.recommendation_date ?? undefined,
+      sourceUrl: row.source_url ?? undefined,
+      verification: row.verification ?? 'verified-request',
+      relatedProjectSlug,
+      relatedServiceSlug,
+      kind: relatedProjectSlug || relatedServiceSlug ? 'testimonial' : 'recommendation',
+    }
+  })
+}
 
 export async function queryEngagementModels(): Promise<EngagementModel[]> {
   const client = requireClient()

@@ -10,11 +10,14 @@ import {
   estimateReadingMinutes,
   getArticleAdmin,
   getProjectAdmin,
+  getRecommendationAdmin,
   getServiceAdmin,
   projectCompleteness,
+  recommendationCompleteness,
   serviceCompleteness,
 } from '@/lib/admin/content'
 import { requireSupabase } from '@/lib/admin/pipeline'
+import { generateRequestToken } from '@/lib/recommendations'
 import { routing } from '@/i18n/routing'
 import type {
   AddonInput,
@@ -25,6 +28,9 @@ import type {
   ProcessStepInput,
   ProjectCoreInput,
   ProjectSectionsInput,
+  RecommendationInput,
+  RecommendationRequestInput,
+  RecommendationStatus,
   ServiceCoreInput,
 } from '@/types/cms'
 
@@ -78,6 +84,13 @@ function revalidateProjectRoutes(slugs: (string | null | undefined)[]): void {
     for (const slug of slugs) {
       if (slug) revalidatePath(`/${locale}/work/${slug}`)
     }
+  }
+}
+
+/** § 3.3's "Recommendations — rendered only when ≥ 1 verified recommendation is published" section lives on Home only (this phase doesn't add a dedicated recommendations page). */
+function revalidateRecommendationRoutes(): void {
+  for (const locale of routing.locales) {
+    revalidatePath(`/${locale}`)
   }
 }
 
@@ -805,6 +818,209 @@ export async function unpublishArticle(id: string): Promise<ContentActionResult>
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.article_unpublished', entity: 'article', entityId: id })
+  return { ok: true }
+}
+
+// ---------------------------------------------------------------------------
+// recommendations & recommendation requests (§ 16, 0005/0015)
+// ---------------------------------------------------------------------------
+
+function recommendationInputToRow(input: RecommendationInput) {
+  return {
+    person_name: input.personName.trim(),
+    person_title: input.personTitle?.trim() || null,
+    company: input.company?.trim() || null,
+    relationship: input.relationship.trim(),
+    statement: { en: input.statement.en.trim(), fa: input.statement.fa.trim() },
+    recommendation_date: input.recommendationDate || null,
+    source_url: input.sourceUrl?.trim() || null,
+    verification: input.verification,
+    related_project_id: input.relatedProjectId,
+    related_service_id: input.relatedServiceId,
+    consent_to_publish: input.consentToPublish,
+  }
+}
+
+/**
+ * The admin's own direct entries — a real testimonial the owner found
+ * on a platform profile or the person's own public profile
+ * (`verification: 'platform-review' | 'public-profile'`), not something
+ * that came through a request link. Always created `'pending'`, same as
+ * every other entity's create-then-explicitly-publish pattern — even a
+ * manually-entered row goes through the one real moderation gate
+ * (`moderateRecommendation`) rather than skipping it because the owner
+ * typed it in themselves.
+ */
+export async function createRecommendation(input: RecommendationInput): Promise<ContentActionResultWithId> {
+  const auth = await requireEditorSession()
+  if ('code' in auth) return { ok: false, code: 'forbidden' }
+  if (input.verification === 'verified-request') return { ok: false, code: 'error' }
+
+  const supabase = requireSupabase()
+  if (!supabase) return { ok: false, code: 'not-configured' }
+
+  const { data, error } = await supabase
+    .from('recommendations')
+    .insert({ ...recommendationInputToRow(input), status: 'pending' })
+    .select('id')
+    .single()
+  if (error || !data) return { ok: false, code: 'error' }
+
+  await writeAuditLog({ actor: auth.userId, action: 'content.recommendation_created', entity: 'recommendation', entityId: data.id })
+  return { ok: true, id: data.id }
+}
+
+/**
+ * Edits any field — the admin's own manual entries freely, and a
+ * request-flow submission only for the narrow case § 16 names: "typos
+ * only with consent" (the recommender's own consent, already given at
+ * submission — a correction never changes what they said, only fixes a
+ * spelling slip or fills in the locale they didn't write in).
+ */
+export async function updateRecommendation(id: string, input: RecommendationInput): Promise<ContentActionResult> {
+  const auth = await requireEditorSession()
+  if ('code' in auth) return { ok: false, code: 'forbidden' }
+
+  const supabase = requireSupabase()
+  if (!supabase) return { ok: false, code: 'not-configured' }
+
+  const { error } = await supabase.from('recommendations').update(recommendationInputToRow(input)).eq('id', id)
+  if (error) return { ok: false, code: 'error' }
+
+  await writeAuditLog({ actor: auth.userId, action: 'content.recommendation_updated', entity: 'recommendation', entityId: id })
+  revalidateRecommendationRoutes()
+  return { ok: true }
+}
+
+export async function deleteRecommendation(id: string): Promise<ContentActionResult> {
+  const auth = await requireEditorSession()
+  if ('code' in auth) return { ok: false, code: 'forbidden' }
+
+  const supabase = requireSupabase()
+  if (!supabase) return { ok: false, code: 'not-configured' }
+
+  const { error } = await supabase.from('recommendations').delete().eq('id', id)
+  if (error) return { ok: false, code: 'error' }
+
+  await writeAuditLog({ actor: auth.userId, action: 'content.recommendation_deleted', entity: 'recommendation', entityId: id })
+  revalidateRecommendationRoutes()
+  return { ok: true }
+}
+
+export type ModerateRecommendationResult =
+  | { ok: false; code: 'forbidden' | 'not-configured' | 'not-complete' | 'no-consent' | 'note-required' | 'error' }
+  | { ok: true }
+
+/**
+ * The one real moderation gate (§ 16: "moderation queue: approve ·
+ * request change · reject"). No database trigger enforces this
+ * transition graph (see 0015's migration header for why) — it's a
+ * small, fully reversible action set behind the same `editor` session
+ * check every other content action already uses, not a one-way funnel
+ * like the lead pipeline.
+ *
+ * `approve` requires both real per-locale completeness (§ 15's own
+ * "publishing a locale requires its required fields" rule, reused here)
+ * and the recommender's own `consentToPublish` — two independent gates,
+ * checked separately so the error the admin sees actually names which
+ * one is missing rather than a single generic block.
+ */
+export async function moderateRecommendation(
+  id: string,
+  action: 'approve' | 'reject' | 'request-change',
+  note?: string,
+): Promise<ModerateRecommendationResult> {
+  const auth = await requireEditorSession()
+  if ('code' in auth) return { ok: false, code: 'forbidden' }
+
+  const supabase = requireSupabase()
+  if (!supabase) return { ok: false, code: 'not-configured' }
+
+  const rec = await getRecommendationAdmin(id)
+  if (!rec) return { ok: false, code: 'error' }
+
+  let nextStatus: RecommendationStatus
+  let moderationNote: string | null = null
+  let auditAction: string
+
+  if (action === 'approve') {
+    const completeness = recommendationCompleteness(rec)
+    if (!completeness.en || !completeness.fa) return { ok: false, code: 'not-complete' }
+    if (!rec.consentToPublish) return { ok: false, code: 'no-consent' }
+    nextStatus = 'approved'
+    auditAction = 'content.recommendation_approved'
+  } else if (action === 'reject') {
+    nextStatus = 'rejected'
+    moderationNote = note?.trim() || null
+    auditAction = 'content.recommendation_rejected'
+  } else {
+    const trimmedNote = note?.trim() ?? ''
+    if (!trimmedNote) return { ok: false, code: 'note-required' }
+    nextStatus = 'changes-requested'
+    moderationNote = trimmedNote
+    auditAction = 'content.recommendation_changes_requested'
+  }
+
+  const { error } = await supabase
+    .from('recommendations')
+    .update({ status: nextStatus, moderation_note: moderationNote })
+    .eq('id', id)
+  if (error) return { ok: false, code: 'error' }
+
+  await writeAuditLog({ actor: auth.userId, action: auditAction, entity: 'recommendation', entityId: id, after: { status: nextStatus } })
+  revalidateRecommendationRoutes()
+  return { ok: true }
+}
+
+/**
+ * § 16: "the owner generates a single-use request link." One row per
+ * link; `token` (`generateRequestToken()` — 24 random bytes, base64url)
+ * is the entire access control (`recommendation_requests` has no public
+ * RLS policy — see 0015's migration note), so this is the one and only
+ * place a token is minted.
+ */
+export async function createRecommendationRequest(input: RecommendationRequestInput): Promise<ContentActionResultWithId> {
+  const auth = await requireEditorSession()
+  if ('code' in auth) return { ok: false, code: 'forbidden' }
+
+  const supabase = requireSupabase()
+  if (!supabase) return { ok: false, code: 'not-configured' }
+
+  const expiresAt =
+    input.expiresInDays && input.expiresInDays > 0
+      ? new Date(Date.now() + input.expiresInDays * 24 * 60 * 60 * 1000).toISOString()
+      : null
+
+  const { data, error } = await supabase
+    .from('recommendation_requests')
+    .insert({
+      token: generateRequestToken(),
+      note: input.note.trim() || null,
+      suggested_related_project_id: input.suggestedRelatedProjectId,
+      suggested_related_service_id: input.suggestedRelatedServiceId,
+      created_by: auth.userId,
+      expires_at: expiresAt,
+    })
+    .select('id')
+    .single()
+  if (error || !data) return { ok: false, code: 'error' }
+
+  await writeAuditLog({ actor: auth.userId, action: 'content.recommendation_request_created', entity: 'recommendation_request', entityId: data.id })
+  return { ok: true, id: data.id }
+}
+
+/** Revokes a link regardless of its current state — same "owner can always undo" reasoning `unpublishService` etc. already follow; `requestLinkStatus` (`lib/admin/content.ts`) always shows `revoked_at` first, so a revoked-after-submission link still reads as inert even though its recommendation row is untouched. */
+export async function revokeRecommendationRequest(id: string): Promise<ContentActionResult> {
+  const auth = await requireEditorSession()
+  if ('code' in auth) return { ok: false, code: 'forbidden' }
+
+  const supabase = requireSupabase()
+  if (!supabase) return { ok: false, code: 'not-configured' }
+
+  const { error } = await supabase.from('recommendation_requests').update({ revoked_at: new Date().toISOString() }).eq('id', id)
+  if (error) return { ok: false, code: 'error' }
+
+  await writeAuditLog({ actor: auth.userId, action: 'content.recommendation_request_revoked', entity: 'recommendation_request', entityId: id })
   return { ok: true }
 }
 

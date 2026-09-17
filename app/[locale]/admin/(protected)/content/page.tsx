@@ -48,6 +48,7 @@ export default async function ContentHubPage({
     { href: '/admin/content/engagement-models', label: t('cmsEngagementModelsNavLink'), description: t('cmsEngagementModelsNavDescription') },
     { href: '/admin/content/faqs', label: t('cmsGlobalFaqsNavLink'), description: t('cmsGlobalFaqsNavDescription') },
     { href: '/admin/content/articles', label: t('cmsArticlesNavLink'), description: t('cmsArticlesNavDescription') },
+    { href: '/admin/content/recommendations', label: t('cmsRecommendationsNavLink'), description: t('cmsRecommendationsNavDescription') },
     { href: '/admin/content/media', label: t('cmsMediaNavLink'), description: t('cmsMediaNavDescription') },
     { href: '/admin/content/settings', label: t('cmsSettingsNavLink'), description: t('cmsSettingsNavDescription') },
     { href: '/admin/content/navigation', label: t('cmsNavigationNavLink'), description: t('cmsNavigationNavDescription') },

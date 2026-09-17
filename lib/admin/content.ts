@@ -8,12 +8,16 @@ import type {
   AdminFaqItem,
   AdminProcessStep,
   AdminProject,
+  AdminRecommendation,
+  AdminRecommendationRequest,
   AdminService,
   AdminServiceAddon,
   AdminServiceListItem,
   AdminServicePackage,
   AdminTechnology,
   LocaleCompleteness,
+  RecommendationRequestStatus,
+  RecommendationStatus,
 } from '@/types/cms'
 
 /**
@@ -575,5 +579,136 @@ export async function getArticleAdmin(id: string): Promise<AdminArticle | null> 
   const { data: row, error } = await supabase.from('articles').select(ARTICLE_COLUMNS).eq('id', id).maybeSingle()
   if (error || !row) return null
   return assembleAdminArticle(row)
+}
+
+// ---------------------------------------------------------------------------
+// recommendations & recommendation requests (§ 16, 0005/0015)
+// ---------------------------------------------------------------------------
+
+/**
+ * § 16's required field, matching the `not null` columns 0005/0015
+ * actually declare: `personName`, `relationship`, and `statement`.
+ * `consentToPublish` is a separate, non-locale gate checked directly by
+ * `app/actions/content.ts#approveRecommendation` — a row can be
+ * bilingually complete and still not consented, and the two are
+ * different kinds of "not ready to publish" (one is a translation gap,
+ * the other is a real explicit-consent requirement § 16 names).
+ */
+export function recommendationCompleteness(rec: { personName: string; relationship: string; statement: LocalizedText }): LocaleCompleteness {
+  return mergeCompleteness([
+    { en: isNonEmpty(rec.personName), fa: isNonEmpty(rec.personName) },
+    { en: isNonEmpty(rec.relationship), fa: isNonEmpty(rec.relationship) },
+    textComplete(rec.statement),
+  ])
+}
+
+const RECOMMENDATION_COLUMNS =
+  'id, person_name, person_title, company, relationship, statement, recommendation_date, source_url, ' +
+  'verification, status, consent_to_publish, moderation_note, related_project_id, related_service_id, ' +
+  'request_id, sort_order, created_at, projects(title), services(title)'
+
+function assembleAdminRecommendation(row: Record<string, any>): AdminRecommendation {
+  return {
+    id: row.id,
+    personName: row.person_name,
+    personTitle: row.person_title ?? null,
+    company: row.company ?? null,
+    relationship: row.relationship,
+    statement: row.statement,
+    recommendationDate: row.recommendation_date ?? null,
+    sourceUrl: row.source_url ?? null,
+    verification: row.verification ?? null,
+    status: row.status,
+    consentToPublish: !!row.consent_to_publish,
+    moderationNote: row.moderation_note ?? null,
+    relatedProjectId: row.related_project_id ?? null,
+    relatedProjectTitle: row.projects?.title ?? null,
+    relatedServiceId: row.related_service_id ?? null,
+    relatedServiceTitle: row.services?.title ?? null,
+    requestId: row.request_id ?? null,
+    sortOrder: row.sort_order,
+    createdAt: row.created_at,
+  }
+}
+
+/** Newest first — a moderation queue is worked front-to-back on what just came in, unlike the published-content lists above which follow `sort_order` (an editor-controlled display order that has no meaning here yet). */
+export async function listRecommendationsAdmin(): Promise<(AdminRecommendation & { completeness: LocaleCompleteness })[] | null> {
+  const supabase = requireSupabase()
+  if (!supabase) return null
+
+  const { data, error } = await supabase.from('recommendations').select(RECOMMENDATION_COLUMNS).order('created_at', { ascending: false })
+  if (error || !data) {
+    console.error('listRecommendationsAdmin failed:', error)
+    return []
+  }
+  return data.map((row: any) => {
+    const rec = assembleAdminRecommendation(row)
+    return { ...rec, completeness: recommendationCompleteness(rec) }
+  })
+}
+
+export async function getRecommendationAdmin(id: string): Promise<AdminRecommendation | null> {
+  const supabase = requireSupabase()
+  if (!supabase) return null
+
+  const { data: row, error } = await supabase.from('recommendations').select(RECOMMENDATION_COLUMNS).eq('id', id).maybeSingle()
+  if (error || !row) return null
+  return assembleAdminRecommendation(row)
+}
+
+/**
+ * A link's display status is always computed from its own columns, not
+ * stored — the same "derive, don't duplicate state" call 0015's
+ * migration header makes for `kind`. `revokedAt` wins over everything
+ * else (an owner who revokes a used-and-submitted link still wants it to
+ * read as inert); `recommendationId` set means the recommender has
+ * submitted, regardless of what happened to that recommendation since
+ * (approved/rejected/changes-requested all still mean "submitted" from
+ * the link's own point of view — the recommendation row's own `status`
+ * carries the rest).
+ */
+function requestLinkStatus(row: Record<string, any>): RecommendationRequestStatus {
+  if (row.revoked_at) return 'revoked'
+  if (row.recommendation_id) return 'submitted'
+  if (row.expires_at && new Date(row.expires_at).getTime() < Date.now()) return 'expired'
+  return 'awaiting'
+}
+
+const REQUEST_COLUMNS =
+  'id, token, note, suggested_related_project_id, suggested_related_service_id, created_at, expires_at, ' +
+  'used_at, revoked_at, recommendation_id, ' +
+  'suggested_project:projects!recommendation_requests_suggested_related_project_id_fkey(title), ' +
+  'suggested_service:services!recommendation_requests_suggested_related_service_id_fkey(title), ' +
+  'recommendations(status)'
+
+function assembleAdminRequest(row: Record<string, any>): AdminRecommendationRequest {
+  return {
+    id: row.id,
+    token: row.token,
+    note: row.note ?? null,
+    suggestedRelatedProjectId: row.suggested_related_project_id ?? null,
+    suggestedRelatedProjectTitle: row.suggested_project?.title ?? null,
+    suggestedRelatedServiceId: row.suggested_related_service_id ?? null,
+    suggestedRelatedServiceTitle: row.suggested_service?.title ?? null,
+    createdAt: row.created_at,
+    expiresAt: row.expires_at ?? null,
+    usedAt: row.used_at ?? null,
+    revokedAt: row.revoked_at ?? null,
+    recommendationId: row.recommendation_id ?? null,
+    recommendationStatus: (row.recommendations?.status as RecommendationStatus | undefined) ?? null,
+    status: requestLinkStatus(row),
+  }
+}
+
+export async function listRecommendationRequestsAdmin(): Promise<AdminRecommendationRequest[] | null> {
+  const supabase = requireSupabase()
+  if (!supabase) return null
+
+  const { data, error } = await supabase.from('recommendation_requests').select(REQUEST_COLUMNS).order('created_at', { ascending: false })
+  if (error || !data) {
+    console.error('listRecommendationRequestsAdmin failed:', error)
+    return []
+  }
+  return data.map(assembleAdminRequest)
 }
 

@@ -8,6 +8,7 @@ import { FinalCta } from '@/components/home/final-cta'
 import { Hero } from '@/components/home/hero'
 import { InsightsPreview } from '@/components/home/insights-preview'
 import { Process } from '@/components/home/process'
+import { Recommendations } from '@/components/home/recommendations'
 import { Services } from '@/components/home/services'
 import { TechStack } from '@/components/home/tech-stack'
 import { WhyArtaveo } from '@/components/home/why-artaveo'
@@ -48,6 +49,7 @@ export default async function HomePage({
       <TechStack />
       <Process />
       <AboutPreview />
+      <Recommendations />
       <InsightsPreview />
       <FinalCta />
     </SiteShell>
