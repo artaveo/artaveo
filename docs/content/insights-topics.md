@@ -51,12 +51,12 @@ study and the Backend, API & Database service) and in
 `docs/content/articles/concurrent-seat-booking.{en,fa}.md`. Not published.
 Its claims and their evidence are in `docs/content/claims-ledger.md`.
 
-The article describes the locking mechanism as documented in
-`PHASE-4_2-README.md` (a single atomic `UPDATE`, row-count check, rollback).
-The function body itself is **not in the repository** and the live
-Transportation System database is on a different Supabase account from the one
-connected here, so that one section is **unverified against the live
-function** — the ledger has the two-line query to run before publishing.
+**Verified against the live Transportation System database (18 Sep 2026):**
+the owner ran `pg_get_functiondef` and the `proacl` query in production and
+sent the output; the article's description of `hold_seats` was corrected to
+match the real function (one `UPDATE`, row-count check, `SEATS_UNAVAILABLE`,
+rollback — and no `RETURNING`), and the permissions claim was confirmed (only
+`postgres` and `service_role`). Details: `docs/content/claims-ledger.md`.
 
 ## 2. RLS and server-side authorization
 

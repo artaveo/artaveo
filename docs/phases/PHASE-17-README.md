@@ -279,7 +279,7 @@ has no route to Supabase):
   article parser — 6 headings, 3 code blocks, 1 callout, 0 warnings, 0
   unresolved placeholders (so the publish gate will pass), reading time 5 min
   in each language; stored text compared with the source files in the database
-  (MD5 and length identical); live database confirms `status = 'draft'`, 2
+  (MD5 and length identical, re-checked after the correction); live database confirms `status = 'draft'`, 2
   relation rows and 0 published articles — nothing on the public site changed.
   The article's **rendering** was not looked at in a browser.
 - Generated service worker: extension guard behaves (`/en/insights/feed.xml`
@@ -307,10 +307,11 @@ environment variable being present.
   system:build-session`), linked to the Transportation System case study and
   the Backend, API & Database service. Its source is in
   `docs/content/articles/`, byte-identical to the stored rows (MD5 and length
-  compared). **Its "One statement, all or nothing" section is unverified
-  against the live `hold_seats` function** — the function body is not in the
-  repository and that database is on a different Supabase account; the query
-  to run before publishing is in `docs/content/claims-ledger.md`. The other
+  compared). **Its claims about `hold_seats` were checked against the live
+  Transportation System database** (the owner ran the definition and
+  `proacl` queries in production): the "one statement" section was corrected
+  to match the real function, and the permissions fix is confirmed. Every
+  claim and its evidence: `docs/content/claims-ledger.md`. The other
   three topics are a backlog with evidence pointers
   (`docs/content/insights-topics.md`). The journal stays invisible on the
   public site until the article is published.

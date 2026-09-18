@@ -50,13 +50,13 @@ create table trip_seats (
 
 ## One statement, all or nothing
 
-`hold_seats` is a single `UPDATE` that only touches seats that are still available, or whose hold has run out, and returns the rows it changed. If the number of rows it really updated is not the number of seats requested, the function raises an exception and Postgres rolls the whole operation back.
+`hold_seats` is a single `UPDATE` that only touches the requested seats that are still available, or whose hold has run out. The function then compares the number of rows it really updated with the number of seats requested. If they differ, it raises `SEATS_UNAVAILABLE` and Postgres rolls the whole operation back; if they match, it returns the seats.
 
 Two things follow from that, and they are the two I care about. Two requests for the same seat cannot both succeed. And a request for three seats where one has just been taken gets none of them, not two.
 
 The alternative I avoided is doing it from JavaScript: read the seats, check them, write them. That is three steps, and another request can slip in between any two of them. Inside one statement there is no between.
 
-When the function refuses, the message carries `SEATS_UNAVAILABLE`, the Route Handler turns it into a 409, and the traveler sees a clear message instead of a success that is not true.
+When the function refuses, the Route Handler turns `SEATS_UNAVAILABLE` into a 409, and the traveler sees a clear message instead of a success that is not true.
 
 ## Holds expire without a background job
 
