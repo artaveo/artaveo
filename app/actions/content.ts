@@ -7,7 +7,6 @@ import { writeAuditLog } from '@/lib/admin/audit'
 import {
   articleCompleteness,
   engagementModelCompleteness,
-  estimateReadingMinutes,
   getArticleAdmin,
   getProjectAdmin,
   getRecommendationAdmin,
@@ -17,6 +16,10 @@ import {
   serviceCompleteness,
 } from '@/lib/admin/content'
 import { requireSupabase } from '@/lib/admin/pipeline'
+import { normalizeCategory } from '@/lib/articles/category'
+import { collectMediaIds, parseArticleBody } from '@/lib/articles/markdown'
+import { findPlaceholders } from '@/lib/articles/placeholders'
+import { revalidateArticleRoutes } from '@/lib/insights-revalidate'
 import { generateRequestToken } from '@/lib/recommendations'
 import { routing } from '@/i18n/routing'
 import type {
@@ -47,11 +50,23 @@ import type {
  */
 
 export type ContentActionResult =
-  | { ok: false; code: 'forbidden' | 'not-configured' | 'duplicate-slug' | 'not-complete' | 'error' }
+  | {
+      ok: false
+      code:
+        | 'forbidden'
+        | 'not-configured'
+        | 'duplicate-slug'
+        | 'not-complete'
+        // Phase 17 — article-only publish/schedule gates:
+        | 'has-placeholder'
+        | 'missing-image'
+        | 'invalid-schedule'
+        | 'error'
+    }
   | { ok: true }
 
 export type ContentActionResultWithId =
-  | { ok: false; code: 'forbidden' | 'not-configured' | 'duplicate-slug' | 'error' }
+  | { ok: false; code: 'forbidden' | 'not-configured' | 'duplicate-slug' | 'invalid-schedule' | 'error' }
   | { ok: true; id: string }
 
 async function requireEditorSession(): Promise<{ userId: string } | { code: 'forbidden' }> {
@@ -733,61 +748,173 @@ export async function unpublishProject(id: string): Promise<ContentActionResult>
 }
 
 // ---------------------------------------------------------------------------
-// articles (§ 15.2) — schema-ahead-of-use: no public page reads `articles`
-// yet (Phase 17), so no revalidation call here — nothing to revalidate.
+// articles (§ 15.2, Phase 17)
+//
+// Public routes now read `articles` (`lib/insights.ts`), so every action that
+// can change what a visitor sees calls `revalidateArticleRoutes`.
 // ---------------------------------------------------------------------------
 
-function articleInputToRow(input: ArticleInput) {
+const ARTICLE_FORM_STATUSES = ['draft', 'review', 'scheduled', 'archived'] as const
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
+function cleanIds(ids: string[] | undefined, exclude?: string): string[] {
+  return [...new Set((ids ?? []).filter((id) => UUID_PATTERN.test(id) && id !== exclude))]
+}
+
+/**
+ * `YYYY-MM-DD` → that day's UTC midnight (ISO), or `null` when it is not a
+ * real calendar date or lies before today (UTC). A date equal to the one the
+ * article is *already* scheduled for is always accepted, so re-saving an
+ * article whose sweep has not run yet is never blocked by its own date.
+ */
+function scheduleToTimestamp(date: string | null, alreadyScheduledAs?: string | null): string | null {
+  if (!date || !DATE_PATTERN.test(date)) return null
+  const at = new Date(`${date}T00:00:00.000Z`)
+  if (Number.isNaN(at.getTime()) || at.toISOString().slice(0, 10) !== date) return null
+  if (alreadyScheduledAs && new Date(alreadyScheduledAs).getTime() === at.getTime()) return at.toISOString()
+  if (date < new Date().toISOString().slice(0, 10)) return null
+  return at.toISOString()
+}
+
+function articleContentToRow(input: ArticleInput) {
   return {
     slug: input.slug.trim(),
     title: { en: input.title.en.trim(), fa: input.title.fa.trim() },
     excerpt: { en: input.excerpt.en.trim(), fa: input.excerpt.fa.trim() },
     body: { en: input.body.en.trim(), fa: input.body.fa.trim() },
-    category: toJsonbOrNull(input.category),
-    status: input.status,
-    reading_time_minutes: estimateReadingMinutes(input.body),
+    category: normalizeCategory(input.category),
   }
+}
+
+/**
+ * Replaces an article's project/service/related-article links. `supabase-js`
+ * has no multi-statement transaction, so this is delete-then-insert per table
+ * and **not atomic** — a failure between the two leaves that table's links
+ * empty until the editor saves again. Acceptable for editor-set, non-critical
+ * link lists (nothing is lost that isn't one click to re-pick); disclosed in
+ * PHASE-17-README rather than hidden. `related` is stored in both directions
+ * so an article's related set is the same from either side.
+ */
+async function saveArticleRelations(
+  supabase: NonNullable<ReturnType<typeof requireSupabase>>,
+  id: string,
+  input: Pick<ArticleInput, 'projectIds' | 'serviceIds' | 'relatedArticleIds'>,
+): Promise<boolean> {
+  const projectIds = cleanIds(input.projectIds)
+  const serviceIds = cleanIds(input.serviceIds)
+  const relatedIds = cleanIds(input.relatedArticleIds, id)
+
+  // `id` is interpolated into a PostgREST filter below — callers have already
+  // checked it against UUID_PATTERN, never pass an unvalidated one here.
+  const cleared = await Promise.all([
+    supabase.from('article_projects').delete().eq('article_id', id),
+    supabase.from('article_services').delete().eq('article_id', id),
+    supabase.from('article_related').delete().or(`article_id.eq.${id},related_article_id.eq.${id}`),
+  ])
+  if (cleared.some((result) => result.error)) return false
+
+  const writes = []
+  if (projectIds.length) {
+    writes.push(supabase.from('article_projects').insert(projectIds.map((project_id, sort_order) => ({ article_id: id, project_id, sort_order }))))
+  }
+  if (serviceIds.length) {
+    writes.push(supabase.from('article_services').insert(serviceIds.map((service_id, sort_order) => ({ article_id: id, service_id, sort_order }))))
+  }
+  if (relatedIds.length) {
+    writes.push(
+      supabase.from('article_related').insert(
+        relatedIds.flatMap((relatedId) => [
+          { article_id: id, related_article_id: relatedId },
+          { article_id: relatedId, related_article_id: id },
+        ]),
+      ),
+    )
+  }
+  const results = await Promise.all(writes)
+  return results.every((result) => !result.error)
 }
 
 export async function createArticle(input: ArticleInput): Promise<ContentActionResultWithId> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
+  if (!isValidSlug(input.slug) || !ARTICLE_FORM_STATUSES.includes(input.status)) return { ok: false, code: 'error' }
+
+  const scheduledAt = input.status === 'scheduled' ? scheduleToTimestamp(input.scheduledFor) : null
+  if (input.status === 'scheduled' && !scheduledAt) return { ok: false, code: 'invalid-schedule' }
 
   const supabase = requireSupabase()
   if (!supabase) return { ok: false, code: 'not-configured' }
 
-  const { data, error } = await supabase.from('articles').insert(articleInputToRow(input)).select('id').single()
+  const { data, error } = await supabase
+    .from('articles')
+    .insert({ ...articleContentToRow(input), status: input.status, ...(scheduledAt ? { published_at: scheduledAt } : {}) })
+    .select('id')
+    .single()
   if (error) {
     if (error.code === '23505') return { ok: false, code: 'duplicate-slug' }
     return { ok: false, code: 'error' }
   }
 
-  await writeAuditLog({ actor: auth.userId, action: 'content.article_created', entity: 'article', entityId: data.id, after: { slug: input.slug } })
+  const linked = await saveArticleRelations(supabase, data.id, input)
+  await writeAuditLog({ actor: auth.userId, action: 'content.article_created', entity: 'article', entityId: data.id, after: { slug: input.slug, status: input.status } })
+  // The article row exists either way. A failed link write does not turn a created article into an error (a retry would only hit
+  // `duplicate-slug`): the editor lands on the edit page, where the empty link lists are visible and can simply be picked again.
+  if (!linked) console.error(`[articles] created ${data.id} but could not save its links`)
   return { ok: true, id: data.id }
 }
 
 export async function updateArticle(id: string, input: ArticleInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
+  if (!UUID_PATTERN.test(id) || !isValidSlug(input.slug) || !ARTICLE_FORM_STATUSES.includes(input.status)) return { ok: false, code: 'error' }
 
   const supabase = requireSupabase()
   if (!supabase) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('articles').update(articleInputToRow(input)).eq('id', id)
+  const { data: current } = await supabase.from('articles').select('slug, status, published_at').eq('id', id).maybeSingle()
+  if (!current) return { ok: false, code: 'error' }
+
+  // A published article stays published when it is saved: only `publishArticle`,
+  // `unpublishArticle` and `archiveArticle` move an article across the public
+  // line. (Before Phase 17 this action wrote `status` from the form, which for
+  // a published article always arrived as 'draft' — saving a typo fix silently
+  // unpublished the article. Nothing public read `articles` yet, so it never
+  // showed; it would have from the first real article.)
+  const isPublished = current.status === 'published'
+  let statusColumns: Record<string, unknown> = {}
+  if (!isPublished) {
+    statusColumns = { status: input.status }
+    if (input.status === 'scheduled') {
+      const scheduledAt = scheduleToTimestamp(input.scheduledFor, current.published_at)
+      if (!scheduledAt) return { ok: false, code: 'invalid-schedule' }
+      statusColumns.published_at = scheduledAt
+    }
+  }
+
+  const { error } = await supabase.from('articles').update({ ...articleContentToRow(input), ...statusColumns }).eq('id', id)
   if (error) {
     if (error.code === '23505') return { ok: false, code: 'duplicate-slug' }
     return { ok: false, code: 'error' }
   }
 
+  const linked = await saveArticleRelations(supabase, id, input)
   await writeAuditLog({ actor: auth.userId, action: 'content.article_updated', entity: 'article', entityId: id })
+  if (isPublished) revalidateArticleRoutes([current.slug, input.slug])
+  if (!linked) return { ok: false, code: 'error' }
   return { ok: true }
 }
 
+/**
+ * § 15 "publishing … requires its required fields", plus two Phase 17 gates
+ * that belong at this exact moment because nothing else can enforce them for
+ * database-held content: no unresolved placeholder (§ 16.3 — the build-time
+ * check cannot see the database) and no embedded image that no longer exists.
+ */
 export async function publishArticle(id: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
+  if (!UUID_PATTERN.test(id)) return { ok: false, code: 'error' }
   const supabase = requireSupabase()
   if (!supabase) return { ok: false, code: 'not-configured' }
 
@@ -797,27 +924,56 @@ export async function publishArticle(id: string): Promise<ContentActionResult> {
   const completeness = articleCompleteness(article)
   if (!completeness.en || !completeness.fa) return { ok: false, code: 'not-complete' }
 
+  const placeholders = findPlaceholders(
+    article.title.en, article.title.fa, article.excerpt.en, article.excerpt.fa, article.body.en, article.body.fa,
+    article.category?.en ?? '', article.category?.fa ?? '',
+  )
+  if (placeholders.length > 0) return { ok: false, code: 'has-placeholder' }
+
+  const mediaIds = new Set([...collectMediaIds(parseArticleBody(article.body.en).blocks), ...collectMediaIds(parseArticleBody(article.body.fa).blocks)])
+  if (mediaIds.size > 0) {
+    const { data: found, error: mediaError } = await supabase.from('media_assets').select('id').in('id', [...mediaIds])
+    if (mediaError) return { ok: false, code: 'error' }
+    if ((found ?? []).length < mediaIds.size) return { ok: false, code: 'missing-image' }
+  }
+
+  // A first-ever publish (or one scheduled for a future date, published early)
+  // goes live *now*; an article that was live before keeps its original date.
+  const now = new Date()
+  const keepDate = article.publishedAt && new Date(article.publishedAt) <= now
   const { error } = await supabase
     .from('articles')
-    .update({ status: 'published', published_at: article.publishedAt ?? new Date().toISOString() })
+    .update({ status: 'published', published_at: keepDate ? article.publishedAt : now.toISOString() })
     .eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.article_published', entity: 'article', entityId: id })
+  revalidateArticleRoutes([article.slug], { visibilityChanged: true })
   return { ok: true }
 }
 
-/** Reverts to `draft` — § 15's "unpublish" for the richer article status enum. `published_at` is left as-is (a historical record of when it first went live), not cleared. */
+/** Reverts to `draft` — § 15's "unpublish". `published_at` is left as-is (a historical record of when it first went live), not cleared. */
 export async function unpublishArticle(id: string): Promise<ContentActionResult> {
+  return moveArticleOffPublic(id, 'draft', 'content.article_unpublished')
+}
+
+/** Removes an article from the public site but keeps it, and its URL history, in the admin. */
+export async function archiveArticle(id: string): Promise<ContentActionResult> {
+  return moveArticleOffPublic(id, 'archived', 'content.article_archived')
+}
+
+async function moveArticleOffPublic(id: string, status: 'draft' | 'archived', action: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
+  if (!UUID_PATTERN.test(id)) return { ok: false, code: 'error' }
   const supabase = requireSupabase()
   if (!supabase) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('articles').update({ status: 'draft' }).eq('id', id)
-  if (error) return { ok: false, code: 'error' }
+  const { data, error } = await supabase.from('articles').update({ status }).eq('id', id).select('slug').maybeSingle()
+  if (error || !data) return { ok: false, code: 'error' }
 
-  await writeAuditLog({ actor: auth.userId, action: 'content.article_unpublished', entity: 'article', entityId: id })
+  await writeAuditLog({ actor: auth.userId, action, entity: 'article', entityId: id })
+  revalidateArticleRoutes([data.slug], { visibilityChanged: true })
   return { ok: true }
 }
 

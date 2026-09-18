@@ -204,7 +204,11 @@ export type ProjectSectionsInput = {
 
 export type AdminTechnology = { id: string; slug: string; name: string; category: string }
 
-/** `articles` (0005) — a single flat table, no nested children, so no `Admin*` row-id variant is needed the way the services cluster's children needed one. */
+/**
+ * `articles` (0005) plus the Phase 17 relations (0016). `publishedAt` is the
+ * go-live date for a `scheduled` article and the real first-published time for
+ * a `published` one — same column, the meaning follows `status`.
+ */
 export type AdminArticle = {
   id: string
   slug: string
@@ -214,8 +218,10 @@ export type AdminArticle = {
   category: LocalizedText | null
   status: 'draft' | 'review' | 'scheduled' | 'published' | 'archived'
   publishedAt: string | null
-  readingTimeMinutes: number | null
   updatedAt: string
+  projectIds: string[]
+  serviceIds: string[]
+  relatedArticleIds: string[]
 }
 
 export type ArticleInput = {
@@ -224,7 +230,21 @@ export type ArticleInput = {
   excerpt: LocalizedText
   body: LocalizedText
   category: LocalizedText | null
+  /** `published` is never set through the form — only `publishArticle` publishes; saving a published article leaves it published. */
   status: 'draft' | 'review' | 'scheduled' | 'archived'
+  /** `YYYY-MM-DD` (UTC). Required, today or later, when `status` is `scheduled`; ignored otherwise. */
+  scheduledFor: string | null
+  projectIds: string[]
+  serviceIds: string[]
+  relatedArticleIds: string[]
+}
+
+/** What the article form offers to link to / insert — every project and service (published or not: an editor may prepare links ahead of publishing), the other articles, and the media library. */
+export type ArticleFormOptions = {
+  projects: { id: string; slug: string; title: LocalizedText; published: boolean }[]
+  services: { id: string; slug: string; title: LocalizedText; published: boolean }[]
+  articles: { id: string; slug: string; title: LocalizedText }[]
+  media: AdminMediaAsset[]
 }
 
 /**

@@ -145,3 +145,42 @@ Source: this repository (`lib/contact-content.ts`, `lib/site.ts`,
   Register still shows it open pending owner sign-off in
   `docs/decisions.md`.
 
+
+---
+
+## Insights / journal (Phase 17)
+
+### Draft article `concurrent-seat-booking` — NOT YET PUBLISHED
+
+The first journal article exists as a **draft** in the database
+(`articles.slug = 'concurrent-seat-booking'`, both languages; source text in
+`docs/content/articles/concurrent-seat-booking.{en,fa}.md`, byte-identical to
+the stored rows). These claims go live only when it is published; the row
+below marked **verify** must be checked against the live function first.
+
+Source repo: `github.com/artaveo/Transportation-System`, `main` at `55ad93d`
+(read 2026-09-18). The live Transportation System database is on a different
+Supabase account from the one connected to this project, so nothing below was
+checked against it.
+
+| Claim | Evidence | Checked |
+|---|---|---|
+| Seat holds are taken by a server Route Handler that calls the Postgres function `hold_seats` through a service-role client; hold length is 10 minutes; a `SEATS_UNAVAILABLE` error becomes HTTP 409 | `app/api/bookings/hold/route.ts` (code excerpt in the article is verbatim from it) | 2026-09-18 |
+| Seat count is capped at 6, on the server as well as in the UI | `lib/booking-data.ts` (`MAX_SEATS_PER_BOOKING = 6`); `app/api/bookings/hold/route.ts` (`TOO_MANY_SEATS`); `components/transport/seat-selection.tsx` (`limitNotice`) | 2026-09-18 |
+| Seats have three states (`available`/`held`/`booked`), a `held_until` deadline, and a unique `(trip_id, seat_number)` | `phase-3.1-supabase-schema.sql` (SQL excerpt in the article is verbatim, comments dropped) | 2026-09-18 |
+| **verify** — `hold_seats` is a single `UPDATE` touching only available (or expired-hold) seats and returning the changed rows; a row-count mismatch raises an exception and rolls everything back | `PHASE-4_2-README.md` § 3 decision 1 (the author's own write-up). The function body itself is **not in the repository** (applied through MCP) | 2026-09-18 |
+| A held seat whose `held_until` has passed counts as free in the seat map, in the seats-left count, and inside `hold_seats` | `lib/supabase/queries.ts` (seat map and seats-left, lines ~138–143 and ~229 — read directly); `PHASE-4_2-README.md` § 3 decision 3 (for `hold_seats`) | 2026-09-18 |
+| `release_seats` frees held seats immediately when the traveler leaves checkout | `PHASE-4_2-README.md` § 3 decision 3 | 2026-09-18 |
+| No scheduled sweep exists for expired holds, so an exact live count of held seats is not available from the table | `PHASE-4_2-README.md` § 4 (explicitly not done) | 2026-09-18 |
+| The Phase 4.2 write-up said the three functions were revoked from `anon`/`authenticated`; a direct `pg_proc.proacl` check on the live project found that revoke had never run; fixed in Phase 4.3 with `revoke … from public, anon, authenticated` + `grant … to service_role` | `phase-4_3-schema-additions.sql` § 0 (header comment and the `revoke`/`grant` lines, which the article quotes verbatim for `hold_seats`) | 2026-09-18 |
+| The project has no live payment gateway | existing claims-ledger row (Transportation System case study): HesabPay blocked on provider credentials | 2026-09-12 |
+
+**Before publishing, run this on the Transportation System database** and
+compare with the article's "One statement, all or nothing" section — if the
+function does not work the way the section says, fix the article, not the
+function:
+
+```sql
+select pg_get_functiondef('public.hold_seats(uuid, uuid[], integer)'::regprocedure);
+select proname, proacl from pg_proc where proname in ('hold_seats','release_seats','confirm_booking');
+```

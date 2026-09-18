@@ -6,12 +6,14 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 
 import { routing } from '@/i18n/routing'
+import { hasPublishedArticles } from '@/lib/insights'
 import { siteConfig } from '@/lib/site'
 import { SITE_URL, buildAlternates } from '@/lib/seo'
 import { buildSiteJsonLd } from '@/lib/structured-data'
 import { THEME_STORAGE_KEY } from '@/lib/theme'
 import { ThemeSync } from '@/components/theme-sync'
 import { PwaManager } from '@/components/site/pwa-manager'
+import { SiteFlagsProvider } from '@/components/site/site-flags'
 import { JsonLd } from '@/components/site/json-ld'
 import type { Locale } from '@/types/content'
 import '../globals.css'
@@ -161,6 +163,15 @@ export default async function RootLayout({
   const dir = locale === 'fa' ? 'rtl' : 'ltr'
 
   /**
+   * Phase 17 — "Insights hidden from nav until content exists" (§ 5.2):
+   * the link follows whether any article is actually published. Tolerant
+   * by design (returns `false` on any failure, see `lib/insights.ts`) so an
+   * unreachable database can't take down routes that don't need it.
+   * Publishing/unpublishing calls `revalidatePath('/', 'layout')`.
+   */
+  const insightsVisible = await hasPublishedArticles()
+
+  /**
    * § 11.3 — fonts subset and preloaded carefully. `--font-vazirmatn` only
    * ever gets read inside a `[dir='rtl']` rule (`app/globals.css`), so on
    * `en` pages the variable is dead weight: Next.js preloads a font the
@@ -192,8 +203,10 @@ export default async function RootLayout({
         <JsonLd data={buildSiteJsonLd(locale as Locale)} />
         <ThemeSync />
         <NextIntlClientProvider>
-          {children}
-          <PwaManager />
+          <SiteFlagsProvider flags={{ insights: insightsVisible }}>
+            {children}
+            <PwaManager />
+          </SiteFlagsProvider>
         </NextIntlClientProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

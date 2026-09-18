@@ -1,16 +1,24 @@
 import type { Locale } from '@/types/content'
 
 /**
- * Maps our app locale to a BCP-47 tag for `Intl`. Persian copy stays
- * neutral / Dari-leaning (D-03) with Gregorian dates and Persian digits in
- * prose — `fa` (not `fa-IR`) keeps the Gregorian calendar instead of
- * `Intl`'s default Persian calendar for `fa-IR`, and Latin digits stay
- * confined to code/IDs/technical values, never routed through these
- * helpers.
+ * Maps our app locale to a BCP-47 tag for `Intl`. D-03: Persian copy stays
+ * neutral, with **Gregorian dates** and Persian digits in prose; Latin
+ * digits stay confined to code/IDs/technical values, never routed through
+ * these helpers.
+ *
+ * `fa-u-ca-gregory` — the `-u-ca-gregory` extension is what actually pins the
+ * calendar. This file used to map `fa` to plain `'fa'`, on the belief that
+ * only `fa-IR` switches `Intl` to the Persian (Solar Hijri) calendar; it does
+ * not — `Intl` defaults to Solar Hijri for *any* `fa` tag, so every Persian
+ * date on the site rendered as e.g. "۱۹ شهریور ۱۴۰۵" instead of the Gregorian
+ * "۱۰ سپتامبر ۲۰۲۶" D-03 asks for. Fixed in Phase 17 (found while checking the
+ * journal's publish dates). Use `formatDate` — never a bare
+ * `toLocaleDateString(locale)` / `new Intl.DateTimeFormat('fa…')` — for
+ * anything user-visible.
  */
 const intlTag: Record<Locale, string> = {
   en: 'en-US',
-  fa: 'fa',
+  fa: 'fa-u-ca-gregory',
 }
 
 export function formatDate(iso: string, locale: Locale, options?: Intl.DateTimeFormatOptions): string {

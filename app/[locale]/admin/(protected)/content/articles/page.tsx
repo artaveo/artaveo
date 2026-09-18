@@ -93,6 +93,9 @@ export default async function ArticlesListPage({
                     </TableCell>
                     <TableCell label={t('cmsColumnStatus')}>
                       <Badge variant={statusVariant(article.status)}>{t(`cmsArticleStatus${capitalize(article.status)}`)}</Badge>
+                      {article.status === 'scheduled' && article.publishedAt ? (
+                        <p className="mt-1 text-xs text-muted-foreground">{article.publishedAt.slice(0, 10)}</p>
+                      ) : null}
                     </TableCell>
                     <TableCell label={t('cmsColumnCompleteness')}>
                       <CompletenessBadges completeness={article.completeness} />

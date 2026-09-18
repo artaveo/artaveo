@@ -6,7 +6,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useRouter } from '@/i18n/navigation'
 import { Kbd } from '@/components/ui/actions'
-import { visibleCommandItems, type CommandGroup } from '@/lib/site'
+import { useVisibleCommandItems } from '@/components/site/site-flags'
+import type { CommandGroup } from '@/lib/site'
 import { useFocusTrap } from '@/lib/use-focus-trap'
 import { cn } from '@/lib/utils'
 
@@ -20,6 +21,7 @@ export function CommandPalette({
   const router = useRouter()
   const t = useTranslations('CommandPalette')
   const tNav = useTranslations('Nav')
+  const visibleCommandItems = useVisibleCommandItems()
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -41,7 +43,7 @@ export function CommandPalette({
             ? tNav(item.labelKey as Parameters<typeof tNav>[0])
             : t(item.labelKey as 'home' | 'emailArtaveo'),
       })),
-    [t, tNav],
+    [t, tNav, visibleCommandItems],
   )
 
   const results = useMemo(() => {

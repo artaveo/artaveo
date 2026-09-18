@@ -33,6 +33,12 @@ export type NavKey =
   | 'privacy'
   | 'terms'
 
+/**
+ * Sections whose visibility is decided by real content in the database
+ * rather than a static flag (see `components/site/site-flags.tsx`).
+ */
+export type ContentFlag = 'insights'
+
 export type NavItem = {
   href: string
   key: NavKey
@@ -43,8 +49,13 @@ export type NavItem = {
    * definition — § 5.2's "Insights hidden until content exists" rule.
    * Flip to `true` (or drop the field) once Phase 17 publishes real
    * articles behind `/insights`.
+   *
+   * Phase 17: items that also carry `contentFlag` ignore this field —
+   * their visibility comes from the flag, resolved server-side.
    */
   hasContent?: boolean
+  /** Visibility derived from real content instead of `hasContent` (Phase 17). */
+  contentFlag?: ContentFlag
 }
 
 export const mainNav: NavItem[] = [
@@ -53,16 +64,18 @@ export const mainNav: NavItem[] = [
   { href: '/services', key: 'services', hasDescription: true },
   { href: '/process', key: 'process', hasDescription: true },
   { href: '/about', key: 'about', hasDescription: true },
-  { href: '/insights', key: 'insights', hasDescription: true, hasContent: false },
+  { href: '/insights', key: 'insights', hasDescription: true, hasContent: false, contentFlag: 'insights' },
 ]
 
 /**
- * The only list nav surfaces (header, mobile nav, footer) should render —
- * filters out items whose `hasContent` is explicitly `false`. `mainNav`
- * itself stays the full, canonical route list for anything that needs it
- * (active-state checks, sitemap generation, etc.).
+ * `mainNav` is the full, canonical route list. Which of its items a
+ * visitor actually sees is decided at render time by
+ * `useVisibleMainNav()` (`components/site/site-flags.tsx`): items with a
+ * `contentFlag` follow real content in the database, everything else
+ * follows the static `hasContent` rule. (Pre-Phase-17 this file exported a
+ * pre-filtered `visibleMainNav`; it was removed because a static filter
+ * can no longer express "Insights appears with the first article".)
  */
-export const visibleMainNav: NavItem[] = mainNav.filter((item) => item.hasContent !== false)
 
 /**
  * `/work` shows category/technology filters only once there are enough
@@ -115,6 +128,8 @@ export type CommandItem = {
   keywords?: string
   /** Same hiding rule as `NavItem.hasContent` (§ 5.2) — kept in sync with `mainNav`. */
   hasContent?: boolean
+  /** Same as `NavItem.contentFlag` — kept in sync with `mainNav`. */
+  contentFlag?: ContentFlag
 }
 
 export const commandItems: CommandItem[] = [
@@ -123,7 +138,7 @@ export const commandItems: CommandItem[] = [
   { labelKey: 'services', labelNamespace: 'Nav', href: '/services', group: 'navigate', keywords: 'offerings help services' },
   { labelKey: 'process', labelNamespace: 'Nav', href: '/process', group: 'navigate', keywords: 'method steps how process' },
   { labelKey: 'about', labelNamespace: 'Nav', href: '/about', group: 'navigate', keywords: 'developer about' },
-  { labelKey: 'insights', labelNamespace: 'Nav', href: '/insights', group: 'navigate', keywords: 'blog writing notes insights', hasContent: false },
+  { labelKey: 'insights', labelNamespace: 'Nav', href: '/insights', group: 'navigate', keywords: 'blog writing notes insights', hasContent: false, contentFlag: 'insights' },
   { labelKey: 'designSystem', labelNamespace: 'Nav', href: '/design-system', group: 'resources', keywords: 'tokens components ui design system' },
   { labelKey: 'start', labelNamespace: 'Nav', href: '/start', group: 'actions', keywords: 'start project brief builder inquiry hire' },
   { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'contact email whatsapp hire channels' },
@@ -131,8 +146,3 @@ export const commandItems: CommandItem[] = [
   { labelKey: 'terms', labelNamespace: 'Nav', href: '/terms', group: 'resources', keywords: 'terms of service legal' },
   { labelKey: 'emailArtaveo', labelNamespace: 'CommandPalette', href: 'mailto:artaveo.dev@gmail.com', group: 'actions', keywords: 'mail email reach contact' },
 ]
-
-/** Command palette's visible set — same `hasContent` filter as `visibleMainNav`. */
-export const visibleCommandItems: CommandItem[] = commandItems.filter(
-  (item) => item.hasContent !== false,
-)

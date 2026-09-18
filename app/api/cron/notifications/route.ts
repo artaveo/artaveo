@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
 
 import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { publishDueArticles } from '@/lib/insights-scheduler'
 import { processOutboxBatch } from '@/lib/notifications/outbox'
 
 /**
- * § 9.3 — Notifications: daily retry sweep.
+ * § 9.3 — Notifications: daily retry sweep (and, since Phase 17, the
+ * daily scheduled-article publish sweep — see below).
  *
  * The inline best-effort attempt in `app/actions/inquiries.ts` covers the
  * common case (send succeeds immediately). This route is the safety net
@@ -43,5 +45,13 @@ export async function GET(request: Request) {
   }
 
   const result = await processOutboxBatch(supabase, { limit: 100 })
-  return NextResponse.json({ ok: true, ...result })
+
+  // Phase 17: the same daily run also publishes journal articles whose
+  // scheduled date has arrived (`lib/insights-scheduler.ts`). It shares this
+  // route — not a second `vercel.json` cron entry — because the Hobby plan's
+  // cron allowance is small and exceeding it fails the whole deploy. The
+  // two sweeps are independent: a failure in one never blocks the other.
+  const articles = await publishDueArticles(supabase)
+
+  return NextResponse.json({ ok: true, ...result, articles })
 }

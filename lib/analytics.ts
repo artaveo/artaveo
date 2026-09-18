@@ -23,6 +23,7 @@ import { track } from '@vercel/analytics'
  */
 export type AnalyticsEvent =
   | 'project_view'
+  | 'article_view'
   | 'service_view'
   | 'package_compare'
   | 'cta_click'

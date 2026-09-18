@@ -12,12 +12,13 @@ import { LanguageSwitcher } from '@/components/site/language-switcher'
 import { MobileNav } from '@/components/site/mobile-nav'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
-import { visibleMainNav } from '@/lib/site'
+import { useVisibleMainNav } from '@/components/site/site-flags'
 import { cn } from '@/lib/utils'
 
 export function SiteHeader() {
   const pathname = usePathname()
   const tNav = useTranslations('Nav')
+  const visibleMainNav = useVisibleMainNav()
   const tCommon = useTranslations('Common')
   const [cmdOpen, setCmdOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)

@@ -4,7 +4,8 @@ import { Link } from '@/i18n/navigation'
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { Link as ActionLink } from '@/components/ui/actions'
 import { ExternalProfileLinks } from '@/components/ui/identity'
-import { legalNav, siteConfig, utilityNav, visibleMainNav, type NavItem } from '@/lib/site'
+import { useVisibleMainNav } from '@/components/site/site-flags'
+import { legalNav, siteConfig, utilityNav, type NavItem } from '@/lib/site'
 
 /**
  * § 5.2 asked for "locale-aware legal links" in the footer; § 11.2 now
@@ -17,6 +18,7 @@ export function SiteFooter() {
   const t = useTranslations('Footer')
   const tCommon = useTranslations('Common')
   const tNav = useTranslations('Nav')
+  const visibleMainNav = useVisibleMainNav()
 
   return (
     <footer className="border-t border-border bg-elevated">

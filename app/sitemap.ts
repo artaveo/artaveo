@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 import { getAllProjects } from '@/lib/home-content-projects'
+import { getPublishedArticleSummaries } from '@/lib/insights'
 import { getAllServices } from '@/lib/services-content'
 import { routing } from '@/i18n/routing'
 import { absoluteUrl } from '@/lib/seo'
@@ -74,6 +75,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
         alternates: { languages: languageAlternates(path) },
       })
+    }
+  }
+
+  // Phase 17 — the journal, only once something is published (empty means hidden):
+  // the index and every published article, in both locales.
+  const articles = await getPublishedArticleSummaries()
+  if (articles.length > 0) {
+    for (const locale of routing.locales) {
+      entries.push({
+        url: absoluteUrl(`/${locale}/insights`),
+        lastModified: new Date(articles[0].updatedAt),
+        changeFrequency: 'weekly',
+        priority: 0.7,
+        alternates: { languages: languageAlternates('/insights') },
+      })
+    }
+    for (const article of articles) {
+      const path = `/insights/${article.slug}`
+      for (const locale of routing.locales) {
+        entries.push({
+          url: absoluteUrl(`/${locale}${path}`),
+          lastModified: new Date(article.updatedAt),
+          changeFrequency: 'monthly',
+          priority: 0.6,
+          alternates: { languages: languageAlternates(path) },
+        })
+      }
     }
   }
 

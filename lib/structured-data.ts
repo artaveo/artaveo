@@ -1,6 +1,6 @@
 import { absoluteUrl } from '@/lib/seo'
 import { siteConfig, socialLinks } from '@/lib/site'
-import { t, type FaqItem, type Locale, type Project, type Service } from '@/types/content'
+import { t, type ArticleSummary, type FaqItem, type Locale, type Project, type Service } from '@/types/content'
 import { getDeveloperProfile } from '@/lib/home-content'
 
 /**
@@ -118,6 +118,33 @@ export function buildCreativeWorkJsonLd(locale: Locale, project: Project): JsonL
     creator: { '@id': absoluteUrl('/#person') },
     keywords: project.technologies.join(', '),
     ...(project.liveUrl ? { sameAs: [project.liveUrl] } : {}),
+  }
+}
+
+/**
+ * `BlogPosting` for a journal article (Phase 17). Every value is a stored
+ * field of the article itself: dates are `published_at` / `updated_at`,
+ * `timeRequired` is the same per-locale reading-time the page shows, the
+ * author is the site's one real `Person`. No image is emitted — articles
+ * have no cover image, and an invented one would break § 16.5.
+ */
+export function buildArticleJsonLd(locale: Locale, article: ArticleSummary): JsonLdValue {
+  const url = absoluteUrl(`/${locale}/insights/${article.slug}`)
+  const minutes = article.readingMinutes[locale]
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: t(article.title, locale),
+    description: t(article.excerpt, locale),
+    url,
+    mainEntityOfPage: url,
+    inLanguage: locale,
+    datePublished: article.publishedAt,
+    dateModified: article.updatedAt,
+    ...(article.category ? { articleSection: t(article.category, locale) } : {}),
+    ...(minutes > 0 ? { timeRequired: `PT${minutes}M` } : {}),
+    author: { '@id': absoluteUrl('/#person') },
+    publisher: { '@id': absoluteUrl('/#business') },
   }
 }
 

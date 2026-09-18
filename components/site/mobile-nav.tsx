@@ -8,7 +8,8 @@ import { Link, usePathname } from '@/i18n/navigation'
 import { LanguageSwitcher } from '@/components/site/language-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
-import { siteConfig, utilityNav, visibleMainNav } from '@/lib/site'
+import { useVisibleMainNav } from '@/components/site/site-flags'
+import { siteConfig, utilityNav } from '@/lib/site'
 import { useFocusTrap } from '@/lib/use-focus-trap'
 import { cn } from '@/lib/utils'
 
@@ -30,6 +31,7 @@ export function MobileNav({
 }) {
   const pathname = usePathname()
   const tNav = useTranslations('Nav')
+  const visibleMainNav = useVisibleMainNav()
   const tCommon = useTranslations('Common')
   const panelRef = useRef<HTMLDivElement>(null)
 

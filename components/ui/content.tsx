@@ -42,15 +42,21 @@ function Callout({
   )
 }
 
-/** CodeBlock — always LTR (code, paths, and URLs never mirror), with a copy button. Syntax highlighting is out of scope here; pass pre-highlighted `children` if needed later. */
+/** CodeBlock — always LTR (code, paths, and URLs never mirror), with a copy button (always visible on touch — no hover there — and revealed on hover/focus from `md` up). Syntax highlighting is out of scope here; pass pre-highlighted `children` if needed later. */
 function CodeBlock({
   code,
   language,
   className,
+  copyLabel = 'Copy code',
+  copiedLabel = 'Copied',
 }: {
   code: string
   language?: string
   className?: string
+  /** Accessible name of the copy button — pass the translated string on `fa` pages. */
+  copyLabel?: string
+  /** Announced (via a polite live region) after a successful copy. */
+  copiedLabel?: string
 }) {
   const [copied, setCopied] = useState(false)
 
@@ -76,15 +82,19 @@ function CodeBlock({
         </div>
       ) : null}
       <IconButton
-        aria-label="Copy code"
+        aria-label={copyLabel}
         variant="ghost"
         size="xs"
         onClick={handleCopy}
-        className="absolute end-2 top-2 opacity-0 transition-opacity group-hover/code:opacity-100 focus-visible:opacity-100"
+        className="absolute end-2 top-2 opacity-100 transition-opacity focus-visible:opacity-100 md:opacity-0 md:group-hover/code:opacity-100"
       >
         {copied ? <Check className="text-success-text" /> : <CopyIcon />}
       </IconButton>
-      <pre className="overflow-x-auto p-4 text-sm">
+      <span role="status" className="sr-only">
+        {copied ? copiedLabel : ''}
+      </span>
+      {/* Focusable so keyboard users can scroll a long line (axe: scrollable-region-focusable). */}
+      <pre tabIndex={0} className="overflow-x-auto p-4 text-sm">
         <code className="font-mono text-foreground">{code}</code>
       </pre>
     </div>

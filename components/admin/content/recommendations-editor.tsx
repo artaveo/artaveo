@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { CompletenessBadges } from '@/components/admin/content/completeness-badge'
 import { LocalizedTextareaField, emptyLocalized } from '@/components/admin/content/localized-fields'
 import { RecommendationStatusBadge } from '@/components/admin/content/recommendation-status-badge'
+import { formatDate } from '@/lib/format'
 import { t as tLocalized, type Locale, type LocalizedText, type RecommendationVerification } from '@/types/content'
 import type { AdminRecommendation, RecommendationInput } from '@/types/cms'
 
@@ -142,7 +143,7 @@ function RecommendationCard({
             <CompletenessBadges completeness={rec.completeness} />
             {!rec.consentToPublish ? <span className="text-xs text-warning-text">{t('cmsRecNoConsentNote')}</span> : null}
           </div>
-          <span className="text-xs text-muted-foreground">{new Date(rec.createdAt).toLocaleDateString(locale)}</span>
+          <span className="text-xs text-muted-foreground">{formatDate(rec.createdAt, locale)}</span>
         </div>
 
         {rec.moderationNote ? (

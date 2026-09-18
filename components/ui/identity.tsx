@@ -138,7 +138,8 @@ const availabilityMeta: Record<
 
 function formatUpdatedAt(iso: string, locale: Locale) {
   try {
-    return new Intl.DateTimeFormat(locale === 'fa' ? 'fa-IR' : 'en-US', {
+    // Same Gregorian-calendar rule as every other date (D-03) — `fa-IR` would render Solar Hijri.
+    return new Intl.DateTimeFormat(locale === 'fa' ? 'fa-u-ca-gregory' : 'en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',

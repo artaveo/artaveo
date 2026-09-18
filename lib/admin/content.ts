@@ -1,6 +1,8 @@
 import 'server-only'
 
+import { listMediaAssets } from '@/lib/admin/media'
 import { requireSupabase } from '@/lib/admin/pipeline'
+import { normalizeCategory } from '@/lib/articles/category'
 import type { DecisionRecord, LocalizedText } from '@/types/content'
 import type {
   AdminArticle,
@@ -18,6 +20,7 @@ import type {
   LocaleCompleteness,
   RecommendationRequestStatus,
   RecommendationStatus,
+  ArticleFormOptions,
 } from '@/types/cms'
 
 /**
@@ -533,29 +536,27 @@ export function articleCompleteness(article: {
   return mergeCompleteness(checks)
 }
 
-/** Word-count-based estimate at ~200 wpm, computed from the English body — a real, honest number rather than a manually-typed figure that silently goes stale as the body is edited. See `docs/phases/PHASE-15-README.md`. */
-export function estimateReadingMinutes(body: LocalizedText): number {
-  const words = body.en.trim().split(/\s+/).filter(Boolean).length
-  if (words === 0) return 0
-  return Math.max(1, Math.ceil(words / 200))
-}
+const ARTICLE_COLUMNS = 'id, slug, title, excerpt, body, category, status, published_at, updated_at'
 
-const ARTICLE_COLUMNS = 'id, slug, title, excerpt, body, category, status, published_at, reading_time_minutes, updated_at'
-
-function assembleAdminArticle(row: Record<string, any>): AdminArticle {
+function assembleAdminArticle(
+  row: Record<string, any>,
+  relations: { projectIds: string[]; serviceIds: string[]; relatedArticleIds: string[] },
+): AdminArticle {
   return {
     id: row.id,
     slug: row.slug,
     title: row.title,
     excerpt: row.excerpt,
     body: row.body,
-    category: row.category ?? null,
+    category: normalizeCategory(row.category),
     status: row.status,
     publishedAt: row.published_at ?? null,
-    readingTimeMinutes: row.reading_time_minutes ?? null,
     updatedAt: row.updated_at,
+    ...relations,
   }
 }
+
+const NO_RELATIONS = { projectIds: [], serviceIds: [], relatedArticleIds: [] }
 
 export async function listArticlesAdmin(): Promise<(AdminArticle & { completeness: LocaleCompleteness })[] | null> {
   const supabase = requireSupabase()
@@ -566,8 +567,9 @@ export async function listArticlesAdmin(): Promise<(AdminArticle & { completenes
     console.error('listArticlesAdmin failed:', error)
     return []
   }
+  // The list view never shows relations, so it does not pay to load them.
   return data.map((row: any) => {
-    const article = assembleAdminArticle(row)
+    const article = assembleAdminArticle(row, NO_RELATIONS)
     return { ...article, completeness: articleCompleteness(article) }
   })
 }
@@ -578,7 +580,39 @@ export async function getArticleAdmin(id: string): Promise<AdminArticle | null> 
 
   const { data: row, error } = await supabase.from('articles').select(ARTICLE_COLUMNS).eq('id', id).maybeSingle()
   if (error || !row) return null
-  return assembleAdminArticle(row)
+
+  const [projects, services, related] = await Promise.all([
+    supabase.from('article_projects').select('project_id').eq('article_id', id).order('sort_order'),
+    supabase.from('article_services').select('service_id').eq('article_id', id).order('sort_order'),
+    supabase.from('article_related').select('related_article_id').eq('article_id', id),
+  ])
+  return assembleAdminArticle(row, {
+    projectIds: (projects.data ?? []).map((r: any) => r.project_id),
+    serviceIds: (services.data ?? []).map((r: any) => r.service_id),
+    relatedArticleIds: (related.data ?? []).map((r: any) => r.related_article_id),
+  })
+}
+
+/** Everything the article form can link to or insert — see `ArticleFormOptions`. */
+export async function getArticleFormOptions(excludeArticleId?: string): Promise<ArticleFormOptions | null> {
+  const supabase = requireSupabase()
+  if (!supabase) return null
+
+  const [projects, services, articles, media] = await Promise.all([
+    supabase.from('projects').select('id, slug, title, published').order('sort_order'),
+    supabase.from('services').select('id, slug, title, published').order('sort_order'),
+    supabase.from('articles').select('id, slug, title').order('updated_at', { ascending: false }),
+    listMediaAssets(),
+  ])
+
+  return {
+    projects: (projects.data ?? []).map((r: any) => ({ id: r.id, slug: r.slug, title: r.title, published: !!r.published })),
+    services: (services.data ?? []).map((r: any) => ({ id: r.id, slug: r.slug, title: r.title, published: !!r.published })),
+    articles: (articles.data ?? [])
+      .filter((r: any) => r.id !== excludeArticleId)
+      .map((r: any) => ({ id: r.id, slug: r.slug, title: r.title })),
+    media: media ?? [],
+  }
 }
 
 // ---------------------------------------------------------------------------

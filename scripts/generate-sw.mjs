@@ -42,8 +42,8 @@ const LOCALES = ['en', 'fa'];
 // § 10.2's own list, verbatim: "Home, Work (index + case studies),
 // Services (catalogue + detail), About, Process, Insights". '' stands for
 // Home (i.e. the path is just /en or /fa with nothing after the locale).
-// Insights has no route yet (Phase 17) — listed anyway so it's covered
-// automatically the day it ships, with no service-worker change needed.
+// Insights ships in Phase 17 — it was listed here ahead of time, so the
+// service worker needed no change beyond the extension guard below.
 // Everything NOT in this list — /start, /contact, /design-system, and any
 // future /admin, lead-pipeline, CMS or client-portal route — deliberately
 // never matches this predicate, so the fetch handler below never
@@ -53,6 +53,9 @@ const LOCALES = ['en', 'fa'];
 const CONTENT_SEGMENTS = ['', 'work', 'services', 'about', 'process', 'insights'];
 
 function isContentPagePath(pathname) {
+  // A path with a file extension (e.g. /en/insights/feed.xml, the RSS feed)
+  // is a document for feed readers, not a page to keep for offline browsing.
+  if (/\\.[a-z0-9]+$/i.test(pathname)) return false;
   const parts = pathname.split('/').filter(Boolean);
   if (parts.length === 0 || !LOCALES.includes(parts[0])) return false;
   if (parts.length === 1) return true; // /en or /fa — Home

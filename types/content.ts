@@ -284,16 +284,48 @@ export type ProcessStep = {
   description: LocalizedText
 }
 
-export type ArticlePreview = {
+/**
+ * Phase 17 — a published article as the public journal reads it
+ * (`lib/insights.ts`). Everything the public site can see has, by
+ * construction, a real `publishedAt` — the two `null`-able fields the
+ * pre-Phase-17 `ArticlePreview` carried existed only to describe unwritten
+ * drafts, which the public site never shows (§ 3.5, § 16.5).
+ */
+export type ArticleSummary = {
   id: string
   slug: string
   title: LocalizedText
   excerpt: LocalizedText
-  category: LocalizedText
-  /** ISO date. `null` while the article is still being written. */
-  publishedAt: string | null
-  /** Minutes. `null` until the article is final. */
-  readingMinutes: number | null
+  category: LocalizedText | null
+  /** ISO timestamp the article went live. */
+  publishedAt: string
+  /** ISO timestamp of the last edit (`articles.updated_at`, kept honest by the 0016 trigger). */
+  updatedAt: string
+  /** Whole minutes per locale, computed from each body — see `lib/articles/reading-time.ts`. */
+  readingMinutes: { en: number; fa: number }
+}
+
+export type Article = ArticleSummary & {
+  /** Markdown subset per locale — see `lib/articles/markdown.ts`. */
+  body: LocalizedText
+}
+
+/** A media-library image an article body embeds with `![caption](media:<id>)`. */
+export type ArticleImage = {
+  id: string
+  url: string
+  /** Required at upload (§ 15) — always present. */
+  alt: LocalizedText
+  width: number | null
+  height: number | null
+}
+
+export type ArticleDetail = Article & {
+  /** Keyed by lower-case media id. A body reference with no entry here (asset deleted since) is skipped, never rendered broken. */
+  images: Record<string, ArticleImage>
+  relatedProjects: { slug: string; title: LocalizedText; summary: LocalizedText }[]
+  relatedServices: { slug: string; title: LocalizedText; description: LocalizedText }[]
+  relatedArticles: ArticleSummary[]
 }
 
 /**

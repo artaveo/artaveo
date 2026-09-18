@@ -1,5 +1,4 @@
 import type {
-  ArticlePreview,
   Capability,
   DeveloperProfile,
   LocalizedText,
@@ -464,59 +463,6 @@ const developerData: DeveloperProfile = {
 }
 
 /**
- * Planned articles. They stay unpublished (`publishedAt: null`) until the
- * admin sets a real date and reading time — `getPublishedInsights()` hides
- * them from the public site until then (§ 3.5 / § 16.5).
- */
-const insightsData: ArticlePreview[] = [
-  {
-    id: 'concurrent-seat-booking',
-    slug: 'concurrent-seat-booking',
-    title: tx(
-      'Keeping seat bookings correct under concurrent requests',
-      'درست نگه‌داشتن رزرو صندلی زیر بار درخواست‌های همزمان',
-    ),
-    excerpt: tx(
-      'Why the database, not the browser, has to decide who owns a seat — and how holds and confirmations are modeled.',
-      'چرا این پایگاه داده است، نه مرورگر، که باید تعیین کند صندلی مال کیست — و مدل‌سازی رزرو موقت و تأیید نهایی چطور انجام می‌شود.',
-    ),
-    category: tx('Backend', 'بک‌اند'),
-    publishedAt: null,
-    readingMinutes: null,
-  },
-  {
-    id: 'rtl-first-interfaces',
-    slug: 'rtl-first-interfaces',
-    title: tx(
-      'Building RTL-first interfaces with logical CSS',
-      'ساخت رابط‌های کاربری RTL-first با CSS منطقی',
-    ),
-    excerpt: tx(
-      'Practical notes on layouts that work in Persian and English without maintaining two sets of components.',
-      'نکاتی عملی درباره‌ی چیدمان‌هایی که در فارسی و انگلیسی کار می‌کنند، بدون نیاز به دو مجموعه کامپوننت جداگانه.',
-    ),
-    category: tx('Frontend', 'فرانت‌اند'),
-    publishedAt: null,
-    readingMinutes: null,
-  },
-  {
-    id: 'offline-first-content',
-    slug: 'offline-first-content',
-    title: tx(
-      'Offline-first data loading for content-driven sites',
-      'بارگذاری داده به‌شکل offline-first برای سایت‌های محتوامحور',
-    ),
-    excerpt: tx(
-      'Rendering instantly from a local cache, then hydrating from the live database without showing stale state as truth.',
-      'نمایش فوری از cache محلی، و سپس هیدریت شدن از پایگاه داده‌ی زنده، بدون نمایش وضعیت قدیمی به‌جای واقعیت.',
-    ),
-    category: tx('Architecture', 'معماری'),
-    publishedAt: null,
-    readingMinutes: null,
-  },
-]
-
-/**
  * Selectors — the only way pages and components read content (§ 3.2).
  * Keeping the raw arrays module-private means the day this data moves to
  * PostgreSQL, only the bodies of these functions change.
@@ -565,12 +511,4 @@ export function getProcessSteps(): ProcessStep[] {
 
 export function getDeveloperProfile(): DeveloperProfile {
   return developerData
-}
-
-/** Published, most-recent-first, capped to `limit`. Empty when nothing is published yet. */
-export function getPublishedInsights(limit = 3): ArticlePreview[] {
-  return insightsData
-    .filter((article) => article.publishedAt !== null)
-    .sort((a, b) => (a.publishedAt! < b.publishedAt! ? 1 : -1))
-    .slice(0, limit)
 }
