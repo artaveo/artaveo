@@ -99,3 +99,13 @@ export function mfaDestination(session: AdminSession): 'mfa-challenge' | 'securi
 export function canAccessLeads(session: AdminSession): boolean {
   return session.role === 'owner'
 }
+
+/**
+ * Phase 19 — the notification log holds the full text of every e-mail the
+ * site produced, including each inquiry's brief and the client's address. That
+ * is lead data, so it follows the Lead Pipeline's rule (§ 13: "editor: content
+ * only, no leads") and is owner-only, checked by every page and action itself.
+ */
+export function canAccessNotifications(session: AdminSession): boolean {
+  return session.role === 'owner'
+}

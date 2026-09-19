@@ -710,12 +710,20 @@ function requestLinkStatus(row: Record<string, any>): RecommendationRequestStatu
 
 const REQUEST_COLUMNS =
   'id, token, note, suggested_related_project_id, suggested_related_service_id, created_at, expires_at, ' +
-  'used_at, revoked_at, recommendation_id, ' +
+  'used_at, revoked_at, recommendation_id, recipient_email, recipient_locale, ' +
   'suggested_project:projects!recommendation_requests_suggested_related_project_id_fkey(title), ' +
   'suggested_service:services!recommendation_requests_suggested_related_service_id_fkey(title), ' +
-  'recommendations(status)'
+  // Disambiguated on purpose: the two tables reference each other (0005's
+  // `recommendations.request_id` and 0015's `recommendation_requests.recommendation_id`),
+  // so a bare `recommendations(status)` is rejected by PostgREST with PGRST201
+  // ("more than one relationship") and the whole list came back empty. Found in
+  // Phase 19 against a real PostgREST; see docs/phases/PHASE-19-README.md.
+  'recommendations!recommendation_requests_recommendation_id_fkey(status)'
 
-function assembleAdminRequest(row: Record<string, any>): AdminRecommendationRequest {
+function assembleAdminRequest(
+  row: Record<string, any>,
+  lastEmail: AdminRecommendationRequest['lastEmail'] = null,
+): AdminRecommendationRequest {
   return {
     id: row.id,
     token: row.token,
@@ -731,6 +739,9 @@ function assembleAdminRequest(row: Record<string, any>): AdminRecommendationRequ
     recommendationId: row.recommendation_id ?? null,
     recommendationStatus: (row.recommendations?.status as RecommendationStatus | undefined) ?? null,
     status: requestLinkStatus(row),
+    recipientEmail: (row.recipient_email as string | null) ?? null,
+    recipientLocale: (row.recipient_locale as 'en' | 'fa' | null) ?? null,
+    lastEmail,
   }
 }
 
@@ -743,6 +754,25 @@ export async function listRecommendationRequestsAdmin(): Promise<AdminRecommenda
     console.error('listRecommendationRequestsAdmin failed:', error)
     return []
   }
-  return data.map(assembleAdminRequest)
+
+  // D-14: what became of the e-mail the site queued for each link — newest per
+  // request. One extra read; the notification log itself stays owner-only, so
+  // this carries only the kind, status and provider, never a body or address.
+  const ids = data.map((row: Record<string, any>) => row.id as string)
+  const latest = new Map<string, NonNullable<AdminRecommendationRequest['lastEmail']>>()
+  if (ids.length > 0) {
+    const { data: emails } = await supabase
+      .from('notification_outbox')
+      .select('entity_id, kind, status, last_provider, created_at')
+      .eq('entity_type', 'recommendation_request')
+      .in('entity_id', ids)
+      .order('created_at', { ascending: false })
+    for (const email of (emails ?? []) as Record<string, any>[]) {
+      if (!latest.has(email.entity_id)) {
+        latest.set(email.entity_id, { kind: email.kind, status: email.status, provider: email.last_provider ?? null })
+      }
+    }
+  }
+  return data.map((row: Record<string, any>) => assembleAdminRequest(row, latest.get(row.id) ?? null))
 }
 

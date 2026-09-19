@@ -2,6 +2,8 @@
 
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { resolveRequestToken } from '@/lib/recommendations'
+import { enqueueEvidenceSubmitted } from '@/lib/notifications/events'
+import { processAfterEnqueue } from '@/lib/notifications/outbox'
 import type { Locale, LocalizedText } from '@/types/content'
 import type { RecommendationSubmissionInput } from '@/types/cms'
 
@@ -113,6 +115,13 @@ export async function submitRecommendation(
       .eq('id', requestRow.recommendation_id)
     if (updateError) return { ok: false, code: 'error' }
 
+    await notifyOwner(supabase, requestRow.recommendation_id as string, {
+      personName,
+      relationship,
+      company: company || null,
+      locale,
+      resubmission: true,
+    })
     return { ok: true }
   }
 
@@ -148,5 +157,44 @@ export async function submitRecommendation(
     console.error('recommendation_requests touch failed (recommendation itself was saved):', touchError)
   }
 
+  await notifyOwner(supabase, inserted.id as string, {
+    personName,
+    relationship,
+    company: company || null,
+    locale,
+    resubmission: false,
+  })
   return { ok: true }
+}
+
+/**
+ * Phase 19 ("evidence submitted"): tell the owner something is waiting in the
+ * moderation queue. Best-effort by the same rule as the Brief Builder's e-mail
+ * — the submission is already saved, so a failure here is logged and never
+ * changes what the recommender sees. The message carries who and how they know
+ * the owner, plus a link; the statement itself stays in the admin, and nothing
+ * becomes public without moderation.
+ */
+async function notifyOwner(
+  supabase: NonNullable<ReturnType<typeof getSupabaseServerClient>>,
+  recommendationId: string,
+  input: { personName: string; relationship: string; company: string | null; locale: Locale; resubmission: boolean },
+): Promise<void> {
+  try {
+    const rows = await enqueueEvidenceSubmitted(supabase, {
+      recommendationId,
+      personName: input.personName,
+      relationship: input.relationship,
+      company: input.company,
+      submittedLocale: input.locale,
+      resubmission: input.resubmission,
+      submittedAt: new Date().toISOString(),
+    })
+    await processAfterEnqueue(
+      supabase,
+      rows.map((row) => row.id),
+    )
+  } catch (err) {
+    console.error('evidence notification failed (the recommendation itself was saved):', err)
+  }
 }

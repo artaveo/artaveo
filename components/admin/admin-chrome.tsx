@@ -4,7 +4,7 @@ import { adminSignOut } from '@/app/actions/admin-auth'
 import { Link } from '@/i18n/navigation'
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { Button } from '@/components/ui/button'
-import { canAccessLeads, type AdminSession } from '@/lib/admin/auth'
+import { canAccessLeads, canAccessNotifications, type AdminSession } from '@/lib/admin/auth'
 
 export async function AdminChrome({
   session,
@@ -38,6 +38,15 @@ export async function AdminChrome({
                 className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
               >
                 {t('leadsNavLink')}
+              </Link>
+            ) : null}
+            {/* Phase 19: the notification log holds full lead e-mails, so it follows the leads rule — owner only. */}
+            {canAccessNotifications(session) ? (
+              <Link
+                href="/admin/notifications"
+                className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                {t('notifNavLink')}
               </Link>
             ) : null}
           </nav>

@@ -21,7 +21,12 @@ import { collectMediaIds, parseArticleBody } from '@/lib/articles/markdown'
 import { findPlaceholders } from '@/lib/articles/placeholders'
 import { revalidateArticleRoutes } from '@/lib/insights-revalidate'
 import { generateRequestToken } from '@/lib/recommendations'
+import { enqueueRecommendationChanges, enqueueRecommendationRequest } from '@/lib/notifications/events'
+import { processAfterEnqueue } from '@/lib/notifications/outbox'
+import { notifyManualPublish } from '@/lib/notifications/publish-notice'
+import { clearRecipientForRequest } from '@/lib/recommendation-privacy'
 import { routing } from '@/i18n/routing'
+import type { Locale } from '@/types/content'
 import type {
   AddonInput,
   ArticleInput,
@@ -69,10 +74,10 @@ export type ContentActionResultWithId =
   | { ok: false; code: 'forbidden' | 'not-configured' | 'duplicate-slug' | 'invalid-schedule' | 'error' }
   | { ok: true; id: string }
 
-async function requireEditorSession(): Promise<{ userId: string } | { code: 'forbidden' }> {
+async function requireEditorSession(): Promise<{ userId: string; email: string } | { code: 'forbidden' }> {
   const session = await getAdminSession()
   if (!session || !mfaSatisfied(session)) return { code: 'forbidden' }
-  return { userId: session.userId }
+  return { userId: session.userId, email: session.email }
 }
 
 /**
@@ -215,6 +220,7 @@ export async function publishService(id: string): Promise<ContentActionResult> {
 
   await writeAuditLog({ actor: auth.userId, action: 'content.service_published', entity: 'service', entityId: id })
   revalidateServiceRoutes([service.slug])
+  await notifyManualPublish(supabase, { entity: 'service', id, actorEmail: auth.email })
   return { ok: true }
 }
 
@@ -730,6 +736,7 @@ export async function publishProject(id: string): Promise<ContentActionResult> {
 
   await writeAuditLog({ actor: auth.userId, action: 'content.project_published', entity: 'project', entityId: id })
   revalidateProjectRoutes([project.slug])
+  await notifyManualPublish(supabase, { entity: 'project', id, actorEmail: auth.email })
   return { ok: true }
 }
 
@@ -949,6 +956,7 @@ export async function publishArticle(id: string): Promise<ContentActionResult> {
 
   await writeAuditLog({ actor: auth.userId, action: 'content.article_published', entity: 'article', entityId: id })
   revalidateArticleRoutes([article.slug], { visibilityChanged: true })
+  await notifyManualPublish(supabase, { entity: 'article', id, actorEmail: auth.email })
   return { ok: true }
 }
 
@@ -1125,6 +1133,17 @@ export async function moderateRecommendation(
 
   await writeAuditLog({ actor: auth.userId, action: auditAction, entity: 'recommendation', entityId: id, after: { status: nextStatus } })
   revalidateRecommendationRoutes()
+
+  // D-14 — the recommender's e-mail address, if the owner gave one. A change
+  // request goes to them by e-mail; a finished moderation (approved or
+  // rejected) ends the reason to hold the address at all.
+  if (rec.requestId) {
+    if (nextStatus === 'changes-requested') {
+      await sendChangeRequestEmail(supabase, rec.requestId, moderationNote ?? '')
+    } else if (nextStatus === 'approved' || nextStatus === 'rejected') {
+      await clearRecipientForRequest(supabase, rec.requestId)
+    }
+  }
   return { ok: true }
 }
 
@@ -1135,34 +1154,110 @@ export async function moderateRecommendation(
  * RLS policy — see 0015's migration note), so this is the one and only
  * place a token is minted.
  */
-export async function createRecommendationRequest(input: RecommendationRequestInput): Promise<ContentActionResultWithId> {
+export type CreateRecommendationRequestResult =
+  | { ok: false; code: 'forbidden' | 'not-configured' | 'invalid-email' | 'error' }
+  /** `email`: no address given · queued for sending · saved, but the e-mail could not be queued (the link still works — copy it). */
+  | { ok: true; id: string; email: 'none' | 'queued' | 'queue-failed' }
+
+const RECIPIENT_EMAIL_SHAPE = /^[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]+$/
+
+export async function createRecommendationRequest(input: RecommendationRequestInput): Promise<CreateRecommendationRequestResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
   const supabase = requireSupabase()
   if (!supabase) return { ok: false, code: 'not-configured' }
 
+  // D-14: the address is optional. When present it must be well-formed and
+  // comes with the language the e-mails are written in.
+  const recipientEmail = input.recipientEmail?.trim().toLowerCase() || null
+  if (recipientEmail && (recipientEmail.length > 320 || !RECIPIENT_EMAIL_SHAPE.test(recipientEmail))) {
+    return { ok: false, code: 'invalid-email' }
+  }
+  const recipientLocale: Locale = input.recipientLocale === 'fa' ? 'fa' : 'en'
+
   const expiresAt =
     input.expiresInDays && input.expiresInDays > 0
       ? new Date(Date.now() + input.expiresInDays * 24 * 60 * 60 * 1000).toISOString()
       : null
+  const token = generateRequestToken()
 
   const { data, error } = await supabase
     .from('recommendation_requests')
     .insert({
-      token: generateRequestToken(),
+      token,
       note: input.note.trim() || null,
       suggested_related_project_id: input.suggestedRelatedProjectId,
       suggested_related_service_id: input.suggestedRelatedServiceId,
       created_by: auth.userId,
       expires_at: expiresAt,
+      recipient_email: recipientEmail,
+      recipient_locale: recipientEmail ? recipientLocale : null,
     })
     .select('id')
     .single()
   if (error || !data) return { ok: false, code: 'error' }
 
-  await writeAuditLog({ actor: auth.userId, action: 'content.recommendation_request_created', entity: 'recommendation_request', entityId: data.id })
-  return { ok: true, id: data.id }
+  // The address itself is never written to the audit log — only that one was given.
+  await writeAuditLog({
+    actor: auth.userId,
+    action: 'content.recommendation_request_created',
+    entity: 'recommendation_request',
+    entityId: data.id,
+    after: { emailGiven: Boolean(recipientEmail) },
+  })
+
+  if (!recipientEmail) return { ok: true, id: data.id, email: 'none' }
+
+  try {
+    const rows = await enqueueRecommendationRequest(supabase, {
+      requestId: data.id,
+      token,
+      recipientEmail,
+      locale: recipientLocale,
+      expiresAt,
+    })
+    if (rows.length === 0) return { ok: true, id: data.id, email: 'queue-failed' }
+    await processAfterEnqueue(
+      supabase,
+      rows.map((row) => row.id),
+    )
+    return { ok: true, id: data.id, email: 'queued' }
+  } catch (err) {
+    console.error('recommendation request e-mail could not be queued (the link itself was created):', err)
+    return { ok: true, id: data.id, email: 'queue-failed' }
+  }
+}
+
+/** Queues "please change this" for a request that has an address; a request without one is a no-op (the owner shares the link by hand, as before). */
+async function sendChangeRequestEmail(
+  supabase: NonNullable<ReturnType<typeof requireSupabase>>,
+  requestId: string,
+  note: string,
+): Promise<void> {
+  try {
+    const { data } = await supabase
+      .from('recommendation_requests')
+      .select('token, recipient_email, recipient_locale')
+      .eq('id', requestId)
+      .maybeSingle()
+    if (!data?.recipient_email) return
+
+    const rows = await enqueueRecommendationChanges(supabase, {
+      requestId,
+      token: data.token as string,
+      recipientEmail: data.recipient_email as string,
+      locale: (data.recipient_locale as Locale | null) === 'fa' ? 'fa' : 'en',
+      note,
+      moderatedAt: new Date().toISOString(),
+    })
+    await processAfterEnqueue(
+      supabase,
+      rows.map((row) => row.id),
+    )
+  } catch (err) {
+    console.error('change-request e-mail failed (the moderation itself was saved):', err)
+  }
 }
 
 /** Revokes a link regardless of its current state — same "owner can always undo" reasoning `unpublishService` etc. already follow; `requestLinkStatus` (`lib/admin/content.ts`) always shows `revoked_at` first, so a revoked-after-submission link still reads as inert even though its recommendation row is untouched. */
@@ -1177,6 +1272,8 @@ export async function revokeRecommendationRequest(id: string): Promise<ContentAc
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.recommendation_request_revoked', entity: 'recommendation_request', entityId: id })
+  // D-14: a revoked link has no further use for the recommender's address, and a link e-mail still waiting to go out must not go out.
+  await clearRecipientForRequest(supabase, id)
   return { ok: true }
 }
 

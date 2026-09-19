@@ -357,6 +357,11 @@ export type AdminRecommendationRequest = {
   recommendationId: string | null
   recommendationStatus: RecommendationStatus | null
   status: RecommendationRequestStatus
+  /** D-14 — present only while the request is unfinished. */
+  recipientEmail: string | null
+  recipientLocale: 'en' | 'fa' | null
+  /** The newest e-mail the site queued for this request, so the owner can see whether the link actually went out. */
+  lastEmail: { kind: 'recommendation-request' | 'recommendation-changes'; status: import('@/types/notifications').NotificationStatus; provider: string | null } | null
 }
 
 export type RecommendationRequestInput = {
@@ -365,6 +370,13 @@ export type RecommendationRequestInput = {
   suggestedRelatedServiceId: string | null
   /** Days from creation until the link stops accepting a submission — `null` means no expiry. */
   expiresInDays: number | null
+  /**
+   * D-14 — optional. When given, the site e-mails the recommender their link
+   * (and, later, a change request) in `recipientLocale`. Stored only until the
+   * request is finished — see `lib/recommendation-privacy.ts`.
+   */
+  recipientEmail: string | null
+  recipientLocale: 'en' | 'fa' | null
 }
 
 /**

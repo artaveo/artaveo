@@ -5,6 +5,15 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { writeAuditLog } from '@/lib/admin/audit'
 import { revalidateArticleRoutes } from '@/lib/insights-revalidate'
 
+export type PublishedArticle = {
+  id: string
+  slug: string
+  /** English title, for the owner's publish notice (Phase 19). */
+  titleEn: string
+  /** The date the article was scheduled for — `published_at`, left as scheduled. */
+  scheduledFor: string
+}
+
 /**
  * Phase 17 — the `scheduled` status, made real.
  *
@@ -31,17 +40,17 @@ import { revalidateArticleRoutes } from '@/lib/insights-revalidate'
 export async function publishDueArticles(
   client: SupabaseClient,
   now: Date = new Date(),
-): Promise<{ published: number }> {
+): Promise<{ published: number; items: PublishedArticle[] }> {
   const { data, error } = await client
     .from('articles')
     .update({ status: 'published' })
     .eq('status', 'scheduled')
     .lte('published_at', now.toISOString())
-    .select('id, slug')
+    .select('id, slug, title, published_at')
 
   if (error) {
     console.error('[insights] scheduled-publish sweep failed:', error.message)
-    return { published: 0 }
+    return { published: 0, items: [] }
   }
 
   const rows = data ?? []
@@ -60,5 +69,13 @@ export async function publishDueArticles(
       { visibilityChanged: true },
     )
   }
-  return { published: rows.length }
+  return {
+    published: rows.length,
+    items: rows.map((row) => ({
+      id: row.id as string,
+      slug: row.slug as string,
+      titleEn: ((row.title as { en?: string } | null)?.en ?? '').trim(),
+      scheduledFor: row.published_at as string,
+    })),
+  }
 }

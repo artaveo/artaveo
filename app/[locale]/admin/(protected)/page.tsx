@@ -5,7 +5,8 @@ import { redirect } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { FormMessage } from '@/components/ui/form-controls'
-import { canAccessLeads, getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
+import { canAccessLeads, canAccessNotifications, getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
+import { countExhaustedNotifications } from '@/lib/admin/notifications'
 
 export async function generateMetadata({
   params,
@@ -41,6 +42,9 @@ export default async function AdminDashboardPage({
 
   const t = await getTranslations('Admin')
   const hasVerifiedFactor = session.aal.next === 'aal2'
+  // Phase 19: a message that failed for good must not depend on the e-mail
+  // that just failed to reach the owner — it is also shown here.
+  const exhaustedNotifications = canAccessNotifications(session) ? await countExhaustedNotifications() : null
 
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-6">
@@ -90,6 +94,22 @@ export default async function AdminDashboardPage({
             </Link>
           </CardContent>
         </Card>
+      ) : null}
+
+      {canAccessNotifications(session) ? (
+        <>
+          {exhaustedNotifications ? (
+            <FormMessage variant="destructive">{t('notifExhaustedBanner', { count: exhaustedNotifications })}</FormMessage>
+          ) : null}
+          <Card>
+            <CardContent className="flex items-center justify-between gap-4 pt-6">
+              <span className="text-sm font-medium">{t('notifNavLink')}</span>
+              <Link href="/admin/notifications" className="text-sm text-primary underline-offset-4 hover:underline">
+                {t('notifDashboardLink')}
+              </Link>
+            </CardContent>
+          </Card>
+        </>
       ) : null}
 
       <FormMessage variant="info">{t('comingSoonNotice')}</FormMessage>

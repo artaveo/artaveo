@@ -12,6 +12,7 @@ import { Field, FieldLabel, FormMessage } from '@/components/ui/form-controls'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { RecommendationRequestStatusBadge } from '@/components/admin/content/recommendation-status-badge'
+import { DeliveryLabel, NotificationStatusBadge } from '@/components/admin/notifications/notification-badges'
 import { t as tLocalized, type Locale } from '@/types/content'
 import type { AdminRecommendationRequest } from '@/types/cms'
 
@@ -33,8 +34,11 @@ export function RecommendationRequestPanel({
   const [projectId, setProjectId] = useState<string>('')
   const [serviceId, setServiceId] = useState<string>('')
   const [expiresInDays, setExpiresInDays] = useState('30')
+  const [recipientEmail, setRecipientEmail] = useState('')
+  const [recipientLocale, setRecipientLocale] = useState<'en' | 'fa'>('en')
   const [pending, setPending] = useState(false)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<'generic' | 'invalid-email' | null>(null)
+  const [emailResult, setEmailResult] = useState<'queued' | 'queue-failed' | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
@@ -55,22 +59,28 @@ export function RecommendationRequestPanel({
 
   async function handleCreate() {
     setPending(true)
-    setError(false)
+    setError(null)
+    setEmailResult(null)
     const days = Number(expiresInDays)
+    const email = recipientEmail.trim()
     const result = await createRecommendationRequest({
       note,
       suggestedRelatedProjectId: projectId || null,
       suggestedRelatedServiceId: serviceId || null,
       expiresInDays: Number.isFinite(days) && days > 0 ? days : null,
+      recipientEmail: email || null,
+      recipientLocale: email ? recipientLocale : null,
     })
     if (!result.ok) {
-      setError(true)
+      setError(result.code === 'invalid-email' ? 'invalid-email' : 'generic')
       setPending(false)
       return
     }
     setNote('')
     setProjectId('')
     setServiceId('')
+    setRecipientEmail('')
+    if (result.email !== 'none') setEmailResult(result.email)
     setPending(false)
     router.refresh()
   }
@@ -146,10 +156,45 @@ export function RecommendationRequestPanel({
             />
           </Field>
 
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field>
+              <FieldLabel htmlFor="rec-request-email">{t('cmsRecRequestEmail')}</FieldLabel>
+              <Input
+                id="rec-request-email"
+                type="email"
+                dir="ltr"
+                autoComplete="off"
+                value={recipientEmail}
+                disabled={pending}
+                placeholder={t('cmsRecRequestEmailPlaceholder')}
+                onChange={(event) => setRecipientEmail(event.target.value)}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="rec-request-email-locale">{t('cmsRecRequestEmailLocale')}</FieldLabel>
+              <Select value={recipientLocale} onValueChange={(next) => setRecipientLocale(next === 'fa' ? 'fa' : 'en')} disabled={pending || !recipientEmail.trim()}>
+                <SelectTrigger id="rec-request-email-locale">
+                  <SelectValue>{recipientLocale === 'fa' ? t('cmsRecRequestEmailLocaleFa') : t('cmsRecRequestEmailLocaleEn')}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="en">{t('cmsRecRequestEmailLocaleEn')}</SelectItem>
+                    <SelectItem value="fa">{t('cmsRecRequestEmailLocaleFa')}</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
+          <p className="text-xs text-muted-foreground">{t('cmsRecRequestEmailNote')}</p>
+
           <Button type="button" size="sm" disabled={pending} onClick={handleCreate} className="self-start">
             {t('cmsRecGenerateLink')}
           </Button>
-          {error ? <FormMessage variant="destructive">{t('errorForbidden')}</FormMessage> : null}
+          {error ? (
+            <FormMessage variant="destructive">{error === 'invalid-email' ? t('cmsRecEmailInvalid') : t('errorForbidden')}</FormMessage>
+          ) : null}
+          {emailResult === 'queued' ? <FormMessage variant="success">{t('cmsRecEmailQueued')}</FormMessage> : null}
+          {emailResult === 'queue-failed' ? <FormMessage variant="warning">{t('cmsRecEmailQueueFailed')}</FormMessage> : null}
         </CardContent>
       </Card>
 
@@ -189,6 +234,20 @@ export function RecommendationRequestPanel({
                 <code dir="ltr" className="truncate text-xs text-muted-foreground">
                   {linkFor(request.token)}
                 </code>
+                {request.recipientEmail ? (
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <span>{t('cmsRecEmailTo')}</span>
+                    <bdi dir="auto">{request.recipientEmail}</bdi>
+                    {request.lastEmail ? (
+                      <>
+                        <NotificationStatusBadge status={request.lastEmail.status} />
+                        <DeliveryLabel status={request.lastEmail.status} provider={request.lastEmail.provider} />
+                      </>
+                    ) : (
+                      <span className="text-warning-text">{t('cmsRecEmailNotQueued')}</span>
+                    )}
+                  </div>
+                ) : null}
               </CardContent>
             </Card>
           )

@@ -1,6 +1,7 @@
 /**
  * Module-resolution hook for the zero-dependency test scripts
- * (`scripts/test-articles.mjs`, `scripts/test-search.mjs`).
+ * (`scripts/test-articles.mjs`, `scripts/test-search.mjs`,
+ * `scripts/test-notifications.mjs`).
  *
  * The app's source uses the bundler conventions `tsconfig.json` is set up
  * for — extensionless relative imports (`from './markdown'`) and the `@/`
@@ -12,6 +13,14 @@ const ROOT = new URL('../', import.meta.url)
 const hasExtension = (specifier) => /\.[cm]?[jt]s$/.test(specifier)
 
 export async function resolve(specifier, context, nextResolve) {
+  // Phase 19: `server-only` deliberately throws when imported outside a React
+  // Server Components build. The notification code is server-only in the app
+  // but must be importable by the Node test runner, so here (and only here)
+  // the guard resolves to an empty module.
+  if (specifier === 'server-only') {
+    return { url: 'data:text/javascript,', shortCircuit: true }
+  }
+
   // `@/lib/search/scoring` → <repo>/lib/search/scoring.ts  (Phase 18)
   if (specifier.startsWith('@/')) {
     const target = new URL(specifier.slice(2), ROOT).href

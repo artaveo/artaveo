@@ -1,41 +1,74 @@
+import crypto from 'node:crypto'
 import { NextResponse } from 'next/server'
 
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { publishDueArticles } from '@/lib/insights-scheduler'
+import { enqueueContentPublished } from '@/lib/notifications/events'
 import { processOutboxBatch } from '@/lib/notifications/outbox'
+import { sweepRecommendationRecipients } from '@/lib/recommendation-privacy'
 
 /**
- * § 9.3 — Notifications: daily retry sweep (and, since Phase 17, the
- * daily scheduled-article publish sweep — see below).
+ * The daily run: the notification retry sweep (§ 9.3, Phase 19), the
+ * scheduled-article publish sweep (Phase 17), the owner's notices for whatever
+ * that publish sweep just made public (Phase 19), and the clean-up of finished
+ * recommendation requests' e-mail addresses (D-14).
  *
- * The inline best-effort attempt in `app/actions/inquiries.ts` covers the
- * common case (send succeeds immediately). This route is the safety net
- * for whatever that attempt missed — a transient provider outage, a cold
- * start, etc. — by re-running `processOutboxBatch` over everything still
- * due.
+ * Both sweeps share this one route — not two `vercel.json` cron entries —
+ * because the Hobby plan's cron allowance is small and exceeding it fails the
+ * whole deploy. They are independent: a failure in one never blocks the other.
  *
- * Registered in `vercel.json` on a once-per-day schedule: Vercel's Hobby
- * plan caps cron cadence at once per day (any more frequent expression
- * fails at deploy time), so this is a real, documented limitation — a
- * failed send can sit for up to ~24h before an automatic retry — not an
- * oversight. It's an acceptable trade-off because (1) the inline attempt
- * already handles the normal case, and (2) no inquiry data is ever at
- * risk either way, only the notification's timeliness. Upgrading to Pro,
- * or pointing an external scheduler (e.g. cron-job.org) at this same
- * route, would remove the once-a-day ceiling without any code change —
- * the route itself accepts a request at any frequency; only Vercel's own
- * scheduler is capped.
+ * SECURITY (changed in Phase 19). This route now FAILS CLOSED: without
+ * `CRON_SECRET` set in the Vercel project it answers 401 and does nothing.
+ * Phase 9.3's comment said Vercel auto-provisions the secret; it does not —
+ * Vercel sends `Authorization: Bearer $CRON_SECRET` only when *you* add an
+ * environment variable of that name (Vercel's "Securing cron jobs" docs). The
+ * old check ("if a secret is set, require it") therefore left the route open
+ * to anyone who knew the URL whenever the variable was missing. Set
+ * `CRON_SECRET` (a random string of at least 16 characters) in Vercel and
+ * redeploy — until then the daily run, including scheduled publishing, does
+ * not run. See `docs/runbooks/notifications.md`.
  *
- * Vercel automatically sends `Authorization: Bearer ${CRON_SECRET}` for
- * its own scheduled invocations and auto-provisions `CRON_SECRET`; this
- * route rejects anything else so it can't be triggered by an outsider to
- * exhaust email-provider quota or spam the outbox with attempts.
+ * Cadence: Vercel's Hobby plan caps cron at once per day (`vercel.json`). This
+ * route accepts a request at any frequency, so an external scheduler
+ * (cron-job.org, GitHub Actions) sending the same `Authorization` header every
+ * few minutes gives real backoff timing with no code change. Without one,
+ * retries also happen after every new submission
+ * (`processAfterEnqueue`) and on the admin's "Retry now".
  */
-export async function GET(request: Request) {
-  const authHeader = request.headers.get('authorization')
-  const expected = process.env.CRON_SECRET
 
-  if (expected && authHeader !== `Bearer ${expected}`) {
+// A 50-message sweep at a few hundred ms each is far inside this; the value is
+// the ceiling Hobby allows, so a slow provider degrades into a partial sweep
+// (the deadline below) rather than a killed function.
+export const maxDuration = 60
+
+const SWEEP_DEADLINE_MS = 40_000
+
+function isAuthorized(request: Request): 'ok' | 'not-configured' | 'unauthorized' {
+  const secret = process.env.CRON_SECRET
+  if (!secret) return 'not-configured'
+
+  const given = Buffer.from(request.headers.get('authorization') ?? '')
+  const expected = Buffer.from(`Bearer ${secret}`)
+  if (given.length !== expected.length) return 'unauthorized'
+  return crypto.timingSafeEqual(given, expected) ? 'ok' : 'unauthorized'
+}
+
+async function settle<T>(label: string, run: () => Promise<T>): Promise<T | { error: string }> {
+  try {
+    return await run()
+  } catch (err) {
+    console.error(`[cron] ${label} failed:`, err)
+    return { error: err instanceof Error ? err.message : String(err) }
+  }
+}
+
+export async function GET(request: Request) {
+  const auth = isAuthorized(request)
+  if (auth === 'not-configured') {
+    console.error('[cron] CRON_SECRET is not set — refusing to run. Set it in the Vercel project settings and redeploy.')
+    return NextResponse.json({ ok: false, error: 'cron-secret-not-configured' }, { status: 401 })
+  }
+  if (auth === 'unauthorized') {
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 })
   }
 
@@ -44,14 +77,37 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false, error: 'not-configured' }, { status: 200 })
   }
 
-  const result = await processOutboxBatch(supabase, { limit: 100 })
+  const notifications = await settle('notification sweep', () =>
+    processOutboxBatch(supabase, { limit: 50, deadlineMs: SWEEP_DEADLINE_MS }),
+  )
 
-  // Phase 17: the same daily run also publishes journal articles whose
-  // scheduled date has arrived (`lib/insights-scheduler.ts`). It shares this
-  // route — not a second `vercel.json` cron entry — because the Hobby plan's
-  // cron allowance is small and exceeding it fails the whole deploy. The
-  // two sweeps are independent: a failure in one never blocks the other.
-  const articles = await publishDueArticles(supabase)
+  const articles = await settle('scheduled publish sweep', () => publishDueArticles(supabase))
 
-  return NextResponse.json({ ok: true, ...result, articles })
+  // Tell the owner about whatever just went live — and send it now, rather
+  // than leaving it for tomorrow's run.
+  let publishNotices: { enqueued: number } | { error: string } = { enqueued: 0 }
+  if ('items' in articles && articles.items.length > 0) {
+    const items = articles.items
+    publishNotices = await settle('publish notices', async () => {
+      const ids: string[] = []
+      for (const item of items) {
+        const rows = await enqueueContentPublished(supabase, {
+          entity: 'article',
+          id: item.id,
+          slug: item.slug,
+          titleEn: item.titleEn,
+          how: { via: 'scheduled', scheduledFor: item.scheduledFor },
+        })
+        ids.push(...rows.map((row) => row.id))
+      }
+      if (ids.length > 0) await processOutboxBatch(supabase, { ids, deadlineMs: 10_000 })
+      return { enqueued: ids.length }
+    })
+  }
+
+  // D-14: clear the e-mail address of every finished recommendation request and
+  // redact the e-mails that carried it (`lib/recommendation-privacy.ts`).
+  const recommenderPrivacy = await settle('recommender address sweep', () => sweepRecommendationRecipients(supabase))
+
+  return NextResponse.json({ ok: true, notifications, articles, publishNotices, recommenderPrivacy })
 }

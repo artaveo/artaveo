@@ -5,7 +5,8 @@ import crypto from 'node:crypto'
 
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { validateAllSteps } from '@/lib/inquiry-validation'
-import { enqueueInquiryNotifications, processOutboxBatch } from '@/lib/notifications/outbox'
+import { enqueueInquiryNotifications } from '@/lib/notifications/events'
+import { processAfterEnqueue } from '@/lib/notifications/outbox'
 import type { InquiryDraft, InquirySubmissionMeta, InquirySubmissionResult } from '@/types/inquiry'
 
 /**
@@ -40,6 +41,35 @@ async function getClientIp(): Promise<string> {
     return forwarded.split(',')[0]!.trim()
   }
   return h.get('x-real-ip') ?? '0.0.0.0'
+}
+
+/**
+ * § 9.3 / Phase 19 — enqueue the owner alert + client confirmation, then make
+ * one bounded inline send attempt. Idempotent: the outbox rows carry a
+ * per-inquiry dedupe key, so calling this again for an inquiry that already
+ * has them inserts nothing. That is what makes the replay paths below safe —
+ * a visitor whose first attempt saved the inquiry but failed to enqueue (or
+ * whose response was lost) and who submits again gets the notifications they
+ * were owed the first time, never a second pair.
+ *
+ * Best-effort in full: a failure here must never undo or mask the successful
+ * inquiry insert, and the success the visitor sees reflects the inquiry's
+ * persistence only, never e-mail delivery.
+ */
+async function notifyForInquiry(
+  supabase: NonNullable<ReturnType<typeof getSupabaseServerClient>>,
+  inquiryId: string,
+  draft: InquiryDraft,
+): Promise<void> {
+  try {
+    const rows = await enqueueInquiryNotifications(supabase, inquiryId, draft)
+    await processAfterEnqueue(
+      supabase,
+      rows.map((row) => row.id),
+    )
+  } catch (err) {
+    console.error('inquiry notifications failed (the inquiry itself was saved):', err)
+  }
 }
 
 export async function submitInquiry(
@@ -83,6 +113,7 @@ export async function submitInquiry(
     .maybeSingle()
 
   if (existing) {
+    await notifyForInquiry(supabase, existing.id as string, draft)
     return { ok: true, id: existing.id as string, replay: true }
   }
 
@@ -151,6 +182,7 @@ export async function submitInquiry(
         .eq('idempotency_key', meta.idempotencyKey)
         .maybeSingle()
       if (raced) {
+        await notifyForInquiry(supabase, raced.id as string, draft)
         return { ok: true, id: raced.id as string, replay: true }
       }
     }
@@ -185,20 +217,9 @@ export async function submitInquiry(
     }
   }
 
-  // 8. § 9.3 — Notifications: outbox pattern. Enqueue first (persisted
-  //    regardless of whether sending works), then make one best-effort
-  //    inline attempt so the common case sends immediately. Both steps
-  //    are best-effort: a failure here must never undo or mask the
-  //    successful inquiry insert above. The daily cron sweep
-  //    (app/api/cron/notifications) retries anything left pending/failed.
-  const outboxRows = await enqueueInquiryNotifications(supabase, inserted.id, draft)
-  if (outboxRows.length) {
-    try {
-      await processOutboxBatch(supabase, { ids: outboxRows.map((row) => row.id) })
-    } catch (notifyError) {
-      console.error('notification send attempt failed (inquiry itself was saved):', notifyError)
-    }
-  }
+  // 8. § 9.3 / Phase 19 — Notifications: outbox pattern ("persist first,
+  //    send after"). See `notifyForInquiry` above.
+  await notifyForInquiry(supabase, inserted.id as string, draft)
 
   return { ok: true, id: inserted.id as string }
 }

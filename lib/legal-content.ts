@@ -44,7 +44,7 @@ function section(id: string, title: LocalizedText, paragraphs: LocalizedText[], 
 }
 
 /** Kept separate: a change to one document must not re-date the other. */
-const PRIVACY_LAST_UPDATED = '2026-09-19' // + local search history (Phase 18)
+const PRIVACY_LAST_UPDATED = '2026-09-19' // + local search history (Phase 18), + stored e-mail copies and delivery log (Phase 19), + recommenders' e-mail address (D-14)
 const TERMS_LAST_UPDATED = '2026-09-13'
 
 const privacySections: LegalSection[] = [
@@ -73,6 +73,10 @@ const privacySections: LegalSection[] = [
       tx(
         'If you e-mail or WhatsApp me directly instead, whatever you choose to send is between us — the website itself doesn\'t collect or log that.',
         'اگر به‌جای این کار مستقیم ایمیل یا واتساپ بزنی، هرچه بفرستی فقط بین ما می‌ماند — خودِ وب‌سایت آن را جمع‌آوری یا ثبت نمی‌کند.',
+      ),
+      tx(
+        "If I've sent you a personal link to write a recommendation, that page asks for your name, your role and relationship to me, your statement, an optional profile link, and your explicit consent to publish it — nothing appears on the site without that consent and my review. If I typed your e-mail address in to send you that link, it's used for that and nothing else. I delete it, and the stored copies of those e-mails, once the request is finished: the link is revoked, your recommendation is approved or rejected, or the link expired unused. A link with no expiry that is never used or revoked keeps the address until I revoke it.",
+        'اگر برای نوشتن توصیه‌نامه یک لینک اختصاصی برایت فرستاده‌ام، آن صفحه نام، نقش و نوع آشنایی‌ات با من، متن توصیه‌نامه، یک لینک پروفایل اختیاری و رضایت صریحت برای انتشار را می‌پرسد — بدون آن رضایت و بازبینی من، چیزی در سایت نمایش داده نمی‌شود. اگر نشانی ایمیلت را وارد کرده باشم تا آن لینک را برایت بفرستم، فقط برای همین کار استفاده می‌شود. وقتی درخواست تمام شد — لینک لغو شود، توصیه‌نامه‌ات تأیید یا رد شود، یا لینک بدون استفاده منقضی شود — آن را و نسخه‌های ذخیره‌شده‌ی آن ایمیل‌ها را حذف می‌کنم. لینکی که تاریخ انقضا ندارد و هرگز استفاده یا لغو نشود، نشانی را تا زمانی که لغوش کنم نگه می‌دارد.',
       ),
       tx(
         "Automatic, anonymized traffic data comes from Vercel Web Analytics, which doesn't use cookies and identifies visitors only by a short-lived hash derived from the request itself — never a persistent ID. It records aggregate page views and a handful of interaction events (a package tier switch, a CTA click, a language switch, and similar) with no name, e-mail, or message content ever included in any of them.",
@@ -107,8 +111,8 @@ const privacySections: LegalSection[] = [
         'ارسالی‌های Brief Builder در یک پایگاه‌داده‌ی PostgreSQL میزبانی‌شده روی Supabase (منطقه‌ی جنوب‌شرق آسیا) نگه‌داری می‌شوند، پشت Row Level Security و بدون هیچ سیاست خواندن عمومی — فقط کد سمت سرور با کلید service-role می‌تواند آن را بخواند، هرگز یک API عمومی.',
       ),
       tx(
-        "This site is hosted on Vercel, which also runs the anonymized analytics described above. No inquiry data is currently sent to any third-party e-mail-sending service — a confirmation e-mail is logged internally only, while real sending stays intentionally inactive pending a registered domain. This page will be updated to name the real provider once that changes.",
-        'این سایت روی Vercel میزبانی می‌شود، که همان تحلیل ناشناس توضیح‌داده‌شده در بالا را هم اجرا می‌کند. در حال حاضر هیچ داده‌ی درخواستی به هیچ سرویس ایمیل شخص‌ثالثی فرستاده نمی‌شود — یک ایمیل تأییدیه فقط به‌صورت داخلی ثبت می‌شود، در حالی‌که ارسال واقعی عمداً تا زمان ثبت یک دامنه‌ی واقعی غیرفعال نگه داشته شده. این صفحه با فعال‌شدن آن، برای معرفی سرویس واقعی به‌روزرسانی خواهد شد.',
+        "This site is hosted on Vercel, which also runs the anonymized analytics described above. No inquiry data is currently sent to any third-party e-mail-sending service — a confirmation e-mail is logged internally only, while real sending stays intentionally inactive pending a registered domain. This page will be updated to name the real provider once that changes. A copy of every e-mail the site generates for you (such as the confirmation of your brief) is stored in the same database, together with a log of each attempt to send it.",
+        'این سایت روی Vercel میزبانی می‌شود، که همان تحلیل ناشناس توضیح‌داده‌شده در بالا را هم اجرا می‌کند. در حال حاضر هیچ داده‌ی درخواستی به هیچ سرویس ایمیل شخص‌ثالثی فرستاده نمی‌شود — یک ایمیل تأییدیه فقط به‌صورت داخلی ثبت می‌شود، در حالی‌که ارسال واقعی عمداً تا زمان ثبت یک دامنه‌ی واقعی غیرفعال نگه داشته شده. این صفحه با فعال‌شدن آن، برای معرفی سرویس واقعی به‌روزرسانی خواهد شد. یک نسخه از هر ایمیلی که سایت برای تو می‌سازد (مثل تأییدیه‌ی بریف) به‌همراه گزارش هر تلاش برای ارسال آن، در همان پایگاه‌داده نگه‌داری می‌شود.',
       ),
     ],
   ),
