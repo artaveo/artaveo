@@ -10,7 +10,7 @@
     "about": "About",
     "aboutDescription": "The developer behind Artaveo",
     "insights": "Insights",
-    "insightsDescription": "Notes on engineering and craft",
+    "insightsDescription": "Notes on engineering and product craft",
     "designSystem": "Design System",
     "contact": "Contact",
     "start": "Start a project",
@@ -27,7 +27,7 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "language": "Language",
-    "siteDescription": "Artaveo is the work of one independent full-stack developer — building fast, reliable web products end to end, from architecture and design systems to shipped software.",
+    "siteDescription": "Artaveo is the work of one independent full-stack developer — building modern web products end to end, from architecture and interface to shipped software.",
     "location": "Remote · Worldwide",
     "tagline": "Independent full-stack developer",
     "capabilities": "Capabilities"
@@ -47,14 +47,14 @@
     "explore": "Explore",
     "more": "More",
     "social": "Social",
-    "tagline": "Built full-stack, shipped end to end",
+    "tagline": "Full-stack, from build to delivery",
     "legal": "Legal"
   },
   "Hero": {
     "badge": "Available for new projects",
     "titleLine1": "Full-stack products,",
     "titleLine2": "built end to end.",
-    "description": "Artaveo is the work of one independent full-stack developer. I build modern web applications, business platforms and digital products — from the first idea through architecture, interface, backend and database, to a deployed product.",
+    "description": "Artaveo is the work of one independent full-stack developer. I build modern web applications, business platforms and digital products — from the first idea through architecture, interface and backend to a deployed product.",
     "ctaWork": "View my work",
     "ctaContact": "Start a project",
     "codePanelFooter": "Typed from database to interface"
@@ -81,7 +81,7 @@
   "Work": {
     "eyebrow": "Selected work",
     "title": "Work",
-    "description": "Real projects, presented as honest case studies — what was built, how it works, and the stack behind it.",
+    "description": "Real projects, documented as honest case studies: what was built, how it works, and the stack behind it.",
     "filterByCategory": "Category",
     "filterByTechnology": "Technology",
     "allCategories": "All categories",
@@ -131,7 +131,7 @@
   "ServicesIndex": {
     "eyebrow": "Services",
     "title": "Services",
-    "description": "Seven clear services, each with what's included, what isn't, the process and the timeline — so you can compare and decide before the first call.",
+    "description": "Seven defined services, each showing what’s included, what isn’t, the process and the timeline — so you can compare before the first call.",
     "viewService": "View service",
     "engagementModelsTitle": "How we could work together",
     "engagementModelsDescription": "Every project starts under one of these engagement models — which one depends on how clear the scope already is.",
@@ -176,7 +176,7 @@
     "eyebrow": "Why Artaveo",
     "titleLine1": "One developer. One workflow.",
     "titleLine2": "The whole product.",
-    "description": "Artaveo is not an agency with layers of handoffs. The same person carries a project from the first idea to production — so the architecture, the interface and the code stay consistent.",
+    "description": "Artaveo is not an agency with layers of handoffs. One person carries each project from idea to production, keeping the architecture, interface and code consistent.",
     "fromIdeaToDeployment": "From idea to deployment",
     "handledByOneDeveloper": "Handled by one developer",
     "noHandoffs": "No handoffs between designers, frontend and backend teams — every decision is made with the whole system in view."
@@ -195,7 +195,7 @@
   "ProcessPage": {
     "eyebrow": "Process",
     "title": "How I build, step by step",
-    "description": "Eight defined phases from first call to ongoing support — open each one for what it actually involves.",
+    "description": "Eight defined phases from first call to ongoing support — open each one to see what it involves.",
     "metaTitle": "Process",
     "purpose": "Purpose",
     "activities": "Activities",
@@ -204,9 +204,9 @@
     "decisionsAndRisks": "Decisions & risks",
     "qualityTitle": "Quality baseline",
     "qualityDescription": "A short, honest list of what every project receives — only commitments I actually keep.",
-    "engagementModelsNote": "Looking for engagement models and pricing signals (Discovery Sprint, fixed-scope, productized, Care Plan)? Those live on the Services page, next to the package comparisons they price.",
+    "engagementModelsNote": "Looking for engagement models and pricing signals (Discovery Sprint, fixed-scope, productized, Care Plan)? They live on the Services page, next to the package comparisons.",
     "agreementTitle": "Working Agreement — how we’ll work",
-    "agreementDescription": "Communication, payment, ownership, handover, warranty and confidentiality — the terms that apply once you start a project, published before the first call.",
+    "agreementDescription": "Communication, payment, ownership, handover, warranty and confidentiality — the terms that apply once a project starts, published before the first call.",
     "ctaTitle": "Ready to start?",
     "ctaDescription": "Pick a service to see its packages, or get in touch to talk through what you need.",
     "ctaPrimary": "Get in touch",
@@ -275,7 +275,7 @@
     "metaTitle": "Share a recommendation",
     "eyebrow": "Verified Evidence",
     "pageTitle": "Share a recommendation",
-    "intro": "I'd love a short, honest note about what it was like to work together. It takes a couple of minutes, and nothing is published without your explicit consent.",
+    "intro": "I’d love a short, honest note about what it was like to work together. It takes a couple of minutes, and nothing is published without your explicit consent.",
     "introForProject": "I'd love a short, honest note about working together on {name}. It takes a couple of minutes, and nothing is published without your explicit consent.",
     "moderationNoteIntro": "A note before you resubmit: {note}",
     "fieldName": "Your name",
@@ -306,7 +306,7 @@
   "FinalCta": {
     "titleLine1": "Have a project in mind?",
     "titleLine2": "Let's build it.",
-    "description": "Share the idea, the timeline and what you need. You'll get a clear, direct reply about scope and next steps.",
+    "description": "Share the idea, timeline and what you need. You’ll get a clear, direct reply about scope and next steps.",
     "startProject": "Start a project",
     "viewWork": "View work"
   },
@@ -337,7 +337,7 @@
   "ContactPage": {
     "eyebrow": "Contact",
     "title": "Let's start a conversation",
-    "description": "Two real ways to work with me — pick whichever fits how you like to hire.",
+    "description": "Two ways to work with me — choose the one that fits how you want to start.",
     "metaTitle": "Contact",
     "hireChannelsTitle": "Choose how to hire",
     "hireChannelsDescription": "The website stays the canonical source either way — a platform profile only ever links back here.",
@@ -348,7 +348,7 @@
   },
   "StartPage": {
     "eyebrow": "Start a project",
-    "title": "Let's scope your project",
+    "title": "Let’s scope your project",
     "description": "A short, structured brief — ten minutes now saves back-and-forth later. Answer what you know; skip what you don't.",
     "metaTitle": "Start a project"
   },

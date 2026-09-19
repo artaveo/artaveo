@@ -181,7 +181,7 @@ const servicesData: Service[] = [
         ],
         notIncluded: [
           tx('A blog or news section', 'بخش وبلاگ یا اخبار'),
-          tx('Bilingual build (available as an add-on)', 'ساخت دوزبانه (به‌صورت افزونه در دسترس است)'),
+          tx('Bilingual build (available as an add-on)', 'ساخت دوزبانه (به‌عنوان افزونه در دسترس است)'),
         ],
         deliverables: [
           tx('Live, deployed website', 'وب‌سایت زنده و مستقرشده'),
@@ -211,7 +211,7 @@ const servicesData: Service[] = [
         ],
         notIncluded: [
           tx('Custom backend logic, user accounts or a database', 'منطق سفارشی بک‌اند، حساب کاربری یا پایگاه داده'),
-          tx('Bilingual build (available as an add-on)', 'ساخت دوزبانه (به‌صورت افزونه در دسترس است)'),
+          tx('Bilingual build (available as an add-on)', 'ساخت دوزبانه (به‌عنوان افزونه در دسترس است)'),
         ],
         deliverables: [
           tx('Live, deployed website', 'وب‌سایت زنده و مستقرشده'),
@@ -311,7 +311,7 @@ const servicesData: Service[] = [
     whatIDo: [
       tx('Run a fixed-price Discovery Sprint first: scope, architecture outline and an estimate you can act on', 'ابتدا یک Discovery Sprint با قیمت ثابت اجرا می‌کنم: دامنه، طرح‌کلی معماری و برآوردی که می‌توانید بر اساسش تصمیم بگیرید'),
       tx('Design and build the database schema, API and interface as one system, not three disconnected layers', 'طراحی و ساخت طرح پایگاه داده، API و رابط کاربری به‌عنوان یک سیستم واحد، نه سه لایه‌ی جدا از هم'),
-      tx('Deliver in milestones you can see and review, not one opaque block at the end', 'تحویل در نقاط عطف قابل‌مشاهده و قابل‌بازبینی، نه یک بلوک مبهم در انتها'),
+      tx('Deliver in milestones you can see and review, not one opaque block at the end', 'تحویل در نقاط عطف روشن و قابل‌بازبینی، نه یک بسته‌ی مبهم در انتهای کار'),
     ],
     included: [
       tx('Discovery Sprint: scoped problem statement, architecture outline, milestone plan and estimate', 'Discovery Sprint: بیان دقیق مسئله، طرح‌کلی معماری، برنامه‌ی نقاط عطف و برآورد'),
@@ -398,7 +398,7 @@ const servicesData: Service[] = [
     included: [
       tx('Role-based access, scoped per section of the admin', 'دسترسی بر پایه‌ی نقش، مشخص‌شده برای هر بخش از پنل ادمین'),
       tx('Data tables with filtering, sorting and pagination', 'جدول‌های داده با فیلتر، مرتب‌سازی و صفحه‌بندی'),
-      tx('Reports and CSV export for the records your team needs offline', 'گزارش‌ها و خروجی CSV برای رکوردهایی که تیم شما به‌صورت آفلاین نیاز دارد'),
+      tx('Reports and CSV export for the records your team needs offline', 'گزارش‌ها و خروجی CSV برای رکوردهایی که تیم شما بیرون از سیستم هم به آن‌ها نیاز دارد'),
       tx('Server-side enforcement of every write — the admin UI is never the source of truth', 'اجرای سمت سرور برای هر عملیات نوشتن — رابط کاربری ادمین هیچ‌وقت منبع حقیقت نیست'),
     ],
     notIncluded: [
@@ -625,7 +625,7 @@ const servicesData: Service[] = [
     faq: [
       faq(
         ['Do you work with a database I already have, or only Supabase/PostgreSQL?', 'PostgreSQL (directly or through Supabase) is the primary stack. Working with a different existing database is discussed case by case during Discover.'],
-        ['آیا با پایگاه داده‌ای که از قبل دارم کار می‌کنید، یا فقط Supabase/PostgreSQL؟', 'PostgreSQL (مستقیم یا از طریق Supabase) استک اصلی است. کار با یک پایگاه داده‌ی متفاوت موجود، در مرحله‌ی «شناخت» و به‌صورت مورد‌به‌مورد بررسی می‌شود.'],
+        ['آیا با پایگاه داده‌ای که از قبل دارم کار می‌کنید، یا فقط Supabase/PostgreSQL؟', 'PostgreSQL (مستقیم یا از طریق Supabase) استک اصلی است. کار با یک پایگاه داده‌ی متفاوت موجود، در مرحله‌ی «شناخت» و با توجه به شرایط همان پروژه بررسی می‌شود.'],
       ),
     ],
   },
