@@ -34,14 +34,35 @@
   },
   "CommandPalette": {
     "label": "Command palette",
-    "searchPlaceholder": "Search pages and actions…",
+    "searchPlaceholder": "Search work, services and pages…",
     "close": "Close command palette",
     "noResults": "No results for “{query}”",
     "groupNavigate": "Navigate",
     "groupResources": "Resources",
     "groupActions": "Actions",
     "home": "Home",
-    "emailArtaveo": "Email Artaveo"
+    "emailArtaveo": "Email Artaveo",
+    "groupPages": "Pages",
+    "groupProjects": "Projects",
+    "groupServices": "Services",
+    "groupArticles": "Articles",
+    "groupTechnologies": "Technologies",
+    "groupRecent": "Recent searches",
+    "clearRecent": "Clear recent searches",
+    "suggestionsLabel": "Try searching for",
+    "noResultsHint": "Check the spelling or try fewer words.",
+    "searching": "Searching…",
+    "resultsLabel": "Search results",
+    "statusResults": "{count, plural, one {# result} other {# results}}",
+    "matchesKeyword": "Matches: {keyword}",
+    "errorUnavailable": "Site search isn't available right now. Pages and actions still work.",
+    "errorOffline": "Site search needs a connection. Pages and actions still work.",
+    "retry": "Try again",
+    "hintNavigate": "Navigate",
+    "hintOpen": "Open"
+  },
+  "SearchIndex": {
+    "technologyUsedIn": "{count, plural, one {Used in # project} other {Used in # projects}}: {projects}"
   },
   "Footer": {
     "explore": "Explore",

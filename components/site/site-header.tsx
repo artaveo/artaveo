@@ -1,7 +1,7 @@
 'use client'
 
 import { ArrowRight, Menu, Search } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
 import { Link, usePathname } from '@/i18n/navigation'
@@ -13,13 +13,16 @@ import { MobileNav } from '@/components/site/mobile-nav'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { useVisibleMainNav } from '@/components/site/site-flags'
+import { warmSearchIndex } from '@/lib/search/local-provider'
 import { cn } from '@/lib/utils'
+import type { Locale } from '@/types/content'
 
 export function SiteHeader() {
   const pathname = usePathname()
   const tNav = useTranslations('Nav')
   const visibleMainNav = useVisibleMainNav()
   const tCommon = useTranslations('Common')
+  const locale = useLocale() as Locale
   const [cmdOpen, setCmdOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -107,9 +110,12 @@ export function SiteHeader() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Warming the index on hover/focus means the first open already has it. */}
             <button
               type="button"
               onClick={() => setCmdOpen(true)}
+              onPointerEnter={() => warmSearchIndex(locale)}
+              onFocus={() => warmSearchIndex(locale)}
               className="hidden items-center gap-2 rounded-lg border border-border bg-card py-1.5 pe-2 ps-3 text-sm text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
               aria-label={tCommon('search')}
             >
@@ -117,6 +123,18 @@ export function SiteHeader() {
               <span className="hidden lg:inline">{tCommon('searchPlaceholder')}</span>
               <Kbd className="hidden lg:inline-flex">⌘K</Kbd>
             </button>
+
+            {/* Below `md` the labelled search button above is hidden; without
+                this there would be no way to open search on a phone. */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => setCmdOpen(true)}
+              aria-label={tCommon('search')}
+            >
+              <Search />
+            </Button>
 
             <div className="hidden items-center gap-2 sm:flex">
               <ThemeToggle />

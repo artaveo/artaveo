@@ -34,14 +34,35 @@
   },
   "CommandPalette": {
     "label": "پنل فرمان",
-    "searchPlaceholder": "جستجوی صفحات و عملیات…",
+    "searchPlaceholder": "جستجوی نمونه‌کارها، خدمات و صفحه‌ها…",
     "close": "بستن پنل فرمان",
     "noResults": "نتیجه‌ای برای «{query}» یافت نشد",
     "groupNavigate": "مسیریابی",
     "groupResources": "منابع",
     "groupActions": "عملیات",
     "home": "خانه",
-    "emailArtaveo": "ایمیل به آرتاویو"
+    "emailArtaveo": "ایمیل به آرتاویو",
+    "groupPages": "صفحه‌ها",
+    "groupProjects": "پروژه‌ها",
+    "groupServices": "خدمات",
+    "groupArticles": "یادداشت‌ها",
+    "groupTechnologies": "فناوری‌ها",
+    "groupRecent": "جستجوهای اخیر",
+    "clearRecent": "پاک‌کردن جستجوهای اخیر",
+    "suggestionsLabel": "این‌ها را جستجو کن",
+    "noResultsHint": "املای کلمه را بررسی کن یا کلمه‌های کمتری بنویس.",
+    "searching": "در حال جستجو…",
+    "resultsLabel": "نتایج جستجو",
+    "statusResults": "{count, plural, other {# نتیجه}}",
+    "matchesKeyword": "مطابق با: {keyword}",
+    "errorUnavailable": "جستجوی سایت الان در دسترس نیست. صفحه‌ها و عملیات همچنان کار می‌کنند.",
+    "errorOffline": "جستجوی سایت به اینترنت نیاز دارد. صفحه‌ها و عملیات همچنان کار می‌کنند.",
+    "retry": "دوباره تلاش کن",
+    "hintNavigate": "حرکت",
+    "hintOpen": "باز کردن"
+  },
+  "SearchIndex": {
+    "technologyUsedIn": "{count, plural, other {استفاده‌شده در # پروژه}}: {projects}"
   },
   "Footer": {
     "explore": "کاوش",

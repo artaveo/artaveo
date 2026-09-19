@@ -43,7 +43,9 @@ function section(id: string, title: LocalizedText, paragraphs: LocalizedText[], 
   return { id, title, paragraphs, list }
 }
 
-const LAST_UPDATED = '2026-09-13'
+/** Kept separate: a change to one document must not re-date the other. */
+const PRIVACY_LAST_UPDATED = '2026-09-19' // + local search history (Phase 18)
+const TERMS_LAST_UPDATED = '2026-09-13'
 
 const privacySections: LegalSection[] = [
   section(
@@ -81,8 +83,8 @@ const privacySections: LegalSection[] = [
         'یک کوکی کوچک و اول‌شخص (`artaveo-locale`) به‌خاطر می‌سپارد که سایت را به انگلیسی می‌بینی یا فارسی. این کوکی کاملاً کارکردی است — برای ردیابی تو استفاده نمی‌شود، و هیچ کوکی دیگری توسط این سایت تنظیم نمی‌شود.',
       ),
       tx(
-        "Your own browser also keeps a couple of things locally, never sent anywhere: a light/dark theme preference, and — only if you start the Brief Builder while offline — a temporary local copy of your not-yet-sent answers, held only on your own device until you're back online and it sends automatically.",
-        'مرورگر خودت هم چند چیز را به‌صورت محلی نگه می‌دارد که هیچ‌جا فرستاده نمی‌شود: یک ترجیح تم روشن/تاریک، و — فقط اگر Brief Builder را در حالت آفلاین شروع کنی — یک نسخه‌ی موقت و محلی از پاسخ‌های هنوز-نفرستاده‌ات، که فقط روی دستگاه خودت می‌ماند تا وقتی دوباره آنلاین شوی و به‌صورت خودکار ارسال شود.',
+        "Your own browser also keeps a few things locally, never sent anywhere: a light/dark theme preference, the last few things you searched for on the site (so the search box can offer them again — you can clear them there at any time), and — only if you start the Brief Builder while offline — a temporary local copy of your not-yet-sent answers, held only on your own device until you're back online and it sends automatically.",
+        'مرورگر خودت هم چند چیز را به‌صورت محلی نگه می‌دارد که هیچ‌جا فرستاده نمی‌شود: یک ترجیح تم روشن/تاریک، چند جستجوی آخرِ تو در سایت (تا کادر جستجو دوباره پیشنهادشان بدهد؛ هر وقت خواستی همان‌جا پاکشان کن)، و — فقط اگر Brief Builder را در حالت آفلاین شروع کنی — یک نسخه‌ی موقت و محلی از پاسخ‌های هنوز-نفرستاده‌ات، که فقط روی دستگاه خودت می‌ماند تا وقتی دوباره آنلاین شوی و به‌صورت خودکار ارسال شود.',
       ),
     ],
   ),
@@ -236,9 +238,9 @@ const termsSections: LegalSection[] = [
 ]
 
 export function getPrivacyPolicy(): LegalDocument {
-  return { lastUpdated: LAST_UPDATED, sections: privacySections }
+  return { lastUpdated: PRIVACY_LAST_UPDATED, sections: privacySections }
 }
 
 export function getTermsOfService(): LegalDocument {
-  return { lastUpdated: LAST_UPDATED, sections: termsSections }
+  return { lastUpdated: TERMS_LAST_UPDATED, sections: termsSections }
 }

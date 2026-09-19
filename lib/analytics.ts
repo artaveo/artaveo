@@ -14,12 +14,17 @@ import { track } from '@vercel/analytics'
  * or anything else a visitor typed — the roadmap's own rule ("no form
  * contents, no personal data in events").
  *
- * `consultation_request` and `search_used` are declared here so every
- * call site elsewhere in the app can already import a stable name, but
- * neither is wired to a real trigger yet: Phase 20 (Consultation) and
- * Phase 18 (Search & Command Palette) don't exist yet. Firing them now
+ * `search_used` (Phase 18) fires from the command palette in exactly two
+ * situations — a result was opened (`outcome: 'selected'`, with the result's
+ * `kind` and its `position` in the list) or a working search ended on "no
+ * results" (`outcome: 'no-results'`) — plus the `locale`. The query text is
+ * never sent: it is something the visitor typed.
+ *
+ * `consultation_request` is declared here so every call site elsewhere in
+ * the app can already import a stable name, but it is not wired to a real
+ * trigger yet: Phase 20 (Consultation) doesn't exist yet. Firing it now
  * against a placeholder interaction would be inventing an event for a
- * feature that doesn't exist — wire each one when its phase ships.
+ * feature that doesn't exist — wire it when its phase ships.
  */
 export type AnalyticsEvent =
   | 'project_view'
