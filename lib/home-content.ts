@@ -173,15 +173,15 @@ const featuredProjectsData: Project[] = [
       'رابط کاربری در پنج بازه‌ی واکنش‌گرا از موبایل تا نمایشگرهای فوق‌عریض ساخته شده است؛ هم مسیر رزرو و هم جدول‌های عریض پنل ادمین را پوشش می‌دهد. RTL/LTR از ابتدا بخشی از معماری بوده، نه اصلاحی که در پایان اضافه شود.',
     ),
     quality: tx(
-      'Every migration is validated against real production data inside a transaction that is rolled back afterward, never tested only in theory. tsc --noEmit and a full next build run after each phase; the project tracks a known TypeScript baseline error count so new errors are never silently absorbed into "pre-existing" noise. Security posture is re-checked after schema changes with Supabase\'s advisory tooling and direct privilege queries. There is no dedicated automated test suite or CI pipeline yet — tracked explicitly as debt, not hidden.',
+      'Every migration is checked against real production data inside a transaction that is rolled back afterward. After each phase, tsc --noEmit and a full Next build run, with new TypeScript errors tracked separately from the known baseline. Schema changes also trigger another Supabase advisory and privilege check. There is no dedicated automated test suite or CI pipeline yet; that is tracked openly as debt.',
       'هر migration روی داده‌ی واقعی تولید و داخل یک تراکنش rollback‌شونده اعتبارسنجی می‌شود. بعد از هر فاز، tsc --noEmit و next build اجرا می‌شوند و خطاهای تازه از خطاهای پایه جدا می‌شوند. بعد از تغییر schema، advisory Supabase و دسترسی‌ها دوباره بررسی می‌شوند. هنوز تست خودکار اختصاصی یا CI ندارم؛ این محدودیت صریحاً ثبت شده است.',
     ),
     currentStatusAndNext: tx(
-      'Finished: passenger booking with server-enforced seat holds, operations admin (routes, fleet, drivers, trips, bookings, reports, CSV), loyalty and coupon foundations, a public CMS lite with in-site responsive image cropping, and a full payment-status state machine with audit trail and partial refunds — all running on manual/offline payment confirmation. Not finished: a live payment gateway. HesabPay integration is the next planned step and is blocked on getting developer/sandbox credentials from the provider — until that\'s resolved, online bookings are recorded but stay in a pending payment state rather than auto-confirming.',
+      'Finished: passenger booking with server-enforced seat holds, an operations admin, loyalty and coupon foundations, a public CMS lite, and a payment-status state machine with audit and partial-refund support. Payments are still confirmed manually/offline. HesabPay integration is the next planned step and remains blocked on developer/sandbox credentials from the provider.',
       'انجام‌شده: رزرو مسافر با hold صندلی سمت سرور، پنل عملیات برای مسیرها، ناوگان، رانندگان، سفرها، رزروها، گزارش‌ها و CSV، پایه‌های loyalty و کوپن، CMS عمومی سبک، و state machine کامل پرداخت همراه با audit و بازپرداخت جزئی. پرداخت‌ها هنوز تأیید خودکار ندارند؛ اتصال حساب‌پی به دریافت دسترسی developer/sandbox از ارائه‌دهنده وابسته است.',
     ),
     lessonsLearned: tx(
-      'The most valuable finding in this phase wasn\'t a new feature — it was what a security review turned up in code that already shipped: a function with no permission check of its own, reachable because it was assumed to only ever be called from trusted places. Assumptions about "who calls this" are not access control. I now treat every database function as if it will be called directly by an untrusted client, and check that assumption explicitly rather than inferring it from how the function is currently used in the app.',
+      'The most useful finding in this phase was not a new feature. A security review showed that a database function relied on the assumption that only trusted code would call it. That is not access control, so I now verify the permission boundary directly for every database function.',
       'مهم‌ترین نتیجه‌ی این فاز یک feature تازه نبود. یک بررسی امنیتی نشان داد تابعی بدون چک دسترسی مستقل قابل‌فراخوانی است، چون فرض شده بود فقط از کد مورداعتماد صدا زده می‌شود. از این به بعد هر تابع دیتابیس را طوری بررسی می‌کنم که انگار یک کلاینت غیرقابل‌اعتماد مستقیماً آن را صدا می‌زند.',
     ),
     featured: true,
@@ -279,8 +279,8 @@ const featuredProjectsData: Project[] = [
       },
     ],
     engineeringHighlight: tx(
-      'The hardest problem wasn\'t making the PWA work offline — it was deciding what should not be cached. Three different kinds of data live behind the same Supabase project: public portal content, admin-only pending requests, and uploaded images. Caching all of it the same way would have been simpler to write but would have risked an admin seeing an approved request as still pending, or a public visitor seeing week-old scholarship data as current. Instead, each data type got its own rule: public content relies on the existing localStorage layer, admin routes are excluded from the cache entirely at the navigation level, and only uploaded images get real HTTP caching with an expiration policy. The Department Admin role required the same "narrower than it looks" thinking on the database side: a fail-closed allow-list defines exactly which settings keys a scoped admin can write, so a new field added to that panel later is denied by default until it\'s explicitly added to the list — not silently allowed.',
-      'سخت‌ترین بخش کار نه ساختن یک PWA آفلاین، بلکه تصمیم‌گیری درباره‌ی این بود که چه چیزی نباید کش شود. سه نوع داده‌ی متفاوت پشت یک پروژه‌ی Supabase یکسان زندگی می‌کنند: محتوای عمومی پورتال، درخواست‌های در‌انتظارِ فقط-ادمین، و تصاویر آپلودشده. کش‌کردن همه‌ی این‌ها به یک شکل، نوشتنش ساده‌تر بود ولی این ریسک را داشت که یک ادمین درخواستی را که قبلاً تأیید شده، همچنان «در‌انتظار» ببیند، یا یک بازدیدکننده‌ی عمومی دیتای بورسیه‌ی یک‌هفته‌پیش را به‌عنوان دیتای امروز ببیند. به‌جایش، هر نوع داده قانون خودش را گرفت: محتوای عمومی روی همان لایه‌ی localStorage موجود تکیه می‌کند، مسیرهای ادمین کلاً از سطح navigation از کش مستثنی هستند، و فقط تصاویر آپلودشده کش واقعی HTTP با سیاست انقضا می‌گیرند. نقش Department Admin هم همین طرز فکر «محدودتر از ظاهرش» را در سطح دیتابیس نیاز داشت: یک allow-list fail-closed دقیقاً مشخص می‌کند کدام کلیدهای تنظیمات برای یک ادمین محدود قابل‌نوشتن‌اند، پس یک فیلد تازه که بعداً به آن پنل اضافه شود به‌طور پیش‌فرض رد می‌شود تا زمانی که صریحاً به لیست اضافه شود — نه این‌که بی‌صدا مجاز باشد.',
+      'The hardest PWA decision was not making offline mode work; it was deciding what must never be cached. Public content, admin requests and uploaded images use different strategies because the same cache policy would create correctness risks. Admin routes are excluded from the cache, while only uploaded images receive HTTP caching with an expiry policy. Department Admin writes also use a fail-closed allow-list, so new settings stay denied until explicitly allowed.',
+      'سخت‌ترین بخش PWA آفلاین، راه‌اندازی حالت آفلاین نبود؛ تصمیم‌گیری درباره‌ی چیزهایی بود که نباید کش شوند. محتوای عمومی، درخواست‌های ادمین و تصاویر آپلودشده هرکدام سیاست جدا دارند، چون یک سیاست واحد می‌تواند داده‌ی قدیمی یا اشتباه نشان دهد. مسیرهای ادمین اصلاً کش نمی‌شوند و فقط تصاویر آپلودشده cache می‌شوند. برای Department Admin هم allow-list به‌شکل fail-closed عمل می‌کند؛ تنظیم جدید تا وقتی صریحاً مجاز نشود، رد می‌شود.',
     ),
     dataIntegrityAndSecurity: tx(
       'Two admin roles are enforced with a database check constraint. Department-scoped writes go through a fail-closed allow-list, so an unlisted settings key is denied by default. RLS scopes what each role can read and write, and portal requests go through a rate-limited Supabase Edge Function.',
@@ -300,7 +300,7 @@ const featuredProjectsData: Project[] = [
     ),
     lessonsLearned: tx(
       "Building an offline-first PWA reinforced a simple rule: caching is a data decision, not just a performance feature. I now ask what happens when each piece of data is stale before choosing a cache policy for it.",
-      'ساختن یک PWA آفلاین‌فرست به من یاد داد که کار طراحیِ جالب «اضافه‌کردن یک سرویس‌ورکر» نیست — تصمیم‌گیری است، نوع‌به‌نوع داده، درباره‌ی این‌که کش‌کردن کمک می‌کند یا فعالانه یک ریسک صحت‌داده می‌سازد. غریزه‌ی «همه‌چیز را برای تجربه‌ی آفلاینِ سریع‌تر کش کن» برای دست‌کم دو تا از سه نوع داده‌ی این پروژه اشتباه از آب درمی‌آمد. الان هر تصمیم کش را با این سؤال شروع می‌کنم که اگر این تکه‌ی مشخص از داده قدیمی باشد چه اتفاقی می‌افتد، نه با اعمال یک سیاست کش یکسان روی کل اپ.',
+      'ساختن PWA آفلاین‌فرست یک نکته‌ی مهم به من یاد داد: کش فقط موضوع کارایی نیست؛ موضوع صحت داده هم هست. حالا قبل از انتخاب سیاست کش، اول می‌پرسم اگر این داده قدیمی باشد چه اتفاقی می‌افتد.',
     ),
     featured: true,
     published: true,
@@ -331,7 +331,7 @@ const differentiatorsData: Principle[] = [
     icon: 'Workflow',
     title: tx('End-to-end ownership', 'مالکیت سرتاسری'),
     description: tx(
-      'Architecture, interface, backend and deployment happen in one workflow, so nothing falls between handoffs.',
+      'Architecture, interface, backend and deployment stay on one path, so context is not lost between handoffs.',
       'معماری، رابط کاربری، بک‌اند و استقرار در یک مسیر یکپارچه پیش می‌روند؛ چیزی بین تیم‌ها جابه‌جا نمی‌شود.',
     ),
   },
