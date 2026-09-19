@@ -174,7 +174,7 @@ const featuredProjectsData: Project[] = [
     ),
     quality: tx(
       'Every migration is validated against real production data inside a transaction that is rolled back afterward, never tested only in theory. tsc --noEmit and a full next build run after each phase; the project tracks a known TypeScript baseline error count so new errors are never silently absorbed into "pre-existing" noise. Security posture is re-checked after schema changes with Supabase\'s advisory tooling and direct privilege queries. There is no dedicated automated test suite or CI pipeline yet — tracked explicitly as debt, not hidden.',
-      'هر migration روی داده‌ی واقعی تولید و داخل تراکنشی که در پایان rollback می‌شود اعتبارسنجی می‌شود. بعد از هر فاز، tsc --noEmit و next build کامل اجرا می‌شود و خطاهای TypeScript جدید از خطاهای پایه جدا ردیابی می‌شوند. بعد از تغییر schema، وضعیت امنیتی با advisory Supabase و چک مستقیم دسترسی دوباره بررسی می‌شود. هنوز تست خودکار اختصاصی یا CI وجود ندارد؛ این محدودیت صریحاً ثبت شده است.',
+      'هر migration روی داده‌ی واقعی تولید و داخل یک تراکنش rollback‌شونده اعتبارسنجی می‌شود. بعد از هر فاز، tsc --noEmit و next build اجرا می‌شوند و خطاهای تازه از خطاهای پایه جدا می‌شوند. بعد از تغییر schema، advisory Supabase و دسترسی‌ها دوباره بررسی می‌شوند. هنوز تست خودکار اختصاصی یا CI ندارم؛ این محدودیت صریحاً ثبت شده است.',
     ),
     currentStatusAndNext: tx(
       'Finished: passenger booking with server-enforced seat holds, operations admin (routes, fleet, drivers, trips, bookings, reports, CSV), loyalty and coupon foundations, a public CMS lite with in-site responsive image cropping, and a full payment-status state machine with audit trail and partial refunds — all running on manual/offline payment confirmation. Not finished: a live payment gateway. HesabPay integration is the next planned step and is blocked on getting developer/sandbox credentials from the provider — until that\'s resolved, online bookings are recorded but stay in a pending payment state rather than auto-confirming.',
@@ -182,7 +182,7 @@ const featuredProjectsData: Project[] = [
     ),
     lessonsLearned: tx(
       'The most valuable finding in this phase wasn\'t a new feature — it was what a security review turned up in code that already shipped: a function with no permission check of its own, reachable because it was assumed to only ever be called from trusted places. Assumptions about "who calls this" are not access control. I now treat every database function as if it will be called directly by an untrusted client, and check that assumption explicitly rather than inferring it from how the function is currently used in the app.',
-      'ارزشمندترین یافته‌ی این فاز یک فیچر تازه نبود؛ یک بررسی امنیتی در کدی که از قبل منتشر شده بود نشان داد یک تابع بدون چک دسترسی مستقل قابل‌فراخوانی است، چون فرض شده بود فقط از جاهای مورداعتماد صدا زده می‌شود. این یک قانون روشن به من داد: هر تابع دیتابیس باید طوری بررسی شود که انگار مستقیماً توسط یک کلاینت غیرقابل‌اعتماد فراخوانی می‌شود، نه این‌که از نحوه‌ی استفاده‌ی فعلی آن در اپ به‌عنوان کنترل دسترسی نتیجه بگیریم.',
+      'مهم‌ترین نتیجه‌ی این فاز یک feature تازه نبود. یک بررسی امنیتی نشان داد تابعی بدون چک دسترسی مستقل قابل‌فراخوانی است، چون فرض شده بود فقط از کد مورداعتماد صدا زده می‌شود. از این به بعد هر تابع دیتابیس را طوری بررسی می‌کنم که انگار یک کلاینت غیرقابل‌اعتماد مستقیماً آن را صدا می‌زند.',
     ),
     featured: true,
     published: true,
