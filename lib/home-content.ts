@@ -220,7 +220,7 @@ const featuredProjectsData: Project[] = [
     year: '2026',
     context: tx(
       'A bilingual Dari/English portal I built for Pezhohesh Complex, an educational institute I run myself — a study lounge, academic advising, scholarship listings and student achievements, all manageable by non-developer staff through a custom admin panel.',
-      'پورتالی دوزبانه (دری/انگلیسی) که برای مجتمع پژوهش ساختم — مؤسسه‌ای آموزشی که خودم اداره‌اش می‌کنم — شامل سالن مطالعه، مشاوره‌ی تحصیلی، بورسیه‌های فعال و دستاوردهای دانشجویی، همه از طریق یک پنل ادمین اختصاصی که کارکنانِ غیرتوسعه‌دهنده هم می‌توانند مدیریتش کنند.',
+      'پورتالی دوزبانه برای مجتمع پژوهش ساختم؛ مؤسسه‌ای آموزشی که خودم اداره‌اش می‌کنم. سالن مطالعه، مشاوره‌ی تحصیلی، بورسیه‌های فعال و دستاوردهای دانشجویی از طریق یک پنل ادمین اختصاصی مدیریت می‌شوند.',
     ),
     problemAndGoals: tx(
       "The institute needed a real content pipeline, not a static site someone has to ask a developer to update. Staff needed to publish scholarships, edit study-lounge rules, and review membership/advising requests themselves — with two different levels of access, since not everyone should be able to touch every part of the site. On top of that, visitors on unreliable connections needed pages they'd already seen to keep working, without the admin panel ever risking a stale view of pending requests.",
@@ -233,7 +233,7 @@ const featuredProjectsData: Project[] = [
       ),
       tx(
         "Deployed by building locally and uploading the production bundle directly, not a Git-triggered CI/CD pipeline — a deliberate simplicity trade-off for a small, single-maintainer project.",
-        'استقرار با build محلی و آپلود مستقیم خروجی نهایی انجام می‌شود، نه یک پایپ‌لاین CI/CD متصل به Git — یک تصمیم آگاهانه برای سادگی، مناسب یک پروژه‌ی کوچک با یک نگهدارنده.',
+        'استقرار با build محلی و آپلود مستقیم خروجی انجام می‌شود. این انتخاب برای سادگی یک پروژه‌ی کوچک با یک نگهدارنده است؛ CI/CD متصل به Git در این پروژه وجود ندارد.',
       ),
       tx(
         'Admin panel is Dari-only by design; the public site is bilingual.',
@@ -241,12 +241,12 @@ const featuredProjectsData: Project[] = [
       ),
       tx(
         "Not a service-worker specialist, so the PWA caching strategy was deliberately built with Workbox's declarative routing rather than a hand-written fetch handler — simpler and lower-risk to maintain alone, at the cost of less fine-grained control if a future need arises.",
-        'چون متخصص service worker نیستم، استراتژی کش PWA عمداً با routing اعلانی Workbox ساخته شد، نه یک fetch handler دستی — ساده‌تر و کم‌ریسک‌تر برای نگهداری تنها توسط خودم، با هزینه‌ی کنترل کمتر اگر نیاز دقیق‌تری در آینده پیش بیاید.',
+        'برای service worker از routing اعلانی Workbox استفاده کردم، نه یک fetch handler دستی. این روش برای نگهداری توسط یک نفر ساده‌تر است، هرچند در آینده کنترل کمتری روی نیازهای خاص می‌دهد.',
       ),
     ],
     architecture: tx(
       'A React/Vite single-page app backed by Supabase (PostgreSQL, Storage, Edge Functions). A single shared data-fetch function feeds both the public site and the admin dashboard — one source of truth instead of two parallel read paths that could drift. Role-based routing enforces which of the two admin experiences a signed-in admin can reach. Content follows a recurring "seed + admin list" pattern: sensible built-in defaults (rules, FAQs) stay editable rather than being silently overwritten by admin changes.',
-      'یک اپلیکیشن تک‌صفحه‌ای (SPA) با React/Vite که روی Supabase (PostgreSQL، Storage، Edge Functions) سوار است. یک تابع واحد و مشترک برای خواندن داده هم سایت عمومی و هم داشبورد ادمین را تغذیه می‌کند — یک منبع حقیقت واحد، به‌جای دو مسیر خواندن موازی که ممکن است از هم فاصله بگیرند. مسیریابی بر پایه‌ی نقش مشخص می‌کند یک ادمینِ واردشده به کدام‌یک از دو تجربه‌ی ادمین دسترسی دارد. محتوا از یک الگوی تکرارشونده‌ی «پیش‌فرض + فهرست ادمین» پیروی می‌کند: پیش‌فرض‌های داخلی معقول (قوانین، سوالات متداول) قابل‌ویرایش می‌مانند، نه این‌که با تغییرات ادمین بی‌صدا بازنویسی شوند.',
+      'این پروژه یک SPA با React/Vite روی Supabase است و از PostgreSQL، Storage و Edge Functions استفاده می‌کند. یک تابع مشترک داده‌ی سایت عمومی و داشبورد ادمین را می‌خواند تا هر دو از یک منبع حقیقت استفاده کنند. Role-based routing هم مشخص می‌کند هر ادمین به کدام بخش دسترسی دارد. محتوای پیش‌فرض نیز جدا از تغییرات ادمین نگهداری می‌شود تا ناخواسته بازنویسی نشود.',
     ),
     keyDecisions: [
       {
@@ -256,51 +256,51 @@ const featuredProjectsData: Project[] = [
         ),
         decision: tx(
           "The service worker's navigation fallback (the offline \"app shell\") explicitly excludes every admin route, and no runtime-caching rule was written for the Supabase calls the admin panel depends on — so those requests are never intercepted by the cache layer at all, online or offline.",
-          'navigation fallback سرویس‌ورکر (یعنی «پوسته‌ی آفلاین») به‌طور صریح هر مسیر ادمین را مستثنی می‌کند، و هیچ runtime-caching rule ای برای فراخوانی‌های Supabase که پنل ادمین به آن‌ها وابسته است نوشته نشد — پس این درخواست‌ها اصلاً هیچ‌وقت، چه آنلاین چه آفلاین، توسط لایه‌ی کش رهگیری نمی‌شوند.',
+          'navigation fallback سرویس‌ورکر، یعنی «پوسته‌ی آفلاین»، مسیرهای ادمین را صریحاً کنار می‌گذارد. برای فراخوانی‌های Supabase موردنیاز پنل ادمین هم runtime caching تعریف نشده است؛ این درخواست‌ها اصلاً وارد لایه‌ی کش نمی‌شوند.',
         ),
         tradeoff: tx(
           'If an admin genuinely loses connection, they see a normal browser connection error instead of a safe-but-confusing cached shell — chosen deliberately over silently serving anything that could be mistaken for live data.',
-          'اگر ادمین واقعاً اتصالش قطع شود، خطای معمولی مرورگر را می‌بیند به‌جای یک پوسته‌ی کش‌شده (بی‌خطر ولی گیج‌کننده) — این آگاهانه انتخاب شد به‌جای سرو کردن بی‌صدای چیزی که ممکن است با دیتای زنده اشتباه گرفته شود.',
+          'اگر اتصال ادمین قطع شود، همان خطای معمول مرورگر را می‌بیند، نه نسخه‌ی کش‌شده‌ی پنل. این انتخاب عمداً انجام شده تا داده‌ی قدیمی با داده‌ی زنده اشتباه گرفته نشود.',
         ),
       },
       {
         context: tx(
           "Portal content already had a localStorage-backed stale-while-revalidate layer built in — show the local copy instantly, refresh from the database in the background.",
-          'محتوای پورتال از قبل یک لایه‌ی stale-while-revalidate مبتنی بر localStorage داشت — نمایش فوری نسخه‌ی محلی، به‌روزرسانی از دیتابیس در پس‌زمینه.',
+          'محتوای پورتال از قبل stale-while-revalidate با localStorage داشت: نسخه‌ی محلی فوراً نمایش داده می‌شود و بعد از دیتابیس به‌روزرسانی می‌شود.',
         ),
         decision: tx(
           'Deliberately did not add a service-worker caching rule on top of that for the same data, since it would duplicate a stale-while-revalidate behaviour that already existed, with no added benefit and one more layer to keep in sync.',
-          'عمداً یک runtime-caching rule تازه روی همان داده اضافه نشد، چون همان رفتار stale-while-revalidate را که از قبل وجود داشت تکرار می‌کرد، بدون فایده‌ی اضافه و با یک لایه‌ی بیشتر برای هماهنگ‌نگه‌داشتن.',
+          'runtime caching تازه‌ای برای همین داده اضافه نشد؛ همان رفتار stale-while-revalidate از قبل وجود داشت و تکرار آن فقط یک لایه‌ی اضافه ایجاد می‌کرد.',
         ),
         tradeoff: tx(
           'Only uploaded images get a cache-first rule with an expiration cap, oldest purged first — a narrower caching surface than "cache everything," but each caching decision maps to a specific, understood need rather than a blanket policy.',
-          'فقط عکس‌های آپلودشده یک قانون کش با سقف انقضا می‌گیرند، قدیمی‌ترین اول پاک می‌شود — سطح کشِ محدودتر از «همه‌چیز را کش کن»، ولی هر تصمیم کش دقیقاً به یک نیاز مشخص و فهمیده‌شده نگاشت می‌شود، نه یک سیاست یکسان برای همه.',
+          'فقط تصاویر آپلودشده cache با انقضای مشخص دارند و قدیمی‌ترین موارد زودتر حذف می‌شوند. این سیاست از «همه‌چیز را cache کن» محدودتر است و برای هر نوع داده جداگانه تصمیم گرفته شده.',
         ),
       },
     ],
     engineeringHighlight: tx(
       'The hardest problem wasn\'t making the PWA work offline — it was deciding what should not be cached. Three different kinds of data live behind the same Supabase project: public portal content, admin-only pending requests, and uploaded images. Caching all of it the same way would have been simpler to write but would have risked an admin seeing an approved request as still pending, or a public visitor seeing week-old scholarship data as current. Instead, each data type got its own rule: public content relies on the existing localStorage layer, admin routes are excluded from the cache entirely at the navigation level, and only uploaded images get real HTTP caching with an expiration policy. The Department Admin role required the same "narrower than it looks" thinking on the database side: a fail-closed allow-list defines exactly which settings keys a scoped admin can write, so a new field added to that panel later is denied by default until it\'s explicitly added to the list — not silently allowed.',
-      'سخت‌ترین بخش کار نه ساختن یک PWA آفلاین، بلکه تصمیم‌گیری درباره‌ی این بود که چه چیزی نباید کش شود. سه نوع داده‌ی متفاوت پشت یک پروژه‌ی Supabase یکسان زندگی می‌کنند: محتوای عمومی پورتال، درخواست‌های در انتظارِ مخصوص ادمین، و تصاویر آپلودشده. کش‌کردن همه‌ی این‌ها به یک شکل، نوشتنش ساده‌تر بود ولی این ریسک را داشت که یک ادمین درخواستی را که قبلاً تأیید شده، همچنان «در انتظار» ببیند، یا یک بازدیدکننده‌ی عمومی دیتای بورسیه‌ی یک‌هفته‌پیش را به‌عنوان دیتای امروز ببیند. به‌جایش، هر نوع داده قانون خودش را گرفت: محتوای عمومی روی همان لایه‌ی localStorage موجود تکیه می‌کند، مسیرهای ادمین کلاً از سطح navigation از کش مستثنی هستند، و فقط تصاویر آپلودشده کش واقعی HTTP با سیاست انقضا می‌گیرند. نقش Department Admin هم همین طرز فکر «محدودتر از ظاهرش» را در سطح دیتابیس نیاز داشت: یک allow-list fail-closed دقیقاً مشخص می‌کند کدام کلیدهای تنظیمات برای یک ادمین محدود قابل‌نوشتن‌اند، پس یک فیلد تازه که بعداً به آن پنل اضافه شود به‌طور پیش‌فرض رد می‌شود تا زمانی که صریحاً به لیست اضافه شود — نه این‌که بی‌صدا مجاز باشد.',
+      'سخت‌ترین بخش این پروژه ساختن PWA نبود؛ تصمیم‌گیری درباره‌ی این بود که چه چیزی نباید cache شود. سه نوع داده داریم: محتوای عمومی، درخواست‌های مخصوص ادمین و تصاویر. اگر همه یک سیاست cache داشته باشند، داده‌ی قدیمی ممکن است جای داده‌ی زنده را بگیرد. برای همین، هر نوع داده سیاست خودش را دارد. محتوای عمومی از localStorage استفاده می‌کند، مسیرهای ادمین از cache کنار گذاشته شده‌اند و فقط تصاویر cache با انقضا دارند. Department Admin هم در دیتابیس یک allow-list fail-closed دارد؛ هر کلید جدید تا وقتی صریحاً مجاز نشود، رد می‌شود.',
     ),
     dataIntegrityAndSecurity: tx(
       'Two admin roles are enforced with a database-level check constraint, not just an app-side assumption. Department-scoped writes go through a fail-closed allow-list function — an unlisted settings key is denied by default, not silently accepted, if the admin panel grows later. Row-Level Security policies scope what each role can read and write, and portal request submissions go through a server-side, rate-limited Supabase Edge Function rather than an unthrottled client-side insert.',
-      'دو نقش ادمین با یک check constraint در سطح دیتابیس اجرا می‌شوند، نه فقط یک فرض در سمت اپ. نوشتن‌های محدود به یک بخش از یک تابع fail-closed عبور می‌کنند: کلید فهرست‌نشده رد می‌شود، نه بی‌صدا پذیرفته — حتی اگر پنل ادمین بعداً بزرگ‌تر شود. سیاست‌های Row-Level Security مشخص می‌کنند هر نقش چه چیزی را می‌تواند بخواند و بنویسد. ارسال درخواست‌های پورتال هم از یک Supabase Edge Function با محدودیت نرخ درخواست در سمت سرور عبور می‌کند، نه از یک insert بی‌محدودیت مستقیم روی کلاینت.',
+      'دو نقش ادمین در سطح دیتابیس enforce می‌شوند، نه فقط در رابط کاربری. نوشتن‌های محدود از یک تابع fail-closed عبور می‌کنند و کلیدهای تعریف‌نشده رد می‌شوند. Row-Level Security هم مشخص می‌کند هر نقش چه چیزی را می‌تواند بخواند و بنویسد. ارسال درخواست‌ها نیز از یک Supabase Edge Function با rate limit سمت سرور عبور می‌کند.',
     ),
     responsiveAndRtl: tx(
       'RTL-first from the ground up — logical layout properties and perceptually uniform color tokens rather than an LTR layout patched with a right-to-left flag. Dari is the default language; English is available via a language-preference prompt shown once to first-time visitors.',
-      'RTL از پایه و اول — با استفاده از ویژگی‌های چیدمان منطقی و توکن‌های رنگِ یکنواختِ ادراکی، نه یک چیدمان LTR که بعداً با پرچم راست‌به‌چپ وصله شده باشد. دری زبان پیش‌فرض است؛ انگلیسی از طریق یک پیام یک‌باره‌ی انتخاب زبان به بازدیدکننده‌های تازه در دسترس است.',
+      'RTL از ابتدا بخشی از معماری است و با ویژگی‌های logical layout پیاده شده؛ نه یک رابط LTR که بعداً راست‌به‌چپ شده باشد. دری زبان پیش‌فرض است و انگلیسی برای بازدیدکننده‌ی تازه از طریق انتخاب زبان در دسترس قرار می‌گیرد.',
     ),
     quality: tx(
       'The caching strategy was verified with a real production build and preview, not just in the dev server, since the service worker is intentionally disabled in development. Fail-closed permission checks — deny by default, allow explicitly — are used for the Department Admin role, rather than a broader access pattern that would need remembering to lock down later. There is no dedicated automated test suite or CI/CD pipeline — deployment is a manual local build and upload, tracked here as a real limitation for a single-maintainer project rather than hidden as if a pipeline exists.',
-      'استراتژی کش با یک build واقعی تولید و preview اعتبارسنجی شد، نه فقط در سرور توسعه، چون سرویس‌ورکر عمداً در حالت توسعه غیرفعال است. برای نقش Department Admin از چک دسترسی fail-closed (پیش‌فرض رد، مجاز فقط با تصریح) استفاده شد، نه یک الگوی دسترسی گسترده‌تر که بعداً باید یادت می‌ماند محدودش کنی. هیچ مجموعه‌ی تست خودکار اختصاصی یا پایپ‌لاین CI/CD وجود ندارد — استقرار یک build محلی دستی و آپلود است، اینجا به‌عنوان یک محدودیت واقعیِ یک پروژه‌ی تک‌نگهدارنده ثبت شده، نه پنهان‌شده طوری که انگار پایپ‌لاینی وجود دارد.',
+      'استراتژی cache با یک build واقعی و preview بررسی شد، نه فقط در حالت توسعه؛ چون service worker در توسعه غیرفعال است. دسترسی Department Admin نیز fail-closed است: پیش‌فرض رد و فقط با اجازه‌ی صریح مجاز. تست خودکار اختصاصی و CI/CD وجود ندارد و استقرار با build محلی و آپلود انجام می‌شود.',
     ),
     currentStatusAndNext: tx(
       'Finished: bilingual public portal, dual-role admin CMS, offline-first data layer, installable PWA with per-data-type caching, rate-limited request submissions. Per the project\'s own admin-panel roadmap, the next planned stages are richer content management, a full scholarship model with status, search and filtering, and operations/security work — user roles and audit logging, media uploads, notifications, backup, and a move off the current local-file content source toward the database as the sole source of truth.',
-      'انجام‌شده: پورتال عمومی دوزبانه، CMS ادمین دو-نقشی، لایه‌ی داده‌ی offline-first، PWA نصب‌شدنی با کش تنظیم‌شده به‌ازای هر نوع داده، و ارسال درخواست‌های با محدودیت نرخ. طبق خودِ نقشه‌ی توسعه‌ی پنل ادمین این پروژه، مراحل بعدیِ برنامه‌ریزی‌شده عبارت‌اند از مدیریت محتوای غنی‌تر، مدل کامل بورسیه با وضعیت/جست‌وجو/فیلتر، و کارهای عملیات/امنیت — نقش‌های کاربری و ثبت رویداد، بارگذاری رسانه، اعلان‌ها، پشتیبان‌گیری، و انتقال از منبع فعلیِ فایل محلی به دیتابیس به‌عنوان تنها منبع حقیقت.',
+      'انجام‌شده: پورتال عمومی دوزبانه، CMS دو‌نقشی، لایه‌ی داده‌ی offline-first، PWA نصب‌شدنی با cache متناسب با نوع داده و ارسال درخواست‌ها با rate limit. طبق نقشه‌ی توسعه‌ی پروژه، کارهای بعدی شامل مدیریت محتوای غنی‌تر، مدل کامل بورسیه و ادامه‌ی کارهای عملیاتی و امنیتی است.',
     ),
     lessonsLearned: tx(
       "Building an offline-first PWA taught me that the interesting design work isn't \"add a service worker\" — it's deciding, data type by data type, whether caching helps or actively creates a correctness risk. The instinct to cache everything for a snappier offline experience would have been wrong for at least two of the three data types in this project. I now start every caching decision by asking what happens if this specific piece of data is stale, rather than applying one caching policy to the whole app.",
-      'ساختن یک PWA آفلاین‌فرست به من یاد داد که کار طراحیِ جالب «اضافه‌کردن یک سرویس‌ورکر» نیست — تصمیم‌گیری است، نوع‌به‌نوع داده، درباره‌ی این‌که کش‌کردن کمک می‌کند یا فعالانه یک ریسک صحت‌داده می‌سازد. غریزه‌ی «همه‌چیز را برای تجربه‌ی آفلاینِ سریع‌تر کش کن» برای دست‌کم دو تا از سه نوع داده‌ی این پروژه اشتباه از آب درمی‌آمد. الان هر تصمیم کش را با این سؤال شروع می‌کنم که اگر این تکه‌ی مشخص از داده قدیمی باشد چه اتفاقی می‌افتد، نه با اعمال یک سیاست کش یکسان روی کل اپ.',
+      'این پروژه نشان داد مسئله‌ی اصلی PWA آفلاین اضافه‌کردن service worker نیست؛ تعیین سیاست cache برای هر نوع داده است. cache کردن همه‌چیز می‌توانست داده‌ی قدیمی را وارد بخش‌های حساس کند. حالا هر تصمیم cache را با این سؤال شروع می‌کنم: اگر این داده قدیمی باشد، چه اتفاقی می‌افتد؟',
     ),
     featured: true,
     published: true,
@@ -324,7 +324,7 @@ const differentiatorsData: Principle[] = [
     title: tx('Direct communication', 'ارتباط مستقیم'),
     description: tx(
       'You talk to the person designing and writing the code. Nothing gets lost between account managers and subcontractors.',
-      'مستقیم با کسی صحبت می‌کنی که کد را طراحی و اجرا می‌کند. چیزی میان مدیر حساب و پیمانکار فرعی گم نمی‌شود.',
+      'مستقیم با کسی صحبت می‌کنی که پروژه را می‌سازد؛ بین تو و کد لایه‌ی واسطی وجود ندارد.',
     ),
   },
   {
@@ -332,7 +332,7 @@ const differentiatorsData: Principle[] = [
     title: tx('End-to-end ownership', 'مالکیت سرتاسری'),
     description: tx(
       'Architecture, interface, backend and deployment happen in one workflow, so nothing falls between handoffs.',
-      'معماری، رابط کاربری، بک‌اند و استقرار در یک مسیر یکپارچه پیش می‌روند؛ چیزی بین تیم‌ها جابه‌جا نمی‌شود.',
+      'معماری، رابط کاربری، بک‌اند و استقرار در یک مسیر پیش می‌روند؛ چیزی بین تیم‌ها جابه‌جا نمی‌شود.',
     ),
   },
   {
@@ -348,7 +348,7 @@ const differentiatorsData: Principle[] = [
     title: tx('Maintainable architecture', 'معماری قابل‌نگهداری'),
     description: tx(
       'Clear boundaries between interface, business logic and data keep the product easy to change after launch.',
-      'رابط کاربری، منطق کسب‌وکار و پایگاه‌داده در لایه‌های جدا می‌مانند، پس تغییر محصول بعد از راه‌اندازی ساده است.',
+      'رابط کاربری، منطق کسب‌وکار و پایگاه‌داده در لایه‌های جدا نگهداری می‌شوند تا تغییرات بعدی قابل‌کنترل‌تر باشند.',
     ),
   },
   {
@@ -356,7 +356,7 @@ const differentiatorsData: Principle[] = [
     title: tx('Clear process', 'روند کاری روشن'),
     description: tx(
       'Defined stages with a visible result at the end of each one, so you always know what is done and what is next.',
-      'مراحل مشخص با یک نتیجه‌ی قابل مشاهده در پایان هرکدام، تا همیشه بدانی چه چیزی انجام شده و بعدی چیست.',
+      'هر مرحله خروجی مشخصی دارد؛ همیشه می‌دانی چه چیزی تمام شده و قدم بعدی چیست.',
     ),
   },
   {
@@ -452,7 +452,7 @@ const developerData: DeveloperProfile = {
   },
   bio: tx(
     'Artaveo is run by one independent full-stack developer. Every project is planned, designed, built and deployed by the same person — which keeps decisions consistent from the database schema to the last detail of the interface.',
-    'آرتاویو توسط یک توسعه‌دهنده‌ی مستقل فول‌استک اداره می‌شود. هر پروژه توسط همان یک نفر برنامه‌ریزی، طراحی، ساخته و مستقر می‌شود — که تصمیم‌ها را از طرح پایگاه داده تا جزئی‌ترین بخش رابط کاربری یکدست نگه می‌دارد.',
+    'آرتاویو توسط یک توسعه‌دهنده‌ی مستقل فول‌استک ساخته و اداره می‌شود. همان فرد پروژه را از برنامه‌ریزی و طراحی تا ساخت و استقرار پیش می‌برد؛ از معماری پایگاه داده تا جزئیات رابط کاربری.',
   ),
   focus: [
     tx('Full-stack web applications', 'اپلیکیشن‌های وب فول‌استک'),
