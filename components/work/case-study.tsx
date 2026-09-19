@@ -210,7 +210,7 @@ export function CaseStudy({
             {project.context ? (
               <section>
                 <h2>{t18n('context')}</h2>
-                <p><LocalizedBody value={project.context} locale={locale} /></p>
+                <LocalizedBody value={project.context} locale={locale} />
               </section>
             ) : null}
 
@@ -226,7 +226,7 @@ export function CaseStudy({
             {project.problemAndGoals ? (
               <section>
                 <h2>{t18n('problemAndGoals')}</h2>
-                <p><LocalizedBody value={project.problemAndGoals} locale={locale} /></p>
+                <LocalizedBody value={project.problemAndGoals} locale={locale} />
               </section>
             ) : null}
 
@@ -260,7 +260,7 @@ export function CaseStudy({
             {project.architecture ? (
               <section>
                 <h2>{t18n('architecture')}</h2>
-                <p><LocalizedBody value={project.architecture} locale={locale} /></p>
+                <LocalizedBody value={project.architecture} locale={locale} />
               </section>
             ) : null}
 
@@ -303,14 +303,14 @@ export function CaseStudy({
             {project.engineeringHighlight ? (
               <section>
                 <h2>{t18n('engineeringHighlight')}</h2>
-                <p><LocalizedBody value={project.engineeringHighlight} locale={locale} /></p>
+                <LocalizedBody value={project.engineeringHighlight} locale={locale} />
               </section>
             ) : null}
 
             {project.dataIntegrityAndSecurity ? (
               <section>
                 <h2>{t18n('dataIntegrityAndSecurity')}</h2>
-                <p><LocalizedBody value={project.dataIntegrityAndSecurity} locale={locale} /></p>
+                <LocalizedBody value={project.dataIntegrityAndSecurity} locale={locale} />
               </section>
             ) : null}
 
@@ -326,28 +326,28 @@ export function CaseStudy({
             {project.responsiveAndRtl ? (
               <section>
                 <h2>{t18n('responsiveAndRtl')}</h2>
-                <p><LocalizedBody value={project.responsiveAndRtl} locale={locale} /></p>
+                <LocalizedBody value={project.responsiveAndRtl} locale={locale} />
               </section>
             ) : null}
 
             {project.quality ? (
               <section>
                 <h2>{t18n('quality')}</h2>
-                <p><LocalizedBody value={project.quality} locale={locale} /></p>
+                <LocalizedBody value={project.quality} locale={locale} />
               </section>
             ) : null}
 
             {project.currentStatusAndNext ? (
               <section>
                 <h2>{t18n('currentStatusAndNext')}</h2>
-                <p><LocalizedBody value={project.currentStatusAndNext} locale={locale} /></p>
+                <LocalizedBody value={project.currentStatusAndNext} locale={locale} />
               </section>
             ) : null}
 
             {project.lessonsLearned ? (
               <section>
                 <h2>{t18n('lessonsLearned')}</h2>
-                <p><LocalizedBody value={project.lessonsLearned} locale={locale} /></p>
+                <LocalizedBody value={project.lessonsLearned} locale={locale} />
               </section>
             ) : null}
           </Prose>
