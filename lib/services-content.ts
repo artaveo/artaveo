@@ -490,7 +490,7 @@ const servicesData: Service[] = [
           tx('Server-side enforcement of every write', 'اجرای سمت سرور برای هر عملیات نوشتن'),
         ],
         notIncluded: [
-          tx('The public-facing product this admin manages, unless bundled', 'محصول عمومیِ رو‌به‌کاربر، مگر اینکه در همان همکاری ساخته شود'),
+          tx('The public-facing product this admin manages, unless bundled', 'محصول عمومی‌ای که کاربر می‌بیند، مگر اینکه در همان همکاری ساخته شود'),
         ],
         deliverables: [
           tx('Admin panel', 'پنل مدیریت'),
