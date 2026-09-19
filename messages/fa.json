@@ -448,14 +448,7 @@
     "attachmentUploadFailed": "آپلود ناموفق بود — دوباره امتحان کنید.",
     "attachmentLimitReached": "حداکثر ۳ فایل.",
     "attachmentsRules": "PNG، JPEG، WebP، GIF یا SVG، هرکدام حداکثر ۵ مگابایت، حداکثر ۳ فایل.",
-    "removeAttachment": "حذف فایل",
-    "updateTitle": "نسخه‌ی جدید آماده است",
-    "updateDescription": "نسخه‌ی تازه‌ی آرتاویو آماده است.",
-    "reload": "بارگذاری مجدد",
-    "installTitle": "نصب آرتاویو",
-    "installDescription": "برای دسترسی سریع‌تر و اجرای تمام‌صفحه، آرتاویو را روی دستگاهت نصب کن.",
-    "install": "نصب",
-    "dismiss": "بعداً"
+    "removeAttachment": "حذف فایل"
   },
   "Pwa": {
     "updateTitle": "نسخه‌ی جدید موجود است",
