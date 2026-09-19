@@ -176,7 +176,9 @@ const featuredProjectsData: Project[] = [
     ),
     dataIntegrityAndSecurity: tx(
       "PostgreSQL Row-Level Security is applied to every business table, paired with server-side authorization checks rather than relied on alone. A database trigger enforces the payment state machine at the row level, closing off direct-UPDATE bypasses, and a dedicated payment_status_events audit trail — writable only through one internal function — gives every payment status change a reviewable history of who changed what, when and why. Limited admins work through a permission-center model where access is scoped per section (bookings, payments, etc.) rather than all-or-nothing. Security reviews combine Supabase's advisory tooling with direct privilege checks rather than trusting the advisory output alone.",
-      'Row-Level Security روی جدول‌های کسب‌وکاری PostgreSQL فعال است و با بررسی دسترسی سمت سرور همراه می‌شود. state machine پرداخت در دیتابیس enforce می‌شود و payment_status_events فقط از مسیر داخلی قابل‌نوشتن است. ادمین‌های محدود نیز فقط به بخش‌های مجاز دسترسی دارند.',
+      'Row-Level Security روی جدول‌های کسب‌وکاری PostgreSQL فعال است و با بررسی دسترسی سمت سرور همراه می‌شود. state machine پرداخت در دیتابیس enforce می‌شود و payment_status_events فقط از مسیر داخلی قابل‌نوشتن است.
+
+ادمین‌های محدود نیز فقط به بخش‌های مجاز دسترسی دارند.',
     ),
     responsiveAndRtl: tx(
       'Built with five responsive tiers from mobile (under 768px) through ultra-wide (2560px and up), covering both the passenger booking flow and the admin\'s wide data tables. RTL/LTR behaviour is treated as a layout requirement from the start (Dari/English), not a late pass — including RTL-aware admin navigation and wide-table handling.',
@@ -192,11 +194,15 @@ const featuredProjectsData: Project[] = [
     ),
     currentStatusAndNext: tx(
       'Finished: passenger booking with server-enforced seat holds, operations admin (routes, fleet, drivers, trips, bookings, reports, CSV), loyalty and coupon foundations, a public CMS lite with in-site responsive image cropping, and a full payment-status state machine with audit trail and partial refunds — all running on manual/offline payment confirmation. Not finished: a live payment gateway. HesabPay integration is the next planned step and is blocked on getting developer/sandbox credentials from the provider — until that\'s resolved, online bookings are recorded but stay in a pending payment state rather than auto-confirming.',
-      'انجام‌شده: رزرو مسافر با hold صندلی سمت سرور، پنل عملیات برای مسیرها، ناوگان، رانندگان، سفرها، رزروها، گزارش‌ها و CSV، پایه‌های loyalty و کوپن، CMS عمومی سبک و state machine پرداخت همراه با audit و بازپرداخت جزئی. پرداخت‌ها هنوز تأیید خودکار ندارند. اتصال حساب‌پی هم به دریافت دسترسی developer/sandbox از ارائه‌دهنده وابسته است.',
+      'انجام‌شده: رزرو مسافر با hold صندلی سمت سرور، پنل عملیات برای مسیرها، ناوگان، رانندگان، سفرها، رزروها، گزارش‌ها و CSV، پایه‌های loyalty و کوپن، CMS عمومی سبک و state machine پرداخت همراه با audit و بازپرداخت جزئی. پرداخت‌ها هنوز تأیید خودکار ندارند.
+
+اتصال حساب‌پی هم به دریافت دسترسی developer/sandbox از ارائه‌دهنده وابسته است.',
     ),
     lessonsLearned: tx(
       'The most valuable finding in this phase wasn\'t a new feature — it was what a security review turned up in code that already shipped: a function with no permission check of its own, reachable because it was assumed to only ever be called from trusted places. Assumptions about "who calls this" are not access control. I now treat every database function as if it will be called directly by an untrusted client, and check that assumption explicitly rather than inferring it from how the function is currently used in the app.',
-      'مهم‌ترین یافته‌ی این فاز یک فیچر تازه نبود. بررسی امنیتی نشان داد یک تابع دیتابیس بدون کنترل دسترسی مستقل قابل‌فراخوانی است. از این‌جا یک قاعده‌ی روشن شکل گرفت: هر تابع دیتابیس باید طوری بررسی شود که انگار مستقیماً از یک کلاینت غیرقابل‌اعتماد فراخوانی می‌شود.',
+      'مهم‌ترین یافته‌ی این فاز یک فیچر تازه نبود. بررسی امنیتی نشان داد یک تابع دیتابیس بدون کنترل دسترسی مستقل قابل‌فراخوانی است.
+
+از این‌جا یک قاعده‌ی روشن شکل گرفت: هر تابع دیتابیس باید طوری بررسی شود که انگار مستقیماً از یک کلاینت غیرقابل‌اعتماد فراخوانی می‌شود.',
     ),
     featured: true,
     published: true,
@@ -324,7 +330,9 @@ Row-Level Security مشخص می‌کند هر نقش چه چیزی را می‌
     ),
     currentStatusAndNext: tx(
       'Finished: bilingual public portal, dual-role admin CMS, offline-first data layer, installable PWA with per-data-type caching, rate-limited request submissions. Per the project\'s own admin-panel roadmap, the next planned stages are richer content management, a full scholarship model with status, search and filtering, and operations/security work — user roles and audit logging, media uploads, notifications, backup, and a move off the current local-file content source toward the database as the sole source of truth.',
-      'انجام‌شده: پورتال عمومی دوزبانه، CMS دو‌نقشی، لایه‌ی داده‌ی offline-first، PWA نصب‌شدنی با cache متناسب با نوع داده و ارسال درخواست‌ها با rate limit. طبق نقشه‌ی توسعه‌ی پروژه، کارهای بعدی شامل مدیریت محتوای غنی‌تر، مدل کامل بورسیه و ادامه‌ی کارهای عملیاتی و امنیتی است.',
+      'انجام‌شده: پورتال عمومی دوزبانه، CMS دو‌نقشی، لایه‌ی داده‌ی offline-first، PWA نصب‌شدنی با cache متناسب با نوع داده و ارسال درخواست‌ها با rate limit.
+
+طبق نقشه‌ی توسعه‌ی پروژه، کارهای بعدی شامل مدیریت محتوای غنی‌تر، مدل کامل بورسیه و ادامه‌ی کارهای عملیاتی و امنیتی است.',
     ),
     lessonsLearned: tx(
       "Building an offline-first PWA taught me that the interesting design work isn't \"add a service worker\" — it's deciding, data type by data type, whether caching helps or actively creates a correctness risk. The instinct to cache everything for a snappier offline experience would have been wrong for at least two of the three data types in this project. I now start every caching decision by asking what happens if this specific piece of data is stale, rather than applying one caching policy to the whole app.",
