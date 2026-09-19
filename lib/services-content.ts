@@ -108,11 +108,11 @@ const servicesData: Service[] = [
       tx('Wire up analytics and a working contact path from day one', 'راه‌اندازی آنالیتیکس و یک مسیر تماس کارآمد از همان روز اول'),
     ],
     included: [
-      tx('Up to the pages agreed in scope, each with its own metadata', 'به‌تعداد صفحاتی که در محدوده‌ی کار توافق شده، هرکدام با متادیتای خودشان'),
-      tx('Responsive layout: mobile, tablet and desktop', 'چیدمان واکنش‌گرا: موبایل، تبلت و دسکتاپ'),
+      tx('Up to the pages agreed in scope, each with its own metadata', 'به تعداد صفحاتی که در محدوده‌ی کار توافق می‌کنیم، هرکدام با متادیتای مخصوص خودشان'),
+      tx('Responsive layout: mobile, tablet and desktop', 'چیدمان واکنش‌گرا برای موبایل، تبلت و دسکتاپ'),
       tx('On-page SEO: titles, descriptions, headings, sitemap, robots.txt', 'سئوی درون‌صفحه‌ای: عنوان‌ها، توضیحات، عنوان‌بندی، sitemap و robots.txt'),
       tx('Contact form or a working contact path wired to a real inbox', 'فرم تماس یا یک مسیر تماس کارآمد که به یک صندوق ایمیل واقعی وصل است'),
-      tx('Deployment to a production host', 'استقرار روی یک میزبان تولید'),
+      tx('Deployment to a production host', 'استقرار روی هاست تولید'),
     ],
     notIncluded: [
       tx('Custom backend logic, user accounts or a database — see Web Application / MVP', 'منطق سفارشی بک‌اند، حساب کاربری یا پایگاه داده — بخش «اپلیکیشن وب / MVP» را ببینید'),
@@ -131,7 +131,7 @@ const servicesData: Service[] = [
       ),
       step(
         ['Design', 'A layout built on a real design system, reviewed before any page is coded.'],
-        ['طراحی', 'چیدمانی ساخته‌شده روی یک سیستم طراحی واقعی، پیش از کدنویسی هر صفحه بازبینی می‌شود.'],
+        ['طراحی', 'چیدمانی ساخته شده روی یک سیستم طراحی واقعی، پیش از کدنویسی هر صفحه بازبینی می‌شود.'],
       ),
       step(
         ['Build', 'Component-based implementation, one reviewable page at a time.'],
@@ -274,8 +274,8 @@ const servicesData: Service[] = [
     whatDrivesCost: [
       tx('Number of pages', 'تعداد صفحات'),
       tx('Bilingual vs single-language build', 'ساخت دوزبانه در برابر تک‌زبانه'),
-      tx('How much content is ready at kickoff', 'میزان آماده‌بودن محتوا در زمان شروع'),
-      tx('Deadline pressure', 'فشردگی مهلت زمانی'),
+      tx('How much content is ready at kickoff', 'میزان آماده‌بودن محتوا هنگام شروع'),
+      tx('Deadline pressure', 'فشار زمانی'),
     ],
     paymentScheduleNote: tx(
       'Smaller sites are typically half up front, half on delivery; larger scopes split across milestones. Full terms are confirmed before any work begins.',
@@ -298,7 +298,7 @@ const servicesData: Service[] = [
       'ساخت محصول فول‌استک — رابط کاربری، API و پایگاه داده به‌عنوان یک سیستم یکدست، با شروع از یک Discovery Sprint.',
     ),
     forWhom: [
-      tx('A founder or business with a real product idea and unclear or evolving scope', 'یک بنیان‌گذار یا کسب‌وکار با ایده‌ی محصولی واقعی و دامنه‌ای نامشخص یا در حال شکل‌گیری'),
+      tx('A founder or business with a real product idea and unclear or evolving scope', 'یک بنیان‌گذار یا کسب‌وکار با ایده‌ی محصولی واقعی و محدوده‌ای که هنوز در حال شکل‌گیری است'),
       tx('A team that needs user accounts, a database and real business logic — not just informational pages', 'تیمی که به حساب کاربری، پایگاه داده و منطق واقعی کسب‌وکار نیاز دارد — نه فقط صفحات اطلاع‌رسانی'),
     ],
     notForWhom: [
@@ -306,11 +306,11 @@ const servicesData: Service[] = [
     ],
     problem: tx(
       'Fixed-price quotes for a project with unclear scope are dishonest in one direction or the other — either padded to cover the unknowns, or cut corners once the real complexity shows up. Custom product work needs the scope defined before the price is.',
-      'قیمت ثابت برای پروژه‌ای با دامنه‌ی نامشخص معمولاً صادقانه نیست؛ یا برای پوشش مجهولات بیش‌ازحد بالا می‌رود، یا وقتی پیچیدگی واقعی مشخص می‌شود، از کیفیت کم می‌شود. برای کار محصول سفارشی، اول دامنه را مشخص می‌کنیم و بعد قیمت می‌دهیم.',
+      'برای پروژه‌ای که محدوده‌اش روشن نیست، قیمت ثابت معمولاً یا بیش‌ازحد محافظه‌کارانه می‌شود یا وسط کار دردسر ایجاد می‌کند. اول محدوده را مشخص می‌کنیم، بعد قیمت می‌دهیم.',
     ),
     whatIDo: [
       tx('Run a fixed-price Discovery Sprint first: scope, architecture outline and an estimate you can act on', 'ابتدا یک Discovery Sprint با قیمت ثابت اجرا می‌کنم: دامنه، طرح‌کلی معماری و برآوردی که می‌توانید بر اساسش تصمیم بگیرید'),
-      tx('Design and build the database schema, API and interface as one system, not three disconnected layers', 'طراحی و ساخت طرح پایگاه داده، API و رابط کاربری به‌عنوان یک سیستم واحد، نه سه لایه‌ی جدا از هم'),
+      tx('Design and build the database schema, API and interface as one system, not three disconnected layers', 'طراحی و ساخت پایگاه داده، API و رابط کاربری به‌عنوان یک سیستم؛ نه سه بخش جدا از هم'),
       tx('Deliver in milestones you can see and review, not one opaque block at the end', 'تحویل در نقاط عطف روشن و قابل‌بازبینی، نه یک بسته‌ی مبهم در انتهای کار'),
     ],
     included: [
@@ -352,14 +352,14 @@ const servicesData: Service[] = [
       'Discovery Sprint: حدود یک هفته. مرحله‌ی ساخت: در پایان Discovery و به‌ازای هر نقطه‌ی عطف دامنه‌بندی می‌شود — پیش از آن هیچ بازه‌ی زمانی کلی اعلام نمی‌شود.',
     ),
     requirements: [
-      tx('A clear problem statement, even if the solution shape is still open', 'یک بیان روشن از مسئله، حتی اگر شکل راه‌حل هنوز باز باشد'),
-      tx('A point of contact who can make product decisions during Discovery', 'یک نفر رابط که بتواند در طول Discovery تصمیم‌های محصول را بگیرد'),
+      tx('A clear problem statement, even if the solution shape is still open', 'تعریف روشن مسئله، حتی اگر شکل راه‌حل هنوز مشخص نباشد'),
+      tx('A point of contact who can make product decisions during Discovery', 'یک نفر رابط که در طول Discovery بتواند تصمیم‌های محصول را بگیرد'),
     ],
     relatedProjectSlugs: ['transportation-system', 'pazhuhesh-portal'],
     faq: [
       faq(
         ['Why start with a paid Discovery Sprint instead of a free quote?', 'A free quote on an unscoped product is a guess. The sprint produces a real architecture outline and estimate you can hold me to — and you keep that outline even if we don\u2019t continue to the build.'],
-        ['چرا شروع کار با یک Discovery Sprint پولی است، نه یک برآورد رایگان؟', 'برآورد رایگان روی یک محصول بدون دامنه‌بندی، یک حدس است. این اسپرینت یک طرح‌کلی معماری و برآورد واقعی تولید می‌کند که می‌توانید مرا نسبت به آن مسئول بدانید — و حتی اگر به مرحله‌ی ساخت نرویم، این طرح‌کلی برای خودتان می‌ماند.'],
+        ['چرا کار را با یک Discovery Sprint پولی شروع می‌کنید، نه یک برآورد رایگان؟', 'برآورد رایگان برای محصولی که هنوز محدوده‌ی مشخصی ندارد، بیشتر حدس است. این اسپرینت مسئله، طرح کلی معماری و یک برآورد واقعی‌تر می‌دهد و حتی اگر ساخت ادامه پیدا نکند، خروجی آن برای خودتان می‌ماند.'],
       ),
       faq(
         ['Who owns the code?', 'Ownership and IP transfer terms are published on the Working Agreement page and confirmed before the build starts.'],
@@ -384,25 +384,25 @@ const servicesData: Service[] = [
     ),
     forWhom: [
       tx('A team currently running operations from spreadsheets, group chats or a system that doesn\u2019t enforce who can do what', 'تیمی که فعلاً عملیاتش را از طریق اکسل، گروه‌های چت، یا سیستمی که مشخص نمی‌کند چه‌کسی چه‌کاری می‌تواند بکند، اداره می‌کند'),
-      tx('An existing product that needs a second, internal-only surface for staff', 'یک محصول موجود که به یک سطح دومِ فقط‌داخلی برای کارکنان نیاز دارد'),
+      tx('An existing product that needs a second, internal-only surface for staff', 'یک محصول موجود که به یک بخش داخلی برای کارکنان نیاز دارد'),
     ],
     problem: tx(
       'Internal tools are often the least-invested-in part of a product, which is exactly where mistakes are most expensive — a limited admin with too much access, or a report that silently shows stale data, causes real operational harm.',
       'ابزارهای داخلی اغلب کم‌سرمایه‌گذاری‌شده‌ترین بخش یک محصول‌اند، درست همان‌جایی که اشتباه‌ها گران‌ترین‌اند — یک ادمین محدود با دسترسی بیش‌ازحد، یا گزارشی که بی‌صدا داده‌ی قدیمی نشان می‌دهد، آسیب عملیاتی واقعی وارد می‌کند.',
     ),
     whatIDo: [
-      tx('Model roles and permissions explicitly, scoped per section rather than all-or-nothing', 'مدل‌سازی صریح نقش‌ها و سطوح دسترسی، به‌ازای هر بخش، نه به‌شکل همه‌یا‌هیچ'),
-      tx('Build the tables, filters, reports and CSV exports your team actually works from all day', 'ساخت جدول‌ها، فیلترها، گزارش‌ها و خروجی‌های CSV که تیم شما واقعاً تمام روز با آن‌ها کار می‌کند'),
-      tx('Enforce every sensitive action server-side, with an audit trail where the action matters', 'اجرای هر عمل حساس در سمت سرور، همراه با یک تاریخچه‌ی قابل‌بازبینی در جایی که عمل اهمیت دارد'),
+      tx('Model roles and permissions explicitly, scoped per section rather than all-or-nothing', 'تعریف صریح نقش‌ها و دسترسی هر بخش؛ نه یک دسترسی همه‌یا‌هیچ'),
+      tx('Build the tables, filters, reports and CSV exports your team actually works from all day', 'ساخت جدول‌ها، فیلترها، گزارش‌ها و خروجی‌های CSV متناسب با کار روزمره‌ی تیم'),
+      tx('Enforce every sensitive action server-side, with an audit trail where the action matters', 'هر عملیات حساس را سمت سرور کنترل می‌کنم و برای عملیات مهم تاریخچه‌ی قابل‌بازبینی نگه می‌دارم.'),
     ],
     included: [
-      tx('Role-based access, scoped per section of the admin', 'دسترسی بر پایه‌ی نقش، مشخص‌شده برای هر بخش از پنل ادمین'),
+      tx('Role-based access, scoped per section of the admin', 'دسترسی نقش‌محور، با سطح دسترسی مشخص برای هر بخش از پنل ادمین'),
       tx('Data tables with filtering, sorting and pagination', 'جدول‌های داده با فیلتر، مرتب‌سازی و صفحه‌بندی'),
-      tx('Reports and CSV export for the records your team needs offline', 'گزارش‌ها و خروجی CSV برای رکوردهایی که تیم شما بیرون از سیستم هم به آن‌ها نیاز دارد'),
-      tx('Server-side enforcement of every write — the admin UI is never the source of truth', 'اجرای سمت سرور برای هر عملیات نوشتن — رابط کاربری ادمین هیچ‌وقت منبع حقیقت نیست'),
+      tx('Reports and CSV export for the records your team needs offline', 'گزارش‌ها و خروجی CSV برای داده‌هایی که تیم بیرون از سیستم هم به آن‌ها نیاز دارد'),
+      tx('Server-side enforcement of every write — the admin UI is never the source of truth', 'هر عملیات نوشتن در سمت سرور کنترل می‌شود؛ رابط کاربری ادمین منبع حقیقت نیست.'),
     ],
     notIncluded: [
-      tx('The public-facing product the admin manages, unless it is built as part of the same engagement', 'محصول عمومیِ رو‌به‌کاربر که ادمین آن را مدیریت می‌کند، مگر این‌که در همان قرارداد ساخته شود'),
+      tx('The public-facing product the admin manages, unless it is built as part of the same engagement', 'محصول عمومیِ روبه‌روی کاربر که ادمین آن را مدیریت می‌کند، مگر این‌که در همان قرارداد ساخته شود'),
       tx('Data migration from a legacy system beyond what is explicitly scoped', 'مهاجرت داده از یک سیستم قدیمی، فراتر از آنچه صراحتاً در دامنه‌ی کار مشخص شده'),
     ],
     deliverables: [
@@ -490,7 +490,7 @@ const servicesData: Service[] = [
           tx('Server-side enforcement of every write', 'اجرای سمت سرور برای هر عملیات نوشتن'),
         ],
         notIncluded: [
-          tx('The public-facing product this admin manages, unless bundled', 'محصول عمومیِ رو‌به‌کاربر، مگر این‌که همراه بسته شود'),
+          tx('The public-facing product this admin manages, unless bundled', 'محصول عمومیِ روبه‌روی کاربر، مگر این‌که همراه بسته شود'),
         ],
         deliverables: [
           tx('Admin panel', 'پنل مدیریت'),
@@ -545,7 +545,7 @@ const servicesData: Service[] = [
       tx('Number of roles and permission levels', 'تعداد نقش‌ها و سطوح دسترسی'),
       tx('Number of admin sections and tables', 'تعداد بخش‌ها و جدول‌های ادمین'),
       tx('Whether it connects to an existing database or one built alongside it', 'اینکه به یک پایگاه داده‌ی موجود وصل می‌شود یا همراه آن ساخته می‌شود'),
-      tx('Deadline pressure', 'فشردگی مهلت زمانی'),
+      tx('Deadline pressure', 'فشار زمانی'),
     ],
     paymentScheduleNote: tx(
       'Starter and Standard follow the same milestone split as Business Website; Custom follows the Web Application / MVP schedule. Full terms are confirmed before any work begins.',
@@ -568,8 +568,8 @@ const servicesData: Service[] = [
       'طراحی schema در Supabase / PostgreSQL، احراز هویت، row-level security و اتصال به سرویس‌های شخص‌ثالث.',
     ),
     forWhom: [
-      tx('A team with a frontend already in progress that needs a real, secure backend behind it', 'تیمی که یک فرانت‌اند در حال توسعه دارد و به یک بک‌اند واقعی و امن پشت آن نیاز دارد'),
-      tx('A product where sensitive decisions currently live in client-side code and need to move to the server', 'محصولی که تصمیم‌های حساس آن فعلاً در کد سمت کلاینت زندگی می‌کند و باید به سرور منتقل شود'),
+      tx('A team with a frontend already in progress that needs a real, secure backend behind it', 'تیمی که فرانت‌اندش در حال توسعه است و به یک بک‌اند واقعی و امن نیاز دارد'),
+      tx('A product where sensitive decisions currently live in client-side code and need to move to the server', 'محصولی که تصمیم‌های حساسش هنوز در کد سمت کلاینت گرفته می‌شوند و باید به سرور منتقل شوند'),
     ],
     problem: tx(
       'A frontend that talks directly to a database with no server-side authorization is not a security model — it is a promise that the client will behave, and clients don\u2019t always behave. This service exists to put real boundaries where the product currently has none.',
@@ -779,7 +779,7 @@ const servicesData: Service[] = [
       addon({
         id: 'extra-pages',
         title: tx('Additional pages beyond the package', 'صفحات اضافه فراتر از بسته'),
-        description: tx('Auditing and fixing pages beyond the chosen package\u2019s count.', 'ارزیابی و اصلاح صفحات فراتر از تعداد بسته‌ی انتخابی.'),
+        description: tx('Auditing and fixing pages beyond the chosen package\u2019s count.', 'بررسی و اصلاح صفحاتی که بیشتر از تعداد صفحات بسته هستند.'),
         deliveryImpactDays: 2,
       }),
     ],
@@ -810,7 +810,7 @@ const servicesData: Service[] = [
     ),
     forWhom: [
       tx('A specific bug, outage or broken flow in a codebase that needs diagnosing and fixing', 'یک باگ، قطعی، یا روند شکسته‌ی مشخص در یک کدبیس که نیاز به تشخیص و رفع دارد'),
-      tx('Someone whose original developer is unavailable and needs a second pair of eyes on a real problem', 'کسی که توسعه‌دهنده‌ی اصلی‌اش در دسترس نیست و به یک نگاه دوم روی یک مشکل واقعی نیاز دارد'),
+      tx('Someone whose original developer is unavailable and needs a second pair of eyes on a real problem', 'کسی که توسعه‌دهنده‌ی اصلی‌اش در دسترس نیست و برای یک مشکل واقعی به بررسی نفر دوم نیاز دارد'),
     ],
     notForWhom: [
       tx('Ongoing, open-ended maintenance — that is the Care Plan', 'نگهداری مستمر و بدون‌محدوده — آن خدمت «برنامه‌ی نگهداری» است'),
@@ -872,7 +872,7 @@ const servicesData: Service[] = [
         id: 'starter',
         name: tx('Starter', 'استارتر'),
         summary: tx('One specific, defined bug.', 'یک باگ مشخص و تعریف‌شده.'),
-        forWhom: tx('A single reproducible bug with a clear description of expected vs. actual behavior.', 'یک باگ واحد و قابل‌بازتولید با توضیحی روشن از رفتار موردانتظار در برابر رفتار واقعی.'),
+        forWhom: tx('A single reproducible bug with a clear description of expected vs. actual behavior.', 'یک باگ مشخص و قابل‌بازتولید، همراه با توضیح روشن درباره‌ی رفتار موردانتظار و رفتار فعلی.'),
         included: [
           tx('Diagnosis of the one defined problem', 'تشخیص همان یک مشکل تعریف‌شده'),
           tx('The fix, implemented and verified', 'رفع مشکل، اجراشده و اعتبارسنجی‌شده'),
@@ -892,7 +892,7 @@ const servicesData: Service[] = [
         id: 'standard',
         name: tx('Standard', 'استاندارد'),
         summary: tx('A small rescue: several related bugs, or one that touches more of the codebase.', 'یک نجات کوچک: چند باگ مرتبط، یا یک باگ که به بخش بیشتری از کدبیس می‌رسد.'),
-        forWhom: tx('Someone whose original developer is unavailable, facing more than one broken flow that needs a second pair of eyes.', 'کسی که توسعه‌دهنده‌ی اصلی‌اش در دسترس نیست و با بیش از یک روند شکسته روبه‌روست که به یک نگاه دوم نیاز دارد.'),
+        forWhom: tx('Someone whose original developer is unavailable, facing more than one broken flow that needs a second pair of eyes.', 'کسی که توسعه‌دهنده‌ی اصلی‌اش در دسترس نیست و چند روند شکسته دارد که نیاز به بررسی نفر دوم دارند.'),
         included: [
           tx('Diagnosis of up to 3 related problems', 'تشخیص تا ۳ مشکل مرتبط'),
           tx('The fixes, implemented and verified against the existing codebase', 'اصلاح‌ها، اجراشده و اعتبارسنجی‌شده در برابر کدبیس موجود'),
@@ -913,7 +913,7 @@ const servicesData: Service[] = [
         id: 'custom',
         name: tx('Custom', 'سفارشی'),
         summary: tx('A larger rescue — many issues, or a codebase in a state that needs a real look before any estimate.', 'یک نجات بزرگ‌تر — مشکلات زیاد، یا کدبیسی که پیش از هر برآوردی به یک نگاه واقعی نیاز دارد.'),
-        forWhom: tx('A codebase with enough unknowns that a real look is needed before any estimate.', 'کدبیسی با مجهولات کافی که پیش از هر برآوردی به یک نگاه واقعی نیاز دارد.'),
+        forWhom: tx('A codebase with enough unknowns that a real look is needed before any estimate.', 'کدبیسی که ابهام‌های آن زیاد است و قبل از هر برآوردی باید واقعاً بررسی شود.'),
         included: [
           tx('A short paid look at the codebase first, then a scoped estimate for the rescue', 'ابتدا یک نگاه کوتاه و پولی به کدبیس، سپس یک برآورد دامنه‌بندی‌شده برای نجات'),
         ],
@@ -957,12 +957,12 @@ const servicesData: Service[] = [
     ],
     problem: tx(
       'Products that ship and then get no attention accumulate outdated dependencies, unnoticed errors and small annoyances that compound. Someone needs to actually be looking, on a schedule, not only when something breaks loudly.',
-      'محصولاتی که راه‌اندازی می‌شوند و بعد هیچ توجهی نمی‌گیرند، وابستگی‌های قدیمی، خطاهای دیده‌نشده و ناراحتی‌های کوچکی جمع می‌کنند که روی هم انباشته می‌شوند. باید کسی طبق یک برنامه‌ی زمانی واقعاً نگاه کند، نه فقط وقتی چیزی با صدای بلند خراب می‌شود.',
+      'محصولی که بعد از راه‌اندازی رها شود، به‌مرور با وابستگی‌های قدیمی و خطاهای دیده‌نشده روبه‌رو می‌شود. این خدمت برای بررسی منظم همین موارد است، نه فقط زمانی که چیزی خراب می‌شود.',
     ),
     whatIDo: [
-      tx('Apply dependency and security updates on a regular schedule', 'اعمال به‌روزرسانی‌های وابستگی و امنیت طبق یک برنامه‌ی زمانی منظم'),
-      tx('Monitor for errors and confirm backups are actually running and restorable', 'مانیتور کردن خطاها و تأیید اینکه پشتیبان‌گیری‌ها واقعاً در حال اجرا و قابل‌بازیابی‌اند'),
-      tx('Make the small changes that come up between larger engagements', 'انجام تغییرات کوچکی که بین قراردادهای بزرگ‌تر پیش می‌آیند'),
+      tx('Apply dependency and security updates on a regular schedule', 'به‌روزرسانی وابستگی‌ها و امنیت طبق یک برنامه‌ی منظم'),
+      tx('Monitor for errors and confirm backups are actually running and restorable', 'پایش خطاها و بررسی اینکه پشتیبان‌گیری‌ها واقعاً اجرا می‌شوند و قابل‌بازیابی‌اند'),
+      tx('Make the small changes that come up between larger engagements', 'انجام تغییرهای کوچکی که بین همکاری‌های بزرگ‌تر پیش می‌آیند'),
     ],
     included: [
       tx('Dependency and security updates on a monthly cadence', 'به‌روزرسانی وابستگی‌ها و امنیت با ریتم ماهانه'),
@@ -1011,7 +1011,7 @@ const servicesData: Service[] = [
         id: 'starter',
         name: tx('Starter', 'استارتر'),
         summary: tx('Updates and monitoring, no small-change hours included.', 'به‌روزرسانی و مانیتورینگ، بدون سهمیه‌ی زمانی برای تغییرات کوچک.'),
-        forWhom: tx('A stable, low-change product that mainly needs someone keeping dependencies and backups healthy.', 'یک محصول پایدار و کم‌تغییر که عمدتاً به کسی نیاز دارد که وابستگی‌ها و پشتیبان‌گیری را سالم نگه دارد.'),
+        forWhom: tx('A stable, low-change product that mainly needs someone keeping dependencies and backups healthy.', 'یک محصول پایدار و کم‌تغییر که بیشتر به نگهداری وابستگی‌ها و پشتیبان‌گیری نیاز دارد.'),
         included: [
           tx('Dependency and security updates on a monthly cadence', 'به‌روزرسانی وابستگی‌ها و امنیت با ریتم ماهانه'),
           tx('Error monitoring and a monthly health check', 'مانیتورینگ خطا و یک بررسی سلامت ماهانه'),
@@ -1030,7 +1030,7 @@ const servicesData: Service[] = [
         id: 'standard',
         name: tx('Standard', 'استاندارد'),
         summary: tx('Updates, monitoring and a pool of small-change hours each month.', 'به‌روزرسانی، مانیتورینگ و یک سهمیه‌ی ساعتی برای تغییرات کوچک هر ماه.'),
-        forWhom: tx('A live product that needs small fixes and content tweaks to actually happen on a schedule, not pile up.', 'محصولی زنده که نیاز دارد اصلاح‌های کوچک و تغییرات محتوا طبق یک برنامه‌ی زمانی واقعاً انجام شوند، نه انباشته شوند.'),
+        forWhom: tx('A live product that needs small fixes and content tweaks to actually happen on a schedule, not pile up.', 'محصولی زنده که باید اصلاح‌های کوچک و تغییرات محتوا به‌موقع انجام شوند، نه اینکه روی هم بمانند.'),
         included: [
           tx('Everything in Starter', 'هر آنچه در استارتر است'),
           tx('A pool of small-change time each month for minor fixes and content tweaks', 'مقداری زمان اختصاصی هر ماه برای اصلاح‌های جزئی و تغییرات کوچک محتوا'),
@@ -1049,7 +1049,7 @@ const servicesData: Service[] = [
         id: 'custom',
         name: tx('Custom', 'سفارشی'),
         summary: tx('A dedicated monthly block of hours for a product with ongoing development, not just maintenance.', 'یک بلوک ساعتی ماهانه‌ی اختصاصی برای محصولی با توسعه‌ی مستمر، نه فقط نگهداری.'),
-        forWhom: tx('Ongoing product development — see the Long-term Part-time engagement model.', 'توسعه‌ی مستمر محصول — الگوی همکاری «بلندمدت پاره‌وقت» را ببینید.'),
+        forWhom: tx('Ongoing product development — see the Long-term Part-time engagement model.', 'توسعه‌ی مداوم محصول — مدل همکاری «بلندمدت پاره‌وقت» مناسب این نیاز است.'),
         included: [
           tx('Everything in Standard, plus a larger, scoped monthly hours block', 'هر آنچه در استاندارد است، به‌علاوه‌ی یک بلوک ساعتی ماهانه‌ی بزرگ‌تر و دامنه‌بندی‌شده'),
         ],
@@ -1066,7 +1066,7 @@ const servicesData: Service[] = [
     ],
     paymentScheduleNote: tx(
       'Billed monthly, in advance. Either side can end the plan with the notice period set out in the Working Agreement.',
-      'صورت‌حساب ماهانه، پیش‌پرداخت. هر دو طرف می‌توانند برنامه را با دوره‌ی اطلاع قبلیِ ذکرشده در «توافق‌نامه‌ی همکاری» پایان دهند.',
+      'صورت‌حساب ماهانه و به‌صورت پیش‌پرداخت است. پایان همکاری طبق دوره‌ی اطلاع قبلی در «توافق‌نامه‌ی همکاری» انجام می‌شود.',
     ),
   },
 ]
@@ -1088,7 +1088,7 @@ const engagementModelsData: EngagementModel[] = [
     'productized-service',
     ['Productized Service', 'خدمت محصول‌محور'],
     ['Standard needs matching a package', 'نیازهای استاندارد که با یک بسته همخوانی دارند'],
-    ['Package price + add-ons', 'قیمت بسته + افزونه‌ها'],
+    ['Package price + add-ons', 'قیمت پکیج + افزونه‌ها'],
   ),
   engagementModel(
     'care-plan',
