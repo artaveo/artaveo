@@ -119,7 +119,7 @@ const featuredProjectsData: Project[] = [
       ),
       tx(
         'Built for a bilingual Dari/English market with RTL as the primary reading direction, not an English-first product with translation bolted on.',
-        'این پروژه برای یک بازار دوزبانه‌ی دری/انگلیسی و با RTL از ابتدا ساخته شده است؛ فارسی یک لایه‌ی ترجمه‌ی بعدی نیست.',
+        'این پروژه برای یک بازار دوزبانه‌ی دری/انگلیسی و با RTL از ابتدا ساخته شده است؛ فارسی ترجمه‌ای است که بعداً به محصول اضافه شده باشد، نیست.',
       ),
       tx(
         "No dedicated QA or security team — security review relies on Supabase's own advisory tooling plus manual verification against a rolled-back transaction on real data before any migration ships.",
@@ -194,7 +194,7 @@ const featuredProjectsData: Project[] = [
     category: tx('Web application', 'اپلیکیشن وب'),
     summary: tx(
       'A bilingual Dari and English portal for a student community — study lounge, academic advising, scholarships and achievements — run through a custom CMS that non-developers can manage safely.',
-      'پورتالی دوزبانه (دری و انگلیسی) برای یک جامعه‌ی دانشجویی — سالن مطالعه، مشاوره‌ی تحصیلی، بورسیه‌ها و دستاوردها — که از طریق یک CMS اختصاصی و امن، حتی توسط افراد غیرتوسعه‌دهنده هم قابل مدیریت است.',
+      'پورتالی دوزبانه (دری و انگلیسی) برای یک جامعه‌ی دانشجویی؛ شامل سالن مطالعه، مشاوره‌ی تحصیلی، بورسیه‌ها و دستاوردها. محتوا از طریق یک CMS اختصاصی مدیریت می‌شود و کارکنان غیرتوسعه‌دهنده هم می‌توانند با آن کار کنند.',
     ),
     highlights: [
       tx(
@@ -252,11 +252,11 @@ const featuredProjectsData: Project[] = [
       {
         context: tx(
           'The PWA needed offline access to previously visited pages, but the admin panel must never show stale data — a pending request that was already approved must not reappear after a refresh.',
-          'PWA باید دسترسی آفلاین به صفحات قبلاً دیده‌شده را می‌داشت، ولی پنل ادمین هرگز نباید دیتای قدیمی نشان بدهد — یک درخواست در‌انتظار که قبلاً تأیید شده، نباید بعد از رفرش دوباره ظاهر شود.',
+          'PWA باید دسترسی آفلاین به صفحات قبلاً دیده‌شده را می‌داشت، ولی پنل ادمین نباید دیتای قدیمی نشان بدهد؛ مثلاً درخواستی که قبلاً تأیید شده، نباید بعد از refresh دوباره در وضعیت pending دیده شود.',
         ),
         decision: tx(
           "The service worker's navigation fallback (the offline \"app shell\") explicitly excludes every admin route, and no runtime-caching rule was written for the Supabase calls the admin panel depends on — so those requests are never intercepted by the cache layer at all, online or offline.",
-          'navigation fallback سرویس‌ورکر صراحتاً مسیرهای ادمین را کنار می‌گذارد. برای درخواست‌های Supabase موردنیاز پنل ادمین هم runtime-caching rule نداریم؛ بنابراین این داده‌ها توسط لایه‌ی کش رهگیری نمی‌شوند.',
+          'navigation fallback سرویس‌ورکر صراحتاً مسیرهای ادمین را کنار می‌گذارد. برای درخواست‌های Supabase موردنیاز پنل ادمین هم runtime-caching rule نداریم؛ بنابراین این داده‌ها وارد لایه‌ی کش نمی‌شوند.',
         ),
         tradeoff: tx(
           'If an admin genuinely loses connection, they see a normal browser connection error instead of a safe-but-confusing cached shell — chosen deliberately over silently serving anything that could be mistaken for live data.',
@@ -332,7 +332,7 @@ const differentiatorsData: Principle[] = [
     title: tx('End-to-end ownership', 'مالکیت سرتاسری'),
     description: tx(
       'Architecture, interface, backend and deployment stay on one path, so context is not lost between handoffs.',
-      'معماری، رابط کاربری، بک‌اند و استقرار در یک مسیر یکپارچه پیش می‌روند؛ چیزی بین تیم‌ها جابه‌جا نمی‌شود.',
+      'معماری، رابط کاربری، بک‌اند و استقرار را در یک مسیر مشترک پیش می‌برم؛ چیزی بین تیم‌ها دست‌به‌دست نمی‌شود.',
     ),
   },
   {
@@ -452,7 +452,7 @@ const developerData: DeveloperProfile = {
   },
   bio: tx(
     'Artaveo is run by one independent full-stack developer. Every project is planned, designed, built and deployed by the same person — which keeps decisions consistent from the database schema to the last detail of the interface.',
-    'آرتاویو توسط یک توسعه‌دهنده‌ی مستقل فول‌استک اداره می‌شود. هر پروژه توسط همان یک نفر برنامه‌ریزی، طراحی، ساخته و مستقر می‌شود — که تصمیم‌ها را از طرح پایگاه داده تا جزئی‌ترین بخش رابط کاربری یکدست نگه می‌دارد.',
+    'آرتاویو را یک توسعه‌دهنده‌ی مستقل فول‌استک پیش می‌برد. هر پروژه را از برنامه‌ریزی و طراحی تا ساخت و استقرار خودم انجام می‌دهم؛ بنابراین تصمیم‌ها از دیتابیس تا جزئیات رابط کاربری در یک مسیر می‌مانند.',
   ),
   focus: [
     tx('Full-stack web applications', 'اپلیکیشن‌های وب فول‌استک'),
