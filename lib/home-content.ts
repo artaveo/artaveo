@@ -102,15 +102,11 @@ const featuredProjectsData: Project[] = [
     year: '2026',
     context: tx(
       'A booking and operations platform built for intercity bus companies in Afghanistan. The market runs on manual ticket counters and phone-based booking, with no shared system connecting passenger sales to fleet and trip operations. I built this as a real product bet: passengers get a live seat map and a bookable trip search, and operators get a database-backed admin for routes, fleet, drivers, trips and reporting — the two sides of the same booking, in one system.',
-      'این پلتفرم برای رزرو و مدیریت عملیات شرکت‌های اتوبوس‌رانی بین‌شهری در افغانستان ساخته شده است. این بازار هنوز عمدتاً با گیشه‌های فروش دستی و رزرو تلفنی اداره می‌شود و سامانه‌ی مشترکی برای اتصال فروش بلیت به عملیات ناوگان و سفرها وجود ندارد.
-
-مسافران سفر را جست‌وجو می‌کنند و صندلی را روی نقشه‌ی زنده می‌بینند. اپراتورها هم مسیرها، ناوگان، رانندگان، سفرها و گزارش‌ها را از یک پنل متصل به دیتابیس مدیریت می‌کنند.',
+      'این پلتفرم برای رزرو و مدیریت عملیات شرکت‌های اتوبوس‌رانی بین‌شهری در افغانستان ساخته شده است. این بازار هنوز عمدتاً با گیشه‌های فروش دستی و رزرو تلفنی اداره می‌شود و سامانه‌ی مشترکی برای اتصال فروش بلیت به عملیات ناوگان و سفرها وجود ندارد.  مسافران سفر را جست‌وجو می‌کنند و صندلی را روی نقشه‌ی زنده می‌بینند. اپراتورها هم مسیرها، ناوگان، رانندگان، سفرها و گزارش‌ها را از یک پنل متصل به دیتابیس مدیریت می‌کنند.',
     ),
     problemAndGoals: tx(
       "The core problem: seat availability and payment status are business-critical state that a booking site cannot let the browser decide. If two people can claim the same seat, or a cancelled booking can silently keep its payment marked as taken, the platform is unusable for a real operator. The goal was a passenger booking flow and an operations admin where every sensitive decision — holding a seat, confirming a booking, changing a payment's status — is made and enforced by the database, not the UI.",
-      'وضعیت صندلی و پرداخت داده‌های حیاتی کسب‌وکارند و مرورگر نباید درباره‌ی آن‌ها تصمیم بگیرد. اگر دو نفر یک صندلی را هم‌زمان بگیرند یا رزروی که لغو شده هنوز «پرداخت‌شده» بماند، سامانه قابل‌اعتماد نیست.
-
-هدف این بود که نگه‌داشتن صندلی، تأیید رزرو و تغییر وضعیت پرداخت در سمت سرور و دیتابیس enforce شود؛ نه این‌که منطق حساس به رابط کاربری سپرده شود.',
+      'وضعیت صندلی و پرداخت داده‌های حیاتی کسب‌وکارند و مرورگر نباید درباره‌ی آن‌ها تصمیم بگیرد. اگر دو نفر یک صندلی را هم‌زمان بگیرند یا رزروی که لغو شده هنوز «پرداخت‌شده» بماند، سامانه قابل‌اعتماد نیست.  هدف این بود که نگه‌داشتن صندلی، تأیید رزرو و تغییر وضعیت پرداخت در سمت سرور و دیتابیس enforce شود؛ نه این‌که منطق حساس به رابط کاربری سپرده شود.',
     ),
     constraints: [
       tx(
@@ -132,9 +128,7 @@ const featuredProjectsData: Project[] = [
     ],
     architecture: tx(
       'Next.js (App Router) talks to PostgreSQL through Supabase for both the passenger app and the operations admin. Supabase Auth handles sessions; every privileged read or write additionally passes through PostgreSQL Row-Level Security plus explicit server-side authorization checks — a service-role client is never treated as an authorization decision by itself. Seat availability follows a strict state machine (available → held → booked, with holds expiring back to available), and payment status follows its own database-enforced state machine. The browser only ever displays state; it never originates it.',
-      'Next.js (App Router) مسیر مسافر و پنل عملیات را اجرا می‌کند و از طریق Supabase به PostgreSQL وصل است. نشست‌ها با Supabase Auth مدیریت می‌شوند. خواندن و نوشتن حساس هم از RLS و بررسی دسترسی سمت سرور عبور می‌کند.
-
-وضعیت صندلی و پرداخت هرکدام state machine خودشان را دارند. مرورگر فقط وضعیت را نمایش می‌دهد؛ تصمیم‌گیرنده نیست.',
+      'Next.js (App Router) مسیر مسافر و پنل عملیات را اجرا می‌کند و از طریق Supabase به PostgreSQL وصل است. نشست‌ها با Supabase Auth مدیریت می‌شوند. خواندن و نوشتن حساس هم از RLS و بررسی دسترسی سمت سرور عبور می‌کند.  وضعیت صندلی و پرداخت هرکدام state machine خودشان را دارند. مرورگر فقط وضعیت را نمایش می‌دهد؛ تصمیم‌گیرنده نیست.',
     ),
     keyDecisions: [
       {
@@ -158,9 +152,7 @@ const featuredProjectsData: Project[] = [
         ),
         decision: tx(
           'Checked real data before writing any logic — every existing booking had a zero wallet deduction, because wallet debiting was never wired into the booking-confirmation path in the first place. Built coupon release only; left wallet refund logic undone rather than building a return path for money that was never actually taken.',
-          'قبل از نوشتن منطق جدید، داده‌ی واقعی بررسی شد. همه‌ی رزروهای موجود کسر wallet صفر داشتند، چون این بخش اصلاً در مسیر تأیید رزرو wire نشده بود.
-
-در نتیجه فقط آزادسازی کوپن ساخته شد و بازگرداندن wallet باز ماند؛ برای پولی که واقعاً گرفته نشده، مسیر ساختگی نساختم.',
+          'قبل از نوشتن منطق جدید، داده‌ی واقعی بررسی شد. همه‌ی رزروهای موجود کسر wallet صفر داشتند، چون این بخش اصلاً در مسیر تأیید رزرو wire نشده بود.  در نتیجه فقط آزادسازی کوپن ساخته شد و بازگرداندن wallet باز ماند؛ برای پولی که واقعاً گرفته نشده، مسیر ساختگی نساختم.',
         ),
         tradeoff: tx(
           'The refund feature is incomplete until wallet debiting ships — documented as open debt rather than papered over with unused code.',
@@ -170,15 +162,11 @@ const featuredProjectsData: Project[] = [
     ],
     engineeringHighlight: tx(
       "While building the refund path, a security review with Supabase's advisory tooling turned up a real gap: the function that writes to the payment audit-trail table was callable directly by any authenticated (or even anonymous) client, with no permission check of its own — because it was only ever meant to be called internally, from inside other trusted functions. That meant anyone could have written fake entries into the audit history and undermined the one table meant to make payment changes reviewable. I revoked execute permission on that function from every role except its owner, then re-verified with a direct privilege check — not just the advisory tool — that only trusted internal callers could reach it. The same review also caught a real functional bug: an admin could \"cancel\" a booking whose payment was already confirmed, leaving the booking cancelled but the payment still marked as taken — money in, booking gone. I closed that path with an explicit error and routed it through the new refund function instead, so a paid booking can only be unwound by actually refunding it.",
-      'در مسیر ساخت بازپرداخت، advisory Supabase یک خلأ واقعی در دسترسی تابع ثبت تاریخچه‌ی پرداخت پیدا کرد. تابع از سمت کلاینت قابل‌فراخوانی بود، چون فرض شده بود فقط از داخل کد مورداعتماد صدا زده می‌شود.
-
-دسترسی مستقیم به آن بسته شد و دوباره با چک سطح دسترسی بررسی شد. همان بررسی یک باگ دیگر را هم نشان داد: ادمین می‌توانست رزروِ پرداخت‌شده را لغو کند و پرداخت همچنان دریافت‌شده بماند. این مسیر بسته شد و لغو چنین رزروی فقط از طریق بازپرداخت واقعی انجام می‌شود.',
+      'در مسیر ساخت بازپرداخت، advisory Supabase یک خلأ واقعی در دسترسی تابع ثبت تاریخچه‌ی پرداخت پیدا کرد. تابع از سمت کلاینت قابل‌فراخوانی بود، چون فرض شده بود فقط از داخل کد مورداعتماد صدا زده می‌شود.  دسترسی مستقیم به آن بسته شد و دوباره با چک سطح دسترسی بررسی شد. همان بررسی یک باگ دیگر را هم نشان داد: ادمین می‌توانست رزروِ پرداخت‌شده را لغو کند و پرداخت همچنان دریافت‌شده بماند. این مسیر بسته شد و لغو چنین رزروی فقط از طریق بازپرداخت واقعی انجام می‌شود.',
     ),
     dataIntegrityAndSecurity: tx(
       "PostgreSQL Row-Level Security is applied to every business table, paired with server-side authorization checks rather than relied on alone. A database trigger enforces the payment state machine at the row level, closing off direct-UPDATE bypasses, and a dedicated payment_status_events audit trail — writable only through one internal function — gives every payment status change a reviewable history of who changed what, when and why. Limited admins work through a permission-center model where access is scoped per section (bookings, payments, etc.) rather than all-or-nothing. Security reviews combine Supabase's advisory tooling with direct privilege checks rather than trusting the advisory output alone.",
-      'RLS روی هر جدول کسب‌وکاری PostgreSQL فعال است و کنار آن دسترسی سمت سرور هم بررسی می‌شود. trigger دیتابیس state machine پرداخت را enforce می‌کند و payment_status_events فقط از مسیر داخلی قابل‌نوشتن است.
-
-ادمین‌های محدود هم دسترسی بخشی دارند، نه همه یا هیچ. بررسی امنیتی با advisory Supabase و چک مستقیم دسترسی انجام می‌شود.',
+      'RLS روی هر جدول کسب‌وکاری PostgreSQL فعال است و کنار آن دسترسی سمت سرور هم بررسی می‌شود. trigger دیتابیس state machine پرداخت را enforce می‌کند و payment_status_events فقط از مسیر داخلی قابل‌نوشتن است.  ادمین‌های محدود هم دسترسی بخشی دارند، نه همه یا هیچ. بررسی امنیتی با advisory Supabase و چک مستقیم دسترسی انجام می‌شود.',
     ),
     responsiveAndRtl: tx(
       'Built with five responsive tiers from mobile (under 768px) through ultra-wide (2560px and up), covering both the passenger booking flow and the admin\'s wide data tables. RTL/LTR behaviour is treated as a layout requirement from the start (Dari/English), not a late pass — including RTL-aware admin navigation and wide-table handling.',
@@ -186,9 +174,7 @@ const featuredProjectsData: Project[] = [
     ),
     quality: tx(
       'Every migration is validated against real production data inside a transaction that is rolled back afterward, never tested only in theory. tsc --noEmit and a full next build run after each phase; the project tracks a known TypeScript baseline error count so new errors are never silently absorbed into "pre-existing" noise. Security posture is re-checked after schema changes with Supabase\'s advisory tooling and direct privilege queries. There is no dedicated automated test suite or CI pipeline yet — tracked explicitly as debt, not hidden.',
-      'هر migration روی داده‌ی واقعی تولید و داخل یک تراکنش rollback‌شونده اعتبارسنجی می‌شود. بعد از هر فاز، tsc --noEmit و next build اجرا می‌شوند و خطاهای تازه از خطاهای پایه جدا می‌شوند.
-
-بعد از تغییر schema، advisory Supabase و دسترسی‌ها دوباره بررسی می‌شوند. هنوز تست خودکار اختصاصی یا CI ندارم؛ این محدودیت صریحاً ثبت شده است.',
+      'هر migration روی داده‌ی واقعی تولید و داخل یک تراکنش rollback‌شونده اعتبارسنجی می‌شود. بعد از هر فاز، tsc --noEmit و next build اجرا می‌شوند و خطاهای تازه از خطاهای پایه جدا می‌شوند.  بعد از تغییر schema، advisory Supabase و دسترسی‌ها دوباره بررسی می‌شوند. هنوز تست خودکار اختصاصی یا CI ندارم؛ این محدودیت صریحاً ثبت شده است.',
     ),
     currentStatusAndNext: tx(
       'Finished: passenger booking with server-enforced seat holds, operations admin (routes, fleet, drivers, trips, bookings, reports, CSV), loyalty and coupon foundations, a public CMS lite with in-site responsive image cropping, and a full payment-status state machine with audit trail and partial refunds — all running on manual/offline payment confirmation. Not finished: a live payment gateway. HesabPay integration is the next planned step and is blocked on getting developer/sandbox credentials from the provider — until that\'s resolved, online bookings are recorded but stay in a pending payment state rather than auto-confirming.',
@@ -196,9 +182,7 @@ const featuredProjectsData: Project[] = [
     ),
     lessonsLearned: tx(
       'The most valuable finding in this phase wasn\'t a new feature — it was what a security review turned up in code that already shipped: a function with no permission check of its own, reachable because it was assumed to only ever be called from trusted places. Assumptions about "who calls this" are not access control. I now treat every database function as if it will be called directly by an untrusted client, and check that assumption explicitly rather than inferring it from how the function is currently used in the app.',
-      'مهم‌ترین نتیجه‌ی این فاز یک feature تازه نبود. یک بررسی امنیتی نشان داد تابعی بدون چک دسترسی مستقل قابل‌فراخوانی است، چون فرض شده بود فقط از کد مورداعتماد صدا زده می‌شود.
-
-از این به بعد هر تابع دیتابیس را طوری بررسی می‌کنم که انگار یک کلاینت غیرقابل‌اعتماد مستقیماً آن را صدا می‌زند.',
+      'مهم‌ترین نتیجه‌ی این فاز یک feature تازه نبود. یک بررسی امنیتی نشان داد تابعی بدون چک دسترسی مستقل قابل‌فراخوانی است، چون فرض شده بود فقط از کد مورداعتماد صدا زده می‌شود.  از این به بعد هر تابع دیتابیس را طوری بررسی می‌کنم که انگار یک کلاینت غیرقابل‌اعتماد مستقیماً آن را صدا می‌زند.',
     ),
     featured: true,
     published: true,
@@ -240,9 +224,7 @@ const featuredProjectsData: Project[] = [
     ),
     problemAndGoals: tx(
       "The institute needed a real content pipeline, not a static site someone has to ask a developer to update. Staff needed to publish scholarships, edit study-lounge rules, and review membership/advising requests themselves — with two different levels of access, since not everyone should be able to touch every part of the site. On top of that, visitors on unreliable connections needed pages they'd already seen to keep working, without the admin panel ever risking a stale view of pending requests.",
-      'مؤسسه به یک مسیر واقعی برای مدیریت محتوا نیاز داشت، نه سایتی که برای هر تغییر دوباره به توسعه‌دهنده وابسته باشد. کارکنان باید بتوانند بورسیه منتشر کنند، قوانین سالن مطالعه را تغییر دهند و درخواست‌ها را بررسی کنند؛ با دو سطح دسترسی متفاوت.
-
-از طرف دیگر، صفحات قبلاً دیده‌شده باید برای اینترنت ضعیف هم کار کنند، بدون این‌که پنل ادمین داده‌ی قدیمی نشان دهد.',
+      'مؤسسه به یک مسیر واقعی برای مدیریت محتوا نیاز داشت، نه سایتی که برای هر تغییر دوباره به توسعه‌دهنده وابسته باشد. کارکنان باید بتوانند بورسیه منتشر کنند، قوانین سالن مطالعه را تغییر دهند و درخواست‌ها را بررسی کنند؛ با دو سطح دسترسی متفاوت.  از طرف دیگر، صفحات قبلاً دیده‌شده باید برای اینترنت ضعیف هم کار کنند، بدون این‌که پنل ادمین داده‌ی قدیمی نشان دهد.',
     ),
     constraints: [
       tx(
@@ -302,9 +284,7 @@ const featuredProjectsData: Project[] = [
     ),
     dataIntegrityAndSecurity: tx(
       'Two admin roles are enforced with a database-level check constraint, not just an app-side assumption. Department-scoped writes go through a fail-closed allow-list function — an unlisted settings key is denied by default, not silently accepted, if the admin panel grows later. Row-Level Security policies scope what each role can read and write, and portal request submissions go through a server-side, rate-limited Supabase Edge Function rather than an unthrottled client-side insert.',
-      'دو نقش ادمین با check constraint در سطح دیتابیس اعمال می‌شوند. نوشتن‌های محدود هم از یک تابع fail-closed عبور می‌کنند؛ کلیدی که در allow-list نیست رد می‌شود، حتی اگر پنل بعداً بزرگ‌تر شود.
-
-RLS مشخص می‌کند هر نقش چه چیزی را می‌تواند بخواند و بنویسد. ارسال درخواست‌های پورتال هم از یک Supabase Edge Function با rate limit سمت سرور عبور می‌کند.',
+      'دو نقش ادمین با check constraint در سطح دیتابیس اعمال می‌شوند. نوشتن‌های محدود هم از یک تابع fail-closed عبور می‌کنند؛ کلیدی که در allow-list نیست رد می‌شود، حتی اگر پنل بعداً بزرگ‌تر شود.  RLS مشخص می‌کند هر نقش چه چیزی را می‌تواند بخواند و بنویسد. ارسال درخواست‌های پورتال هم از یک Supabase Edge Function با rate limit سمت سرور عبور می‌کند.',
     ),
     responsiveAndRtl: tx(
       'RTL-first from the ground up — logical layout properties and perceptually uniform color tokens rather than an LTR layout patched with a right-to-left flag. Dari is the default language; English is available via a language-preference prompt shown once to first-time visitors.',
