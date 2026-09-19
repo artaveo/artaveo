@@ -159,7 +159,7 @@ const processPhasesData: ProcessPhase[] = [
     ),
     activities: [
       tx('Database schema, relationships and row-level security policy design', 'طرح پایگاه‌داده، روابط و طراحی سیاست‌های row-level security'),
-      tx('Deciding what runs on the server versus the client, and where every mutation is validated', 'تعیین این‌که چه‌چیزی سمت سرور اجرا شود و چه‌چیزی سمت کلاینت، و هر تغییر کجا اعتبارسنجی می‌شود'),
+      tx('Deciding what runs on the server versus the client, and where every mutation is validated', 'تعیین اینکه چه چیزی سمت سرور اجرا شود و چه چیزی سمت کلاینت، و هر تغییر کجا اعتبارسنجی شود'),
       tx('Choosing provider abstractions for email, storage, auth and payments so nothing is hard-wired to one vendor', 'انتخاب لایه‌های انتزاعی برای ایمیل، ذخیره‌سازی، احراز هویت و پرداخت تا چیزی مستقیم به یک تأمین‌کننده وصل نشود'),
     ],
     output: tx(
@@ -172,7 +172,7 @@ const processPhasesData: ProcessPhase[] = [
     ),
     decisionsAndRisks: tx(
       'This is where "the browser is never the source of truth" (a hard rule, not a preference) gets decided concretely — e.g. what a database trigger enforces versus what the app layer checks.',
-      'دقیقاً همین‌جا است که «مرورگر هرگز منبع حقیقت نیست» (یک قانون سخت، نه یک ترجیح) به‌شکل مشخص تصمیم‌گیری می‌شود — مثلاً چه‌چیزی را یک تریگر دیتابیس اجرا می‌کند و چه‌چیزی را لایه‌ی اپ چک می‌کند.',
+      'اینجا مشخص می‌کنم «مرورگر هرگز منبع حقیقت نیست» در عمل یعنی چه؛ مثلاً کدام تصمیم را trigger دیتابیس enforce می‌کند و کدام بررسی در لایه‌ی اپ انجام می‌شود.',
     ),
   },
   {
@@ -242,7 +242,7 @@ const processPhasesData: ProcessPhase[] = [
     ],
     output: tx(
       'A live product, plus a short record of what was deployed and when.',
-      'یک محصول زنده، به‌علاوه‌ی یک ثبت کوتاه از این‌که چه‌چیزی و چه‌زمانی مستقر شد.',
+      'یک محصول زنده، به‌علاوه‌ی یک ثبت کوتاه از اینکه چه چیزی و چه زمانی مستقر شده است.',
     ),
     clientInvolvement: tx(
       'Medium — sign-off on the go/no-go check; domain and hosting accounts are created in your name (Working Agreement), not mine.',
