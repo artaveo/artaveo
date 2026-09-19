@@ -33,8 +33,12 @@ const storyData: LocalizedText[] = [
     'آرتاویو یک نفر است. هر پروژه را از برنامه‌ریزی و طراحی تا ساخت و استقرار خودم پیش می‌برم. بین تو و کد هم واسطه‌ای نیست؛ همان کسی که معماری و پایگاه‌داده را طراحی می‌کند، رابط کاربری را هم می‌سازد.',
   ),
   tx(
-    'That shape comes from two real products, not a portfolio exercise: a booking and operations platform for intercity bus companies, and a bilingual portal and CMS for an educational institute. Both are covered in full on the Work page — architecture, the decisions I made, the trade-offs I accepted and the mistakes a security review actually caught. I would rather show that thinking than describe it in adjectives.',
-    'این مدل کار را روی دو محصول واقعی شکل داده‌ام: یک پلتفرم رزرو و مدیریت عملیات برای شرکت‌های اتوبوس‌رانی بین‌شهری و یک پورتال و CMS دوزبانه برای یک مؤسسه‌ی آموزشی. هر دو پروژه در بخش نمونه‌کارها با معماری، تصمیم‌های مهندسی و یافته‌های بررسی امنیتی مستند شده‌اند. ترجیح می‌دهم تصمیم‌ها و کار انجام‌شده را نشان بدهم، نه اینکه فقط درباره‌شان صفت به کار ببرم.',
+    'That shape comes from two real products, not a portfolio exercise: a booking and operations platform for intercity bus companies, and a bilingual portal and CMS for an educational institute.',
+    'این مدل کار را روی دو محصول واقعی شکل داده‌ام: یک پلتفرم رزرو و مدیریت عملیات برای شرکت‌های اتوبوس‌رانی بین‌شهری و یک پورتال و CMS دوزبانه برای یک مؤسسه‌ی آموزشی.',
+  ),
+  tx(
+    'Both are covered in full on the Work page — architecture, the decisions I made, the trade-offs I accepted and the mistakes a security review actually caught. I would rather show that thinking than describe it in adjectives.',
+    'هر دو پروژه در بخش نمونه‌کارها با معماری، تصمیم‌های مهندسی و یافته‌های بررسی امنیتی مستند شده‌اند. ترجیح می‌دهم تصمیم‌ها و کار انجام‌شده را نشان بدهم، نه اینکه فقط درباره‌شان صفت به کار ببرم.',
   ),
   tx(
     "Working solo means every decision is scoped to what one person can build and actually maintain — which is why the same account, the same repository conventions and the same review habits run through everything I ship, rather than a different standard per project.",
