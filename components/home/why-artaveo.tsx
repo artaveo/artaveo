@@ -20,7 +20,7 @@ export function WhyArtaveo() {
           title={
             <>
               {tSection('titleLine1')}{' '}
-              <span className="text-muted-foreground">{tSection('titleLine2')}</span>
+              <span className="text-muted-foreground rtl:block">{tSection('titleLine2')}</span>
             </>
           }
           description={tSection('description')}
