@@ -100,7 +100,7 @@ const servicesData: Service[] = [
     ],
     problem: tx(
       'Most small-business sites are either a rigid page builder that fights every custom request, or a one-off static page nobody can safely touch after launch. Neither gives an honest, fast, structured foundation.',
-      'اکثر وب‌سایت‌های کسب‌وکارهای کوچک یا یک page-builder سفت‌وسخت‌اند که با هر درخواست سفارشی درگیر می‌شوند، یا یک صفحه‌ی استاتیک یک‌باره‌اند که بعد از راه‌اندازی هیچ‌کس نمی‌تواند بی‌خطر به آن دست بزند. هیچ‌کدام یک پایه‌ی صادق، سریع و ساختاریافته نمی‌دهند.',
+      'بیشتر سایت‌های کسب‌وکارهای کوچک یا به یک page-builder محدود می‌شوند، یا بعد از راه‌اندازی برای هر تغییر دوباره به توسعه‌دهنده نیاز دارند. این خدمت یک پایه‌ی سریع، مرتب و قابل‌توسعه می‌سازد.',
     ),
     whatIDo: [
       tx('Design and build the site as typed, component-based content — the same shape a CMS record would later have', 'طراحی و ساخت سایت به‌عنوان محتوای تایپ‌شده و کامپوننت‌محور — دقیقاً همان شکلی که یک رکورد CMS بعداً خواهد داشت'),
@@ -131,7 +131,7 @@ const servicesData: Service[] = [
       ),
       step(
         ['Design', 'A layout built on a real design system, reviewed before any page is coded.'],
-        ['طراحی', 'چیدمانی ساخته شده روی یک سیستم طراحی واقعی، پیش از کدنویسی هر صفحه بازبینی می‌شود.'],
+        ['طراحی', 'چیدمان هر صفحه بر اساس یک سیستم طراحی مشخص ساخته و قبل از کدنویسی بازبینی می‌شود.'],
       ),
       step(
         ['Build', 'Component-based implementation, one reviewable page at a time.'],
@@ -421,7 +421,7 @@ const servicesData: Service[] = [
       ),
       step(
         ['Build & enforce', 'Server-side checks for every sensitive action, reviewed before launch.'],
-        ['ساخت و اجرا', 'عملیات حساس قبل از راه‌اندازی از نظر بررسی سمت سرور بازبینی می‌شوند.'],
+        ['ساخت و اجرا', 'عملیات حساس قبل از راه‌اندازی از نظر کنترل‌های سمت سرور بررسی می‌شوند.'],
       ),
       step(
         ['Handover & train', 'A short walkthrough so your team can use it confidently from day one.'],
@@ -578,7 +578,7 @@ const servicesData: Service[] = [
     whatIDo: [
       tx('Design a relational schema that matches the real business rules, not just the current UI', 'طراحی schema رابطه‌ای بر اساس قواعد واقعی کسب‌وکار، نه فقط شکل فعلی رابط کاربری'),
       tx('Apply row-level security and server-side authorization on every sensitive table and action', 'اعمال Row-Level Security و بررسی دسترسی سمت سرور روی جدول‌ها و عملیات حساس'),
-      tx('Model sensitive state changes as explicit, auditable state machines where the risk justifies it', 'مدل‌سازی تغییرات حساس به‌صورت state machine قابل‌بازبینی، هرجا که ریسک آن را توجیه کند'),
+      tx('Model sensitive state changes as explicit, auditable state machines where the risk justifies it', 'مدل‌سازی تغییرات حساس با state machine قابل‌بازبینی، هرجا که ریسک آن را توجیه کند'),
     ],
     included: [
       tx('Relational schema design and migrations', 'طراحی schema رابطه‌ای و migrationها'),
