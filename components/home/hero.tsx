@@ -33,8 +33,8 @@ export function Hero() {
             id="hero-title"
             className="max-w-4xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl xl:text-7xl"
           >
-            {t('titleLine1')}
-            <span className="text-muted-foreground"> {t('titleLine2')}</span>
+            <span className="block">{t('titleLine1')}</span>
+            <span className="block text-muted-foreground">{t('titleLine2')}</span>
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground text-pretty md:text-xl">
