@@ -54,11 +54,11 @@ const privacySections: LegalSection[] = [
     [
       tx(
         `${siteConfig.name} is the work of one independent developer, Zakir Naseri, operating from Afghanistan. This page explains what personal data this website collects, why, where it's stored, and what you can do about it.`,
-        `${siteConfig.name} کار یک توسعه‌دهنده‌ی مستقل، زکریا نصری، است که از افغانستان فعالیت می‌کند. این صفحه توضیح می‌دهد این وب‌سایت چه داده‌ی شخصی‌ای جمع‌آوری می‌کند، چرا، کجا نگه‌داری می‌شود، و چه کاری می‌توانی درباره‌اش انجام دهی.`,
+        `${siteConfig.name} وب‌سایت کاری یک توسعه‌دهنده‌ی مستقل است که از افغانستان فعالیت می‌کند. این صفحه توضیح می‌دهد چه داده‌ی شخصی‌ای جمع‌آوری می‌شود، چرا، کجا نگه‌داری می‌شود و چه انتخاب‌هایی درباره‌ی آن داری.`,
       ),
       tx(
         'Afghanistan does not currently have a comprehensive data-protection law of its own. Nothing on this page is a claim that a specific law (like the EU\'s GDPR) applies here — the commitments below are offered voluntarily, as good practice, regardless of what the law requires.',
-        'افغانستان در حال حاضر یک قانون جامع حفاظت از داده ندارد. هیچ‌جای این صفحه ادعا نمی‌کند که قانون مشخصی (مثل GDPR اتحادیه‌ی اروپا) این‌جا اعمال می‌شود — تعهدات زیر داوطلبانه و به‌عنوان یک روش خوب ارائه می‌شوند، صرف‌نظر از این‌که قانون چه چیزی را الزامی می‌کند.',
+        'افغانستان در حال حاضر قانون جامع حفاظت از داده ندارد. این صفحه ادعا نمی‌کند که قانون مشخصی مثل GDPR در اینجا الزام‌آور است؛ تعهدات زیر به‌صورت داوطلبانه و به‌عنوان یک روش خوب ارائه می‌شوند.',
       ),
     ],
   ),
@@ -68,11 +68,11 @@ const privacySections: LegalSection[] = [
     [
       tx(
         'The Brief Builder (/start) asks for your name, e-mail address, project type, the service or package you\'re interested in, your goals and key features, timeline, a self-reported budget range, any links or references you provide, your preferred language and contact channel, and your consent to be contacted. A few technical fields travel alongside your answers purely to stop spam: a random idempotency key (so a double-click can\'t create two entries), and a salted, one-way hash of your IP address — never the raw address itself.',
-        'فرم Brief Builder (در /start) نام، آدرس ایمیل، نوع پروژه، سرویس یا پکیج مورد نظر، هدف‌ها و ویژگی‌های کلیدی، بازه‌ی زمانی، یک بازه‌ی بودجه‌ی خوداظهاری، هر لینک یا مرجعی که ارائه می‌دهی، زبان و کانال ترجیحی‌ات، و رضایتت برای تماس گرفتن را می‌پرسد. چند فیلد فنی هم فقط برای جلوگیری از اسپم همراه پاسخ‌هایت ارسال می‌شود: یک کلید تصادفی idempotency (تا یک دوبار-کلیک باعث ثبت دو ورودی نشود)، و یک هش یک‌طرفه و نمک‌دار از آدرس آی‌پی‌ات — نه خودِ آدرس خام.',
+        'فرم Brief Builder در /start نام، ایمیل، نوع پروژه، سرویس یا پکیج موردنظر، هدف‌ها، ویژگی‌های کلیدی، زمان‌بندی، بازه‌ی بودجه، لینک‌های مرجع، زبان و روش تماس ترجیحی را می‌پرسد. برای جلوگیری از اسپم، یک کلید idempotency و یک hash یک‌طرفه و salt‌شده از IP هم همراه پاسخ ارسال می‌شود؛ خود IP ذخیره نمی‌شود.',
       ),
       tx(
         'If you e-mail or WhatsApp me directly instead, whatever you choose to send is between us — the website itself doesn\'t collect or log that.',
-        'اگر به‌جای این کار مستقیم ایمیل یا واتساپ بزنی، هرچه بفرستی فقط بین ما می‌ماند — خودِ وب‌سایت آن را جمع‌آوری یا ثبت نمی‌کند.',
+        'اگر مستقیم ایمیل یا واتساپ بزنی، پیام در همان کانال می‌ماند و وب‌سایت آن را جمع‌آوری یا ثبت نمی‌کند.',
       ),
       tx(
         "If I've sent you a personal link to write a recommendation, that page asks for your name, your role and relationship to me, your statement, an optional profile link, and your explicit consent to publish it — nothing appears on the site without that consent and my review. If I typed your e-mail address in to send you that link, it's used for that and nothing else. I delete it, and the stored copies of those e-mails, once the request is finished: the link is revoked, your recommendation is approved or rejected, or the link expired unused. A link with no expiry that is never used or revoked keeps the address until I revoke it.",
@@ -84,7 +84,7 @@ const privacySections: LegalSection[] = [
       ),
       tx(
         'One small, first-party cookie (`artaveo-locale`) remembers whether you\'re viewing the site in English or Persian. It\'s strictly functional — it isn\'t used to track you, and no other cookie is set by this site.',
-        'یک کوکی کوچک و اول‌شخص (`artaveo-locale`) به‌خاطر می‌سپارد که سایت را به انگلیسی می‌بینی یا فارسی. این کوکی کاملاً کارکردی است — برای ردیابی تو استفاده نمی‌شود، و هیچ کوکی دیگری توسط این سایت تنظیم نمی‌شود.',
+        'یک کوکی اول‌شخص کوچک (`artaveo-locale`) زبان انتخابی سایت را به‌خاطر می‌سپارد. این کوکی فقط برای همین قابلیت است و برای ردیابی استفاده نمی‌شود.',
       ),
       tx(
         "Your own browser also keeps a few things locally, never sent anywhere: a light/dark theme preference, the last few things you searched for on the site (so the search box can offer them again — you can clear them there at any time), and — only if you start the Brief Builder while offline — a temporary local copy of your not-yet-sent answers, held only on your own device until you're back online and it sends automatically.",
@@ -122,7 +122,7 @@ const privacySections: LegalSection[] = [
     [
       tx(
         "There's no automatic deletion schedule in place yet — this is a known gap, tracked as future work, not a claim that one already exists. In practice, submissions are kept as long as needed to respond to you and for reasonable business record-keeping, and deleted on request (see Your choices below).",
-        'در حال حاضر هیچ زمان‌بندی حذف خودکاری وجود ندارد — این یک کمبود شناخته‌شده است که به‌عنوان کار آینده ثبت شده، نه ادعایی که چنین چیزی از قبل وجود دارد. در عمل، ارسالی‌ها تا زمانی که برای پاسخ‌دادن به تو و نگه‌داری معقول سوابق کسب‌وکار لازم است نگه‌داری می‌شوند، و در صورت درخواست حذف می‌شوند (بخش «انتخاب‌های تو» را ببین).',
+        'در حال حاضر حذف خودکار زمان‌بندی‌شده وجود ندارد؛ این مورد به‌عنوان کار آینده ثبت شده است. در عمل، داده‌ها تا زمانی که برای پاسخ‌دادن و نگه‌داری معقول سوابق کسب‌وکار لازم باشند نگه‌داری می‌شوند و در صورت درخواست حذف می‌شوند.',
       ),
     ],
   ),
@@ -132,7 +132,7 @@ const privacySections: LegalSection[] = [
     [
       tx(
         `You can e-mail ${siteConfig.email} at any time to ask what's on file about you, ask for it to be corrected, or ask for it to be deleted. I'll respond within a reasonable time.`,
-        `هر زمان می‌توانی به ${siteConfig.email} ایمیل بزنی تا بپرسی چه چیزی درباره‌ات ثبت شده، درخواست اصلاح آن را بدهی، یا درخواست حذفش را بدهی. در بازه‌ی زمانی معقولی پاسخ خواهم داد.`,
+        `هر زمان می‌توانی به ${siteConfig.email} ایمیل بزنی و بپرسی چه داده‌ای درباره‌ات ثبت شده، درخواست اصلاح بدهی یا حذف آن را بخواهی. در زمان معقولی پاسخ می‌دهم.`,
       ),
     ],
   ),
@@ -142,7 +142,7 @@ const privacySections: LegalSection[] = [
     [
       tx(
         "This site is not directed at children, and personal data isn't knowingly collected from anyone under 18.",
-        'این سایت برای کودکان طراحی نشده، و داده‌ی شخصی هیچ‌کس زیر ۱۸ سال آگاهانه جمع‌آوری نمی‌شود.',
+        'این سایت برای کودکان طراحی نشده و آگاهانه داده‌ی شخصی افراد زیر ۱۸ سال را جمع‌آوری نمی‌کند.',
       ),
     ],
   ),
@@ -152,7 +152,7 @@ const privacySections: LegalSection[] = [
     [
       tx(
         "This page may be updated as the site or its infrastructure changes — the date at the top always reflects the latest version.",
-        'این صفحه ممکن است با تغییر سایت یا زیرساختش به‌روزرسانی شود — تاریخ بالای صفحه همیشه آخرین نسخه را نشان می‌دهد.',
+        'این صفحه ممکن است با تغییر سایت یا زیرساخت به‌روزرسانی شود. تاریخ بالای صفحه آخرین نسخه را نشان می‌دهد.',
       ),
     ],
   ),
@@ -205,7 +205,7 @@ const termsSections: LegalSection[] = [
     [
       tx(
         "This website is provided on a best-effort basis, \"as is,\" with no guarantee of uninterrupted availability. (A specific project you engage Artaveo for is a separate matter, covered by that project's own written agreement, not this page.)",
-        'این وب‌سایت به‌صورت تلاش‌بهترین («همان‌گونه که هست») ارائه می‌شود، بدون هیچ تضمینی برای در دسترس‌بودن بدون وقفه. (یک پروژه‌ی مشخص که برای آن آرتاویو را استخدام می‌کنی موضوع جداگانه‌ای است که تحت قرارداد مکتوب همان پروژه است، نه این صفحه.)',
+        'این وب‌سایت «همان‌گونه که هست» ارائه می‌شود و تضمینی برای در دسترس‌بودن بدون وقفه ندارد. (یک پروژه‌ی مشخص که برای آن آرتاویو را استخدام می‌کنی موضوع جداگانه‌ای است که تحت قرارداد مکتوب همان پروژه است، نه این صفحه.)',
       ),
     ],
   ),
@@ -225,7 +225,7 @@ const termsSections: LegalSection[] = [
     [
       tx(
         'These terms may be updated as the site changes — the date at the top always reflects the latest version.',
-        'این شرایط ممکن است با تغییر سایت به‌روزرسانی شوند — تاریخ بالای صفحه همیشه آخرین نسخه را نشان می‌دهد.',
+        'این شرایط ممکن است با تغییر سایت به‌روزرسانی شوند. تاریخ بالای صفحه آخرین نسخه را نشان می‌دهد.',
       ),
     ],
   ),

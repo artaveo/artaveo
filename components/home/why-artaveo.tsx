@@ -19,8 +19,8 @@ export function WhyArtaveo() {
           eyebrow={tSection('eyebrow')}
           title={
             <>
-              {tSection('titleLine1')}{' '}
-              <span className="text-muted-foreground">{tSection('titleLine2')}</span>
+              <span className="block">{tSection('titleLine1')}</span>
+              <span className="block text-muted-foreground">{tSection('titleLine2')}</span>
             </>
           }
           description={tSection('description')}
