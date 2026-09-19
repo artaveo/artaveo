@@ -119,7 +119,7 @@ const featuredProjectsData: Project[] = [
       ),
       tx(
         'Built for a bilingual Dari/English market with RTL as the primary reading direction, not an English-first product with translation bolted on.',
-        'این پروژه برای یک بازار دوزبانه‌ی دری/انگلیسی و با RTL از ابتدا ساخته شده است؛ فارسی ترجمه‌ای است که بعداً به محصول اضافه شده باشد، نیست.',
+        'این پروژه برای یک بازار دوزبانه‌ی دری/انگلیسی و با RTL از ابتدا ساخته شده است؛ فارسی از همان ابتدا بخشی از محصول بوده، نه یک ترجمه‌ی بعدی.',
       ),
       tx(
         "No dedicated QA or security team — security review relies on Supabase's own advisory tooling plus manual verification against a rolled-back transaction on real data before any migration ships.",
@@ -170,7 +170,7 @@ const featuredProjectsData: Project[] = [
     ),
     responsiveAndRtl: tx(
       'Built with five responsive tiers from mobile (under 768px) through ultra-wide (2560px and up), covering both the passenger booking flow and the admin\'s wide data tables. RTL/LTR behaviour is treated as a layout requirement from the start (Dari/English), not a late pass — including RTL-aware admin navigation and wide-table handling.',
-      'رابط کاربری در پنج بازه‌ی واکنش‌گرا از موبایل تا نمایشگرهای فوق‌عریض ساخته شده است؛ هم مسیر رزرو و هم جدول‌های عریض پنل ادمین را پوشش می‌دهد. RTL/LTR از ابتدا بخشی از معماری بوده، نه اصلاحی که در پایان اضافه شود.',
+      'این پروژه پنج سطح واکنش‌گرا دارد؛ از موبایل (کمتر از ۷۶۸ پیکسل) تا فوق‌عریض (۲۵۶۰ پیکسل به بالا). این بازه‌ها هم مسیر رزرو مسافر و هم جدول‌های عریض پنل ادمین را پوشش می‌دهند. RTL/LTR هم از ابتدا بخشی از معماری بوده، نه اصلاحی در پایان.',
     ),
     quality: tx(
       'Every migration is checked against real production data inside a transaction that is rolled back afterward. After each phase, tsc --noEmit and a full Next build run, with new TypeScript errors tracked separately from the known baseline. Schema changes also trigger another Supabase advisory and privilege check. There is no dedicated automated test suite or CI pipeline yet; that is tracked openly as debt.',
@@ -220,7 +220,7 @@ const featuredProjectsData: Project[] = [
     year: '2026',
     context: tx(
       'A bilingual Dari/English portal I built for Pezhohesh Complex, an educational institute I run myself — a study lounge, academic advising, scholarship listings and student achievements, all manageable by non-developer staff through a custom admin panel.',
-      'پورتالی دوزبانه (دری/انگلیسی) که برای مجتمع پژوهش ساختم — مؤسسه‌ای آموزشی که خودم اداره‌اش می‌کنم — شامل سالن مطالعه، مشاوره‌ی تحصیلی، بورسیه‌های فعال و دستاوردهای دانشجویی، همه از طریق یک پنل ادمین اختصاصی که کارکنانِ غیرتوسعه‌دهنده هم می‌توانند مدیریتش کنند.',
+      'پورتالی دوزبانه (دری/انگلیسی) که برای مجتمع پژوهش ساختم — مؤسسه‌ای آموزشی که خودم اداره‌اش می‌کنم. شامل سالن مطالعه، مشاوره‌ی تحصیلی، بورسیه‌های فعال و دستاوردهای دانشجویی است، و همه از طریق یک پنل ادمین اختصاصی مدیریت می‌شوند که کارکنانِ غیرتوسعه‌دهنده هم می‌توانند با آن کار کنند.',
     ),
     problemAndGoals: tx(
       "The institute needed content management that staff could use without asking a developer for every change. They needed to publish scholarships, edit study-lounge rules and review requests, with two access levels. Visitors on unreliable connections also needed previously viewed pages to keep working without allowing the admin panel to show stale pending requests.",
@@ -256,7 +256,7 @@ const featuredProjectsData: Project[] = [
         ),
         decision: tx(
           "The service worker's navigation fallback (the offline \"app shell\") explicitly excludes every admin route, and no runtime-caching rule was written for the Supabase calls the admin panel depends on — so those requests are never intercepted by the cache layer at all, online or offline.",
-          'navigation fallback سرویس‌ورکر صراحتاً مسیرهای ادمین را کنار می‌گذارد. برای درخواست‌های Supabase موردنیاز پنل ادمین هم runtime-caching rule نداریم؛ بنابراین این داده‌ها وارد لایه‌ی کش نمی‌شوند.',
+          'navigation fallback سرویس‌ورکر صراحتاً مسیرهای ادمین را کنار می‌گذارد. برای درخواست‌های Supabase موردنیاز پنل ادمین هم runtime-caching rule نداریم؛ بنابراین این داده‌ها توسط لایه‌ی کش رهگیری نمی‌شوند.',
         ),
         tradeoff: tx(
           'If an admin genuinely loses connection, they see a normal browser connection error instead of a safe-but-confusing cached shell — chosen deliberately over silently serving anything that could be mistaken for live data.',
@@ -280,11 +280,11 @@ const featuredProjectsData: Project[] = [
     ],
     engineeringHighlight: tx(
       'The hardest PWA decision was not making offline mode work; it was deciding what must never be cached. Public content, admin requests and uploaded images use different strategies because the same cache policy would create correctness risks. Admin routes are excluded from the cache, while only uploaded images receive HTTP caching with an expiry policy. Department Admin writes also use a fail-closed allow-list, so new settings stay denied until explicitly allowed.',
-      'سخت‌ترین بخش PWA آفلاین، راه‌اندازی حالت آفلاین نبود؛ تصمیم‌گیری درباره‌ی چیزهایی بود که نباید کش شوند. محتوای عمومی، درخواست‌های ادمین و تصاویر آپلودشده هرکدام سیاست جدا دارند، چون یک سیاست واحد می‌تواند داده‌ی قدیمی یا اشتباه نشان دهد. مسیرهای ادمین اصلاً کش نمی‌شوند و فقط تصاویر آپلودشده cache می‌شوند. برای Department Admin هم allow-list به‌شکل fail-closed عمل می‌کند؛ تنظیم جدید تا وقتی صریحاً مجاز نشود، رد می‌شود.',
+      'سخت‌ترین بخش کار نه ساختن یک PWA آفلاین، بلکه تصمیم‌گیری درباره‌ی این بود که چه چیزی نباید کش شود. سه نوع داده‌ی متفاوت پشت یک پروژه‌ی Supabase یکسان زندگی می‌کنند: محتوای عمومی پورتال، درخواست‌های در‌انتظارِ فقط-ادمین، و تصاویر آپلودشده. کش‌کردن همه‌ی این‌ها به یک شکل، نوشتنش ساده‌تر بود ولی این ریسک را داشت که یک ادمین درخواستی را که قبلاً تأیید شده، همچنان «در‌انتظار» ببیند، یا یک بازدیدکننده‌ی عمومی دیتای بورسیه‌ی یک‌هفته‌پیش را به‌عنوان دیتای امروز ببیند. به‌جایش، هر نوع داده قانون خودش را گرفت: محتوای عمومی روی همان لایه‌ی localStorage موجود تکیه می‌کند، مسیرهای ادمین کلاً از سطح navigation از کش مستثنی هستند، و فقط تصاویر آپلودشده کش واقعی HTTP با سیاست انقضا می‌گیرند. نقش Department Admin هم همین طرز فکر «محدودتر از ظاهرش» را در سطح دیتابیس نیاز داشت: یک allow-list fail-closed دقیقاً مشخص می‌کند کدام کلیدهای تنظیمات برای یک ادمین محدود قابل‌نوشتن‌اند، پس یک فیلد تازه که بعداً به آن پنل اضافه شود به‌طور پیش‌فرض رد می‌شود تا زمانی که صریحاً به لیست اضافه شود — نه این‌که بی‌صدا مجاز باشد.',
     ),
     dataIntegrityAndSecurity: tx(
       'Two admin roles are enforced with a database check constraint. Department-scoped writes go through a fail-closed allow-list, so an unlisted settings key is denied by default. RLS scopes what each role can read and write, and portal requests go through a rate-limited Supabase Edge Function.',
-      'دو نقش ادمین با check constraint در سطح دیتابیس اعمال می‌شوند. نوشتن‌های محدود هم از یک تابع fail-closed عبور می‌کنند؛ کلیدی که در allow-list نیست رد می‌شود، حتی اگر پنل بعداً بزرگ‌تر شود. RLS مشخص می‌کند هر نقش چه چیزی را می‌تواند بخواند و بنویسد. ارسال درخواست‌های پورتال هم از یک Supabase Edge Function با rate limit سمت سرور عبور می‌کند.',
+      'دو نقش ادمین با یک check constraint در سطح دیتابیس اجرا می‌شوند، نه فقط یک فرض در سمت اپ. نوشتن‌های محدود به یک بخش، از یک تابع allow-list با رویکرد fail-closed استفاده می‌کنند؛ کلید فهرست‌نشده رد می‌شود، نه بی‌صدا پذیرفته، اگر پنل ادمین بعداً بزرگ‌تر شود. سیاست‌های Row-Level Security مشخص می‌کنند هر نقش چه چیزی را می‌تواند بخواند و بنویسد، و ارسال درخواست‌های پورتال از یک Supabase Edge Function با محدودیت نرخ درخواست در سمت سرور عبور می‌کند، نه یک insert بی‌محدودیت مستقیم از کلاینت.',
     ),
     responsiveAndRtl: tx(
       'RTL-first from the ground up — logical layout properties and perceptually uniform color tokens rather than an LTR layout patched with a right-to-left flag. Dari is the default language; English is available via a language-preference prompt shown once to first-time visitors.',
@@ -300,7 +300,7 @@ const featuredProjectsData: Project[] = [
     ),
     lessonsLearned: tx(
       "Building an offline-first PWA reinforced a simple rule: caching is a data decision, not just a performance feature. I now ask what happens when each piece of data is stale before choosing a cache policy for it.",
-      'ساختن PWA آفلاین‌فرست یک نکته‌ی مهم به من یاد داد: کش فقط موضوع کارایی نیست؛ موضوع صحت داده هم هست. حالا قبل از انتخاب سیاست کش، اول می‌پرسم اگر این داده قدیمی باشد چه اتفاقی می‌افتد.',
+      'ساختن PWA آفلاین‌فرست به من یاد داد که کش فقط موضوع کارایی نیست؛ موضوع صحت داده هم هست. حالا قبل از انتخاب سیاست کش، اول می‌پرسم اگر این داده قدیمی باشد چه اتفاقی می‌افتد.',
     ),
     featured: true,
     published: true,
