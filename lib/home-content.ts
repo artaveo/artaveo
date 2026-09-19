@@ -31,7 +31,7 @@ const capabilitiesData: Capability[] = [
     title: tx('Full-stack development', 'توسعه‌ی فول‌استک'),
     description: tx(
       'Interface, API and database in one workflow.',
-      'رابط کاربری، API و پایگاه داده در یک روند کاری واحد.',
+      'رابط کاربری، API و پایگاه داده در یک مسیر یکپارچه پیش می‌روند.',
     ),
   },
   {
@@ -55,7 +55,7 @@ const capabilitiesData: Capability[] = [
     title: tx('Performance', 'کارایی'),
     description: tx(
       'Fast loading and lean client-side code by default.',
-      'بارگذاری سریع و کد سبک سمت کلاینت به‌صورت پیش‌فرض.',
+      'بارگذاری سریع و کد سبک سمت کلاینت، بدون افزودن پیچیدگی غیرضروری.',
     ),
   },
   {
@@ -332,7 +332,7 @@ const differentiatorsData: Principle[] = [
     title: tx('End-to-end ownership', 'مالکیت سرتاسری'),
     description: tx(
       'Architecture, interface, backend and deployment happen in one workflow, so nothing falls between handoffs.',
-      'معماری، رابط کاربری، بک‌اند و استقرار در یک روند کاری واحد انجام می‌شوند، پس چیزی میان تحویل‌گیری‌ها گم نمی‌شود.',
+      'معماری، رابط کاربری، بک‌اند و استقرار در یک مسیر یکپارچه پیش می‌روند؛ چیزی بین تیم‌ها جابه‌جا نمی‌شود.',
     ),
   },
   {
@@ -340,7 +340,7 @@ const differentiatorsData: Principle[] = [
     title: tx('Technical consistency', 'یکدستی فنی'),
     description: tx(
       'One set of conventions across the stack: typed code, shared design tokens and a predictable structure.',
-      'یک مجموعه قرارداد در سراسر استک: کد تایپ‌شده، توکن‌های طراحی مشترک و ساختاری قابل‌پیش‌بینی.',
+      'یک مجموعه قرارداد در سراسر استک: کد تایپ‌شده، توکن‌های طراحی مشترک و ساختاری منسجم.',
     ),
   },
   {
@@ -361,7 +361,7 @@ const differentiatorsData: Principle[] = [
   },
   {
     icon: 'ShieldCheck',
-    title: tx('Long-term thinking', 'نگاه بلندمدت'),
+    title: tx('Long-term thinking', 'نگاه رو به جلو'),
     description: tx(
       'Security, validation and performance are part of the first build, not a cleanup task before launch.',
       'امنیت، اعتبارسنجی و کارایی از همان نسخه‌ی اول بخشی از ساخت هستند، نه یک کار پاک‌سازی پیش از راه‌اندازی.',
