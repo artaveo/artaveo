@@ -29,15 +29,15 @@ function tx(en: string, fa: string): LocalizedText {
  */
 const storyData: LocalizedText[] = [
   tx(
-    "Artaveo is one person: I plan, design, build and deploy every project myself, end to end. There is no account manager between you and the code, and no handoff between a “design team” and a “dev team” — the same person who scopes the database schema also polishes the last pixel of the interface.",
+    "Artaveo is one person. I plan, design, build and deploy each project myself. There is no account-manager handoff between you and the code; the same person who designs the database also works through the interface details.",
     'آرتاویو یک نفر است. هر پروژه را از ابتدا تا انتها خودم برنامه‌ریزی، طراحی، می‌سازم و مستقر می‌کنم. واسطه‌ای بین تو و کد نیست و کار بین «تیم طراحی» و «تیم توسعه» دست‌به‌دست نمی‌شود. همان کسی که دیتابیس را طراحی می‌کند، جزئیات رابط کاربری را هم اصلاح می‌کند.',
   ),
   tx(
-    'That shape comes from two real products, not a portfolio exercise: a booking and operations platform for intercity bus companies, and a bilingual portal and CMS for an educational institute. Both are covered in full on the Work page — architecture, the decisions I made, the trade-offs I accepted and the mistakes a security review actually caught. I would rather show that thinking than describe it in adjectives.',
+    'This approach comes from two real products, not a portfolio exercise: an intercity bus booking and operations platform, and a bilingual portal and CMS for an educational institute. The Work page documents their architecture, key decisions and security findings. I would rather show that work than dress it up with adjectives.',
     'این شکل از کار از دو محصول واقعی می‌آید، نه یک تمرین نمونه‌کار: یک پلتفرم رزرو و مدیریت عملیات برای شرکت‌های اتوبوس‌رانی بین‌شهری و یک پورتال و CMS دوزبانه برای یک مؤسسه‌ی آموزشی. در صفحه‌ی نمونه‌کارها معماری، تصمیم‌ها و یافته‌های بررسی امنیتی را مستند کرده‌ام. ترجیح می‌دهم این‌ها را نشان بدهم، نه با چند صفت توصیف کنم.',
   ),
   tx(
-    "Working solo means every decision is scoped to what one person can build and actually maintain — which is why the same account, the same repository conventions and the same review habits run through everything I ship, rather than a different standard per project.",
+    "Working solo means every decision has to fit what one person can build and maintain. That is why the same coding conventions and review habits carry across the projects I ship.",
     'تنها کارکردن یعنی هر تصمیم باید چیزی باشد که یک نفر بتواند بسازد و بعد هم نگهداری کند. برای همین، قراردادهای کدنویسی و عادت‌های بازبینی را در همه‌ی پروژه‌ها یکسان نگه می‌دارم.',
   ),
 ]
