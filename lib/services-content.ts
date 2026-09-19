@@ -181,7 +181,7 @@ const servicesData: Service[] = [
         ],
         notIncluded: [
           tx('A blog or news section', 'بخش وبلاگ یا اخبار'),
-          tx('Bilingual build (available as an add-on)', 'ساخت دوزبانه (به‌صورت افزونه در دسترس است)'),
+          tx('Bilingual build (available as an add-on)', 'ساخت دوزبانه (به‌عنوان افزونه در دسترس است)'),
         ],
         deliverables: [
           tx('Live, deployed website', 'وب‌سایت زنده و مستقرشده'),
@@ -211,7 +211,7 @@ const servicesData: Service[] = [
         ],
         notIncluded: [
           tx('Custom backend logic, user accounts or a database', 'منطق سفارشی بک‌اند، حساب کاربری یا پایگاه داده'),
-          tx('Bilingual build (available as an add-on)', 'ساخت دوزبانه (به‌صورت افزونه در دسترس است)'),
+          tx('Bilingual build (available as an add-on)', 'ساخت دوزبانه (به‌عنوان افزونه در دسترس است)'),
         ],
         deliverables: [
           tx('Live, deployed website', 'وب‌سایت زنده و مستقرشده'),
@@ -298,7 +298,7 @@ const servicesData: Service[] = [
       'ساخت محصول فول‌استک — رابط کاربری، API و پایگاه داده به‌عنوان یک سیستم یکدست، با شروع از یک Discovery Sprint.',
     ),
     forWhom: [
-      tx('A founder or business with a real product idea and unclear or evolving scope', 'یک بنیان‌گذار یا کسب‌وکار با ایده‌ی محصولی واقعی و دامنه‌ای نامشخص یا در‌حال‌شکل‌گیری'),
+      tx('A founder or business with a real product idea and unclear or evolving scope', 'یک بنیان‌گذار یا کسب‌وکار با ایده‌ی محصولی واقعی و دامنه‌ای نامشخص یا در حال شکل‌گیری'),
       tx('A team that needs user accounts, a database and real business logic — not just informational pages', 'تیمی که به حساب کاربری، پایگاه داده و منطق واقعی کسب‌وکار نیاز دارد — نه فقط صفحات اطلاع‌رسانی'),
     ],
     notForWhom: [
@@ -306,12 +306,12 @@ const servicesData: Service[] = [
     ],
     problem: tx(
       'Fixed-price quotes for a project with unclear scope are dishonest in one direction or the other — either padded to cover the unknowns, or cut corners once the real complexity shows up. Custom product work needs the scope defined before the price is.',
-      'قیمت‌های ثابت برای پروژه‌ای با دامنه‌ی نامشخص، در یک جهت یا جهت دیگر صادقانه نیستند — یا برای پوشش مجهولات بادکرده‌اند، یا وقتی پیچیدگی واقعی خودش را نشان می‌دهد، از کیفیت کم می‌شود. کار محصول سفارشی نیاز دارد اول دامنه مشخص شود، بعد قیمت.',
+      'قیمت ثابت برای پروژه‌ای با دامنه‌ی نامشخص معمولاً صادقانه نیست؛ یا برای پوشش مجهولات بیش‌ازحد بالا می‌رود، یا وقتی پیچیدگی واقعی مشخص می‌شود، از کیفیت کم می‌شود. برای کار محصول سفارشی، اول دامنه را مشخص می‌کنیم و بعد قیمت می‌دهیم.',
     ),
     whatIDo: [
       tx('Run a fixed-price Discovery Sprint first: scope, architecture outline and an estimate you can act on', 'ابتدا یک Discovery Sprint با قیمت ثابت اجرا می‌کنم: دامنه، طرح‌کلی معماری و برآوردی که می‌توانید بر اساسش تصمیم بگیرید'),
       tx('Design and build the database schema, API and interface as one system, not three disconnected layers', 'طراحی و ساخت طرح پایگاه داده، API و رابط کاربری به‌عنوان یک سیستم واحد، نه سه لایه‌ی جدا از هم'),
-      tx('Deliver in milestones you can see and review, not one opaque block at the end', 'تحویل در نقاط عطف قابل‌مشاهده و قابل‌بازبینی، نه یک بلوک مبهم در انتها'),
+      tx('Deliver in milestones you can see and review, not one opaque block at the end', 'تحویل در نقاط عطف روشن و قابل‌بازبینی، نه یک بسته‌ی مبهم در انتهای کار'),
     ],
     included: [
       tx('Discovery Sprint: scoped problem statement, architecture outline, milestone plan and estimate', 'Discovery Sprint: بیان دقیق مسئله، طرح‌کلی معماری، برنامه‌ی نقاط عطف و برآورد'),
@@ -359,7 +359,7 @@ const servicesData: Service[] = [
     faq: [
       faq(
         ['Why start with a paid Discovery Sprint instead of a free quote?', 'A free quote on an unscoped product is a guess. The sprint produces a real architecture outline and estimate you can hold me to — and you keep that outline even if we don\u2019t continue to the build.'],
-        ['چرا با یک Discovery Sprint پولی شروع می‌شود، نه یک برآورد رایگان؟', 'برآورد رایگان روی یک محصول بدون دامنه‌بندی، یک حدس است. این اسپرینت یک طرح‌کلی معماری و برآورد واقعی تولید می‌کند که می‌توانید مرا نسبت به آن مسئول بدانید — و حتی اگر به مرحله‌ی ساخت نرویم، این طرح‌کلی برای خودتان می‌ماند.'],
+        ['چرا شروع کار با یک Discovery Sprint پولی است، نه یک برآورد رایگان؟', 'برآورد رایگان روی یک محصول بدون دامنه‌بندی، یک حدس است. این اسپرینت یک طرح‌کلی معماری و برآورد واقعی تولید می‌کند که می‌توانید مرا نسبت به آن مسئول بدانید — و حتی اگر به مرحله‌ی ساخت نرویم، این طرح‌کلی برای خودتان می‌ماند.'],
       ),
       faq(
         ['Who owns the code?', 'Ownership and IP transfer terms are published on the Working Agreement page and confirmed before the build starts.'],
@@ -398,7 +398,7 @@ const servicesData: Service[] = [
     included: [
       tx('Role-based access, scoped per section of the admin', 'دسترسی بر پایه‌ی نقش، مشخص‌شده برای هر بخش از پنل ادمین'),
       tx('Data tables with filtering, sorting and pagination', 'جدول‌های داده با فیلتر، مرتب‌سازی و صفحه‌بندی'),
-      tx('Reports and CSV export for the records your team needs offline', 'گزارش‌ها و خروجی CSV برای رکوردهایی که تیم شما به‌صورت آفلاین نیاز دارد'),
+      tx('Reports and CSV export for the records your team needs offline', 'گزارش‌ها و خروجی CSV برای رکوردهایی که تیم شما بیرون از سیستم هم به آن‌ها نیاز دارد'),
       tx('Server-side enforcement of every write — the admin UI is never the source of truth', 'اجرای سمت سرور برای هر عملیات نوشتن — رابط کاربری ادمین هیچ‌وقت منبع حقیقت نیست'),
     ],
     notIncluded: [
@@ -568,12 +568,12 @@ const servicesData: Service[] = [
       'طراحی schema در Supabase / PostgreSQL، احراز هویت، row-level security و اتصال به سرویس‌های شخص‌ثالث.',
     ),
     forWhom: [
-      tx('A team with a frontend already in progress that needs a real, secure backend behind it', 'تیمی که یک فرانت‌اند در‌حال‌توسعه دارد و به یک بک‌اند واقعی و امن پشت آن نیاز دارد'),
+      tx('A team with a frontend already in progress that needs a real, secure backend behind it', 'تیمی که یک فرانت‌اند در حال توسعه دارد و به یک بک‌اند واقعی و امن پشت آن نیاز دارد'),
       tx('A product where sensitive decisions currently live in client-side code and need to move to the server', 'محصولی که تصمیم‌های حساس آن فعلاً در کد سمت کلاینت زندگی می‌کند و باید به سرور منتقل شود'),
     ],
     problem: tx(
       'A frontend that talks directly to a database with no server-side authorization is not a security model — it is a promise that the client will behave, and clients don\u2019t always behave. This service exists to put real boundaries where the product currently has none.',
-      'فرانت‌اندی که مستقیم با یک پایگاه داده بدون بررسی دسترسی سمت سرور صحبت می‌کند، یک مدل امنیتی نیست — یک وعده است که کلاینت درست رفتار می‌کند، و کلاینت‌ها همیشه درست رفتار نمی‌کنند. این خدمت برای این است که مرزهای واقعی جایی گذاشته شود که محصول فعلاً هیچ مرزی ندارد.',
+      'فرانت‌اندی که بدون بررسی دسترسی سمت سرور مستقیم با پایگاه داده صحبت می‌کند، مدل امنیتی قابل‌اتکایی ندارد؛ فقط فرض می‌کند کلاینت درست رفتار می‌کند، در حالی که کلاینت قابل‌اعتماد نیست. این خدمت مرزهای واقعی دسترسی را در سمت سرور و دیتابیس ایجاد می‌کند.',
     ),
     whatIDo: [
       tx('Design a relational schema that matches the real business rules, not just the current UI', 'طراحی یک schema رابطه‌ای که با قواعد واقعی کسب‌وکار همخوانی دارد، نه فقط با رابط کاربری فعلی'),
@@ -625,7 +625,7 @@ const servicesData: Service[] = [
     faq: [
       faq(
         ['Do you work with a database I already have, or only Supabase/PostgreSQL?', 'PostgreSQL (directly or through Supabase) is the primary stack. Working with a different existing database is discussed case by case during Discover.'],
-        ['آیا با پایگاه داده‌ای که از قبل دارم کار می‌کنید، یا فقط Supabase/PostgreSQL؟', 'PostgreSQL (مستقیم یا از طریق Supabase) استک اصلی است. کار با یک پایگاه داده‌ی متفاوت موجود، در مرحله‌ی «شناخت» و به‌صورت مورد‌به‌مورد بررسی می‌شود.'],
+        ['آیا با پایگاه داده‌ای که از قبل دارم کار می‌کنید، یا فقط Supabase/PostgreSQL؟', 'PostgreSQL (مستقیم یا از طریق Supabase) استک اصلی است. کار با یک پایگاه داده‌ی متفاوت موجود، در مرحله‌ی «شناخت» و با توجه به شرایط همان پروژه بررسی می‌شود.'],
       ),
     ],
   },
@@ -864,7 +864,7 @@ const servicesData: Service[] = [
     faq: [
       faq(
         ['What if the fix reveals a bigger underlying problem?', 'I will tell you honestly rather than quietly expanding scope — the bigger problem gets its own separate conversation and, if needed, its own engagement.'],
-        ['اگر رفع مشکل، یک مشکل بزرگ‌تر و زیربنایی را آشکار کند چه؟', 'صادقانه به شما اطلاع می‌دهم، نه اینکه بی‌صدا دامنه‌ی کار را گسترش دهم — مشکل بزرگ‌تر گفت‌وگوی جداگانه‌ی خودش، و در صورت نیاز، قرارداد جداگانه‌ی خودش را می‌گیرد.'],
+        ['اگر رفع مشکل، یک مشکل بزرگ‌تر و زیربنایی را آشکار کند چه؟', 'صادقانه اطلاع می‌دهم و دامنه‌ی کار را بی‌صدا گسترش نمی‌دهم — مسئله‌ی بزرگ‌تر گفت‌وگوی جداگانه و در صورت نیاز همکاری جداگانه‌ی خودش را خواهد داشت.'],
       ),
     ],
     packages: [
