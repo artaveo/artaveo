@@ -85,7 +85,7 @@ const servicesData: Service[] = [
     title: tx('Business Website', 'وب‌سایت تجاری'),
     tagline: tx(
       'A fast, credible website that structures content the way a CMS eventually will.',
-      'یک وب‌سایت سریع و قابل‌اعتماد که ساختار محتوا را از ابتدا طوری می‌چیند که بعداً بتوان آن را به CMS سپرد.',
+      'یک وب‌سایت سریع و قابل‌اعتماد که ساختار محتوا را از ابتدا برای CMS آماده می‌کند.',
     ),
     description: tx(
       'Marketing and informational sites with a CMS-ready content structure, real SEO fundamentals and an optional bilingual build.',
@@ -158,7 +158,7 @@ const servicesData: Service[] = [
       ),
       faq(
         ['Do you write the copy?', 'Not by default — content is scoped in Discover. Copywriting can be discussed as a separate add-on if needed.'],
-        ['آیا خودتان متن را می‌نویسید؟', 'به‌طور پیش‌فرض نه. محتوای نهایی در مرحله‌ی «شناخت» مشخص می‌شود؛ کپی‌رایتینگ در صورت نیاز جداگانه قابل‌بررسی است.'],
+        ['آیا خودتان متن را می‌نویسید؟', 'به‌طور پیش‌فرض نه. محتوای نهایی در مرحله‌ی «شناخت» مشخص می‌شود؛ کپی‌رایتینگ هم در صورت نیاز جداگانه بررسی می‌شود.'],
       ),
     ],
     packages: [
@@ -376,7 +376,7 @@ const servicesData: Service[] = [
     title: tx('Admin Dashboards & Internal Tools', 'داشبورد مدیریت و ابزارهای داخلی'),
     tagline: tx(
       'Role-based admin panels that make the data your team already has usable and safe to act on.',
-      'پنل‌های مدیریت بر پایه‌ی نقش که داده‌ای را که تیم شما از قبل دارد، قابل‌استفاده و ایمن برای تصمیم‌گیری می‌کنند.',
+      'پنل‌های مدیریت بر پایه‌ی نقش که داده‌های عملیاتی تیم را برای استفاده‌ی روزمره آماده و امن نگه می‌دارند.',
     ),
     description: tx(
       'Role-based admin panels, reports and CSV exports for teams that need to manage real operational data.',
@@ -391,7 +391,7 @@ const servicesData: Service[] = [
       'ابزار داخلی جایی است که خطاهای کوچک می‌توانند هزینه‌ی واقعی داشته باشند. دسترسی بیش‌ازحد یا گزارش قدیمی می‌تواند مستقیماً روی عملیات اثر بگذارد.',
     ),
     whatIDo: [
-      tx('Model roles and permissions explicitly, scoped per section rather than all-or-nothing', 'مدل‌سازی صریح نقش‌ها و سطوح دسترسی، به‌ازای هر بخش، نه به‌شکل همه‌یا‌هیچ'),
+      tx('Model roles and permissions explicitly, scoped per section rather than all-or-nothing', 'تعریف صریح نقش‌ها و سطح دسترسی هر بخش؛ نه یک دسترسی همه یا هیچ'),
       tx('Build the tables, filters, reports and CSV exports your team actually works from all day', 'ساخت جدول‌ها، فیلترها، گزارش‌ها و خروجی CSV برای کار روزمره‌ی تیم'),
       tx('Enforce every sensitive action server-side, with an audit trail where the action matters', 'هر عملیات حساس را سمت سرور کنترل می‌کنم و برای عملیات مهم، تاریخچه‌ی قابل‌بازبینی نگه می‌دارم.'),
     ],
@@ -625,7 +625,7 @@ const servicesData: Service[] = [
     faq: [
       faq(
         ['Do you work with a database I already have, or only Supabase/PostgreSQL?', 'PostgreSQL (directly or through Supabase) is the primary stack. Working with a different existing database is discussed case by case during Discover.'],
-        ['آیا با پایگاه داده‌ای که از قبل دارم کار می‌کنید، یا فقط Supabase/PostgreSQL؟', 'PostgreSQL (مستقیم یا از طریق Supabase) استک اصلی است. کار با یک پایگاه داده‌ی متفاوت موجود، در مرحله‌ی «شناخت» و با توجه به شرایط همان پروژه بررسی می‌شود.'],
+        ['آیا با پایگاه داده‌ای که از قبل دارم کار می‌کنید، یا فقط Supabase/PostgreSQL؟', 'PostgreSQL (مستقیم یا از طریق Supabase) استک اصلی است. کار با یک پایگاه داده‌ی متفاوت، در مرحله‌ی «شناخت» و بر اساس شرایط همان پروژه بررسی می‌شود.'],
       ),
     ],
   },
