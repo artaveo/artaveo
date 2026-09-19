@@ -148,7 +148,7 @@ export function CaseStudy({
               <dt className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
                 {t18n('role')}
               </dt>
-              <dd className="mt-1 leading-relaxed"><LocalizedBody value={project.role} locale={locale} /></dd>
+              <dd className="mt-1 leading-relaxed">{t(project.role, locale)}</dd>
             </div>
           ) : null}
           <div className="bg-card p-4">
