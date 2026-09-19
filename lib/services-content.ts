@@ -421,26 +421,26 @@ const servicesData: Service[] = [
       ),
       step(
         ['Build & enforce', 'Server-side checks for every sensitive action, reviewed before launch.'],
-        ['ساخت و اجرا', 'بررسی سمت سرور برای هر عمل حساس، پیش از راه‌اندازی بازبینی می‌شود.'],
+        ['ساخت و اجرا', 'عملیات حساس قبل از راه‌اندازی از نظر بررسی سمت سرور بازبینی می‌شوند.'],
       ),
       step(
         ['Handover & train', 'A short walkthrough so your team can use it confidently from day one.'],
-        ['تحویل و آموزش', 'یک آموزش کوتاه تا تیم شما از همان روز اول با اطمینان از آن استفاده کند.'],
+        ['تحویل و آموزش', 'یک آموزش کوتاه برای اینکه تیم از روز اول بتواند با آن کار کند.'],
       ),
     ],
     timeline: tx(
       'Productized admin additions to an existing product: 1–3 weeks. A custom internal tool built from scratch follows a Discovery Sprint like Web Application / MVP.',
-      'افزودن یک ماژول محصول‌محور ادمین به محصول موجود: ۱ تا ۳ هفته. یک ابزار داخلی سفارشی از صفر، مانند «اپلیکیشن وب / MVP» با یک Discovery Sprint شروع می‌شود.',
+      'افزودن یک ماژول ادمین به محصول موجود: ۱ تا ۳ هفته. ابزار داخلی سفارشی از صفر، مانند «اپلیکیشن وب / MVP»، با Discovery Sprint شروع می‌شود.',
     ),
     requirements: [
-      tx('A list of the roles that need access and what each one should be able to do', 'فهرستی از نقش‌هایی که به دسترسی نیاز دارند و هرکدام باید چه‌کاری بتوانند انجام دهند'),
-      tx('Access to the existing database or API this admin will manage, if one already exists', 'دسترسی به پایگاه داده یا API موجودی که این پنل ادمین قرار است مدیریتش کند، اگر از قبل وجود دارد'),
+      tx('A list of the roles that need access and what each one should be able to do', 'فهرست نقش‌ها و اینکه هر نقش باید چه دسترسی‌هایی داشته باشد'),
+      tx('Access to the existing database or API this admin will manage, if one already exists', 'دسترسی به پایگاه داده یا API موجود، در صورتی که پنل قرار است روی آن ساخته شود'),
     ],
     relatedProjectSlugs: ['transportation-system', 'pazhuhesh-portal'],
     faq: [
       faq(
         ['Can this connect to a database or product I already have?', 'Yes — this is often built against an existing schema. Access and read/write scope are confirmed during Discover.'],
-        ['آیا می‌تواند به یک پایگاه داده یا محصولی که از قبل دارم وصل شود؟', 'بله — این خدمت اغلب روی یک schema موجود ساخته می‌شود. دسترسی و محدوده‌ی خواندن/نوشتن در مرحله‌ی «شناخت» تأیید می‌شود.'],
+        ['آیا می‌تواند به یک پایگاه داده یا محصولی که از قبل دارم وصل شود؟', 'بله. این خدمت معمولاً روی یک schema موجود ساخته می‌شود و سطح دسترسی خواندن و نوشتن در مرحله‌ی «شناخت» مشخص می‌شود.'],
       ),
     ],
     packages: [
@@ -449,11 +449,11 @@ const servicesData: Service[] = [
         name: tx('Starter', 'استارتر'),
         summary: tx(
           'A single admin module — one section, one or two roles.',
-          'یک ماژول ادمین — یک بخش، یک یا دو نقش.',
+          'یک بخش ادمین با یک یا دو نقش.',
         ),
         forWhom: tx(
           'A product with one clear internal need: a single list or workflow that currently lives in a spreadsheet.',
-          'محصولی با یک نیاز داخلی روشن: یک فهرست یا روند کار که فعلاً در یک اکسل زندگی می‌کند.',
+          'یک نیاز داخلی مشخص که فعلاً در اکسل یا یک ابزار ساده مدیریت می‌شود.',
         ),
         included: [
           tx('One admin section with role-based access', 'یک بخش ادمین با دسترسی بر پایه‌ی نقش'),
@@ -461,7 +461,7 @@ const servicesData: Service[] = [
           tx('CSV export', 'خروجی CSV'),
         ],
         notIncluded: [
-          tx('Multiple admin sections or roles beyond two', 'چند بخش ادمین یا نقش‌های بیش از دو'),
+          tx('Multiple admin sections or roles beyond two', 'بیش از دو بخش یا نقش ادمین'),
           tx('Custom reports', 'گزارش‌های سفارشی'),
         ],
         deliverables: [
@@ -477,20 +477,20 @@ const servicesData: Service[] = [
         name: tx('Standard', 'استاندارد'),
         summary: tx(
           'A full admin surface: several sections, multiple roles, reports and exports.',
-          'یک سطح کامل ادمین: چند بخش، چند نقش، گزارش‌ها و خروجی‌ها.',
+          'یک پنل کامل‌تر با چند بخش، چند نقش، گزارش و خروجی.',
         ),
         forWhom: tx(
           'A team currently running operations from spreadsheets or group chats and ready to move the whole workflow into one tool.',
-          'تیمی که فعلاً عملیاتش را از طریق اکسل یا گروه‌های چت اداره می‌کند و آماده‌ی انتقال کل روند کار به یک ابزار است.',
+          'تیمی که عملیات را هنوز با اکسل یا گروه‌های چت مدیریت می‌کند و می‌خواهد آن را به یک ابزار متمرکز منتقل کند.',
         ),
         included: [
-          tx('Role-based access, scoped per section of the admin', 'دسترسی بر پایه‌ی نقش، مشخص‌شده برای هر بخش'),
+          tx('Role-based access, scoped per section of the admin', 'دسترسی نقش‌محور با سطح مشخص برای هر بخش'),
           tx('Multiple data tables with filtering, sorting and pagination', 'چند جدول داده با فیلتر، مرتب‌سازی و صفحه‌بندی'),
           tx('Reports and CSV export', 'گزارش‌ها و خروجی CSV'),
           tx('Server-side enforcement of every write', 'اجرای سمت سرور برای هر عملیات نوشتن'),
         ],
         notIncluded: [
-          tx('The public-facing product this admin manages, unless bundled', 'محصول عمومیِ روبه‌روی کاربر، مگر این‌که همراه بسته شود'),
+          tx('The public-facing product this admin manages, unless bundled', 'محصول عمومیِ رو‌به‌کاربر، مگر اینکه در همان همکاری ساخته شود'),
         ],
         deliverables: [
           tx('Admin panel', 'پنل مدیریت'),
@@ -506,14 +506,14 @@ const servicesData: Service[] = [
         name: tx('Custom', 'سفارشی'),
         summary: tx(
           'A bespoke internal tool built alongside the product it manages — scoped through a Discovery Sprint like Web Application / MVP.',
-          'یک ابزار داخلی سفارشی که همراه با محصولی که مدیریت می‌کند ساخته می‌شود — مانند «اپلیکیشن وب / MVP» از طریق یک Discovery Sprint دامنه‌بندی می‌شود.',
+          'یک ابزار داخلی سفارشی که همراه با محصول اصلی ساخته می‌شود و مانند «اپلیکیشن وب / MVP» با Discovery Sprint دامنه‌بندی می‌شود.',
         ),
         forWhom: tx(
           'An internal tool complex enough to need its own architecture, not just an admin bolted onto an existing schema.',
-          'ابزاری داخلی که به‌اندازه‌ای پیچیده است که به معماری خودش نیاز دارد، نه فقط یک ادمین که به یک schema موجود چسبانده شود.',
+          'ابزاری داخلی که به معماری و workflowهای اختصاصی خودش نیاز دارد، نه فقط یک پنل روی schema موجود.',
         ),
         included: [
-          tx('Everything in Standard, plus custom workflows and data models scoped in Discovery', 'هر آنچه در استاندارد است، به‌علاوه‌ی روندهای کار و مدل‌های داده‌ی سفارشی که در Discovery دامنه‌بندی می‌شوند'),
+          tx('Everything in Standard, plus custom workflows and data models scoped in Discovery', 'هر آنچه در استاندارد است، به‌علاوه‌ی workflowها و مدل‌های داده‌ی سفارشی که در Discovery مشخص می‌شوند'),
         ],
         notIncluded: [],
         deliverables: [
@@ -527,7 +527,7 @@ const servicesData: Service[] = [
         title: tx('Additional role beyond the package', 'نقش اضافه فراتر از بسته'),
         description: tx(
           'One more distinct permission level, scoped per section like the others.',
-          'یک سطح دسترسی متمایز دیگر، مشخص‌شده برای هر بخش مانند بقیه.',
+          'یک نقش یا سطح دسترسی اضافی با دسترسی مشخص برای هر بخش.',
         ),
         deliveryImpactDays: 2,
       }),
@@ -536,7 +536,7 @@ const servicesData: Service[] = [
         title: tx('Audit trail on sensitive actions', 'تاریخچه‌ی قابل‌بازبینی برای عملیات حساس'),
         description: tx(
           'A recorded, reviewable history of who did what on the actions that matter most.',
-          'یک تاریخچه‌ی ثبت‌شده و قابل‌بازبینی از اینکه چه‌کسی چه‌کاری روی مهم‌ترین عملیات انجام داده.',
+          'یک تاریخچه‌ی قابل‌بازبینی از اینکه چه کسی چه عملیاتی را انجام داده است.',
         ),
         deliveryImpactDays: 3,
       }),
@@ -549,7 +549,7 @@ const servicesData: Service[] = [
     ],
     paymentScheduleNote: tx(
       'Starter and Standard follow the same milestone split as Business Website; Custom follows the Web Application / MVP schedule. Full terms are confirmed before any work begins.',
-      'استارتر و استاندارد از همان تقسیم نقاط عطف «وب‌سایت تجاری» پیروی می‌کنند؛ سفارشی از برنامه‌ی «اپلیکیشن وب / MVP» پیروی می‌کند. شرایط کامل پیش از شروع هر کاری تأیید می‌شود.',
+      'استارتر و استاندارد طبق نقاط عطف «وب‌سایت تجاری» پرداخت می‌شوند؛ سفارشی از برنامه‌ی «اپلیکیشن وب / MVP» پیروی می‌کند. شرایط کامل قبل از شروع کار تأیید می‌شود.',
     ),
   },
 
@@ -561,30 +561,30 @@ const servicesData: Service[] = [
     title: tx('Backend, API & Database', 'بک‌اند، API و پایگاه داده'),
     tagline: tx(
       'The server-side layer your product actually trusts: schema, authorization and integrations.',
-      'لایه‌ی سمت سروری که محصول شما واقعاً به آن اعتماد می‌کند: طرح داده، دسترسی و اتصال به سرویس‌های دیگر.',
+      'بک‌اندی که منطق کسب‌وکار، دسترسی داده و اتصال به سرویس‌های دیگر را در سمت سرور مدیریت می‌کند.',
     ),
     description: tx(
       'Supabase / PostgreSQL schema design, authentication, row-level security and third-party integrations.',
-      'طراحی schema در Supabase / PostgreSQL، احراز هویت، row-level security و اتصال به سرویس‌های شخص‌ثالث.',
+      'طراحی schema در Supabase / PostgreSQL، احراز هویت، Row-Level Security و اتصال به سرویس‌های شخص‌ثالث.',
     ),
     forWhom: [
-      tx('A team with a frontend already in progress that needs a real, secure backend behind it', 'تیمی که فرانت‌اندش در حال توسعه است و به یک بک‌اند واقعی و امن نیاز دارد'),
-      tx('A product where sensitive decisions currently live in client-side code and need to move to the server', 'محصولی که تصمیم‌های حساسش هنوز در کد سمت کلاینت گرفته می‌شوند و باید به سرور منتقل شوند'),
+      tx('A team with a frontend already in progress that needs a real, secure backend behind it', 'تیمی که فرانت‌اندش در حال توسعه است و به یک بک‌اند واقعی و امن در پشت آن نیاز دارد'),
+      tx('A product where sensitive decisions currently live in client-side code and need to move to the server', 'محصولی که هنوز تصمیم‌های حساسش در کلاینت گرفته می‌شوند و باید به سرور منتقل شوند'),
     ],
     problem: tx(
       'A frontend that talks directly to a database with no server-side authorization is not a security model — it is a promise that the client will behave, and clients don\u2019t always behave. This service exists to put real boundaries where the product currently has none.',
-      'فرانت‌اندی که بدون بررسی دسترسی سمت سرور مستقیم با پایگاه داده صحبت می‌کند، مدل امنیتی قابل‌اتکایی ندارد؛ فقط فرض می‌کند کلاینت درست رفتار می‌کند، در حالی که کلاینت قابل‌اعتماد نیست. این خدمت مرزهای واقعی دسترسی را در سمت سرور و دیتابیس ایجاد می‌کند.',
+      'اگر فرانت‌اند بدون بررسی دسترسی سمت سرور مستقیم با پایگاه داده صحبت کند، امنیت محصول به رفتار کلاینت وابسته می‌شود. این خدمت کنترل دسترسی را در سمت سرور و دیتابیس enforce می‌کند.',
     ),
     whatIDo: [
-      tx('Design a relational schema that matches the real business rules, not just the current UI', 'طراحی یک schema رابطه‌ای که با قواعد واقعی کسب‌وکار همخوانی دارد، نه فقط با رابط کاربری فعلی'),
-      tx('Apply row-level security and server-side authorization on every sensitive table and action', 'اعمال row-level security و بررسی دسترسی سمت سرور روی هر جدول و عمل حساس'),
-      tx('Model sensitive state changes as explicit, auditable state machines where the risk justifies it', 'مدل‌سازی تغییرات وضعیت حساس به‌شکل state machine صریح و قابل‌بازبینی، جایی که ریسک آن را توجیه می‌کند'),
+      tx('Design a relational schema that matches the real business rules, not just the current UI', 'طراحی schema رابطه‌ای بر اساس قواعد واقعی کسب‌وکار، نه فقط شکل فعلی رابط کاربری'),
+      tx('Apply row-level security and server-side authorization on every sensitive table and action', 'اعمال Row-Level Security و بررسی دسترسی سمت سرور روی جدول‌ها و عملیات حساس'),
+      tx('Model sensitive state changes as explicit, auditable state machines where the risk justifies it', 'مدل‌سازی تغییرات حساس به‌صورت state machine قابل‌بازبینی، هرجا که ریسک آن را توجیه کند'),
     ],
     included: [
-      tx('Relational schema design and migrations', 'طراحی schema رابطه‌ای و migration ها'),
-      tx('Authentication and row-level security policies', 'احراز هویت و سیاست‌های row-level security'),
-      tx('API endpoints your frontend calls, with server-side validation', 'endpoint های API که فرانت‌اند شما فراخوانی می‌کند، همراه با اعتبارسنجی سمت سرور'),
-      tx('A security review pass before handover', 'یک بررسی امنیتی پیش از تحویل'),
+      tx('Relational schema design and migrations', 'طراحی schema رابطه‌ای و migrationها'),
+      tx('Authentication and row-level security policies', 'احراز هویت و سیاست‌های Row-Level Security'),
+      tx('API endpoints your frontend calls, with server-side validation', 'endpointهای API موردنیاز فرانت‌اند، همراه با اعتبارسنجی سمت سرور'),
+      tx('A security review pass before handover', 'یک بررسی امنیتی قبل از تحویل'),
     ],
     notIncluded: [
       tx('The frontend that consumes this API, unless bundled as Web Application / MVP', 'فرانت‌اندی که این API را مصرف می‌کند، مگر این‌که همراه با «اپلیکیشن وب / MVP» بسته شود'),
@@ -598,28 +598,28 @@ const servicesData: Service[] = [
     process: [
       step(
         ['Model the data', 'The schema follows the real business rules, checked against how the product actually needs to behave.'],
-        ['مدل‌سازی داده', 'schema از قواعد واقعی کسب‌وکار پیروی می‌کند، در برابر نحوه‌ی رفتار واقعی موردنیاز محصول بررسی می‌شود.'],
+        ['مدل‌سازی داده', 'schema بر اساس قواعد واقعی کسب‌وکار طراحی می‌شود و با نیاز واقعی محصول بررسی می‌شود.'],
       ),
       step(
         ['Secure it', 'Row-level security and server-side checks on every sensitive path — never left to the client.'],
-        ['ایمن‌سازی', 'row-level security و بررسی‌های سمت سرور روی هر مسیر حساس — هرگز به کلاینت واگذار نمی‌شود.'],
+        ['ایمن‌سازی', 'Row-Level Security و بررسی دسترسی سمت سرور روی هر مسیر حساس؛ هیچ تصمیم حساسی به کلاینت سپرده نمی‌شود.'],
       ),
       step(
         ['Build & test against real data', 'Migrations verified in a rolled-back transaction against real data before they ship.'],
-        ['ساخت و تست روی داده‌ی واقعی', 'migration ها پیش از انتشار، در تراکنشی که در پایان rollback می‌شود، روی داده‌ی واقعی اعتبارسنجی می‌شوند.'],
+        ['ساخت و تست روی داده‌ی واقعی', 'migrationها قبل از انتشار، در تراکنشی که در پایان rollback می‌شود، روی داده‌ی واقعی اعتبارسنجی می‌شوند.'],
       ),
       step(
         ['Handover', 'Schema documentation and a security review summary, so the next person can trust it too.'],
-        ['تحویل', 'مستندسازی schema و خلاصه‌ی بررسی امنیتی، تا نفر بعدی هم بتواند به آن اعتماد کند.'],
+        ['تحویل', 'مستندسازی schema و خلاصه‌ی بررسی امنیتی، تا ادامه‌ی کار روی سیستم قابل‌فهم باشد.'],
       ),
     ],
     timeline: tx(
       'Depends heavily on schema complexity and the number of integrations — scoped after a short technical discovery, similar to the Web Application / MVP Discovery Sprint.',
-      'به‌شدت به پیچیدگی schema و تعداد اتصال‌ها بستگی دارد — پس از یک Discovery فنی کوتاه، مشابه Discovery Sprint در «اپلیکیشن وب / MVP»، دامنه‌بندی می‌شود.',
+      'به پیچیدگی schema و تعداد اتصال‌ها بستگی دارد. بعد از یک Discovery فنی کوتاه، مشابه Discovery در «اپلیکیشن وب / MVP»، محدوده مشخص می‌شود.',
     ),
     requirements: [
       tx('Access to the existing codebase and any current database, if one exists', 'دسترسی به کدبیس موجود و هر پایگاه داده‌ی فعلی، اگر وجود دارد'),
-      tx('Credentials or sandbox access for any third-party service that needs integrating', 'اطلاعات دسترسی یا sandbox برای هر سرویس شخص‌ثالثی که نیاز به اتصال دارد'),
+      tx('Credentials or sandbox access for any third-party service that needs integrating', 'اطلاعات دسترسی یا sandbox هر سرویس شخص‌ثالثی که باید متصل شود'),
     ],
     relatedProjectSlugs: ['transportation-system', 'pazhuhesh-portal'],
     faq: [
@@ -645,33 +645,33 @@ const servicesData: Service[] = [
       'ارزیابی ساختاریافته‌ی یک سایت یا اپلیکیشن موجود، همراه با اجرای اصلاح‌ها و یک گزارش پیش‌ازبعد.',
     ),
     forWhom: [
-      tx('An existing site that feels slow, fails basic accessibility checks, or ranks poorly for reasons no one has diagnosed', 'سایتی موجود که کند به‌نظر می‌رسد، در بررسی‌های پایه‌ی دسترس‌پذیری رد می‌شود، یا به دلایلی که هیچ‌کس تشخیص نداده رتبه‌ی ضعیفی در جست‌وجو دارد'),
+      tx('An existing site that feels slow, fails basic accessibility checks, or ranks poorly for reasons no one has diagnosed', 'سایتی موجود که کند است، در بررسی‌های پایه‌ی دسترس‌پذیری مشکل دارد یا دلیل ضعفش در جست‌وجو مشخص نیست'),
     ],
     notForWhom: [
       tx('A site that needs new features or a redesign — this service fixes what exists, it does not rebuild it', 'سایتی که به ویژگی‌های تازه یا بازطراحی نیاز دارد — این خدمت آنچه هست را اصلاح می‌کند، بازسازی نمی‌کند'),
     ],
     problem: tx(
       'Performance, accessibility and SEO problems are usually invisible to whoever built the site day-to-day, and expensive advice without implementation is common. This service pairs the audit with the actual fix.',
-      'مشکلات کارایی، دسترس‌پذیری و سئو معمولاً برای کسی که روزبه‌روز روی سایت کار می‌کند نامرئی هستند، و مشاوره‌ی گران بدون اجرا هم رایج است. این خدمت ارزیابی را با اصلاح واقعی همراه می‌کند.',
+      'مشکلات کارایی، دسترس‌پذیری و سئو همیشه از داخل پروژه دیده نمی‌شوند. این خدمت فقط گزارش نمی‌دهد؛ اصلاح‌های مشخص را هم اجرا می‌کند.',
     ),
     whatIDo: [
       tx('Measure real Core Web Vitals, accessibility violations and SEO fundamentals — not a guess', 'اندازه‌گیری واقعی Core Web Vitals، تخلفات دسترس‌پذیری و اصول سئو — نه یک حدس'),
-      tx('Implement the fixes directly in the codebase, not just hand over a list', 'اجرای مستقیم اصلاح‌ها در کدبیس، نه فقط تحویل یک فهرست'),
-      tx('Re-measure after the fix and document the before/after difference', 'اندازه‌گیری دوباره بعد از اصلاح و مستندسازی تفاوت پیش‌ازبعد'),
+      tx('Implement the fixes directly in the codebase, not just hand over a list', 'اجرای مستقیم اصلاح‌ها در کدبیس، نه فقط تحویل فهرست مشکل‌ها'),
+      tx('Re-measure after the fix and document the before/after difference', 'اندازه‌گیری دوباره پس از اصلاح و ثبت تفاوت قبل و بعد'),
     ],
     included: [
-      tx('A structured audit against WCAG 2.2 AA, Core Web Vitals and on-page SEO fundamentals', 'یک ارزیابی ساختاریافته در برابر WCAG 2.2 AA، Core Web Vitals و اصول سئوی درون‌صفحه‌ای'),
-      tx('Implementation of the fixes found in the audit — not just a report', 'اجرای اصلاح‌های پیداشده در ارزیابی — نه فقط یک گزارش'),
+      tx('A structured audit against WCAG 2.2 AA, Core Web Vitals and on-page SEO fundamentals', 'یک ارزیابی ساختاریافته بر اساس WCAG 2.2 AA، Core Web Vitals و اصول سئوی درون‌صفحه‌ای'),
+      tx('Implementation of the fixes found in the audit — not just a report', 'اجرای اصلاح‌هایی که در ارزیابی پیدا می‌شوند؛ نه فقط تحویل گزارش'),
       tx('A before/after report with the actual measurements', 'یک گزارش پیش‌ازبعد همراه با اندازه‌گیری‌های واقعی'),
     ],
     notIncluded: [
       tx('A full redesign or new features — this fixes what exists', 'بازطراحی کامل یا ویژگی‌های تازه — این خدمت آنچه هست را اصلاح می‌کند'),
-      tx('Fixing issues rooted in a third-party platform or theme outside this codebase\u2019s control', 'رفع مشکلاتی که ریشه در یک پلتفرم یا قالب شخص‌ثالث خارج از کنترل این کدبیس دارند'),
+      tx('Fixing issues rooted in a third-party platform or theme outside this codebase\u2019s control', 'رفع مشکلاتی که ریشه در پلتفرم یا قالب شخص‌ثالث خارج از کنترل این کدبیس دارند'),
     ],
     deliverables: [
-      tx('Audit findings', 'یافته‌های ارزیابی'),
+      tx('Audit findings', 'یافته‌های بررسی'),
       tx('Implemented fixes', 'اصلاح‌های اجراشده'),
-      tx('Before/after performance report', 'گزارش کارایی پیش‌ازبعد'),
+      tx('Before/after performance report', 'گزارش کارایی قبل و بعد'),
     ],
     process: [
       step(
@@ -680,24 +680,24 @@ const servicesData: Service[] = [
       ),
       step(
         ['Prioritize', 'Rank fixes by real impact versus effort — the highest-impact issues first.'],
-        ['اولویت‌بندی', 'رتبه‌بندی اصلاح‌ها بر اساس تأثیر واقعی در برابر تلاش لازم — مشکلات پرتأثیرتر اول.'],
+        ['اولویت‌بندی', 'اولویت‌دادن به اصلاح‌ها بر اساس تأثیر و میزان تلاش لازم؛ موارد مهم‌تر اول.'],
       ),
       step(
         ['Fix', 'Implement directly in the codebase, verified against the original measurements.'],
-        ['اصلاح', 'اجرای مستقیم در کدبیس، اعتبارسنجی‌شده در برابر اندازه‌گیری‌های اولیه.'],
+        ['اصلاح', 'اجرای اصلاح‌ها در کدبیس و بررسی دوباره در برابر اندازه‌گیری‌های اولیه.'],
       ),
       step(
         ['Report', 'A before/after document with the real numbers, not a subjective summary.'],
-        ['گزارش', 'یک سند پیش‌ازبعد با اعداد واقعی، نه یک خلاصه‌ی ذهنی.'],
+        ['گزارش', 'یک گزارش قبل و بعد با اندازه‌گیری‌های واقعی، نه یک جمع‌بندی کلی.'],
       ),
     ],
     timeline: tx(
       '1–2 weeks for a standard audit-and-fix pass, depending on site size and the number of issues found.',
-      '۱ تا ۲ هفته برای یک دورِ استاندارد ارزیابی و اصلاح، بسته به اندازه‌ی سایت و تعداد مشکلات پیداشده.',
+      '۱ تا ۲ هفته برای یک دور استاندارد ارزیابی و اصلاح، بسته به اندازه‌ی سایت و تعداد مشکل‌ها.',
     ),
     requirements: [
       tx('Read access to the live site and, ideally, the codebase or CMS behind it', 'دسترسی خواندن به سایت زنده و ترجیحاً کدبیس یا CMS پشت آن'),
-      tx('Current analytics data, if available, to prioritize by real traffic', 'داده‌ی آنالیتیکس فعلی، در صورت وجود، برای اولویت‌بندی بر اساس ترافیک واقعی'),
+      tx('Current analytics data, if available, to prioritize by real traffic', 'داده‌های آنالیتیکس فعلی، در صورت وجود، برای اولویت‌بندی بر اساس ترافیک واقعی'),
     ],
     faq: [
       faq(
@@ -712,7 +712,7 @@ const servicesData: Service[] = [
         summary: tx('A single-page audit and fix — the page that matters most.', 'ارزیابی و اصلاح یک صفحه — همان صفحه‌ای که بیشترین اهمیت را دارد.'),
         forWhom: tx(
           'A specific page — usually the homepage or a landing page — that clearly underperforms.',
-          'یک صفحه‌ی مشخص — معمولاً صفحه‌ی اصلی یا یک لندینگ‌پیج — که واضح ضعیف عمل می‌کند.',
+          'یک صفحه‌ی مشخص، معمولاً صفحه‌ی اصلی یا یک لندینگ‌پیج که نیاز به اصلاح دارد.',
         ),
         included: [
           tx('Audit of one page against Core Web Vitals, WCAG 2.2 AA and on-page SEO', 'ارزیابی یک صفحه در برابر Core Web Vitals، WCAG 2.2 AA و سئوی درون‌صفحه‌ای'),
@@ -723,7 +723,7 @@ const servicesData: Service[] = [
           tx('Other pages on the site', 'سایر صفحات سایت'),
         ],
         deliverables: [
-          tx('Audit findings', 'یافته‌های ارزیابی'),
+          tx('Audit findings', 'یافته‌های بررسی'),
           tx('Implemented fixes', 'اصلاح‌های اجراشده'),
         ],
         deliveryDays: { min: 5, max: 7 },
@@ -733,13 +733,13 @@ const servicesData: Service[] = [
       pkg({
         id: 'standard',
         name: tx('Standard', 'استاندارد'),
-        summary: tx('A full-site audit and fix pass, up to 10 pages.', 'یک دورِ کامل ارزیابی و اصلاح برای کل سایت، تا ۱۰ صفحه.'),
+        summary: tx('A full-site audit and fix pass, up to 10 pages.', 'یک دور کامل ارزیابی و اصلاح تا ۱۰ صفحه از سایت.'),
         forWhom: tx(
           'An existing site that feels slow, fails basic accessibility checks, or ranks poorly for reasons no one has diagnosed.',
-          'سایتی موجود که کند به‌نظر می‌رسد، در بررسی‌های پایه‌ی دسترس‌پذیری رد می‌شود، یا رتبه‌ی ضعیفی در جست‌وجو دارد.',
+          'سایتی موجود که کند است، در بررسی‌های پایه‌ی دسترس‌پذیری مشکل دارد یا در جست‌وجو رتبه‌ی ضعیفی دارد.',
         ),
         included: [
-          tx('A structured audit against WCAG 2.2 AA, Core Web Vitals and on-page SEO, up to 10 pages', 'ارزیابی ساختاریافته در برابر WCAG 2.2 AA، Core Web Vitals و سئو، تا ۱۰ صفحه'),
+          tx('A structured audit against WCAG 2.2 AA, Core Web Vitals and on-page SEO, up to 10 pages', 'ارزیابی ساختاریافته بر اساس WCAG 2.2 AA، Core Web Vitals و سئو تا ۱۰ صفحه'),
           tx('Implementation of the fixes found in the audit', 'اجرای اصلاح‌های پیداشده در ارزیابی'),
           tx('A before/after report with the actual measurements', 'یک گزارش پیش‌ازبعد همراه با اندازه‌گیری‌های واقعی'),
         ],
@@ -747,9 +747,9 @@ const servicesData: Service[] = [
           tx('A full redesign or new features', 'بازطراحی کامل یا ویژگی‌های تازه'),
         ],
         deliverables: [
-          tx('Audit findings', 'یافته‌های ارزیابی'),
+          tx('Audit findings', 'یافته‌های بررسی'),
           tx('Implemented fixes', 'اصلاح‌های اجراشده'),
-          tx('Before/after performance report', 'گزارش کارایی پیش‌ازبعد'),
+          tx('Before/after performance report', 'گزارش کارایی قبل و بعد'),
         ],
         deliveryDays: { min: 7, max: 14 },
         revisions: 1,
@@ -760,18 +760,18 @@ const servicesData: Service[] = [
         name: tx('Custom', 'سفارشی'),
         summary: tx(
           'A larger site, an ongoing audit cadence, or a fix that touches infrastructure beyond the codebase — scoped after a short look.',
-          'سایتی بزرگ‌تر، یک ریتم ارزیابی مستمر، یا اصلاحی که به زیرساخت فراتر از کدبیس می‌رسد — پس از یک نگاه کوتاه دامنه‌بندی می‌شود.',
+          'سایتی بزرگ‌تر، ارزیابی مستمر یا اصلاحی که به زیرساخت خارج از کدبیس هم می‌رسد؛ بعد از یک بررسی کوتاه محدوده مشخص می‌شود.',
         ),
         forWhom: tx(
           'A site large or complex enough that a per-page package underestimates the work.',
-          'سایتی به‌اندازه‌ای بزرگ یا پیچیده که یک بسته‌ی مبتنی‌بر تعداد صفحه، حجم کار را کم‌تر از واقع نشان می‌دهد.',
+          'سایتی آن‌قدر بزرگ یا پیچیده که تعداد صفحه به‌تنهایی حجم واقعی کار را نشان نمی‌دهد.',
         ),
         included: [
           tx('Everything in Standard, scaled to the real page count and scope', 'هر آنچه در استاندارد است، متناسب با تعداد صفحات و دامنه‌ی واقعی'),
         ],
         notIncluded: [],
         deliverables: [
-          tx('Audit findings', 'یافته‌های ارزیابی'),
+          tx('Audit findings', 'یافته‌های بررسی'),
         ],
       }),
     ],
