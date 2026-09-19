@@ -97,7 +97,7 @@ const featuredProjectsData: Project[] = [
     githubUrl: 'https://github.com/artaveo/Transportation-System',
     role: tx(
       'Sole developer: architecture, database schema, frontend, backend and admin, planned and built end to end.',
-      'توسعه‌دهنده‌ی یگانه: معماری، پایگاه داده، فرانت‌اند، بک‌اند و پنل مدیریت را از ابتدا تا انتها خودم طراحی و ساخته‌ام.',
+      'این پروژه را یک نفر از معماری و پایگاه داده تا فرانت‌اند، بک‌اند و پنل مدیریت ساخته است.',
     ),
     year: '2026',
     context: tx(
@@ -215,7 +215,7 @@ const featuredProjectsData: Project[] = [
     githubUrl: 'https://github.com/artaveo/pezhohesh-portal',
     role: tx(
       'Sole developer: architecture, database schema, frontend, backend and admin, planned and built end to end.',
-      'توسعه‌دهنده‌ی یگانه: معماری، پایگاه داده، فرانت‌اند، بک‌اند و پنل مدیریت را از ابتدا تا انتها خودم طراحی و ساخته‌ام.',
+      'این پروژه را یک نفر از معماری و پایگاه داده تا فرانت‌اند، بک‌اند و پنل مدیریت ساخته است.',
     ),
     year: '2026',
     context: tx(
@@ -252,7 +252,7 @@ const featuredProjectsData: Project[] = [
       {
         context: tx(
           'The PWA needed offline access to previously visited pages, but the admin panel must never show stale data — a pending request that was already approved must not reappear after a refresh.',
-          'PWA باید دسترسی آفلاین به صفحات قبلاً دیده‌شده را می‌داشت، ولی پنل ادمین هرگز نباید دیتای قدیمی نشان بدهد — یک درخواست در‌انتظار که قبلاً تأیید شده، نباید بعد از رفرش دوباره ظاهر شود.',
+          'PWA باید دسترسی آفلاین به صفحات قبلاً دیده‌شده را می‌داشت، ولی پنل ادمین هرگز نباید دیتای قدیمی نشان بدهد — یک درخواست در انتظار که قبلاً تأیید شده، نباید بعد از رفرش دوباره ظاهر شود.',
         ),
         decision: tx(
           "The service worker's navigation fallback (the offline \"app shell\") explicitly excludes every admin route, and no runtime-caching rule was written for the Supabase calls the admin panel depends on — so those requests are never intercepted by the cache layer at all, online or offline.",
@@ -280,7 +280,7 @@ const featuredProjectsData: Project[] = [
     ],
     engineeringHighlight: tx(
       'The hardest problem wasn\'t making the PWA work offline — it was deciding what should not be cached. Three different kinds of data live behind the same Supabase project: public portal content, admin-only pending requests, and uploaded images. Caching all of it the same way would have been simpler to write but would have risked an admin seeing an approved request as still pending, or a public visitor seeing week-old scholarship data as current. Instead, each data type got its own rule: public content relies on the existing localStorage layer, admin routes are excluded from the cache entirely at the navigation level, and only uploaded images get real HTTP caching with an expiration policy. The Department Admin role required the same "narrower than it looks" thinking on the database side: a fail-closed allow-list defines exactly which settings keys a scoped admin can write, so a new field added to that panel later is denied by default until it\'s explicitly added to the list — not silently allowed.',
-      'سخت‌ترین بخش کار نه ساختن یک PWA آفلاین، بلکه تصمیم‌گیری درباره‌ی این بود که چه چیزی نباید کش شود. سه نوع داده‌ی متفاوت پشت یک پروژه‌ی Supabase یکسان زندگی می‌کنند: محتوای عمومی پورتال، درخواست‌های در‌انتظارِ فقط-ادمین، و تصاویر آپلودشده. کش‌کردن همه‌ی این‌ها به یک شکل، نوشتنش ساده‌تر بود ولی این ریسک را داشت که یک ادمین درخواستی را که قبلاً تأیید شده، همچنان «در‌انتظار» ببیند، یا یک بازدیدکننده‌ی عمومی دیتای بورسیه‌ی یک‌هفته‌پیش را به‌عنوان دیتای امروز ببیند. به‌جایش، هر نوع داده قانون خودش را گرفت: محتوای عمومی روی همان لایه‌ی localStorage موجود تکیه می‌کند، مسیرهای ادمین کلاً از سطح navigation از کش مستثنی هستند، و فقط تصاویر آپلودشده کش واقعی HTTP با سیاست انقضا می‌گیرند. نقش Department Admin هم همین طرز فکر «محدودتر از ظاهرش» را در سطح دیتابیس نیاز داشت: یک allow-list fail-closed دقیقاً مشخص می‌کند کدام کلیدهای تنظیمات برای یک ادمین محدود قابل‌نوشتن‌اند، پس یک فیلد تازه که بعداً به آن پنل اضافه شود به‌طور پیش‌فرض رد می‌شود تا زمانی که صریحاً به لیست اضافه شود — نه این‌که بی‌صدا مجاز باشد.',
+      'سخت‌ترین بخش کار نه ساختن یک PWA آفلاین، بلکه تصمیم‌گیری درباره‌ی این بود که چه چیزی نباید کش شود. سه نوع داده‌ی متفاوت پشت یک پروژه‌ی Supabase یکسان زندگی می‌کنند: محتوای عمومی پورتال، درخواست‌های در انتظارِ مخصوص ادمین، و تصاویر آپلودشده. کش‌کردن همه‌ی این‌ها به یک شکل، نوشتنش ساده‌تر بود ولی این ریسک را داشت که یک ادمین درخواستی را که قبلاً تأیید شده، همچنان «در انتظار» ببیند، یا یک بازدیدکننده‌ی عمومی دیتای بورسیه‌ی یک‌هفته‌پیش را به‌عنوان دیتای امروز ببیند. به‌جایش، هر نوع داده قانون خودش را گرفت: محتوای عمومی روی همان لایه‌ی localStorage موجود تکیه می‌کند، مسیرهای ادمین کلاً از سطح navigation از کش مستثنی هستند، و فقط تصاویر آپلودشده کش واقعی HTTP با سیاست انقضا می‌گیرند. نقش Department Admin هم همین طرز فکر «محدودتر از ظاهرش» را در سطح دیتابیس نیاز داشت: یک allow-list fail-closed دقیقاً مشخص می‌کند کدام کلیدهای تنظیمات برای یک ادمین محدود قابل‌نوشتن‌اند، پس یک فیلد تازه که بعداً به آن پنل اضافه شود به‌طور پیش‌فرض رد می‌شود تا زمانی که صریحاً به لیست اضافه شود — نه این‌که بی‌صدا مجاز باشد.',
     ),
     dataIntegrityAndSecurity: tx(
       'Two admin roles are enforced with a database-level check constraint, not just an app-side assumption. Department-scoped writes go through a fail-closed allow-list function — an unlisted settings key is denied by default, not silently accepted, if the admin panel grows later. Row-Level Security policies scope what each role can read and write, and portal request submissions go through a server-side, rate-limited Supabase Edge Function rather than an unthrottled client-side insert.',
