@@ -451,13 +451,13 @@
     "removeAttachment": "حذف فایل"
   },
   "Pwa": {
-    "updateTitle": "نسخه‌ی جدید موجود است",
+    "updateTitle": "نسخه‌ی جدید آماده است",
     "updateDescription": "نسخه‌ی تازه‌ی آرتاویو آماده است.",
-    "reload": "بارگذاری مجدد",
+    "reload": "بارگذاری دوباره",
     "installTitle": "نصب آرتاویو",
-    "installDescription": "برای دسترسی سریع و تمام‌صفحه، آرتاویو را روی دستگاهت نصب کن.",
+    "installDescription": "برای دسترسی سریع‌تر و اجرای تمام‌صفحه، آرتاویو را روی دستگاهت نصب کن.",
     "install": "نصب",
-    "dismiss": "رد کردن"
+    "dismiss": "فعلاً نه"
   },
   "PrivacyPage": {
     "eyebrow": "حریم خصوصی",
