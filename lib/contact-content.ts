@@ -95,10 +95,10 @@ export function getHireChannels(): HireChannel[] {
         'مستقیم از طریق ایمیل یا واتس‌اپ با من کار کن — بدون کارمزد پلتفرم، بدون واسطه، و سریع‌ترین راه برای شروع یک گفتگوی مشخص.',
       ),
       points: [
-        tx('No platform fee — the full budget goes to the work', 'بدون کارمزد پلتفرم — کل بودجه صرف خود کار می‌شود'),
+        tx('No platform fee — the full budget goes to the work', 'بدون کارمزد پلتفرم؛ کل بودجه صرف خود پروژه می‌شود.'),
         tx(
           'Direct relationship: the Working Agreement (see Process) governs payment, ownership and warranty',
-          'رابطه‌ی مستقیم: توافق‌نامه‌ی همکاری (نگاه کنید به صفحه‌ی فرآیند) پرداخت، مالکیت و ضمانت را مشخص می‌کند',
+          'رابطه‌ی مستقیم: توافق‌نامه‌ی همکاری در صفحه‌ی فرایند، پرداخت، مالکیت و ضمانت را مشخص می‌کند.',
         ),
         tx(
           'No built-in escrow or buyer protection — suited to clients comfortable agreeing terms directly',
@@ -118,14 +118,14 @@ export function getHireChannels(): HireChannel[] {
       title: tx('Via Fiverr', 'از طریق Fiverr'),
       summary: tx(
         'Hire through my verified Fiverr profile when you want the platform’s buyer protection, escrow and dispute process.',
-        'از طریق پروفایل تأییدشده‌ام در Fiverr استخدام کن، وقتی محافظت خریدار، سپرده‌ی امانی و فرایند رسیدگی به اختلاف پلتفرم را می‌خواهی.',
+        'از طریق پروفایل تأییدشده‌ام در Fiverr شروع کن؛ وقتی می‌خواهی از فرایند و حفاظت خریدار خود پلتفرم استفاده کنی.',
       ),
       points: [
-        tx('Payment held in escrow and released on delivery', 'پرداخت در سپرده‌ی امانی نگه‌داری و پس از تحویل آزاد می‌شود'),
+        tx('Payment held in escrow and released on delivery', 'پرداخت در سپرده‌ی امانی می‌ماند و پس از تحویل آزاد می‌شود'),
         tx('Platform-mediated dispute resolution, if ever needed', 'حل اختلاف با میانجی‌گری پلتفرم، در صورت نیاز'),
         tx(
           'Platform fees and terms apply, and the site itself stays the canonical source — the Fiverr profile links back here',
-          'کارمزد و قوانین پلتفرم اعمال می‌شود، و خودِ وب‌سایت همچنان مرجع اصلی است — پروفایل Fiverr به همین‌جا لینک می‌دهد',
+          'کارمزد و قوانین پلتفرم اعمال می‌شود و وب‌سایت همچنان مرجع اصلی می‌ماند؛ پروفایل Fiverr فقط به همین‌جا لینک می‌دهد',
         ),
       ],
       href: fiverrHref,
