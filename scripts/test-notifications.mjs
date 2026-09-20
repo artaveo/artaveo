@@ -519,10 +519,10 @@ test('system alert: says permanent vs limit, names the kind, links the message, 
   assert.match(limit.text, /retry limit was reached/)
 })
 
-test('every kind has an audience: one for the visitor, two for a recommender, the rest for the owner', () => {
+test('every kind has an audience: the visitor and the consultation client, two for a recommender, the rest for the owner', () => {
   assert.deepEqual(
     NOTIFICATION_KINDS.filter((kind) => NOTIFICATION_AUDIENCE[kind] === 'client'),
-    ['client-confirmation'],
+    ['client-confirmation', 'consultation-received', 'consultation-confirmed', 'consultation-cancelled'],
   )
   assert.deepEqual(
     NOTIFICATION_KINDS.filter((kind) => NOTIFICATION_AUDIENCE[kind] === 'recommender'),

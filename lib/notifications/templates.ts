@@ -59,7 +59,7 @@ export function buildOwnerAlertEmail(
 }
 
 /** D-08's exact published wording (`lib/about-content.ts`, `lib/home-content.ts`) — never re-paraphrase it here. */
-function responseCommitment(locale: Locale): string {
+export function responseCommitment(locale: Locale): string {
   return locale === 'fa' ? 'پاسخ‌گویی در همان روز، طی چند ساعت' : 'a reply within a few hours, same day'
 }
 
@@ -267,6 +267,11 @@ const KIND_LABEL: Record<NotificationKind, string> = {
   'system-alert': 'system alert',
   'recommendation-request': 'recommendation request',
   'recommendation-changes': 'change request',
+  'consultation-requested': 'call-request alert',
+  'consultation-received': 'call-request acknowledgement',
+  'consultation-confirmed': 'call confirmation',
+  'consultation-cancelled': 'call cancellation',
+  'consultation-client-update': 'call-change notice',
 }
 
 export function notificationKindLabel(kind: NotificationKind): string {

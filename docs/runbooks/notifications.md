@@ -97,6 +97,28 @@ address — set an expiry (the default is 30 days) or revoke it.
 A `[removed]` message cannot be retried. Anyone who can open the recommendations
 page (including an editor) can see a live request's address.
 
+## 3c. Consultation e-mails (Phase 20)
+
+Five kinds ride the same outbox: `consultation-requested` (alert to you, `Reply-To`
+the client), `consultation-received`, `consultation-confirmed` and
+`consultation-cancelled` (to the client, in the language they used on the site),
+and `consultation-client-update` (to you, when the client cancels or asks for new
+times). Two things are different from every other message:
+
+- **Attachments.** A confirmation carries a calendar invitation (`.ics`,
+  `METHOD:REQUEST`) and a cancellation of a confirmed time carries the matching
+  `METHOD:CANCEL`. They are stored in `notification_outbox.attachments` exactly as
+  sent, and `/admin/notifications/[id]` lists their file names. The console provider
+  logs only the file names, never the calendar text.
+- **One dedupe key per state change.** A confirmation's key includes the calendar
+  `SEQUENCE`, so moving a call sends a new invitation that *updates* the client's
+  calendar entry (same UID) rather than adding a second one. A client's second
+  "different time" request is its own message; repeating the same request is not.
+
+A client who cancels a call you never confirmed gets no e-mail (there is nothing to
+remove from their calendar); you get the notice. Everything else about failures,
+retries and the alert is § 4, unchanged.
+
 ## 4. A message failed for good
 
 You will see it in three places that do not depend on the failing e-mail: the
@@ -172,6 +194,10 @@ database also deletes its notification copies and their delivery log
 owner's own address plus a recommender's name, relationship and company —
 delete those rows by hand if a recommender asks.
 
+A consultation is deleted together with its inquiry (`consultations.inquiry_id` is
+`on delete cascade`), and every consultation e-mail row carries the inquiry id, so
+the invitation copies go with it — checked against a real database in Phase 20.
+
 A recommender who asks you to delete their address before the request finishes:
 revoke their link (that clears it and redacts the e-mails).
 
@@ -180,7 +206,8 @@ policy says so plainly). Tracked as debt.
 
 ## 8. Rollback
 
-See the headers of `db/migrations/0018_recommender_email.sql` (first) and
+See the header of `db/migrations/0019_consultations.sql` (first, Phase 20), then
+the headers of `db/migrations/0018_recommender_email.sql` and
 `db/migrations/0017_notifications_outbox_v2.sql` (drop the function and the
 attempts table, restore the two check constraints, drop the new columns). Revert the code first, otherwise the Phase 19 worker calls a function
 that no longer exists (it then logs an error and sends nothing — messages stay

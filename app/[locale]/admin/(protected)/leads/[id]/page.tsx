@@ -16,6 +16,9 @@ import { EventsTimeline } from '@/components/admin/pipeline/events-timeline'
 import { SlaIndicator } from '@/components/admin/pipeline/sla-indicator'
 import { canAccessLeads, getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
 import { computeSla, getInquiry, getInquiryEvents, getResponseCommitment } from '@/lib/admin/pipeline'
+import { ConsultationStatusBadge, CONSULTATION_STATUS_SUFFIX } from '@/components/consultation/consultation-status'
+import { listConsultationsForInquiry } from '@/lib/consultation/queries'
+import { describeUtcRange } from '@/lib/consultation/time'
 import { formatDate } from '@/lib/format'
 import type { Locale } from '@/types/content'
 
@@ -47,10 +50,11 @@ export default async function LeadDetailPage({
 
   const t = await getTranslations('Admin')
 
-  const [inquiry, events, commitment] = await Promise.all([
+  const [inquiry, events, commitment, consultations] = await Promise.all([
     getInquiry(id),
     getInquiryEvents(id),
     getResponseCommitment(),
+    listConsultationsForInquiry(id),
   ])
 
   if (!inquiry) {
@@ -91,6 +95,42 @@ export default async function LeadDetailPage({
           <TagsEditor inquiryId={inquiry.id} tags={inquiry.tags} />
         </CardContent>
       </Card>
+
+      {consultations.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('leadConsultationTitle')}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 text-sm">
+            {consultations.map((consultation) => {
+              const first = consultation.confirmedStart
+                ? { start: consultation.confirmedStart, end: consultation.confirmedEnd ?? consultation.confirmedStart }
+                : consultation.windows[0]
+              return (
+                <div key={consultation.id} className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-col items-start gap-1">
+                    <ConsultationStatusBadge
+                      status={consultation.status}
+                      label={t(`consultationStatus${CONSULTATION_STATUS_SUFFIX[consultation.status]}`)}
+                    />
+                    {first ? (
+                      <bdi dir="ltr" className="text-xs text-muted-foreground">
+                        {describeUtcRange(first)}
+                      </bdi>
+                    ) : null}
+                  </div>
+                  <Link
+                    href={`/admin/consultations/${consultation.id}`}
+                    className="text-primary underline-offset-4 hover:underline"
+                  >
+                    {t('leadConsultationOpen')}
+                  </Link>
+                </div>
+              )
+            })}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>

@@ -1,8 +1,6 @@
 'use server'
 
-import { headers } from 'next/headers'
-import crypto from 'node:crypto'
-
+import { getClientIp, hashIp } from '@/lib/request-ip'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { validateAllSteps } from '@/lib/inquiry-validation'
 import { enqueueInquiryNotifications } from '@/lib/notifications/events'
@@ -25,23 +23,6 @@ const MIN_FORM_FILL_MS = 3000
 /** Deliberately generous — this guards against abuse, not normal reuse (a client resubmitting after fixing a typo, etc). */
 const MAX_PER_IP_PER_HOUR = 5
 const MAX_PER_EMAIL_PER_DAY = 3
-
-function hashIp(ip: string): string {
-  // Never store the raw IP (§ 9.2: "without extra personal data"). The
-  // secret just stops someone from brute-forcing which hash corresponds
-  // to a known IP; it is not meant to be a strong cryptographic key.
-  const secret = process.env.INQUIRY_IP_HASH_SECRET ?? 'artaveo-dev-only-unset-secret'
-  return crypto.createHash('sha256').update(`${ip}:${secret}`).digest('hex')
-}
-
-async function getClientIp(): Promise<string> {
-  const h = await headers()
-  const forwarded = h.get('x-forwarded-for')
-  if (forwarded) {
-    return forwarded.split(',')[0]!.trim()
-  }
-  return h.get('x-real-ip') ?? '0.0.0.0'
-}
 
 /**
  * § 9.3 / Phase 19 — enqueue the owner alert + client confirmation, then make

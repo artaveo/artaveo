@@ -23,9 +23,9 @@ import { t, type Locale, type Project } from '@/types/content'
  * - pages — the navigate/resources entries of the command list (Home, Work,
  *   Services, Process, About, Insights when it exists, Privacy, Terms), with
  *   the translated title and, where the nav has one, its description.
- *   `/start`, `/contact` and the e-mail shortcut are *actions*, kept as
- *   client-side commands in the palette; `/design-system` is an internal,
- *   noindex tool and is a command only.
+ *   `/start`, `/contact`, `/consultation` and the e-mail shortcut are
+ *   *actions*, kept as client-side commands in the palette;
+ *   `/design-system` is an internal, noindex tool and is a command only.
  * - projects — title, summary; category and technologies as keywords.
  * - services — title, short description; deliverables as keywords.
  * - articles — title, excerpt; category as a keyword. Bodies are not

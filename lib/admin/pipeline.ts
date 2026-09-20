@@ -163,8 +163,17 @@ export async function getResponseCommitment(): Promise<{ text: LocalizedText; ti
  * does not measure. "First response" is the first event after `created`.
  */
 export function computeSla(createdAt: string, events: InquiryEvent[], timezone: string): SlaStatus {
-  const firstResponse = events.find((event) => event.type !== 'created')
+  const firstResponse = events.find(isOwnerAction)
   return computeSlaFromFirstResponse(createdAt, firstResponse?.createdAt ?? null, timezone)
+}
+
+/**
+ * Phase 20: an event counts as the owner responding only when someone other than
+ * the system or the client itself wrote it. A consultation request's automatic
+ * events and the client's own cancel/reschedule are not a reply.
+ */
+export function isOwnerAction(event: Pick<InquiryEvent, 'type' | 'actor'>): boolean {
+  return event.type !== 'created' && event.actor !== 'system' && event.actor !== 'client'
 }
 
 /** Same computation as `computeSla`, for callers that already resolved a first-response timestamp (e.g. the list page's batched `getFirstResponseTimes`). */
@@ -201,6 +210,7 @@ export async function getFirstResponseTimes(inquiryIds: string[]): Promise<Recor
     .select('inquiry_id, created_at')
     .in('inquiry_id', inquiryIds)
     .neq('type', 'created')
+    .not('actor', 'in', '(system,client)')
     .order('created_at', { ascending: true })
 
   if (error || !data) return {}

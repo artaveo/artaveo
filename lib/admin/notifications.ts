@@ -56,6 +56,7 @@ function mapRow(row: NotificationOutboxRow): NotificationView {
     inquiryId: row.inquiry_id,
     entityType: row.entity_type,
     entityId: row.entity_id,
+    attachmentNames: Array.isArray(row.attachments) ? row.attachments.map((attachment) => attachment.filename) : [],
   }
 }
 

@@ -106,6 +106,15 @@ export function ContactContent() {
                     {t18n('briefBuilderCta')}
                   </Link>
                 </div>
+
+                <div className="mt-5 border-t border-border pt-5">
+                  <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
+                    {t18n('consultationNote')}
+                  </p>
+                  <Link href="/consultation" variant="standalone" showExternalIcon={false} className="mt-2 inline-flex">
+                    {t18n('consultationCta')}
+                  </Link>
+                </div>
               </div>
             </div>
           </aside>

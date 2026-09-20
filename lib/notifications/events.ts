@@ -3,8 +3,17 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 import type { Locale } from '@/types/content'
 import type { InquiryDraft } from '@/types/inquiry'
-import type { NotificationKind } from '@/types/notifications'
+import type { EmailAttachment, NotificationKind } from '@/types/notifications'
+import { buildConsultationIcs, consultationUid, icsAttachment } from '@/lib/consultation/ics'
 import { DEFAULT_MAX_ATTEMPTS } from '@/lib/notifications/backoff'
+import {
+  buildConsultationCancelledEmail,
+  buildConsultationClientUpdateEmail,
+  buildConsultationConfirmedEmail,
+  buildConsultationReceivedEmail,
+  buildConsultationRequestedEmail,
+  consultationSummary,
+} from '@/lib/notifications/consultation-templates'
 import {
   buildClientConfirmationEmail,
   buildContentPublishedEmail,
@@ -18,6 +27,7 @@ import {
 import { siteConfig } from '@/lib/site'
 import { absoluteUrl } from '@/lib/site-url'
 import { getAllServices, getEngagementModels } from '@/lib/services-content'
+import type { ConsultationWindow } from '@/types/consultation'
 
 /**
  * Phase 19 — the events that produce notifications.
@@ -33,10 +43,10 @@ import { getAllServices, getEngagementModels } from '@/lib/services-content'
  * returns `[]`; the thing that triggered it (an inquiry, a recommendation, a
  * published article) is already saved.
  *
- * The consultation events the roadmap lists (request / confirmation) belong to
- * Phase 20, which owns the data they are about; adding them is one entry in
- * `NOTIFICATION_KINDS`, one template, one migration widening the check
- * constraint, and one function here.
+ * The consultation events (Phase 20) live at the end of this file: the
+ * request alert and the client's acknowledgement, the confirmation with its
+ * calendar invitation, the cancellation with its calendar update, and the
+ * owner's notice that the client changed something.
  */
 
 export type EnqueueSpec = {
@@ -51,6 +61,8 @@ export type EnqueueSpec = {
   entityType: string
   entityId: string
   inquiryId?: string | null
+  /** Phase 20: the calendar invitation that goes with a confirmation or cancellation. */
+  attachments?: EmailAttachment[]
 }
 
 const EMAIL_SHAPE = /^[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]+$/
@@ -88,6 +100,8 @@ export async function enqueueNotifications(
         entity_type: spec.entityType,
         entity_id: spec.entityId,
         inquiry_id: spec.inquiryId ?? null,
+        // Only present when there is a file, so every older message keeps its exact stored shape.
+        ...(spec.attachments && spec.attachments.length > 0 ? { attachments: spec.attachments } : {}),
       })),
       { onConflict: 'dedupe_key', ignoreDuplicates: true },
     )
@@ -335,6 +349,260 @@ export async function enqueueSystemAlert(
       dedupeKey: `system-alert:${input.failedOutboxId}:${input.attempts}`,
       entityType: 'notification',
       entityId: input.failedOutboxId,
+    },
+  ])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 20 — consultation events
+// ---------------------------------------------------------------------------
+
+/** Everything every consultation message needs to know about who and where. */
+export type ConsultationContext = {
+  consultationId: string
+  inquiryId: string
+  /** The client's private link token. */
+  token: string
+  /** The client's language for their own e-mails. */
+  locale: Locale
+  /** The client's IANA zone — the zone every time is shown in. */
+  timezone: string
+  clientName: string
+  clientEmail: string
+}
+
+const consultationManageUrl = (ctx: ConsultationContext) => absoluteUrl(`/${ctx.locale}/consultation/${ctx.token}`)
+const consultationCalendarUrl = (ctx: ConsultationContext) => absoluteUrl(`/api/consultation/${ctx.token}/calendar`)
+const adminConsultationUrl = (consultationId: string) => absoluteUrl(`/en/admin/consultations/${consultationId}`)
+
+const ORGANIZER = { email: siteConfig.email, name: 'Zakir Naseri' }
+
+/**
+ * A new request: the owner's alert and the client's acknowledgement (with their
+ * private link). Idempotent per consultation, so the replay path of the request
+ * action can call it again and queue nothing new.
+ */
+export async function enqueueConsultationRequested(
+  supabase: SupabaseClient,
+  ctx: ConsultationContext & { phone: string; goal: string; windows: ConsultationWindow[] },
+): Promise<{ id: string; kind: NotificationKind }[]> {
+  const clientEmail = ctx.clientEmail.trim().toLowerCase()
+  const owner = buildConsultationRequestedEmail({
+    name: ctx.clientName,
+    email: clientEmail,
+    phone: ctx.phone,
+    goal: ctx.goal,
+    locale: ctx.locale,
+    timezone: ctx.timezone,
+    windows: ctx.windows,
+    adminUrl: adminConsultationUrl(ctx.consultationId),
+  })
+  const client = buildConsultationReceivedEmail({
+    locale: ctx.locale,
+    windows: ctx.windows,
+    timezone: ctx.timezone,
+    manageUrl: consultationManageUrl(ctx),
+  })
+
+  return enqueueNotifications(supabase, [
+    {
+      kind: 'consultation-requested',
+      recipientEmail: siteConfig.email,
+      locale: 'en',
+      subject: owner.subject,
+      bodyText: owner.text,
+      replyTo: clientEmail,
+      dedupeKey: `consultation:${ctx.consultationId}:requested`,
+      entityType: 'consultation',
+      entityId: ctx.consultationId,
+      inquiryId: ctx.inquiryId,
+    },
+    {
+      kind: 'consultation-received',
+      recipientEmail: clientEmail,
+      locale: ctx.locale,
+      subject: client.subject,
+      bodyText: client.text,
+      replyTo: siteConfig.email,
+      dedupeKey: `consultation:${ctx.consultationId}:received`,
+      entityType: 'consultation',
+      entityId: ctx.consultationId,
+      inquiryId: ctx.inquiryId,
+    },
+  ])
+}
+
+/**
+ * The owner confirmed a time (or moved a confirmed one). The message carries a
+ * `METHOD:REQUEST` invitation; `sequence` is what makes a moved call UPDATE the
+ * client's existing calendar entry instead of adding a second one, and it is
+ * part of the dedupe key so each move is its own message.
+ */
+export async function enqueueConsultationConfirmed(
+  supabase: SupabaseClient,
+  ctx: ConsultationContext,
+  input: {
+    range: ConsultationWindow
+    meetingDetails: string
+    sequence: number
+    /** The time being replaced, when a confirmed call was moved. */
+    previous: ConsultationWindow | null
+    now?: Date
+  },
+): Promise<{ id: string; kind: NotificationKind }[]> {
+  const email = buildConsultationConfirmedEmail({
+    locale: ctx.locale,
+    timezone: ctx.timezone,
+    range: input.range,
+    meetingDetails: input.meetingDetails,
+    manageUrl: consultationManageUrl(ctx),
+    calendarUrl: consultationCalendarUrl(ctx),
+    previous: input.previous,
+  })
+  const ics = buildConsultationIcs({
+    method: 'REQUEST',
+    uid: consultationUid(ctx.consultationId),
+    sequence: input.sequence,
+    start: new Date(input.range.start),
+    end: new Date(input.range.end),
+    summary: consultationSummary(ctx.locale),
+    description: `${input.meetingDetails.trim()}\n${consultationManageUrl(ctx)}`,
+    location: input.meetingDetails.trim(),
+    url: consultationManageUrl(ctx),
+    organizer: ORGANIZER,
+    attendee: { email: ctx.clientEmail, name: ctx.clientName },
+    now: input.now ?? new Date(),
+  })
+
+  return enqueueNotifications(supabase, [
+    {
+      kind: 'consultation-confirmed',
+      recipientEmail: ctx.clientEmail,
+      locale: ctx.locale,
+      subject: email.subject,
+      bodyText: email.text,
+      replyTo: siteConfig.email,
+      dedupeKey: `consultation:${ctx.consultationId}:confirmed:${input.sequence}`,
+      entityType: 'consultation',
+      entityId: ctx.consultationId,
+      inquiryId: ctx.inquiryId,
+      attachments: [icsAttachment('REQUEST', ics)],
+    },
+  ])
+}
+
+/**
+ * The call was cancelled. When `range` is set a time had been confirmed, so the
+ * message carries a `METHOD:CANCEL` (with a higher `sequence`) that removes it
+ * from the client's calendar. A client's own cancellation of a call that was
+ * never confirmed has nothing to tell them — the page already showed it — so
+ * nothing is queued in that one case; the owner's cancellation always is.
+ */
+export async function enqueueConsultationCancelled(
+  supabase: SupabaseClient,
+  ctx: ConsultationContext,
+  input: {
+    by: 'owner' | 'client'
+    range: ConsultationWindow | null
+    reason: string | null
+    sequence: number
+    now?: Date
+  },
+): Promise<{ id: string; kind: NotificationKind }[]> {
+  if (input.by === 'client' && !input.range) return []
+
+  const email = buildConsultationCancelledEmail({
+    locale: ctx.locale,
+    timezone: ctx.timezone,
+    by: input.by,
+    range: input.range,
+    reason: input.reason,
+    newRequestUrl: absoluteUrl(`/${ctx.locale}/consultation`),
+  })
+  const attachments = input.range
+    ? [
+        icsAttachment(
+          'CANCEL',
+          buildConsultationIcs({
+            method: 'CANCEL',
+            uid: consultationUid(ctx.consultationId),
+            sequence: input.sequence,
+            start: new Date(input.range.start),
+            end: new Date(input.range.end),
+            summary: consultationSummary(ctx.locale),
+            organizer: ORGANIZER,
+            attendee: { email: ctx.clientEmail, name: ctx.clientName },
+            now: input.now ?? new Date(),
+          }),
+        ),
+      ]
+    : undefined
+
+  return enqueueNotifications(supabase, [
+    {
+      kind: 'consultation-cancelled',
+      recipientEmail: ctx.clientEmail,
+      locale: ctx.locale,
+      subject: email.subject,
+      bodyText: email.text,
+      replyTo: siteConfig.email,
+      dedupeKey: `consultation:${ctx.consultationId}:cancelled`,
+      entityType: 'consultation',
+      entityId: ctx.consultationId,
+      inquiryId: ctx.inquiryId,
+      attachments,
+    },
+  ])
+}
+
+/** The client cancelled, or replaced their times, using their private link. Owner-only. */
+export async function enqueueConsultationClientUpdate(
+  supabase: SupabaseClient,
+  ctx: ConsultationContext,
+  input:
+    | { change: 'cancelled'; reason: string | null; confirmedRange: ConsultationWindow | null }
+    | {
+        change: 'rescheduled'
+        windows: ConsultationWindow[]
+        confirmedRange: ConsultationWindow | null
+        /** How many times the client has changed their times so far — makes each change its own message. */
+        requestNumber: number
+      },
+): Promise<{ id: string; kind: NotificationKind }[]> {
+  const email =
+    input.change === 'cancelled'
+      ? buildConsultationClientUpdateEmail({
+          change: 'cancelled',
+          name: ctx.clientName,
+          reason: input.reason,
+          confirmedRange: input.confirmedRange,
+          timezone: ctx.timezone,
+          adminUrl: adminConsultationUrl(ctx.consultationId),
+        })
+      : buildConsultationClientUpdateEmail({
+          change: 'rescheduled',
+          name: ctx.clientName,
+          timezone: ctx.timezone,
+          windows: input.windows,
+          confirmedRange: input.confirmedRange,
+          adminUrl: adminConsultationUrl(ctx.consultationId),
+        })
+
+  return enqueueNotifications(supabase, [
+    {
+      kind: 'consultation-client-update',
+      recipientEmail: siteConfig.email,
+      locale: 'en',
+      subject: email.subject,
+      bodyText: email.text,
+      replyTo: ctx.clientEmail.trim().toLowerCase(),
+      dedupeKey:
+        input.change === 'cancelled'
+          ? `consultation:${ctx.consultationId}:client-update:cancelled`
+          : `consultation:${ctx.consultationId}:client-update:rescheduled:${input.requestNumber}`,
+      entityType: 'consultation',
+      entityId: ctx.consultationId,
+      inquiryId: ctx.inquiryId,
     },
   ])
 }

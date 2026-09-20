@@ -12,6 +12,11 @@ const EVENT_MESSAGE_KEY: Record<InquiryEventType, string> = {
   'priority-changed': 'eventTypePriorityChanged',
   'follow-up-set': 'eventTypeFollowUpSet',
   'tags-changed': 'eventTypeTagsChanged',
+  'consultation-requested': 'eventTypeConsultationRequested',
+  'consultation-confirmed': 'eventTypeConsultationConfirmed',
+  'consultation-reschedule-requested': 'eventTypeConsultationRescheduleRequested',
+  'consultation-cancelled': 'eventTypeConsultationCancelled',
+  'consultation-completed': 'eventTypeConsultationCompleted',
 }
 
 export async function EventsTimeline({ events, locale }: { events: InquiryEvent[]; locale: Locale }) {

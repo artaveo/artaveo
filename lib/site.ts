@@ -30,6 +30,7 @@ export type NavKey =
   | 'designSystem'
   | 'contact'
   | 'start'
+  | 'consultation'
   | 'privacy'
   | 'terms'
 
@@ -142,6 +143,7 @@ export const commandItems: CommandItem[] = [
   { labelKey: 'designSystem', labelNamespace: 'Nav', href: '/design-system', group: 'resources', keywords: 'tokens components ui design system' },
   { labelKey: 'start', labelNamespace: 'Nav', href: '/start', group: 'actions', keywords: 'start project brief builder inquiry hire' },
   { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'contact email whatsapp hire channels' },
+  { labelKey: 'consultation', labelNamespace: 'Nav', href: '/consultation', group: 'actions', keywords: 'book consultation call intro meeting schedule time' },
   { labelKey: 'privacy', labelNamespace: 'Nav', href: '/privacy', group: 'resources', keywords: 'privacy policy data' },
   { labelKey: 'terms', labelNamespace: 'Nav', href: '/terms', group: 'resources', keywords: 'terms of service legal' },
   { labelKey: 'emailArtaveo', labelNamespace: 'CommandPalette', href: 'mailto:artaveo.dev@gmail.com', group: 'actions', keywords: 'mail email reach contact' },

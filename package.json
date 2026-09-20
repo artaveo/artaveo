@@ -8,7 +8,8 @@
     "start": "next start",
     "test:articles": "node --import ./scripts/register-ts-resolve.mjs --test scripts/test-articles.mjs",
     "test:search": "node --import ./scripts/register-ts-resolve.mjs --test scripts/test-search.mjs",
-    "test:notifications": "node --import ./scripts/register-ts-resolve.mjs --test scripts/test-notifications.mjs"
+    "test:notifications": "node --import ./scripts/register-ts-resolve.mjs --test scripts/test-notifications.mjs",
+    "test:consultations": "node --import ./scripts/register-ts-resolve.mjs --test scripts/test-consultations.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",

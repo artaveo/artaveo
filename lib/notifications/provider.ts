@@ -1,6 +1,6 @@
 import 'server-only'
 
-import type { EmailProviderInfo } from '@/types/notifications'
+import type { EmailAttachment, EmailProviderInfo } from '@/types/notifications'
 
 /**
  * § 9.3 / Phase 19 — Notifications: provider abstraction.
@@ -37,6 +37,8 @@ export type EmailMessage = {
   text: string
   replyTo?: string
   idempotencyKey?: string
+  /** Phase 20: the calendar invitation. Plain-text content; a provider encodes it as its API needs. */
+  attachments?: EmailAttachment[]
 }
 
 export type EmailSendOptions = {
@@ -66,6 +68,7 @@ export class ConsoleEmailProvider implements EmailProvider {
     console.log('[notifications:console] would send email (D-01 domain/DNS not yet resolved)', {
       to: message.to,
       subject: message.subject,
+      ...(message.attachments?.length ? { attachments: message.attachments.map((a) => a.filename) } : {}),
     })
     return { ok: true }
   }
@@ -85,6 +88,15 @@ export function classifyHttpFailure(status: number, body: string): boolean {
   if (status >= 500) return true
   if (status === 409) return /concurrent/i.test(body)
   return false
+}
+
+/** Resend's `attachments`: `filename`, base64 `content`, optional `content_type`. */
+export function encodeResendAttachments(attachments: EmailAttachment[]): Record<string, string>[] {
+  return attachments.map((attachment) => ({
+    filename: attachment.filename,
+    content: Buffer.from(attachment.content, 'utf8').toString('base64'),
+    content_type: attachment.contentType,
+  }))
 }
 
 export class ResendEmailProvider implements EmailProvider {
@@ -112,6 +124,7 @@ export class ResendEmailProvider implements EmailProvider {
         text: message.text,
       }
       if (message.replyTo) payload.reply_to = message.replyTo
+      if (message.attachments && message.attachments.length > 0) payload.attachments = encodeResendAttachments(message.attachments)
 
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',

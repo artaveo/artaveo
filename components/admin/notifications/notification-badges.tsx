@@ -30,6 +30,11 @@ const KIND_KEY: Record<NotificationKind, string> = {
   'system-alert': 'notifKindSystemAlert',
   'recommendation-request': 'notifKindRecommendationRequest',
   'recommendation-changes': 'notifKindRecommendationChanges',
+  'consultation-requested': 'notifKindConsultationRequested',
+  'consultation-received': 'notifKindConsultationReceived',
+  'consultation-confirmed': 'notifKindConsultationConfirmed',
+  'consultation-cancelled': 'notifKindConsultationCancelled',
+  'consultation-client-update': 'notifKindConsultationClientUpdate',
 }
 
 export function statusLabelKey(status: NotificationStatus): string {

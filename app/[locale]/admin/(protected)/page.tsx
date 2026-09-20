@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { FormMessage } from '@/components/ui/form-controls'
 import { canAccessLeads, canAccessNotifications, getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
 import { countExhaustedNotifications } from '@/lib/admin/notifications'
+import { countConsultationsAwaitingOwner } from '@/lib/consultation/queries'
 
 export async function generateMetadata({
   params,
@@ -45,6 +46,8 @@ export default async function AdminDashboardPage({
   // Phase 19: a message that failed for good must not depend on the e-mail
   // that just failed to reach the owner — it is also shown here.
   const exhaustedNotifications = canAccessNotifications(session) ? await countExhaustedNotifications() : null
+  // Phase 20: a call request is a person waiting for an answer — shown here, not only in the list.
+  const consultationsAwaiting = canAccessLeads(session) ? await countConsultationsAwaitingOwner() : null
 
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-6">
@@ -94,6 +97,22 @@ export default async function AdminDashboardPage({
             </Link>
           </CardContent>
         </Card>
+      ) : null}
+
+      {canAccessLeads(session) ? (
+        <>
+          {consultationsAwaiting ? (
+            <FormMessage variant="info">{t('consultationsAwaitingBanner', { count: consultationsAwaiting })}</FormMessage>
+          ) : null}
+          <Card>
+            <CardContent className="flex items-center justify-between gap-4 pt-6">
+              <span className="text-sm font-medium">{t('consultationsNavLink')}</span>
+              <Link href="/admin/consultations" className="text-sm text-primary underline-offset-4 hover:underline">
+                {t('consultationsDashboardLink')}
+              </Link>
+            </CardContent>
+          </Card>
+        </>
       ) : null}
 
       {canAccessNotifications(session) ? (

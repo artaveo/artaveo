@@ -40,6 +40,15 @@ export async function AdminChrome({
                 {t('leadsNavLink')}
               </Link>
             ) : null}
+            {/* Phase 20: consultations are lead data (the client's details and what they want to discuss) — owner only, like Leads. */}
+            {canAccessLeads(session) ? (
+              <Link
+                href="/admin/consultations"
+                className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                {t('consultationsNavLink')}
+              </Link>
+            ) : null}
             {/* Phase 19: the notification log holds full lead e-mails, so it follows the leads rule — owner only. */}
             {canAccessNotifications(session) ? (
               <Link

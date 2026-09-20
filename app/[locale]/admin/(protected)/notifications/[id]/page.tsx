@@ -189,6 +189,12 @@ export default async function NotificationDetailPage({
               {notification.subject}
             </bdi>
           </div>
+          {notification.attachmentNames.length > 0 ? (
+            <div className="flex flex-col gap-1">
+              <span className="text-muted-foreground">{t('notifFieldAttachments')}</span>
+              <bdi dir="ltr">{notification.attachmentNames.join(', ')}</bdi>
+            </div>
+          ) : null}
           <div className="flex flex-col gap-1">
             <span className="text-muted-foreground">{t('notifFieldBody')}</span>
             <pre

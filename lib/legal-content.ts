@@ -44,7 +44,7 @@ function section(id: string, title: LocalizedText, paragraphs: LocalizedText[], 
 }
 
 /** Kept separate: a change to one document must not re-date the other. */
-const PRIVACY_LAST_UPDATED = '2026-09-19' // + local search history (Phase 18), + stored e-mail copies and delivery log (Phase 19), + recommenders' e-mail address (D-14)
+const PRIVACY_LAST_UPDATED = '2026-09-20' // + local search history (Phase 18), + stored e-mail copies and delivery log (Phase 19), + recommenders' e-mail address (D-14), + consultation requests (Phase 20)
 const TERMS_LAST_UPDATED = '2026-09-13'
 
 const privacySections: LegalSection[] = [
@@ -79,6 +79,10 @@ const privacySections: LegalSection[] = [
         'اگر برای نوشتن توصیه‌نامه یک لینک اختصاصی برایت فرستاده‌ام، آن صفحه نام، نقش و نوع آشنایی‌ات با من، متن توصیه‌نامه، یک لینک پروفایل اختیاری و رضایت صریحت برای انتشار را می‌پرسد — بدون آن رضایت و بازبینی من، چیزی در سایت نمایش داده نمی‌شود. اگر نشانی ایمیلت را وارد کرده باشم تا آن لینک را برایت بفرستم، فقط برای همین کار استفاده می‌شود. وقتی درخواست تمام شد — لینک لغو شود، توصیه‌نامه‌ات تأیید یا رد شود، یا لینک بدون استفاده منقضی شود — آن را و نسخه‌های ذخیره‌شده‌ی آن ایمیل‌ها را حذف می‌کنم. لینکی که تاریخ انقضا ندارد و هرگز استفاده یا لغو نشود، نشانی را تا زمانی که لغوش کنم نگه می‌دارد.',
       ),
       tx(
+        "If you ask for an intro call (/consultation), the form asks for your name, e-mail address, an optional WhatsApp number, what you'd like to talk about, the time ranges you're free, and your consent. Your time zone is read from your browser to pre-fill the form and you can change it; only the zone's name is sent, together with the times you offer. It creates an inquiry like the Brief Builder does, with the same spam-guard fields (an idempotency key and a salted, one-way hash of your IP address), and a private link — an unguessable address that shows your call's status and lets you change the time or cancel. Anyone who has that link can see the call, so treat it like a password. When I confirm a time I add how we'll talk (a meeting link or how I'll call) and send you a calendar invitation; that detail is shown on your private page only while the call is still on. The page closes 14 days after the call is completed or cancelled. The record itself stays with your inquiry until you ask me to delete it.",
+        'اگر یک تماس آشنایی درخواست کنی (در /consultation)، فرم نام، نشانی ایمیل، یک شماره‌ی واتساپ اختیاری، موضوعی که می‌خواهی درباره‌اش صحبت کنیم، بازه‌های زمانی‌ای که وقت داری، و رضایتت را می‌پرسد. منطقه‌ی زمانی‌ات از مرورگرت خوانده می‌شود تا فرم پیش‌پر شود و می‌توانی آن را عوض کنی؛ فقط نامِ منطقه‌ی زمانی، همراه زمان‌هایی که پیشنهاد می‌دهی، ارسال می‌شود. این درخواست مثل Brief Builder یک سرنخ می‌سازد، با همان فیلدهای ضداسپم (کلید idempotency و یک هش یک‌طرفه و نمک‌دار از آدرس آی‌پی‌ات)، و یک لینک اختصاصی — نشانی‌ای که نمی‌شود حدسش زد و وضعیت تماست را نشان می‌دهد و اجازه می‌دهد زمان را عوض یا تماس را لغو کنی. هر کسی که آن لینک را داشته باشد می‌تواند تماس را ببیند، پس مثل یک رمز عبور با آن رفتار کن. وقتی زمانی را تأیید می‌کنم، روش تماس (یک لینک جلسه یا نحوه‌ی تماس من) را اضافه می‌کنم و یک دعوت‌نامه‌ی تقویم برایت می‌فرستم؛ این جزئیات فقط تا وقتی تماس پابرجاست در صفحه‌ی اختصاصی‌ات نمایش داده می‌شود. صفحه ۱۴ روز پس از انجام‌شدن یا لغو تماس بسته می‌شود. خودِ سابقه تا وقتی حذفش را نخواسته‌ای کنار سرنخت می‌ماند.',
+      ),
+      tx(
         "Automatic, anonymized traffic data comes from Vercel Web Analytics, which doesn't use cookies and identifies visitors only by a short-lived hash derived from the request itself — never a persistent ID. It records aggregate page views and a handful of interaction events (a package tier switch, a CTA click, a language switch, and similar) with no name, e-mail, or message content ever included in any of them.",
         'داده‌ی ترافیک به‌صورت خودکار و ناشناس از Vercel Web Analytics می‌آید، که از کوکی استفاده نمی‌کند و بازدیدکننده را فقط با یک هش کوتاه‌مدت برگرفته از خود درخواست شناسایی می‌کند — نه یک شناسه‌ی دائمی. این ابزار بازدید صفحات به‌صورت تجمیعی و چند رویداد تعامل (تعویض پلن، کلیک روی دکمه‌ی فراخوان، تعویض زبان و مواردی مشابه) را ثبت می‌کند، بدون این‌که هیچ‌کدام حاوی نام، ایمیل یا محتوای پیام باشند.',
       ),
@@ -97,8 +101,8 @@ const privacySections: LegalSection[] = [
     tx('Why it\'s collected', 'چرا جمع‌آوری می‌شود'),
     [
       tx(
-        "To read and respond to your project inquiry, to understand in aggregate how the site is being used so it can be improved, and to keep the Brief Builder reasonably free of spam.",
-        'برای خواندن و پاسخ‌دادن به درخواست پروژه‌ات، برای فهم مجموع نحوه‌ی استفاده از سایت تا بتوان آن را بهبود داد، و برای این‌که Brief Builder تا حد معقولی عاری از اسپم بماند.',
+        "To read and respond to your project inquiry or call request, to understand in aggregate how the site is being used so it can be improved, and to keep the Brief Builder reasonably free of spam.",
+        'برای خواندن و پاسخ‌دادن به درخواست پروژه یا تماس تو، برای فهم مجموع نحوه‌ی استفاده از سایت تا بتوان آن را بهبود داد، و برای این‌که Brief Builder تا حد معقولی عاری از اسپم بماند.',
       ),
     ],
   ),
@@ -107,12 +111,12 @@ const privacySections: LegalSection[] = [
     tx('Where it\'s stored', 'کجا نگه‌داری می‌شود'),
     [
       tx(
-        'Brief Builder submissions are stored in a Supabase-hosted PostgreSQL database (Southeast Asia region), behind Row Level Security with no public read policies — only server-side code with the service-role key can read it, never a public API.',
-        'ارسالی‌های Brief Builder در یک پایگاه‌داده‌ی PostgreSQL میزبانی‌شده روی Supabase (منطقه‌ی جنوب‌شرق آسیا) نگه‌داری می‌شوند، پشت Row Level Security و بدون هیچ سیاست خواندن عمومی — فقط کد سمت سرور با کلید service-role می‌تواند آن را بخواند، هرگز یک API عمومی.',
+        'Brief Builder submissions and consultation requests are stored in a Supabase-hosted PostgreSQL database (Southeast Asia region), behind Row Level Security with no public read policies — only server-side code with the service-role key can read it, never a public API.',
+        'ارسالی‌های Brief Builder و درخواست‌های مشاوره در یک پایگاه‌داده‌ی PostgreSQL میزبانی‌شده روی Supabase (منطقه‌ی جنوب‌شرق آسیا) نگه‌داری می‌شوند، پشت Row Level Security و بدون هیچ سیاست خواندن عمومی — فقط کد سمت سرور با کلید service-role می‌تواند آن را بخواند، هرگز یک API عمومی.',
       ),
       tx(
-        "This site is hosted on Vercel, which also runs the anonymized analytics described above. No inquiry data is currently sent to any third-party e-mail-sending service — a confirmation e-mail is logged internally only, while real sending stays intentionally inactive pending a registered domain. This page will be updated to name the real provider once that changes. A copy of every e-mail the site generates for you (such as the confirmation of your brief) is stored in the same database, together with a log of each attempt to send it.",
-        'این سایت روی Vercel میزبانی می‌شود، که همان تحلیل ناشناس توضیح‌داده‌شده در بالا را هم اجرا می‌کند. در حال حاضر هیچ داده‌ی درخواستی به هیچ سرویس ایمیل شخص‌ثالثی فرستاده نمی‌شود — یک ایمیل تأییدیه فقط به‌صورت داخلی ثبت می‌شود، در حالی‌که ارسال واقعی عمداً تا زمان ثبت یک دامنه‌ی واقعی غیرفعال نگه داشته شده. این صفحه با فعال‌شدن آن، برای معرفی سرویس واقعی به‌روزرسانی خواهد شد. یک نسخه از هر ایمیلی که سایت برای تو می‌سازد (مثل تأییدیه‌ی بریف) به‌همراه گزارش هر تلاش برای ارسال آن، در همان پایگاه‌داده نگه‌داری می‌شود.',
+        "This site is hosted on Vercel, which also runs the anonymized analytics described above. No inquiry data is currently sent to any third-party e-mail-sending service — a confirmation e-mail is logged internally only, while real sending stays intentionally inactive pending a registered domain. This page will be updated to name the real provider once that changes. A copy of every e-mail the site generates for you (such as the confirmation of your brief or the calendar invitation for your call) is stored in the same database, together with a log of each attempt to send it.",
+        'این سایت روی Vercel میزبانی می‌شود، که همان تحلیل ناشناس توضیح‌داده‌شده در بالا را هم اجرا می‌کند. در حال حاضر هیچ داده‌ی درخواستی به هیچ سرویس ایمیل شخص‌ثالثی فرستاده نمی‌شود — یک ایمیل تأییدیه فقط به‌صورت داخلی ثبت می‌شود، در حالی‌که ارسال واقعی عمداً تا زمان ثبت یک دامنه‌ی واقعی غیرفعال نگه داشته شده. این صفحه با فعال‌شدن آن، برای معرفی سرویس واقعی به‌روزرسانی خواهد شد. یک نسخه از هر ایمیلی که سایت برای تو می‌سازد (مثل تأییدیه‌ی بریف یا دعوت‌نامه‌ی تقویم تماست) به‌همراه گزارش هر تلاش برای ارسال آن، در همان پایگاه‌داده نگه‌داری می‌شود.',
       ),
     ],
   ),

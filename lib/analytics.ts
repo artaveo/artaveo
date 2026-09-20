@@ -20,11 +20,10 @@ import { track } from '@vercel/analytics'
  * results" (`outcome: 'no-results'`) — plus the `locale`. The query text is
  * never sent: it is something the visitor typed.
  *
- * `consultation_request` is declared here so every call site elsewhere in
- * the app can already import a stable name, but it is not wired to a real
- * trigger yet: Phase 20 (Consultation) doesn't exist yet. Firing it now
- * against a placeholder interaction would be inventing an event for a
- * feature that doesn't exist — wire it when its phase ships.
+ * `consultation_request` (Phase 20) fires from the consultation form once —
+ * and only once — the server has confirmed the request is saved, never on
+ * click or on an optimistic guess. Properties: the visitor's `locale` and
+ * how many time windows they offered; no name, e-mail, message or times.
  */
 export type AnalyticsEvent =
   | 'project_view'

@@ -149,6 +149,7 @@ async function attemptOne(
         text: row.body_text,
         replyTo: row.reply_to ?? undefined,
         idempotencyKey: `outbox-${row.id}`,
+        attachments: Array.isArray(row.attachments) && row.attachments.length > 0 ? row.attachments : undefined,
       },
       { timeoutMs: options.sendTimeoutMs ?? DEFAULT_SEND_TIMEOUT_MS },
     )

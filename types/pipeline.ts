@@ -61,6 +61,12 @@ export type InquiryEventType =
   | 'priority-changed'
   | 'follow-up-set'
   | 'tags-changed'
+  // Phase 20 — `0019` widens the database check to these five
+  | 'consultation-requested'
+  | 'consultation-confirmed'
+  | 'consultation-reschedule-requested'
+  | 'consultation-cancelled'
+  | 'consultation-completed'
 
 export type InquiryEvent = {
   id: string
@@ -127,11 +133,12 @@ export function emptyPipelineFilters(): PipelineFilters {
  * clause, since no stored field expresses that as a number; documented as
  * a known limitation in `docs/phases/PHASE-14-README.md`.
  *
- * There is no real outbound-reply log yet (that is Phase 19/20's scope) —
- * "first reply" is approximated here as the first `inquiry_events` row
- * after `created` (the first time an admin actually did something with
- * the lead: changed its stage, added a note, changed its tags or
- * priority), the closest honest proxy available today.
+ * There is no real outbound-reply log yet — "first reply" is approximated
+ * here as the first `inquiry_events` row after `created` written by someone
+ * other than the system or the client (the first time an admin actually did
+ * something with the lead: changed its stage, added a note, confirmed a call).
+ * Phase 20 made that exclusion necessary: a consultation request's own events
+ * and a client's cancel/reschedule are not the owner responding.
  */
 export type SlaStatus = {
   /** `null` — no admin action recorded yet; the lead is still fully unactioned. */

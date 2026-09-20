@@ -17,6 +17,11 @@ export const NOTIFICATION_KINDS = [
   'system-alert', // another notification could not be delivered
   'recommendation-request', // the owner sends a recommender their single-use link (D-14)
   'recommendation-changes', // the owner asks a recommender to change their statement (D-14)
+  'consultation-requested', // a client asked for an intro call — the owner's alert (Phase 20)
+  'consultation-received', // the client's acknowledgement, with their private link (Phase 20)
+  'consultation-confirmed', // the owner confirmed (or moved) a time — carries the calendar invitation (Phase 20)
+  'consultation-cancelled', // the call was cancelled — carries the calendar cancellation when a time had been confirmed (Phase 20)
+  'consultation-client-update', // the client cancelled or asked for a new time — the owner's notice (Phase 20)
 ] as const
 
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number]
@@ -39,6 +44,22 @@ export const NOTIFICATION_AUDIENCE: Record<NotificationKind, NotificationAudienc
   'system-alert': 'owner',
   'recommendation-request': 'recommender',
   'recommendation-changes': 'recommender',
+  'consultation-requested': 'owner',
+  'consultation-received': 'client',
+  'consultation-confirmed': 'client',
+  'consultation-cancelled': 'client',
+  'consultation-client-update': 'owner',
+}
+
+/**
+ * A file sent with a message (Phase 20: the calendar invitation). Stored in
+ * `notification_outbox.attachments` as plain text, so the copy in the log is
+ * exactly what is sent; the provider encodes it for the wire.
+ */
+export type EmailAttachment = {
+  filename: string
+  contentType: string
+  content: string
 }
 
 /** `notification_outbox` as PostgREST returns it. */
@@ -64,6 +85,8 @@ export type NotificationOutboxRow = {
   next_attempt_at: string
   locked_until: string | null
   sent_at: string | null
+  /** Phase 20 (`0019`). `null` for every message without a file. */
+  attachments: EmailAttachment[] | null
 }
 
 /** `notification_attempts` as PostgREST returns it. */
@@ -101,6 +124,8 @@ export type NotificationView = {
   inquiryId: string | null
   entityType: string | null
   entityId: string | null
+  /** File names only — the admin never needs the content, and it is not shown. */
+  attachmentNames: string[]
 }
 
 export type NotificationAttemptView = {
