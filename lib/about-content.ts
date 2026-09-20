@@ -30,11 +30,11 @@ function tx(en: string, fa: string): LocalizedText {
 const storyData: LocalizedText[] = [
   tx(
     "Artaveo is one person: I plan, design, build and deploy every project myself, end to end. There is no account manager between you and the code, and no handoff between a “design team” and a “dev team” — the same person who scopes the database schema also polishes the last pixel of the interface.",
-    'آرتاویو یک نفر است: من هر پروژه را از ابتدا تا انتها خودم برنامه‌ریزی، طراحی، می‌سازم و مستقر می‌کنم. هیچ مدیر حسابی میان تو و کد نیست، و هیچ تحویل‌گیری‌ای میان یک «تیم طراحی» و یک «تیم توسعه» وجود ندارد — همان کسی که طرح پایگاه‌داده را مشخص می‌کند، آخرین پیکسل رابط کاربری را هم صیقل می‌دهد.',
+    'آرتاویو یک نفر است: هر پروژه را از ابتدا تا انتها خودم برنامه‌ریزی، طراحی، می‌سازم و مستقر می‌کنم. مدیر حساب یا واسطه‌ای بین تو و کد نیست، و کار بین «تیم طراحی» و «تیم توسعه» دست‌به‌دست نمی‌شود — همان کسی که طرح پایگاه‌داده را می‌چیند، آخرین جزئیات رابط کاربری را هم اصلاح می‌کند.',
   ),
   tx(
     'That shape comes from two real products, not a portfolio exercise: a booking and operations platform for intercity bus companies, and a bilingual portal and CMS for an educational institute. Both are covered in full on the Work page — architecture, the decisions I made, the trade-offs I accepted and the mistakes a security review actually caught. I would rather show that thinking than describe it in adjectives.',
-    'این شکل از کار، از دو محصول واقعی می‌آید، نه یک تمرین نمونه‌کار: یک پلتفرم رزرو و مدیریت عملیات برای شرکت‌های اتوبوس‌رانی بین‌شهری، و یک پورتال و CMS دوزبانه برای یک مؤسسه‌ی آموزشی. هر دو به‌طور کامل در صفحه‌ی نمونه‌کارها آمده‌اند — معماری، تصمیم‌هایی که گرفتم، مصالحه‌هایی که پذیرفتم و اشتباهاتی که یک بررسی امنیتی واقعاً پیدا کرد. ترجیح می‌دهم آن تفکر را نشان بدهم تا با صفت توصیفش کنم.',
+    'این شکل از کار از دو محصول واقعی می‌آید، نه یک تمرین نمونه‌کار: یک پلتفرم رزرو و مدیریت عملیات برای شرکت‌های اتوبوس‌رانی بین‌شهری، و یک پورتال و CMS دوزبانه برای یک مؤسسه‌ی آموزشی. هر دو در صفحه‌ی نمونه‌کارها با معماری، تصمیم‌ها، مصالحه‌ها و یافته‌های واقعی بررسی امنیتی مستند شده‌اند. ترجیح می‌دهم این تصمیم‌ها را نشان بدهم، نه این‌که با صفت توصیفشان کنم.',
   ),
   tx(
     "Working solo means every decision is scoped to what one person can build and actually maintain — which is why the same account, the same repository conventions and the same review habits run through everything I ship, rather than a different standard per project.",
@@ -133,7 +133,7 @@ const processPhasesData: ProcessPhase[] = [
     ),
     activities: [
       tx('Wireframes or low-fidelity layouts for the key screens', 'وایرفریم یا چیدمان‌های اولیه برای صفحات کلیدی'),
-      tx('Drafting the data shapes each screen actually needs, before any UI polish', 'پیش‌نویس ساختار داده‌ای که هر صفحه واقعاً به آن نیاز دارد، پیش از هر جلاسازی رابط کاربری'),
+      tx('Drafting the data shapes each screen actually needs, before any UI polish', 'پیش‌نویس ساختار داده‌ای که هر صفحه واقعاً به آن نیاز دارد، پیش از پرداخت نهایی رابط کاربری'),
       tx('A short review round so direction is confirmed before full builds begin', 'یک دور بازبینی کوتاه تا مسیر پیش از شروع ساخت کامل تأیید شود',),
     ],
     output: tx(
@@ -212,7 +212,7 @@ const processPhasesData: ProcessPhase[] = [
     activities: [
       tx('Manual verification of loading, empty, error and edge states', 'بررسی دستی حالت‌های بارگذاری، خالی، خطا و لبه‌ای'),
       tx('Cross-device, cross-browser, both-locale and both-theme checks (§ 17 Definition of Done)', 'بررسی روی چند دستگاه، چند مرورگر، هر دو زبان و هر دو تم (طبق § ۱۷ تعریف انجام‌شده)'),
-      tx('A migration or schema change is validated against real data inside a transaction that is rolled back — never tested only in theory', 'هر تغییر migration یا schema، درون یک تراکنش که در پایان rollback می‌شود، روی داده‌ی واقعی اعتبارسنجی می‌شود — هرگز فقط در تئوری'),
+      tx('A migration or schema change is validated against real data inside a transaction that is rolled back — never tested only in theory', 'هر تغییر migration یا schema روی داده‌ی واقعی و داخل تراکنشی که در پایان rollback می‌شود اعتبارسنجی می‌شود؛ این تغییرها فقط در تئوری تست نمی‌شوند.'),
     ],
     output: tx(
       'A verification checklist attached to the build, not a verbal "it works on my machine."',
@@ -276,7 +276,7 @@ const processPhasesData: ProcessPhase[] = [
     ),
     decisionsAndRisks: tx(
       'The exact warranty window, response commitment and change-request pricing are published on the Working Agreement page once it ships (Phase 8.2) — nothing here is promised beyond what that page will state in writing.',
-      'بازه‌ی دقیق ضمانت، تعهد پاسخ‌گویی و قیمت‌گذاری درخواست‌های تغییر، به‌محض انتشار صفحه‌ی توافق‌نامه‌ی همکاری (فاز ۸.۲) در آن‌جا منتشر می‌شود — چیزی فراتر از آنچه آن صفحه به‌صورت مکتوب بیان خواهد کرد، این‌جا وعده داده نمی‌شود.',
+      'بازه‌ی دقیق ضمانت، تعهد پاسخ‌گویی و قیمت‌گذاری درخواست‌های تغییر، به‌محض انتشار صفحه‌ی توافق‌نامه‌ی همکاری (فاز ۸.۲) در آن‌جا منتشر می‌شود — چیزی فراتر از آنچه در آن صفحه به‌روشنی نوشته خواهد شد، این‌جا وعده داده نمی‌شود.',
     ),
   },
 ]
@@ -306,7 +306,7 @@ const qualityCommitmentsData: QualityCommitment[] = [
   },
   {
     icon: 'Eye',
-    title: tx('Accessibility as a target, not polish', 'دسترس‌پذیری به‌عنوان هدف، نه جلاسازی'),
+    title: tx('Accessibility as a target, not polish', 'دسترس‌پذیری یک هدف است، نه مرحله‌ی آخر'),
     description: tx(
       'WCAG 2.2 AA is the standard aimed for on every project — keyboard use, focus order, labels and contrast checked, not assumed.',
       'WCAG 2.2 AA استانداردی است که در هر پروژه هدف قرار می‌گیرد — استفاده از صفحه‌کلید، ترتیب فوکوس، برچسب‌ها و کنتراست چک می‌شوند، نه فرض‌گرفته‌شده.',
@@ -355,7 +355,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     title: tx('Communication & cadence', 'ارتباط و ریتم گزارش‌دهی'),
     summary: tx(
       'Direct contact with me, on a predictable rhythm — not silence until the very end.',
-      'ارتباط مستقیم با من، با ریتمی قابل‌پیش‌بینی — نه سکوت تا لحظه‌ی آخر.',
+      'ارتباط مستقیم با من، با یک ریتم مشخص — نه سکوت تا لحظه‌ی آخر.',
     ),
     points: [
       tx(
@@ -368,7 +368,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
       ),
       tx(
         'No account manager and no hand-off — you talk to the person who made the last decision on your project',
-        'بدون مدیر حساب و بدون تحویل‌گیری — مستقیم با کسی صحبت می‌کنی که آخرین تصمیم را روی پروژه‌ات گرفته',
+        'بدون مدیر حساب و بدون واسطه‌ی اضافی — مستقیم با کسی صحبت می‌کنی که روی پروژه‌ات تصمیم می‌گیرد',
       ),
     ],
   },
@@ -427,7 +427,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     points: [
       tx(
         'Every deliverable\u2019s source code and IP transfers to you once it\u2019s paid for',
-        'کد منبع و مالکیت معنوی هر خروجی، به‌محض پرداخت‌شدنش، به تو منتقل می‌شود',
+        'کد منبع و مالکیت معنوی هر خروجی، بعد از پرداخت به تو منتقل می‌شود',
       ),
       tx(
         'Third-party accounts your project depends on — domain registrar, hosting, database, analytics — are created in your name from the start, not mine',
