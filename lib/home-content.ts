@@ -164,7 +164,7 @@ const featuredProjectsData: Project[] = [
         ),
         tradeoff: tx(
           'The refund feature is incomplete until wallet debiting ships — documented as open debt rather than papered over with unused code.',
-          'مسیر بازپرداخت تا زمان پیاده‌سازی کسر wallet کامل نیست. این مورد به‌عنوان بدهی فنی ثبت شده، نه اینکه با کد بدون کاربرد پوشانده شود.',
+          'مسیر بازپرداخت تا وقتی کسر wallet پیاده نشود کامل نیست. این مورد به‌عنوان بدهی فنی ثبت شده، نه اینکه با کد بی‌استفاده پوشانده شود.',
         ),
       },
     ],
@@ -370,7 +370,7 @@ const differentiatorsData: Principle[] = [
     title: tx('End-to-end ownership', 'مالکیت سرتاسری'),
     description: tx(
       'Architecture, interface, backend and deployment happen in one workflow, so nothing falls between handoffs.',
-      'معماری، رابط کاربری، بک‌اند و استقرار در یک مسیر پیش می‌روند؛ چیزی بین تیم‌ها جابه‌جا نمی‌شود.',
+      'معماری، رابط کاربری، بک‌اند و استقرار در یک مسیر پیش می‌روند؛ چیزی بین چند تیم یا نقش مختلف دست‌به‌دست نمی‌شود.',
     ),
   },
   {
@@ -386,7 +386,7 @@ const differentiatorsData: Principle[] = [
     title: tx('Maintainable architecture', 'معماری قابل‌نگهداری'),
     description: tx(
       'Clear boundaries between interface, business logic and data keep the product easy to change after launch.',
-      'رابط کاربری، منطق کسب‌وکار و پایگاه‌داده در لایه‌های جدا نگهداری می‌شوند تا تغییرات بعدی قابل‌کنترل‌تر باشند.',
+      'رابط کاربری، منطق کسب‌وکار و پایگاه‌داده در لایه‌های جدا نگهداری می‌شوند؛ در نتیجه تغییرات بعدی راحت‌تر کنترل می‌شوند.',
     ),
   },
   {
@@ -399,7 +399,7 @@ const differentiatorsData: Principle[] = [
   },
   {
     icon: 'ShieldCheck',
-    title: tx('Long-term thinking', 'نگاه رو به جلو'),
+    title: tx('Long-term thinking', 'نگاه به بعد از انتشار'),
     description: tx(
       'Security, validation and performance are part of the first build, not a cleanup task before launch.',
       'امنیت، اعتبارسنجی و کارایی از همان نسخه‌ی اول بخشی از ساخت هستند، نه یک کار پاک‌سازی پیش از راه‌اندازی.',
@@ -448,12 +448,12 @@ const processStepsData: ProcessStep[] = [
   {
     id: 'design',
     title: tx('Design', 'طراحی'),
-    description: tx('Shape the interface and the data model together.', 'شکل‌دهی هم‌زمان رابط کاربری و مدل داده.'),
+    description: tx('Shape the interface and the data model together.', 'رابط کاربری و مدل داده را هم‌زمان شکل می‌دهم.'),
   },
   {
     id: 'build',
     title: tx('Build', 'ساخت'),
-    description: tx('Develop in small increments you can review.', 'توسعه در گام‌های کوچک و قابل‌بازبینی.'),
+    description: tx('Develop in small increments you can review.', 'توسعه در گام‌های کوچک، با بازبینی در هر مرحله.'),
   },
   {
     id: 'test',
