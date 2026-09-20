@@ -30,15 +30,19 @@ function tx(en: string, fa: string): LocalizedText {
 const storyData: LocalizedText[] = [
   tx(
     "Artaveo is one person: I plan, design, build and deploy every project myself, end to end. There is no account manager between you and the code, and no handoff between a “design team” and a “dev team” — the same person who scopes the database schema also polishes the last pixel of the interface.",
-    'آرتاویو یک نفر است: هر پروژه را از ابتدا تا انتها خودم برنامه‌ریزی، طراحی، می‌سازم و مستقر می‌کنم. مدیر حساب یا واسطه‌ای بین تو و کد نیست، و کار بین «تیم طراحی» و «تیم توسعه» دست‌به‌دست نمی‌شود — همان کسی که طرح پایگاه‌داده را می‌چیند، آخرین جزئیات رابط کاربری را هم اصلاح می‌کند.',
+    'آرتاویو یک نفر است. هر پروژه را از برنامه‌ریزی و طراحی تا ساخت و استقرار خودم پیش می‌برم. بین تو و کد هم واسطه‌ای نیست؛ همان کسی که معماری و پایگاه‌داده را طراحی می‌کند، رابط کاربری را هم می‌سازد.',
   ),
   tx(
-    'That shape comes from two real products, not a portfolio exercise: a booking and operations platform for intercity bus companies, and a bilingual portal and CMS for an educational institute. Both are covered in full on the Work page — architecture, the decisions I made, the trade-offs I accepted and the mistakes a security review actually caught. I would rather show that thinking than describe it in adjectives.',
-    'این شکل از کار از دو محصول واقعی می‌آید، نه یک تمرین نمونه‌کار: یک پلتفرم رزرو و مدیریت عملیات برای شرکت‌های اتوبوس‌رانی بین‌شهری، و یک پورتال و CMS دوزبانه برای یک مؤسسه‌ی آموزشی. هر دو در صفحه‌ی نمونه‌کارها با معماری، تصمیم‌ها، مصالحه‌ها و یافته‌های واقعی بررسی امنیتی مستند شده‌اند. ترجیح می‌دهم این تصمیم‌ها را نشان بدهم، نه این‌که با صفت توصیفشان کنم.',
+    'That shape comes from two real products, not a portfolio exercise: a booking and operations platform for intercity bus companies, and a bilingual portal and CMS for an educational institute.',
+    'این مدل کار را روی دو محصول واقعی شکل داده‌ام: یک پلتفرم رزرو و مدیریت عملیات برای شرکت‌های اتوبوس‌رانی بین‌شهری و یک پورتال و CMS دوزبانه برای یک مؤسسه‌ی آموزشی.',
+  ),
+  tx(
+    'Both are covered in full on the Work page — architecture, the decisions I made, the trade-offs I accepted and the mistakes a security review actually caught. I would rather show that thinking than describe it in adjectives.',
+    'هر دو پروژه در بخش نمونه‌کارها با معماری، تصمیم‌های مهندسی و یافته‌های بررسی امنیتی مستند شده‌اند. ترجیح می‌دهم تصمیم‌ها و کار انجام‌شده را نشان بدهم، نه اینکه فقط درباره‌شان صفت به کار ببرم.',
   ),
   tx(
     "Working solo means every decision is scoped to what one person can build and actually maintain — which is why the same account, the same repository conventions and the same review habits run through everything I ship, rather than a different standard per project.",
-    'تنها کارکردن یعنی هر تصمیم به چیزی محدود می‌ماند که یک نفر بتواند بسازد و واقعاً نگهداری کند — به همین دلیل یک حساب واحد، قراردادهای یکسان در ریپازیتوری، و همان عادت‌های بازبینی در همه‌ی چیزهایی که تحویل می‌دهم جاری است، نه یک استاندارد متفاوت برای هر پروژه.',
+    'تنها کارکردن یعنی معماری باید چیزی باشد که یک نفر بتواند هم بسازد و هم نگهداری کند. برای همین، قراردادهای کد، ساختار ریپازیتوری و روش بازبینی در پروژه‌ها یکدست می‌مانند.',
   ),
 ]
 
@@ -52,14 +56,14 @@ const languagesData: WorkingLanguage[] = [
     name: tx('Dari / Persian', 'دری / فارسی'),
     note: tx(
       "Artaveo's Persian content — including this sentence — is written directly, not machine-translated (§ 16.2).",
-      'محتوای فارسی آرتاویو — از جمله همین جمله — مستقیم نوشته می‌شود، نه ترجمه‌ی ماشینی (§ ۱۶.۲).',
+      'متن فارسی آرتاویو مستقیم نوشته و بازبینی می‌شود؛ ترجمه‌ی ماشینی نیست.',
     ),
   },
   {
     name: tx('English', 'انگلیسی'),
     note: tx(
       'Used for code, documentation, and every English page of this site.',
-      'برای کد، مستندات و تمام صفحات انگلیسی این سایت استفاده می‌شود.',
+      'کد، مستندات و نسخه‌ی انگلیسی سایت به این زبان منتشر می‌شوند.',
     ),
   },
 ]
@@ -77,7 +81,7 @@ const processPhasesData: ProcessPhase[] = [
     title: tx('Discover', 'شناخت'),
     purpose: tx(
       'Understand the real problem before any solution is proposed.',
-      'فهم مسئله‌ی واقعی، پیش از پیشنهاد دادن هر راه‌حلی.',
+      'اول مسئله‌ی واقعی را می‌فهمیم؛ بعد درباره‌ی راه‌حل تصمیم می‌گیریم.',
     ),
     activities: [
       tx('A written or call-based intake covering goals, users and constraints', 'یک گفت‌وگوی نوشتاری یا تماس درباره‌ی هدف‌ها، کاربران و محدودیت‌ها'),
@@ -86,15 +90,15 @@ const processPhasesData: ProcessPhase[] = [
     ],
     output: tx(
       'A one-page problem statement both sides agree describes the real goal.',
-      'یک بیانیه‌ی مسئله‌ی یک‌صفحه‌ای که هر دو طرف روی توصیف‌کردنش از هدف واقعی توافق دارند.',
+      'یک تعریف روشن از مسئله که هر دو طرف روی آن توافق کرده‌اند.',
     ),
     clientInvolvement: tx(
       'High — this phase runs on what you tell me; the better the intake, the fewer surprises later.',
-      'زیاد — این فاز بر پایه‌ی چیزی است که تو می‌گویی؛ هرچه گفت‌وگوی اولیه دقیق‌تر باشد، غافلگیری‌های بعدی کمتر می‌شود.',
+      'زیاد؛ گفت‌وگوی اولیه‌ی دقیق، ابهام و تغییرات ناگهانی بعدی را کم می‌کند.',
     ),
     decisionsAndRisks: tx(
       'Risk: a vague goal here becomes a vague product later. If the scope is genuinely unclear, I recommend a paid Discovery Sprint (see engagement models) instead of guessing.',
-      'ریسک: یک هدف مبهم در این‌جا، بعداً به یک محصول مبهم تبدیل می‌شود. اگر محدوده‌ی کار واقعاً روشن نیست، به‌جای حدس‌زدن، یک Discovery Sprint پولی (نگاه کن به مدل‌های همکاری) پیشنهاد می‌دهم.',
+      'ریسک اصلی این مرحله ابهام است. اگر محدوده هنوز روشن نباشد، به‌جای حدس‌زدن یک Discovery Sprint پیشنهاد می‌دهم تا مسئله و دامنه دقیق‌تر شوند.',
     ),
   },
   {
@@ -103,7 +107,7 @@ const processPhasesData: ProcessPhase[] = [
     title: tx('Define', 'تعریف'),
     purpose: tx(
       'Turn the problem statement into a concrete, scoped plan.',
-      'تبدیل بیانیه‌ی مسئله به یک برنامه‌ی مشخص و محدودشده.',
+      'تبدیل مسئله به یک برنامه‌ی مشخص با محدوده‌ی روشن.',
     ),
     activities: [
       tx('Breaking the goal into features and prioritizing what actually needs to exist for launch', 'شکستن هدف به فیچرها و اولویت‌بندی آنچه واقعاً برای راه‌اندازی لازم است'),
@@ -112,15 +116,15 @@ const processPhasesData: ProcessPhase[] = [
     ],
     output: tx(
       'A written scope and estimate you approve before any code is written.',
-      'یک محدوده‌ی کار و برآورد نوشته‌شده که پیش از نوشتن هر خطی از کد آن را تأیید می‌کنی.',
+      'محدوده‌ی کار و برآورد مکتوبی که قبل از شروع توسعه تأیید می‌کنیم.',
     ),
     clientInvolvement: tx(
       'High — this is the last point where scope is easy to change; after approval, changes follow the change-request process.',
-      'زیاد — این آخرین نقطه‌ای است که تغییر محدوده‌ی کار آسان است؛ پس از تأیید، تغییرات از روند درخواست تغییر عبور می‌کنند.',
+      'زیاد؛ این آخرین مرحله‌ای است که تغییر محدوده آسان است. بعد از تأیید، تغییرات وارد روند درخواست تغییر می‌شوند.',
     ),
     decisionsAndRisks: tx(
       'Risk: skipping this phase to "start coding sooner" is how scope creep and missed deadlines happen. I do not skip it, even under time pressure.',
-      'ریسک: رد شدن از این فاز برای «سریع‌تر شروع به کدنویسی کردن»، دقیقاً همان چیزی است که باعث افزایش بی‌رویه‌ی محدوده‌ی کار و عقب‌افتادن مهلت می‌شود. حتی زیر فشار زمانی هم از آن رد نمی‌شوم.',
+      'رد شدن از این مرحله معمولاً ابهام و بزرگ‌شدن دامنه‌ی کار را بیشتر می‌کند. حتی با فشار زمانی هم ابتدا محدوده را روشن می‌کنم.',
     ),
   },
   {
@@ -129,7 +133,7 @@ const processPhasesData: ProcessPhase[] = [
     title: tx('Design', 'طراحی'),
     purpose: tx(
       'Shape the interface and the data model together, not in separate silos.',
-      'شکل‌دادن هم‌زمان رابط کاربری و مدل داده، نه در جعبه‌های جدا از هم.',
+      'رابط کاربری و مدل داده را هم‌زمان طراحی می‌کنم، نه به‌عنوان دو کار جدا.',
     ),
     activities: [
       tx('Wireframes or low-fidelity layouts for the key screens', 'وایرفریم یا چیدمان‌های اولیه برای صفحات کلیدی'),
@@ -138,15 +142,15 @@ const processPhasesData: ProcessPhase[] = [
     ],
     output: tx(
       'Approved screens (or a design-system extension, for internal tools) and a settled data shape.',
-      'صفحات تأییدشده (یا گسترش سیستم طراحی، برای ابزارهای داخلی) و یک ساختار داده‌ی مشخص‌شده.',
+      'صفحات تأییدشده و برای ابزارهای داخلی، در صورت نیاز، ساختار توسعه‌یافته‌ی سیستم طراحی و مدل داده.',
     ),
     clientInvolvement: tx(
       'Medium — one or two review rounds; async written feedback works as well as a call.',
-      'متوسط — یک یا دو دور بازبینی؛ بازخورد نوشتاری async هم به‌اندازه‌ی یک تماس کارساز است.',
+      'متوسط؛ معمولاً یک یا دو دور بازبینی کافی است و بازخورد async هم کاملاً قابل استفاده است.',
     ),
     decisionsAndRisks: tx(
       'Risk: designing screens without the data model behind them produces interfaces that look right and cannot actually be built as shown. Both are drafted together for exactly this reason.',
-      'ریسک: طراحی صفحات بدون مدل داده‌ی پشت آن‌ها، رابط‌هایی می‌سازد که ظاهرشان درست است ولی همان‌طور که نشان داده شده قابل‌ساخت نیستند. دقیقاً به همین دلیل هر دو با هم پیش‌نویس می‌شوند.',
+      'اگر رابط بدون مدل داده طراحی شود، ممکن است چیزی ساخته شود که فقط روی کاغذ خوب به نظر برسد. برای همین این دو از ابتدا کنار هم بررسی می‌شوند.',
     ),
   },
   {
@@ -155,24 +159,24 @@ const processPhasesData: ProcessPhase[] = [
     title: tx('Architect', 'معماری'),
     purpose: tx(
       'Decide the system boundaries before writing the code that depends on them.',
-      'تعیین مرزهای سیستم، پیش از نوشتن کدی که به آن‌ها وابسته است.',
+      'مرزهای سیستم را قبل از وابسته‌کردن کد به آن‌ها مشخص می‌کنم.',
     ),
     activities: [
       tx('Database schema, relationships and row-level security policy design', 'طرح پایگاه‌داده، روابط و طراحی سیاست‌های row-level security'),
-      tx('Deciding what runs on the server versus the client, and where every mutation is validated', 'تعیین این‌که چه‌چیزی سمت سرور اجرا شود و چه‌چیزی سمت کلاینت، و هر تغییر کجا اعتبارسنجی می‌شود'),
+      tx('Deciding what runs on the server versus the client, and where every mutation is validated', 'تعیین اینکه چه چیزی سمت سرور اجرا شود، چه چیزی سمت کلاینت بماند و هر تغییر کجا اعتبارسنجی شود'),
       tx('Choosing provider abstractions for email, storage, auth and payments so nothing is hard-wired to one vendor', 'انتخاب لایه‌های انتزاعی برای ایمیل، ذخیره‌سازی، احراز هویت و پرداخت تا چیزی مستقیم به یک تأمین‌کننده وصل نشود'),
     ],
     output: tx(
       'A schema and an architecture note describing how the pieces fit together.',
-      'یک schema و یک یادداشت معماری که نحوه‌ی کنار هم قرارگرفتن قطعات را توضیح می‌دهد.',
+      'یک schema و یادداشت معماری که ارتباط اجزای سیستم را مشخص می‌کند.',
     ),
     clientInvolvement: tx(
       'Low — mostly technical; surfaced back to you only where it changes cost, timeline or what a feature can do.',
-      'کم — بیشتر فنی است؛ فقط جایی به تو بازتاب داده می‌شود که روی هزینه، زمان‌بندی یا توان یک فیچر تأثیر بگذارد.',
+      'کم؛ بیشتر تصمیم‌ها فنی‌اند و فقط وقتی بر هزینه، زمان یا دامنه‌ی یک قابلیت اثر بگذارند با تو مطرح می‌شوند.',
     ),
     decisionsAndRisks: tx(
       'This is where "the browser is never the source of truth" (a hard rule, not a preference) gets decided concretely — e.g. what a database trigger enforces versus what the app layer checks.',
-      'دقیقاً همین‌جا است که «مرورگر هرگز منبع حقیقت نیست» (یک قانون سخت، نه یک ترجیح) به‌شکل مشخص تصمیم‌گیری می‌شود — مثلاً چه‌چیزی را یک تریگر دیتابیس اجرا می‌کند و چه‌چیزی را لایه‌ی اپ چک می‌کند.',
+      'اینجا یک قانون مشخص می‌شود: مرورگر هرگز منبع حقیقت نیست. مثلاً تصمیم می‌گیریم کدام محدودیت را تریگر دیتابیس اجرا کند و کدام بررسی را لایه‌ی اپ انجام دهد.',
     ),
   },
   {
@@ -181,24 +185,24 @@ const processPhasesData: ProcessPhase[] = [
     title: tx('Build', 'ساخت'),
     purpose: tx(
       'Develop in small, reviewable increments rather than one long silent stretch.',
-      'توسعه در گام‌های کوچک و قابل‌بازبینی، نه یک بازه‌ی طولانی و بی‌خبر.',
+      'ساخت در گام‌های کوچک، با بازبینی منظم؛ نه یک دوره‌ی طولانی بدون خبر.',
     ),
     activities: [
-      tx('Feature-by-feature implementation against the approved scope', 'پیاده‌سازی فیچربه‌فیچر بر اساس محدوده‌ی کار تأییدشده'),
+      tx('Feature-by-feature implementation against the approved scope', 'پیاده‌سازی قابلیت‌ها، یکی‌یکی و بر اساس محدوده‌ی کار تأییدشده'),
       tx('Regular written progress updates — what shipped, what is next', 'گزارش پیشرفت نوشتاری منظم — چه چیزی تحویل شد، بعدی چیست'),
       tx('Demos at each milestone rather than only at the very end', 'دمو در هر نقطه‌ی عطف، نه فقط در انتهای کار'),
     ],
     output: tx(
       'Working, demoable increments landing on the agreed milestone schedule.',
-      'گام‌های کاری و قابل‌دمو که طبق برنامه‌ی نقاط عطف توافق‌شده تحویل داده می‌شوند.',
+      'گام‌های کاری قابل‌دمو که طبق نقاط عطف توافق‌شده تحویل می‌شوند.',
     ),
     clientInvolvement: tx(
       'Medium — a standing update cadence (Working Agreement) plus a demo per milestone; you are never left waiting without word.',
-      'متوسط — یک ریتم منظم گزارش‌دهی (طبق توافق‌نامه‌ی همکاری) به‌علاوه‌ی دمو در هر نقطه‌ی عطف؛ هیچ‌وقت بدون خبر منتظر نمی‌مانی.',
+      'متوسط؛ گزارش‌های منظم و دمو در هر نقطه‌ی عطف، طبق توافق‌نامه‌ی همکاری.',
     ),
     decisionsAndRisks: tx(
       'Anything discovered mid-build that changes scope is raised immediately as a change request, priced and agreed before it is built — never absorbed silently or invoiced as a surprise.',
-      'هرچیزی که در میانه‌ی ساخت کشف شود و محدوده‌ی کار را تغییر دهد، فوراً به‌عنوان یک درخواست تغییر مطرح، قیمت‌گذاری و توافق می‌شود پیش از ساخته‌شدن — هرگز بی‌صدا جذب یا به‌عنوان یک غافلگیری صورت‌حساب نمی‌شود.',
+      'هر چیزی که در میانه‌ی ساخت کشف شود و محدوده‌ی کار را تغییر دهد، قبل از اجرا به‌عنوان درخواست تغییر مطرح، قیمت‌گذاری و تأیید می‌شود. چنین تغییری بی‌صدا وارد پروژه نمی‌شود.',
     ),
   },
   {
@@ -207,12 +211,12 @@ const processPhasesData: ProcessPhase[] = [
     title: tx('Test', 'آزمایش'),
     purpose: tx(
       'Check behavior against reality, not just against the happy path.',
-      'بررسی رفتار در برابر واقعیت، نه فقط مسیر خوش‌بینانه.',
+      'بررسی رفتار واقعی سیستم، نه فقط مسیر عادی.',
     ),
     activities: [
       tx('Manual verification of loading, empty, error and edge states', 'بررسی دستی حالت‌های بارگذاری، خالی، خطا و لبه‌ای'),
-      tx('Cross-device, cross-browser, both-locale and both-theme checks (§ 17 Definition of Done)', 'بررسی روی چند دستگاه، چند مرورگر، هر دو زبان و هر دو تم (طبق § ۱۷ تعریف انجام‌شده)'),
-      tx('A migration or schema change is validated against real data inside a transaction that is rolled back — never tested only in theory', 'هر تغییر migration یا schema روی داده‌ی واقعی و داخل تراکنشی که در پایان rollback می‌شود اعتبارسنجی می‌شود؛ این تغییرها فقط در تئوری تست نمی‌شوند.'),
+      tx('Cross-device, cross-browser, both-locale and both-theme checks (§ 17 Definition of Done)', 'بررسی روی چند دستگاه، چند مرورگر، هر دو زبان و هر دو تم (طبق § ۱۷ معیار تکمیل کار)'),
+      tx('A migration or schema change is validated against real data inside a transaction that is rolled back — never tested only in theory', 'هر تغییر migration یا schema را روی داده‌ی واقعی و داخل تراکنشی که در پایان rollback می‌شود اعتبارسنجی می‌کنم؛ فقط روی کاغذ به آن اعتماد نمی‌کنم.'),
     ],
     output: tx(
       'A verification checklist attached to the build, not a verbal "it works on my machine."',
@@ -224,7 +228,7 @@ const processPhasesData: ProcessPhase[] = [
     ),
     decisionsAndRisks: tx(
       'There is no dedicated automated test suite on every project today — a limitation stated openly rather than implied away; critical flows (payments, bookings, auth) get the most deliberate manual scrutiny in the meantime.',
-      'در حال حاضر روی هر پروژه یک مجموعه‌ی تست خودکار اختصاصی وجود ندارد — این محدودیت آشکارا بیان می‌شود، نه پنهان یا کم‌رنگ؛ در همین حین، مسیرهای حساس (پرداخت، رزرو، احراز هویت) بیشترین بررسی دستی و آگاهانه را می‌گیرند.',
+      'برای هر پروژه هنوز مجموعه‌ی تست خودکار اختصاصی ندارم. این محدودیت را صریح می‌گویم؛ در عوض، مسیرهای حساس مثل پرداخت، رزرو و احراز هویت با دقت دستی بیشتری بررسی می‌شوند.',
     ),
   },
   {
@@ -250,7 +254,7 @@ const processPhasesData: ProcessPhase[] = [
     ),
     decisionsAndRisks: tx(
       "Risk: launching without monitoring means the first sign of trouble is a client complaint. Monitoring and error visibility ship with the launch, not after the first incident.",
-      'ریسک: راه‌اندازی بدون مانیتورینگ یعنی اولین نشانه‌ی مشکل، شکایت یک مشتری خواهد بود. مانیتورینگ و دیده‌بانی خطا همراه با خودِ راه‌اندازی می‌آید، نه بعد از اولین حادثه.',
+      'ریسک این است که بدون مانیتورینگ، اولین نشانه‌ی مشکل را مشتری گزارش کند. برای همین، مانیتورینگ و دیده‌بانی خطا را هم‌زمان با راه‌اندازی فعال می‌کنم.',
     ),
   },
   {
@@ -259,7 +263,7 @@ const processPhasesData: ProcessPhase[] = [
     title: tx('Support', 'پشتیبانی'),
     purpose: tx(
       'Keep the product correct and current after the first launch, not disappear once it ships.',
-      'درست و به‌روز نگه‌داشتن محصول پس از اولین راه‌اندازی، نه ناپدیدشدن به‌محض تحویل.',
+      'بعد از راه‌اندازی هم مسیر روشنی برای نگهداری و تغییرات وجود دارد؛ تحویل، پایان ارتباط نیست.',
     ),
     activities: [
       tx('Fixing defects inside the published warranty window (Working Agreement)', 'رفع نقص‌ها در بازه‌ی ضمانت منتشرشده (طبق توافق‌نامه‌ی همکاری)'),
@@ -268,7 +272,7 @@ const processPhasesData: ProcessPhase[] = [
     ],
     output: tx(
       'A product that keeps working — and a clear, published path for what happens when something needs to change.',
-      'محصولی که همچنان کار می‌کند — و یک مسیر روشن و منتشرشده برای زمانی که چیزی نیاز به تغییر دارد.',
+      'محصولی که مسیر مشخصی برای رفع نقص، تغییر و نگهداری بعد از راه‌اندازی دارد.',
     ),
     clientInvolvement: tx(
       'As needed — driven by you reporting an issue or requesting a change, through the same direct channel used during the build.',
@@ -276,7 +280,7 @@ const processPhasesData: ProcessPhase[] = [
     ),
     decisionsAndRisks: tx(
       'The exact warranty window, response commitment and change-request pricing are published on the Working Agreement page once it ships (Phase 8.2) — nothing here is promised beyond what that page will state in writing.',
-      'بازه‌ی دقیق ضمانت، تعهد پاسخ‌گویی و قیمت‌گذاری درخواست‌های تغییر، به‌محض انتشار صفحه‌ی توافق‌نامه‌ی همکاری (فاز ۸.۲) در آن‌جا منتشر می‌شود — چیزی فراتر از آنچه در آن صفحه به‌روشنی نوشته خواهد شد، این‌جا وعده داده نمی‌شود.',
+      'جزئیات ضمانت، زمان پاسخ‌گویی و قیمت درخواست‌های تغییر در صفحه‌ی توافق‌نامه‌ی همکاری منتشر می‌شوند. این‌جا چیزی فراتر از آن شرایط وعده داده نمی‌شود.',
     ),
   },
 ]
@@ -293,7 +297,7 @@ const qualityCommitmentsData: QualityCommitment[] = [
     title: tx('Typed code end to end', 'کد تایپ‌شده از ابتدا تا انتها'),
     description: tx(
       'TypeScript across frontend and backend, checked with `tsc --noEmit` before anything ships — not caught only at runtime.',
-      'TypeScript در سراسر فرانت‌اند و بک‌اند، پیش از هر تحویلی با `tsc --noEmit` چک می‌شود — نه چیزی که فقط در زمان اجرا کشف شود.',
+      'TypeScript در سراسر فرانت‌اند و بک‌اند، قبل از هر تحویل با `tsc --noEmit` بررسی می‌شود؛ خطاها نباید فقط هنگام اجرا پیدا شوند.',
     ),
   },
   {
@@ -325,7 +329,7 @@ const qualityCommitmentsData: QualityCommitment[] = [
     title: tx('Data validated before it ships', 'اعتبارسنجی داده پیش از تحویل'),
     description: tx(
       'Any schema or migration change is checked against real production data inside a transaction that is rolled back afterward — never tested only in theory.',
-      'هر تغییر schema یا migration، درون یک تراکنش که در پایان rollback می‌شود، روی داده‌ی واقعیِ تولید چک می‌شود — هرگز فقط در تئوری تست‌نشده.',
+      'هر تغییر schema یا migration را روی داده‌ی واقعی تولید و داخل تراکنشی که در پایان rollback می‌شود بررسی می‌کنم. فقط در تئوری تست نمی‌شود.',
     ),
   },
   {
@@ -333,7 +337,7 @@ const qualityCommitmentsData: QualityCommitment[] = [
     title: tx('Documented, handed over, not locked in', 'مستندسازی و تحویل، نه قفل‌کردن مشتری'),
     description: tx(
       'Code and IP transfer to you on payment; third-party accounts are created in your name. The full handover package is published on the Working Agreement page.',
-      'کد و مالکیت معنوی پس از پرداخت به تو منتقل می‌شود؛ حساب‌های شخص‌ثالث به‌نام تو ساخته می‌شوند. بسته‌ی کامل تحویل در صفحه‌ی توافق‌نامه‌ی همکاری منتشر می‌شود.',
+      'بعد از پرداخت، کد و مالکیت معنوی طبق توافق به تو منتقل می‌شود. حساب‌های سرویس‌های شخص‌ثالث هم به نام تو هستند. جزئیات تحویل در توافق‌نامه‌ی همکاری مشخص می‌شود.',
     ),
   },
 ]
@@ -355,20 +359,20 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     title: tx('Communication & cadence', 'ارتباط و ریتم گزارش‌دهی'),
     summary: tx(
       'Direct contact with me, on a predictable rhythm — not silence until the very end.',
-      'ارتباط مستقیم با من، با یک ریتم مشخص — نه سکوت تا لحظه‌ی آخر.',
+      'ارتباط مستقیم با من و گزارش منظم؛ نه سکوت تا لحظه‌ی آخر.',
     ),
     points: [
       tx(
         'A short written update at least once a week while a project is active',
-        'یک گزارش نوشتاری کوتاه، دست‌کم هفته‌ای یک‌بار، تا زمانی که پروژه فعال است',
+        'در طول پروژه، دست‌کم هفته‌ای یک گزارش کوتاه و نوشتاری',
       ),
       tx(
         'A demo at the end of every milestone (§ Process — Build), not only at final delivery',
-        'یک دمو در پایان هر نقطه‌ی عطف (§ روند کار — ساخت)، نه فقط در تحویل نهایی',
+        'یک دمو در پایان هر نقطه‌ی عطف، نه فقط در تحویل نهایی',
       ),
       tx(
         'No account manager and no hand-off — you talk to the person who made the last decision on your project',
-        'بدون مدیر حساب و بدون واسطه‌ی اضافی — مستقیم با کسی صحبت می‌کنی که روی پروژه‌ات تصمیم می‌گیرد',
+        'بدون مدیر حساب و واسطه‌ی اضافی؛ مستقیم با کسی صحبت می‌کنی که پروژه را می‌سازد.',
       ),
     ],
   },
@@ -378,7 +382,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     title: tx('Response commitment', 'تعهد پاسخ‌گویی'),
     summary: tx(
       'Replies within a few hours, same day (D-08) — published, and tracked once the admin lead pipeline ships (Phase 14).',
-      'پاسخ‌گویی در همان روز، طی چند ساعت (D-08) — منتشرشده، و پس از راه‌اندازی پایپ‌لاین سرنخ‌های ادمین (فاز ۱۴) ردیابی می‌شود.',
+      'تعهد پاسخ‌گویی همان روز و طی چند ساعت، در توافق‌نامه‌ی همکاری مشخص شده است.',
     ),
   },
   {
@@ -408,7 +412,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
       ),
       tx(
         'A deposit is due before work begins on any new engagement; the exact split is written into that project\u2019s own agreement during Define, sized to the project rather than fixed sitewide (D-13)',
-        'برای هر همکاری تازه، پیش از شروع کار یک پیش‌پرداخت لازم است؛ نسبت دقیق آن در قرارداد همان پروژه، در فاز تعریف مشخص می‌شود — متناسب با پروژه، نه یک عدد ثابت برای همه (D-13)',
+        'برای هر همکاری تازه پیش از شروع کار یک پیش‌پرداخت لازم است. نسبت دقیق آن در قرارداد همان پروژه و متناسب با دامنه‌ی کار مشخص می‌شود؛ یک عدد ثابت برای همه‌ی پروژه‌ها نیست.',
       ),
       tx(
         'No online payment gateway is wired into this site yet (Phase 9); invoices are sent and paid through the channel agreed during Define',
@@ -422,12 +426,12 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     title: tx('Ownership', 'مالکیت'),
     summary: tx(
       'Code and intellectual property transfer to you on payment — nothing is held back as leverage.',
-      'کد و مالکیت معنوی پس از پرداخت به تو منتقل می‌شود — چیزی به‌عنوان اهرم فشار نگه‌داشته نمی‌شود.',
+      'بعد از پرداخت، کد و مالکیت معنوی طبق توافق به تو منتقل می‌شود؛ چیزی به‌عنوان اهرم نگه داشته نمی‌شود.',
     ),
     points: [
       tx(
         'Every deliverable\u2019s source code and IP transfers to you once it\u2019s paid for',
-        'کد منبع و مالکیت معنوی هر خروجی، بعد از پرداخت به تو منتقل می‌شود',
+        'کد منبع و مالکیت معنوی هر خروجی بعد از پرداخت به تو منتقل می‌شود',
       ),
       tx(
         'Third-party accounts your project depends on — domain registrar, hosting, database, analytics — are created in your name from the start, not mine',
@@ -435,7 +439,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
       ),
       tx(
         'If an account genuinely has to be created under my name first for a technical reason, ownership transfers to you as part of handover — not left running under my account indefinitely',
-        'اگر یک حساب به دلیل فنی واقعاً ابتدا باید به‌نام من ساخته شود، مالکیتش بخشی از فرایند تحویل به تو منتقل می‌شود — نه این‌که تا ابد زیر حساب من باقی بماند',
+        'اگر یک حساب به دلیل فنی ابتدا به نام من ساخته شود، مالکیت آن در فرایند تحویل به تو منتقل می‌شود؛ حساب نباید زیر مالکیت من باقی بماند.',
       ),
     ],
   },
@@ -445,13 +449,13 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     title: tx('Handover package', 'بسته‌ی تحویل'),
     summary: tx(
       'A complete, working handover — not a code drop with no instructions.',
-      'یک تحویل کامل و کاربردی — نه یک ریختن کد بدون هیچ راهنمایی.',
+      'یک بسته‌ی کامل و قابل‌استفاده برای تحویل — نه صرفاً کد بدون راهنما.',
     ),
     points: [
       tx('The full repository, with commit history intact', 'کل ریپازیتوری، با تاریخچه‌ی کامل commitها'),
       tx(
         'Documentation covering what was built and how it fits together (§ Quality baseline)',
-        'مستنداتی که پوشش می‌دهد چه‌چیزی ساخته شده و چطور کنار هم قرار می‌گیرد (§ خط پایه‌ی کیفیت)',
+        'مستنداتی که توضیح می‌دهند چه چیزی ساخته شده و اجزای آن چطور کنار هم کار می‌کنند (§ خط پایه‌ی کیفیت)',
       ),
       tx(
         'An environment template (`.env.example`) so the project can be set up on a clean machine without guessing which variables it needs',
@@ -463,7 +467,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
       ),
       tx(
         'Credentials transfer for anything still under my access, coordinated during Launch and Support (§ Process)',
-        'انتقال اطلاعات دسترسی برای هرچیزی که هنوز زیر دسترسی من است، هماهنگ‌شده در فازهای راه‌اندازی و پشتیبانی (§ روند کار)',
+        'انتقال دسترسی‌های لازم برای هر چیزی که هنوز تحت حساب من است؛ این کار در فازهای راه‌اندازی و پشتیبانی هماهنگ می‌شود (§ روند کار)',
       ),
     ],
   },
@@ -473,20 +477,20 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     title: tx('Warranty & change requests', 'ضمانت و درخواست‌های تغییر'),
     summary: tx(
       'A warranty window covers defects after delivery; anything beyond the agreed scope is a change request, priced before it\u2019s built.',
-      'یک بازه‌ی ضمانت، نقص‌های پس از تحویل را پوشش می‌دهد؛ هرچیز فراتر از محدوده‌ی توافق‌شده، یک درخواست تغییر است که پیش از ساخته‌شدن قیمت‌گذاری می‌شود.',
+      'یک بازه‌ی ضمانت، نقص‌های پس از تحویل را پوشش می‌دهد. هر چیزی خارج از محدوده‌ی توافق‌شده، درخواست تغییر محسوب می‌شود و قبل از ساخت قیمت‌گذاری می‌شود.',
     ),
     points: [
       tx(
         'A specific warranty length is written into every project\u2019s own agreement during Define — not one blanket number here, since a landing page and a payment platform carry very different risk (D-13)',
-        'طول دقیق بازه‌ی ضمانت در قرارداد همان پروژه، در فاز تعریف مشخص می‌شود — نه یک عدد یکسان اینجا، چون یک صفحه‌ی فرود و یک پلتفرم پرداخت ریسک بسیار متفاوتی دارند (D-13)',
+        'طول دقیق ضمانت در قرارداد همان پروژه و در مرحله‌ی تعریف مشخص می‌شود؛ چون ریسک یک لندینگ‌پیج با یک پلتفرم پرداخت یکسان نیست.',
       ),
       tx(
         'A defect is something that doesn\u2019t match the agreed scope; a change request is something new or different from what was agreed — the distinction is made explicit before work starts, not argued about after',
-        'نقص یعنی چیزی که با محدوده‌ی توافق‌شده مطابقت ندارد؛ درخواست تغییر یعنی چیزی تازه یا متفاوت از آنچه توافق شده — این تفاوت پیش از شروع کار روشن می‌شود، نه بعد از آن مورد بحث قرار می‌گیرد',
+        'نقص یعنی چیزی که با محدوده‌ی توافق‌شده مطابقت ندارد. درخواست تغییر یعنی چیزی تازه یا متفاوت از توافق. این تفاوت را قبل از شروع کار روشن می‌کنیم.',
       ),
       tx(
         'Change requests are scoped and quoted the same way the original engagement was (§ Process — Define) before they\u2019re built — never silently absorbed or invoiced as a surprise',
-        'درخواست‌های تغییر، دقیقاً مثل خودِ همکاری اولیه (§ روند کار — تعریف)، پیش از ساخته‌شدن محدوده‌بندی و قیمت‌گذاری می‌شوند — هرگز بی‌صدا جذب یا به‌عنوان یک غافلگیری صورت‌حساب نمی‌شوند',
+        'درخواست‌های تغییر، مثل همکاری اولیه (§ روند کار — تعریف)، قبل از اجرا محدوده‌بندی و قیمت‌گذاری می‌شوند؛ این هزینه‌ها بی‌خبر به پروژه اضافه نمی‌شوند.',
       ),
     ],
   },
@@ -496,7 +500,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     title: tx('Confidentiality', 'محرمانگی'),
     summary: tx(
       'An NDA is available on request, signed before Discover begins, if your project needs one.',
-      'در صورت نیاز پروژه‌ات، یک توافق‌نامه‌ی محرمانگی (NDA) پیش از شروع فاز شناخت، بنا به درخواست تو قابل‌امضا است.',
+      'در صورت نیاز پروژه، با درخواست تو می‌توانیم پیش از شروع فاز شناخت یک توافق‌نامه‌ی محرمانگی (NDA) امضا کنیم.',
     ),
   },
 ]
