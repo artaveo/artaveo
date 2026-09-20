@@ -185,10 +185,10 @@ const processPhasesData: ProcessPhase[] = [
     title: tx('Build', 'ساخت'),
     purpose: tx(
       'Develop in small, reviewable increments rather than one long silent stretch.',
-      'ساخت در گام‌های کوچک و قابل‌بازبینی، نه یک دوره‌ی طولانی بدون خبر.',
+      'ساخت در گام‌های کوچک، با بازبینی منظم؛ نه یک دوره‌ی طولانی بدون خبر.',
     ),
     activities: [
-      tx('Feature-by-feature implementation against the approved scope', 'پیاده‌سازی فیچربه‌فیچر بر اساس محدوده‌ی کار تأییدشده'),
+      tx('Feature-by-feature implementation against the approved scope', 'پیاده‌سازی قابلیت‌ها، یکی‌یکی و بر اساس محدوده‌ی کار تأییدشده'),
       tx('Regular written progress updates — what shipped, what is next', 'گزارش پیشرفت نوشتاری منظم — چه چیزی تحویل شد، بعدی چیست'),
       tx('Demos at each milestone rather than only at the very end', 'دمو در هر نقطه‌ی عطف، نه فقط در انتهای کار'),
     ],
@@ -202,7 +202,7 @@ const processPhasesData: ProcessPhase[] = [
     ),
     decisionsAndRisks: tx(
       'Anything discovered mid-build that changes scope is raised immediately as a change request, priced and agreed before it is built — never absorbed silently or invoiced as a surprise.',
-      'هر چیزی که در میانه‌ی ساخت کشف شود و محدوده‌ی کار را تغییر دهد، قبل از ساخت به‌عنوان درخواست تغییر مطرح، قیمت‌گذاری و تأیید می‌شود. چنین تغییری بی‌صدا وارد پروژه نمی‌شود.',
+      'هر چیزی که در میانه‌ی ساخت کشف شود و محدوده‌ی کار را تغییر دهد، قبل از اجرا به‌عنوان درخواست تغییر مطرح، قیمت‌گذاری و تأیید می‌شود. چنین تغییری بی‌صدا وارد پروژه نمی‌شود.',
     ),
   },
   {
@@ -211,11 +211,11 @@ const processPhasesData: ProcessPhase[] = [
     title: tx('Test', 'آزمایش'),
     purpose: tx(
       'Check behavior against reality, not just against the happy path.',
-      'بررسی رفتار در برابر واقعیت، نه فقط مسیر خوش‌بینانه.',
+      'بررسی رفتار واقعی سیستم، نه فقط مسیر عادی.',
     ),
     activities: [
       tx('Manual verification of loading, empty, error and edge states', 'بررسی دستی حالت‌های بارگذاری، خالی، خطا و لبه‌ای'),
-      tx('Cross-device, cross-browser, both-locale and both-theme checks (§ 17 Definition of Done)', 'بررسی روی چند دستگاه، چند مرورگر، هر دو زبان و هر دو تم (طبق § ۱۷ تعریف انجام‌شده)'),
+      tx('Cross-device, cross-browser, both-locale and both-theme checks (§ 17 Definition of Done)', 'بررسی روی چند دستگاه، چند مرورگر، هر دو زبان و هر دو تم (طبق § ۱۷ معیار تکمیل کار)'),
       tx('A migration or schema change is validated against real data inside a transaction that is rolled back — never tested only in theory', 'هر تغییر migration یا schema را روی داده‌ی واقعی و داخل تراکنشی که در پایان rollback می‌شود اعتبارسنجی می‌کنم؛ فقط روی کاغذ به آن اعتماد نمی‌کنم.'),
     ],
     output: tx(
@@ -449,13 +449,13 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     title: tx('Handover package', 'بسته‌ی تحویل'),
     summary: tx(
       'A complete, working handover — not a code drop with no instructions.',
-      'یک تحویل کامل و کاربردی — نه یک ریختن کد بدون هیچ راهنمایی.',
+      'یک بسته‌ی کامل و قابل‌استفاده برای تحویل — نه صرفاً کد بدون راهنما.',
     ),
     points: [
       tx('The full repository, with commit history intact', 'کل ریپازیتوری، با تاریخچه‌ی کامل commitها'),
       tx(
         'Documentation covering what was built and how it fits together (§ Quality baseline)',
-        'مستنداتی که پوشش می‌دهد چه‌چیزی ساخته شده و چطور کنار هم قرار می‌گیرد (§ خط پایه‌ی کیفیت)',
+        'مستنداتی که توضیح می‌دهند چه چیزی ساخته شده و اجزای آن چطور کنار هم کار می‌کنند (§ خط پایه‌ی کیفیت)',
       ),
       tx(
         'An environment template (`.env.example`) so the project can be set up on a clean machine without guessing which variables it needs',
@@ -467,7 +467,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
       ),
       tx(
         'Credentials transfer for anything still under my access, coordinated during Launch and Support (§ Process)',
-        'انتقال اطلاعات دسترسی برای هرچیزی که هنوز زیر دسترسی من است، هماهنگ‌شده در فازهای راه‌اندازی و پشتیبانی (§ روند کار)',
+        'انتقال دسترسی‌های لازم برای هر چیزی که هنوز تحت حساب من است؛ این کار در فازهای راه‌اندازی و پشتیبانی هماهنگ می‌شود (§ روند کار)',
       ),
     ],
   },
@@ -490,7 +490,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
       ),
       tx(
         'Change requests are scoped and quoted the same way the original engagement was (§ Process — Define) before they\u2019re built — never silently absorbed or invoiced as a surprise',
-        'درخواست‌های تغییر، دقیقاً مثل خودِ همکاری اولیه (§ روند کار — تعریف)، پیش از ساخته‌شدن محدوده‌بندی و قیمت‌گذاری می‌شوند — هرگز بی‌صدا جذب یا به‌عنوان یک غافلگیری صورت‌حساب نمی‌شوند',
+        'درخواست‌های تغییر، مثل همکاری اولیه (§ روند کار — تعریف)، قبل از اجرا محدوده‌بندی و قیمت‌گذاری می‌شوند؛ این هزینه‌ها بی‌خبر به پروژه اضافه نمی‌شوند.',
       ),
     ],
   },
@@ -500,7 +500,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     title: tx('Confidentiality', 'محرمانگی'),
     summary: tx(
       'An NDA is available on request, signed before Discover begins, if your project needs one.',
-      'در صورت نیاز پروژه‌ات، یک توافق‌نامه‌ی محرمانگی (NDA) پیش از شروع فاز شناخت، بنا به درخواست تو قابل‌امضا است.',
+      'در صورت نیاز پروژه، با درخواست تو می‌توانیم پیش از شروع فاز شناخت یک توافق‌نامه‌ی محرمانگی (NDA) امضا کنیم.',
     ),
   },
 ]
