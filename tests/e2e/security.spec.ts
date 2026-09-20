@@ -29,6 +29,21 @@ test.beforeEach(async ({ page }) => {
 const violations = (page: import('@playwright/test').Page) =>
   page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)
 
+/**
+ * "The page has finished loading and its scripts have had time to run" — what the policy checks
+ * below need before they read the violation list. NOT `waitForLoadState('networkidle')` on its
+ * own: it waits for a 500 ms silence on the network, and on GitHub's runner (which, unlike a
+ * sandbox, has real internet) the About page never got one, so the test waited out its 45 s
+ * budget after every header assertion had already passed. Playwright itself discourages
+ * `networkidle`. Here: wait for `load`, give the network up to 5 s to settle, and carry on
+ * either way — a violation is reported by the browser the moment it happens, so nothing is
+ * lost by not waiting longer.
+ */
+async function settle(page: import('@playwright/test').Page) {
+  await page.waitForLoadState('load')
+  await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {})
+}
+
 test.describe('headers and policy on every kind of page', () => {
   for (const locale of LOCALES) {
     for (const [label, route] of ROUTES) {
@@ -43,7 +58,7 @@ test.describe('headers and policy on every kind of page', () => {
         expect(headers['content-security-policy']).toContain("frame-ancestors 'none'")
         expect(headers['content-security-policy']).toContain("object-src 'none'")
         expect(headers['content-security-policy-report-only']).toBeUndefined()
-        await page.waitForLoadState('networkidle')
+        await settle(page)
         expect(await violations(page)).toEqual([])
       })
     }
@@ -84,7 +99,7 @@ test.describe('the admin', () => {
       expect(csp, route).toMatch(/script-src 'self' 'nonce-[A-Za-z0-9+/=]{20,}' 'sha256-/)
       expect(csp, route).not.toMatch(/script-src[^;]*'unsafe-inline'/)
       expect(response!.headers()['cache-control'], route).toContain('no-store')
-      await page.waitForLoadState('networkidle')
+      await settle(page)
       expect(await violations(page), route).toEqual([])
     }
     const cookies = (await context.cookies()).filter((cookie) => /^sb-/.test(cookie.name))
@@ -179,7 +194,7 @@ test.describe('hostile text stays text', () => {
     await signInAsAdmin(page, OWNER)
     for (const route of [`/en/admin/leads/${lead[0].id}`, '/en/admin/leads', '/en/admin']) {
       await page.goto(route)
-      await page.waitForLoadState('networkidle')
+      await settle(page)
       expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss), route).toBeUndefined()
       expect(await violations(page), route).toEqual([])
     }
