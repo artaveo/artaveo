@@ -103,7 +103,7 @@ const servicesData: Service[] = [
       'بیشتر سایت‌های کسب‌وکارهای کوچک یا به یک page-builder محدود می‌شوند، یا بعد از راه‌اندازی برای هر تغییر دوباره به توسعه‌دهنده نیاز دارند. این خدمت یک پایه‌ی سریع، مرتب و قابل‌توسعه می‌سازد.',
     ),
     whatIDo: [
-      tx('Design and build the site as typed, component-based content — the same shape a CMS record would later have', 'طراحی و ساخت سایت به‌عنوان محتوای تایپ‌شده و کامپوننت‌محور — دقیقاً همان شکلی که یک رکورد CMS بعداً خواهد داشت'),
+      tx('Design and build the site as typed, component-based content — the same shape a CMS record would later have', 'طراحی و ساخت سایت با محتوای تایپ‌شده و کامپوننت‌محور؛ ساختاری که بعداً یک رکورد CMS هم می‌تواند داشته باشد'),
       tx('Set up metadata, sitemaps and structured data so search engines can actually read the content', 'راه‌اندازی متادیتا، sitemap و داده‌ی ساختاریافته تا موتورهای جست‌وجو واقعاً بتوانند محتوا را بخوانند'),
       tx('Wire up analytics and a working contact path from day one', 'راه‌اندازی آنالیتیکس و یک مسیر تماس کارآمد از همان روز اول'),
     ],
@@ -135,7 +135,7 @@ const servicesData: Service[] = [
       ),
       step(
         ['Build', 'Component-based implementation, one reviewable page at a time.'],
-        ['ساخت', 'پیاده‌سازی کامپوننت‌محور، هر بار یک صفحه‌ی قابل‌بازبینی.'],
+        ['ساخت', 'هر بار یک صفحه می‌سازم تا همان مرحله قابل‌بازبینی باشد.'],
       ),
       step(
         ['Launch', 'SEO checks, cross-device pass, deploy to production.'],
@@ -158,7 +158,7 @@ const servicesData: Service[] = [
       ),
       faq(
         ['Do you write the copy?', 'Not by default — content is scoped in Discover. Copywriting can be discussed as a separate add-on if needed.'],
-        ['آیا خودتان متن را می‌نویسید؟', 'به‌طور پیش‌فرض نه — محتوا در مرحله‌ی «شناخت» مشخص می‌شود. کپی‌رایتینگ در صورت نیاز به‌عنوان یک افزونه‌ی جداگانه قابل‌بحث است.'],
+        ['آیا خودتان متن را می‌نویسید؟', 'به‌طور پیش‌فرض نه؛ محتوا در مرحله‌ی «شناخت» مشخص می‌شود. در صورت نیاز، کپی‌رایتینگ را می‌توان به‌عنوان یک افزونه‌ی جداگانه در نظر گرفت.'],
       ),
     ],
     packages: [
@@ -295,7 +295,7 @@ const servicesData: Service[] = [
     ),
     description: tx(
       'Full-stack product builds — interface, API and database as one consistent system, starting with a Discovery Sprint.',
-      'ساخت محصول فول‌استک — رابط کاربری، API و پایگاه داده به‌عنوان یک سیستم یکدست، با شروع از یک Discovery Sprint.',
+      'ساخت محصول فول‌استک — رابط کاربری، API و پایگاه داده را به‌عنوان یک سیستم واحد می‌سازم؛ کار با یک Discovery Sprint شروع می‌شود.',
     ),
     forWhom: [
       tx('A founder or business with a real product idea and unclear or evolving scope', 'یک بنیان‌گذار یا کسب‌وکار با ایده‌ی محصولی واقعی و محدوده‌ای که هنوز در حال شکل‌گیری است'),
@@ -306,12 +306,12 @@ const servicesData: Service[] = [
     ],
     problem: tx(
       'Fixed-price quotes for a project with unclear scope are dishonest in one direction or the other — either padded to cover the unknowns, or cut corners once the real complexity shows up. Custom product work needs the scope defined before the price is.',
-      'برای پروژه‌ای که محدوده‌اش روشن نیست، قیمت ثابت معمولاً یا بیش‌ازحد محافظه‌کارانه می‌شود یا وسط کار دردسر ایجاد می‌کند. اول محدوده را مشخص می‌کنیم، بعد قیمت می‌دهیم.',
+      'برای پروژه‌ای که محدوده‌اش روشن نیست، قیمت ثابت معمولاً یا بیش‌ازحد محافظه‌کارانه است یا وسط کار مشکل ایجاد می‌کند. اول محدوده را مشخص می‌کنیم، بعد قیمت می‌دهیم.',
     ),
     whatIDo: [
       tx('Run a fixed-price Discovery Sprint first: scope, architecture outline and an estimate you can act on', 'ابتدا یک Discovery Sprint با قیمت ثابت اجرا می‌کنم: دامنه، طرح‌کلی معماری و برآوردی که می‌توانید بر اساسش تصمیم بگیرید'),
-      tx('Design and build the database schema, API and interface as one system, not three disconnected layers', 'طراحی و ساخت پایگاه داده، API و رابط کاربری به‌عنوان یک سیستم؛ نه سه بخش جدا از هم'),
-      tx('Deliver in milestones you can see and review, not one opaque block at the end', 'تحویل در نقاط عطف روشن و قابل‌بازبینی، نه یک بسته‌ی مبهم در انتهای کار'),
+      tx('Design and build the database schema, API and interface as one system, not three disconnected layers', 'طراحی و ساخت پایگاه داده، API و رابط کاربری به‌عنوان یک سیستم واحد؛ نه سه بخش جدا از هم'),
+      tx('Deliver in milestones you can see and review, not one opaque block at the end', 'تحویل در نقاط عطف روشن، با امکان بازبینی؛ نه یک بسته‌ی مبهم در انتهای کار'),
     ],
     included: [
       tx('Discovery Sprint: scoped problem statement, architecture outline, milestone plan and estimate', 'Discovery Sprint: بیان دقیق مسئله، طرح‌کلی معماری، برنامه‌ی نقاط عطف و برآورد'),
@@ -340,7 +340,7 @@ const servicesData: Service[] = [
       ),
       step(
         ['Build in milestones', 'Each milestone is a working, reviewable slice — not a black box until the end.'],
-        ['ساخت در نقاط عطف', 'هر نقطه‌ی عطف یک تکه‌ی کاری و قابل‌بازبینی است — نه یک جعبه‌ی سیاه تا پایان کار.'],
+        ['ساخت در نقاط عطف', 'هر نقطه‌ی عطف یک بخش کاری مشخص است که می‌توانی ببینی و بازبینی کنی — نه یک جعبه‌ی سیاه تا پایان کار.'],
       ),
       step(
         ['Launch & handover', 'Deploy, document, and hand over ownership per the Working Agreement.'],
