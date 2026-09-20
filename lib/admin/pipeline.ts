@@ -1,6 +1,7 @@
 import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
+import { ilikeAnyOf } from '@/lib/postgrest'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import type { LocalizedText } from '@/types/content'
 import type { InquiryEvent, PipelineFilters, PipelineInquiry, SlaStatus } from '@/types/pipeline'
@@ -75,10 +76,9 @@ export async function listInquiries(filters: PipelineFilters): Promise<PipelineL
     query = query.contains('tags', [filters.tag])
   }
   if (filters.q) {
-    const term = filters.q.trim()
-    if (term) {
-      query = query.or(`name.ilike.%${term}%,email.ilike.%${term}%`)
-    }
+    // Phase 23: the term is data, never filter syntax — see lib/postgrest.ts.
+    const expression = ilikeAnyOf(['name', 'email'], filters.q)
+    if (expression) query = query.or(expression)
   }
 
   const from = (filters.page - 1) * filters.pageSize
@@ -110,8 +110,8 @@ export async function listInquiriesForExport(
   if (filters.priority) query = query.eq('priority', filters.priority)
   if (filters.tag) query = query.contains('tags', [filters.tag])
   if (filters.q) {
-    const term = filters.q.trim()
-    if (term) query = query.or(`name.ilike.%${term}%,email.ilike.%${term}%`)
+    const expression = ilikeAnyOf(['name', 'email'], filters.q)
+    if (expression) query = query.or(expression)
   }
 
   const { data, error } = await query

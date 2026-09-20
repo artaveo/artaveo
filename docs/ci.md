@@ -88,3 +88,10 @@ Assume the secret is compromised. **Rotate it first** (Supabase key, provider ke
 - **Static analysis for security (CodeQL or similar), headers/CSP checks, rate-limit tests** → Phase 23.
 - **Log/error alerting when a deployed site breaks** → Phase 24. **Performance budgets** → Phase 25.
 - **Visual regression** — the suite does not compare pixels (fonts are stubbed offline).
+
+## Phase 23 additions (security)
+
+- The new suites run in the existing jobs with no workflow change: `security-input`, `security-csp` and `security-static` in **verify** (unit), `security.integration` in **integration**, `security.spec.ts` in **e2e**. Every other browser test now also fails on any Content Security Policy violation.
+- **New check worth knowing about:** `tests/unit/security-static.test.mjs` fails the pull request if a Server Action is added without being classified (gated, or a reviewed public entry point that calls the rate limiter), if a new place that can produce HTML appears, if an environment variable is read that `docs/security.md` § 6 does not describe, or if a form could fall back to GET. Fix the code or the list on purpose — `docs/security.md` § 9 is the checklist.
+- **Migrations:** the integration and e2e jobs apply every file in `db/migrations` (now through `0020`) to a throw-away database, so a migration that does not apply fails CI. Live application is still a manual step.
+- No new secret, no new permission.

@@ -452,7 +452,7 @@ export function LinksStep({ draft, errors, onChange }: StepProps) {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+            accept="image/png,image/jpeg,image/webp,image/gif"
             disabled={uploading}
             onChange={handleFileSelected}
             aria-label={t18n('attachmentsLabel')}

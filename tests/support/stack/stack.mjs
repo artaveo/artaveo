@@ -270,7 +270,7 @@ async function status() {
 
 /** Tables the suites write to. Content, migrations' seeds and the admins are left alone. */
 const MUTABLE_TABLES = [
-  'inquiry_attachments', 'inquiry_events', 'consultations', 'notification_attempts', 'notification_outbox',
+  'inquiry_attachments', 'inquiry_files', 'rate_limit_buckets', 'inquiry_events', 'consultations', 'notification_attempts', 'notification_outbox',
   'inquiries', 'recommendation_requests', 'audit_log',
 ]
 

@@ -15,8 +15,13 @@ const BRAND_GOLD = '#D4A24C'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const title = searchParams.get('title') ?? siteConfig.name
-  const eyebrow = searchParams.get('eyebrow') ?? siteConfig.tagline
+  // Phase 23: this endpoint renders whatever text it is given, on the brand's own
+  // domain. Lengths are capped and control characters removed so it cannot be
+  // used to burn CPU with a huge string; the residual risk (anyone can make an
+  // image with chosen words) is recorded in docs/security.md.
+  const clean = (value: string | null, max: number) => value?.replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max) || null
+  const title = clean(searchParams.get('title'), 120) ?? siteConfig.name
+  const eyebrow = clean(searchParams.get('eyebrow'), 60) ?? siteConfig.tagline
 
   return new ImageResponse(
     (

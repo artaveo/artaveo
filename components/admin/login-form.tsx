@@ -33,7 +33,7 @@ export function LoginForm({ locale }: { locale: string }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [pending, setPending] = useState(false)
-  const [error, setError] = useState<'invalid-credentials' | 'not-configured' | null>(null)
+  const [error, setError] = useState<'invalid-credentials' | 'not-configured' | 'rate-limited' | null>(null)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -59,7 +59,7 @@ export function LoginForm({ locale }: { locale: string }) {
   return (
     <Card>
       <CardContent className="pt-6">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+        <form method="post" onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
           <Field>
             <FieldLabel htmlFor="admin-email">{t('emailLabel')}</FieldLabel>
             <Input
@@ -86,7 +86,11 @@ export function LoginForm({ locale }: { locale: string }) {
 
           {error ? (
             <FormMessage variant="destructive">
-              {error === 'not-configured' ? t('errorNotConfigured') : t('errorInvalidCredentials')}
+              {error === 'not-configured'
+                ? t('errorNotConfigured')
+                : error === 'rate-limited'
+                  ? t('errorRateLimited')
+                  : t('errorInvalidCredentials')}
             </FormMessage>
           ) : null}
 

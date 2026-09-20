@@ -102,7 +102,7 @@ export function RecommendationForm({
 
         {moderationNote ? <FormMessage variant="warning">{t('moderationNoteIntro', { note: moderationNote })}</FormMessage> : null}
 
-        <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
+        <form method="post" className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
           {/* Honeypot — same off-screen pattern as the Brief Builder (components/start/brief-builder.tsx). A real visitor never sees or fills this. */}
           <div aria-hidden="true" style={{ position: 'absolute', insetInlineStart: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
             <Label htmlFor="rec-website">Leave this field blank</Label>

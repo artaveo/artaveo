@@ -132,7 +132,7 @@ export function MfaEnrollmentPanel({
           <FieldLabel>{t('secretLabel')}</FieldLabel>
           <Input readOnly value={state.secret} className="font-mono text-xs" dir="ltr" />
         </Field>
-        <form onSubmit={handleConfirm} className="flex flex-col gap-4" noValidate>
+        <form method="post" onSubmit={handleConfirm} className="flex flex-col gap-4" noValidate>
           <input type="hidden" name="factorId" value={state.factorId} />
           <Field>
             <FieldLabel htmlFor="admin-enroll-code">{t('confirmCodeLabel')}</FieldLabel>

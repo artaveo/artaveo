@@ -37,6 +37,11 @@ export async function createAuthServerClient(): Promise<SupabaseClient | null> {
   const cookieStore = await cookies()
 
   return createServerClient(url, anonKey, {
+    // Phase 23: the browser never talks to Supabase (no browser client exists), so the
+    // session cookies have no reason to be readable by page scripts — `httpOnly` means an
+    // XSS in the admin cannot lift the session token. `Secure` wherever the site is served
+    // over HTTPS (Vercel); the local test stack is plain http.
+    cookieOptions: { httpOnly: true, sameSite: 'lax' as const, secure: Boolean(process.env.VERCEL), path: '/' },
     cookies: {
       getAll() {
         return cookieStore.getAll()

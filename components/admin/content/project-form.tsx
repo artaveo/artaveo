@@ -80,7 +80,7 @@ export function ProjectForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+    <form method="post" onSubmit={handleSubmit} className="flex flex-col gap-6">
       <Card>
         <CardContent className="flex flex-col gap-4 pt-6">
           <div className="grid gap-4 sm:grid-cols-2">

@@ -7,6 +7,7 @@ import { writeAuditLog } from '@/lib/admin/audit'
 import { requireSupabase } from '@/lib/admin/pipeline'
 import { routing } from '@/i18n/routing'
 import { ALLOWED_MEDIA_MIME_TYPES, MAX_MEDIA_FILE_SIZE_BYTES, MEDIA_BUCKET, clampFocal, safeStoragePath } from '@/lib/media-upload'
+import { inspectUpload } from '@/lib/upload-inspection'
 import type { MediaAltInput, ProjectMediaInput } from '@/types/cms'
 
 /**
@@ -51,9 +52,16 @@ export async function uploadMedia(formData: FormData): Promise<MediaUploadResult
   const supabase = requireSupabase()
   if (!supabase) return { ok: false, code: 'not-configured' }
 
+  // Phase 23: the bytes must be what the declared type says (lib/upload-inspection.ts).
+  // SVG is allowed here — an editor is signed in — but only after its markup passes the
+  // script/foreign-content/external-reference checks; it is only ever shown through <img>.
+  const bytes = new Uint8Array(await file.arrayBuffer())
+  const inspection = inspectUpload(bytes, file.type, { allowSvg: true })
+  if (!inspection.ok) return { ok: false, code: 'invalid-type' }
+
   const path = safeStoragePath(file.name)
-  const { error: uploadError } = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, {
-    contentType: file.type,
+  const { error: uploadError } = await supabase.storage.from(MEDIA_BUCKET).upload(path, bytes, {
+    contentType: inspection.contentType,
     upsert: false,
   })
   if (uploadError) return { ok: false, code: 'error' }
@@ -68,8 +76,10 @@ export async function uploadMedia(formData: FormData): Promise<MediaUploadResult
     .insert({
       url: publicUrlData.publicUrl,
       alt: { en: altEn, fa: altFa },
-      type: file.type,
-      size_bytes: file.size,
+      type: inspection.contentType,
+      size_bytes: bytes.length,
+      width: inspection.width,
+      height: inspection.height,
       focal_x: focalX,
       focal_y: focalY,
     })

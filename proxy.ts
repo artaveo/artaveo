@@ -1,7 +1,8 @@
 import createMiddleware from 'next-intl/middleware'
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 
 import { routing } from '@/i18n/routing'
+import { buildCsp, cspHeaderName, newNonce } from '@/lib/security/csp'
 import { refreshSupabaseSession } from '@/lib/supabase/middleware'
 
 const intlMiddleware = createMiddleware(routing)
@@ -33,10 +34,35 @@ function isAdminPath(pathname: string): boolean {
  * every edge request for every route is unnecessary cost this cheaper
  * check already avoids paying.
  */
-export default async function middleware(request: NextRequest) {
-  const response = intlMiddleware(request)
+export default async function middleware(incoming: NextRequest) {
+  const admin = isAdminPath(incoming.nextUrl.pathname)
 
-  if (!isAdminPath(request.nextUrl.pathname)) {
+  // Phase 23 — Content Security Policy, per request (lib/security/csp.ts explains the
+  // two variants). The admin's policy carries a nonce, and Next stamps that nonce on
+  // its own inline scripts only if it finds the policy on the REQUEST it renders — so
+  // for the admin the policy (and the nonce) are written onto the request headers
+  // before next-intl sees it, and again onto the response for the browser. Public,
+  // prerendered pages get the response header only: no nonce can exist in HTML that
+  // was generated before the request.
+  const csp = buildCsp({
+    mode: admin ? 'admin' : 'public',
+    nonce: admin ? newNonce() : undefined,
+    dev: process.env.NODE_ENV !== 'production',
+    supabaseUrl: process.env.SUPABASE_URL,
+    upgradeInsecure: Boolean(process.env.VERCEL),
+  })
+
+  let request = incoming
+  if (admin) {
+    const requestHeaders = new Headers(incoming.headers)
+    requestHeaders.set('content-security-policy', csp)
+    request = new NextRequest(incoming, { headers: requestHeaders })
+  }
+
+  const response = intlMiddleware(request)
+  response.headers.set(cspHeaderName(), csp)
+
+  if (!admin) {
     return response
   }
 

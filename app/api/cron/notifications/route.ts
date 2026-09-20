@@ -6,6 +6,8 @@ import { publishDueArticles } from '@/lib/insights-scheduler'
 import { enqueueContentPublished } from '@/lib/notifications/events'
 import { processOutboxBatch } from '@/lib/notifications/outbox'
 import { sweepRecommendationRecipients } from '@/lib/recommendation-privacy'
+import { sweepUnlinkedInquiryFiles } from '@/lib/inquiry-files'
+import { purgeExpiredRateLimits } from '@/lib/security/rate-limit'
 
 /**
  * The daily run: the notification retry sweep (§ 9.3, Phase 19), the
@@ -109,5 +111,10 @@ export async function GET(request: Request) {
   // redact the e-mails that carried it (`lib/recommendation-privacy.ts`).
   const recommenderPrivacy = await settle('recommender address sweep', () => sweepRecommendationRecipients(supabase))
 
-  return NextResponse.json({ ok: true, notifications, articles, publishNotices, recommenderPrivacy })
+  // Phase 23: housekeeping that keeps two tables the size of "recent activity" —
+  // finished rate-limit windows, and visitor uploads whose brief was never sent.
+  const rateLimits = await settle('rate limit purge', () => purgeExpiredRateLimits(supabase))
+  const unlinkedFiles = await settle('unlinked file sweep', () => sweepUnlinkedInquiryFiles(supabase))
+
+  return NextResponse.json({ ok: true, notifications, articles, publishNotices, recommenderPrivacy, rateLimits, unlinkedFiles })
 }

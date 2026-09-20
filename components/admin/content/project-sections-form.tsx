@@ -72,7 +72,7 @@ export function ProjectSectionsForm({ projectId, project }: { projectId: string;
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form method="post" onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Card>
         <CardContent className="flex flex-col gap-4 pt-6">
           <LocalizedTextareaField id="section-context" label={t('cmsFieldContext')} value={form.context ?? emptyLocalized()} onChange={(v) => setField('context', v)} disabled={pending} rows={2} />

@@ -19,7 +19,7 @@ function FormLayout({
   ...props
 }: React.ComponentProps<'form'> & { footer?: React.ReactNode }) {
   return (
-    <form data-slot="form-layout" className={cn('flex w-full max-w-lg flex-col gap-5', className)} {...props}>
+    <form method="post" data-slot="form-layout" className={cn('flex w-full max-w-lg flex-col gap-5', className)} {...props}>
       {children}
       {footer ? <div className="flex items-center gap-3 pt-2">{footer}</div> : null}
     </form>

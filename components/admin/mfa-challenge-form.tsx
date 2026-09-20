@@ -14,7 +14,7 @@ export function MfaChallengeForm({ locale }: { locale: string }) {
   const t = useTranslations('Admin')
   const router = useRouter()
   const [pending, setPending] = useState(false)
-  const [error, setError] = useState<'invalid-code' | 'no-factor' | 'not-configured' | null>(null)
+  const [error, setError] = useState<'invalid-code' | 'no-factor' | 'not-configured' | 'rate-limited' | null>(null)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -39,12 +39,13 @@ export function MfaChallengeForm({ locale }: { locale: string }) {
     'invalid-code': t('errorInvalidCode'),
     'no-factor': t('errorNoFactor'),
     'not-configured': t('errorNotConfigured'),
+    'rate-limited': t('errorRateLimited'),
   }
 
   return (
     <Card>
       <CardContent className="pt-6">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+        <form method="post" onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
           <Field>
             <FieldLabel htmlFor="admin-mfa-code">{t('codeLabel')}</FieldLabel>
             <Input

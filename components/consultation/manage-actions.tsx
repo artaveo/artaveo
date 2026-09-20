@@ -162,7 +162,7 @@ export function ManageActions({
             <CardTitle>{t('changeTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className="flex flex-col gap-5" onSubmit={submitChange} noValidate>
+            <form method="post" className="flex flex-col gap-5" onSubmit={submitChange} noValidate>
               <WindowsEditor
                 idPrefix="manage"
                 locale={locale}

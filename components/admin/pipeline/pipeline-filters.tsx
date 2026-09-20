@@ -56,6 +56,7 @@ export function PipelineFiltersBar({
 
   return (
     <form
+      method="get"
       className="flex flex-wrap items-end gap-3"
       onSubmit={(event) => {
         event.preventDefault()

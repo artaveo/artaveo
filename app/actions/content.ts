@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 
 import { getAdminSession, mfaSatisfied } from '@/lib/admin/auth'
+import { assertUuid } from '@/lib/postgrest'
 import { writeAuditLog } from '@/lib/admin/audit'
 import {
   articleCompleteness,
@@ -817,7 +818,7 @@ async function saveArticleRelations(
   const cleared = await Promise.all([
     supabase.from('article_projects').delete().eq('article_id', id),
     supabase.from('article_services').delete().eq('article_id', id),
-    supabase.from('article_related').delete().or(`article_id.eq.${id},related_article_id.eq.${id}`),
+    supabase.from('article_related').delete().or(`article_id.eq.${assertUuid(id)},related_article_id.eq.${assertUuid(id)}`),
   ])
   if (cleared.some((result) => result.error)) return false
 

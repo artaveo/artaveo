@@ -14,7 +14,8 @@ import { NoteForm } from '@/components/admin/pipeline/note-form'
 import { EventsTimeline } from '@/components/admin/pipeline/events-timeline'
 import { SlaIndicator } from '@/components/admin/pipeline/sla-indicator'
 import { canAccessLeads, getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
-import { computeSla, getInquiry, getInquiryEvents, getResponseCommitment } from '@/lib/admin/pipeline'
+import { computeSla, getInquiry, getInquiryEvents, getResponseCommitment, requireSupabase } from '@/lib/admin/pipeline'
+import { listInquiryFiles } from '@/lib/inquiry-files'
 import { ConsultationStatusBadge, CONSULTATION_STATUS_SUFFIX } from '@/components/consultation/consultation-status'
 import { listConsultationsForInquiry } from '@/lib/consultation/queries'
 import { describeUtcRange } from '@/lib/consultation/time'
@@ -49,11 +50,13 @@ export default async function LeadDetailPage({
 
   const t = await getTranslations('Admin')
 
-  const [inquiry, events, commitment, consultations] = await Promise.all([
+  const filesClient = requireSupabase()
+  const [inquiry, events, commitment, consultations, files] = await Promise.all([
     getInquiry(id),
     getInquiryEvents(id),
     getResponseCommitment(),
     listConsultationsForInquiry(id),
+    filesClient ? listInquiryFiles(filesClient, id) : Promise.resolve([]),
   ])
 
   if (!inquiry) {
@@ -127,6 +130,32 @@ export default async function LeadDetailPage({
                 </div>
               )
             })}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {files.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('leadFilesTitle')}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 text-sm">
+            <p className="text-muted-foreground">{t('leadFilesHint')}</p>
+            <ul className="flex flex-col gap-2">
+              {files.map((file) => (
+                <li key={file.id} className="flex flex-wrap items-baseline justify-between gap-2">
+                  {/* A download link to our own route (owner-checked, private storage) — never a public file URL. */}
+                  <a href={`/api/admin/inquiry-files/${file.id}`} rel="noreferrer" className="underline underline-offset-4">
+                    <bdi>{file.originalName}</bdi>
+                  </a>
+                  <span className="text-xs text-muted-foreground">
+                    <bdi>
+                      {file.contentType} · {Math.max(1, Math.round(file.sizeBytes / 1024))} KB
+                    </bdi>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </CardContent>
         </Card>
       ) : null}

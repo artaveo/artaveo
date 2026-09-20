@@ -114,7 +114,8 @@ function sanitizeHref(raw: string): string | null {
     }
   }
   if (/^mailto:[^\s]+$/i.test(href)) return href
-  if (href.startsWith('/') && !href.startsWith('//') && !/\s/.test(href)) return href
+  // `\` is read as `/` by browsers, so `/\evil.example` would be the protocol-relative `//evil.example`.
+  if (href.startsWith('/') && !href.startsWith('//') && !/[\s\\]/.test(href)) return href
   if (href.startsWith('#') && href.length > 1 && !/\s/.test(href)) return href
   return null
 }

@@ -2,6 +2,7 @@
 
 import { canAccessLeads, getAdminSession, mfaSatisfied } from '@/lib/admin/auth'
 import { writeAuditLog } from '@/lib/admin/audit'
+import { toCsv } from '@/lib/csv'
 import { getInquiry, listInquiriesForExport, requireSupabase } from '@/lib/admin/pipeline'
 import { ALLOWED_STAGE_TRANSITIONS, type InquiryPriority, type InquiryStage, type PipelineFilters } from '@/types/pipeline'
 
@@ -185,13 +186,6 @@ export async function addInquiryNote(inquiryId: string, note: string): Promise<P
   return { ok: true }
 }
 
-function csvEscape(value: string): string {
-  if (/[",\n]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`
-  }
-  return value
-}
-
 const CSV_COLUMNS = [
   'id',
   'created_at',
@@ -222,30 +216,26 @@ export async function exportInquiriesCsv(filters: Omit<PipelineFilters, 'page' |
 
   await writeAuditLog({ actor: auth.userId, action: 'pipeline.csv_exported', entity: 'inquiry' })
 
-  const lines = [CSV_COLUMNS.join(',')]
-  for (const row of rows) {
-    lines.push(
-      [
-        row.id,
-        row.createdAt,
-        row.name,
-        row.email,
-        row.phone,
-        row.stage,
-        row.priority,
-        row.followUpAt ?? '',
-        row.tags.join(';'),
-        row.serviceSlug ?? '',
-        row.packageId ?? '',
-        row.engagementModelId ?? '',
-        row.sourceChannel ?? '',
-        row.preferredChannel,
-        row.goal,
-      ]
-        .map((value) => csvEscape(String(value)))
-        .join(','),
-    )
-  }
-
-  return { ok: true, csv: lines.join('\r\n') }
+  // Phase 23: `toCsv` neutralises cells a spreadsheet would run as formulas (lib/csv.ts).
+  const csv = toCsv(
+    CSV_COLUMNS,
+    rows.map((row) => [
+      row.id,
+      row.createdAt,
+      row.name,
+      row.email,
+      row.phone,
+      row.stage,
+      row.priority,
+      row.followUpAt ?? '',
+      row.tags.join(';'),
+      row.serviceSlug ?? '',
+      row.packageId ?? '',
+      row.engagementModelId ?? '',
+      row.sourceChannel ?? '',
+      row.preferredChannel,
+      row.goal,
+    ]),
+  )
+  return { ok: true, csv }
 }

@@ -62,6 +62,12 @@ export function sql(query, { allowError = false } = {}) {
   }
 }
 
+// Phase 23: rate-limit windows outlive a test process, so start every suite from empty
+// buckets, and give every request context its own address (tests/support/next-runtime.mjs).
+globalThis.__TEST_AUTO_IP__ = true
+sql('truncate public.rate_limit_buckets')
+globalThis.__TEST_CLEAR_ADMIN_BUCKETS__ = () => sql("delete from public.rate_limit_buckets where bucket_key like 'admin.%'")
+
 export const uuid = () => globalThis.crypto.randomUUID()
 export const stackUrl = env.SUPABASE_URL
 export const stackEnv = env

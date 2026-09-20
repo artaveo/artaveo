@@ -70,7 +70,7 @@ export type InquiryDraft = {
   timeline?: TimelineId
   budgetBand?: BudgetBandId
   links: InquiryLink[]
-  /** § 15's Brief Builder attachments — ids of `media_assets` rows already uploaded via `uploadInquiryAttachment` before submission; linked to the inquiry via `inquiry_attachments` once the inquiry itself is inserted. */
+  /** § 15's Brief Builder attachments — ids of `inquiry_files` rows (private bucket, migration 0020) already uploaded via `uploadInquiryAttachment` before submission; linked to the inquiry (`inquiry_files.inquiry_id`) once the inquiry itself is inserted. The name is historical; the ids are random UUIDs only the uploader has seen. */
   attachmentMediaIds: string[]
   name: string
   email: string

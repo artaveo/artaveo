@@ -1,6 +1,8 @@
 'use server'
 
+import { MAX_ATTACHMENTS_PER_INQUIRY } from '@/lib/media-upload'
 import { getClientIp, hashIp } from '@/lib/request-ip'
+import { checkRateLimit } from '@/lib/security/rate-limit'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { validateAllSteps } from '@/lib/inquiry-validation'
 import { enqueueInquiryNotifications } from '@/lib/notifications/events'
@@ -23,6 +25,8 @@ const MIN_FORM_FILL_MS = 3000
 /** Deliberately generous — this guards against abuse, not normal reuse (a client resubmitting after fixing a typo, etc). */
 const MAX_PER_IP_PER_HOUR = 5
 const MAX_PER_EMAIL_PER_DAY = 3
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /**
  * § 9.3 / Phase 19 — enqueue the owner alert + client confirmation, then make
@@ -57,6 +61,11 @@ export async function submitInquiry(
   draft: InquiryDraft,
   meta: InquirySubmissionMeta,
 ): Promise<InquirySubmissionResult> {
+  // 0. Phase 23: every argument of a Server Action is untrusted, whatever its type says.
+  if (!meta || typeof meta.idempotencyKey !== 'string' || meta.idempotencyKey.length < 8 || meta.idempotencyKey.length > 100 || typeof meta.honeypot !== 'string') {
+    return { ok: false, code: 'invalid' }
+  }
+
   // 1. Server re-validates everything (§ 9.2) — the client already ran
   //    the same check, but nothing here trusts that alone.
   if (!validateAllSteps(draft)) {
@@ -78,6 +87,14 @@ export async function submitInquiry(
   const supabase = getSupabaseServerClient()
   if (!supabase) {
     return { ok: false, code: 'not-configured' }
+  }
+
+  // Phase 23: the attempt limit comes before any query — a flood is turned away for the
+  // price of one function call, not a lookup and a count. Same generic code as the
+  // other refusals; the caller is never told which check tripped.
+  const attempts = await checkRateLimit('inquiry.submit')
+  if (!attempts.ok) {
+    return { ok: false, code: 'rejected' }
   }
 
   const ip = await getClientIp()
@@ -183,18 +200,20 @@ export async function submitInquiry(
     console.error('inquiry_events insert failed (inquiry itself was saved):', eventError)
   }
 
-  // 7b. § 15's Brief Builder attachments: link whatever was already
-  //     uploaded (via `uploadInquiryAttachment`) before this submit.
-  //     Best-effort, capped defensively at 3 even though the client UI
-  //     already enforces that limit — never trust the client alone.
-  //     Never undoes or masks the successful inquiry insert above.
-  const attachmentIds = draft.attachmentMediaIds.slice(0, 3)
-  if (attachmentIds.length > 0) {
+  // 7b. § 15's Brief Builder attachments: link whatever was already uploaded
+  //     (via `uploadInquiryAttachment`) before this submit. Phase 23: only
+  //     files that are still UNLINKED can be linked — a file already attached
+  //     to another brief is left alone — and the cap is enforced here, never
+  //     left to the client. Best-effort: never undoes the inquiry insert above.
+  const fileIds = [...new Set(draft.attachmentMediaIds)].filter((id) => UUID.test(id)).slice(0, MAX_ATTACHMENTS_PER_INQUIRY)
+  if (fileIds.length > 0) {
     const { error: attachmentError } = await supabase
-      .from('inquiry_attachments')
-      .insert(attachmentIds.map((media_id) => ({ inquiry_id: inserted.id, media_id })))
+      .from('inquiry_files')
+      .update({ inquiry_id: inserted.id })
+      .in('id', fileIds)
+      .is('inquiry_id', null)
     if (attachmentError) {
-      console.error('inquiry_attachments insert failed (inquiry itself was saved):', attachmentError)
+      console.error('inquiry_files link failed (inquiry itself was saved):', attachmentError)
     }
   }
 

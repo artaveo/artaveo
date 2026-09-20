@@ -42,6 +42,10 @@ export function createGateway({ port, postgrestUrl, jwtSecret, accounts }) {
   const origin = `http://127.0.0.1:${port}`
   const refreshTokens = new Map() // refresh token → account
   const objects = new Map() // `${bucket}/${path}` → { body, contentType }
+  const signedTokens = new Map() // token → { key, expires }
+  // Buckets created with `public = false` (migration 0020). Kept in step with the migration by
+  // tests/unit/security-migration.test.mjs — the stand-in cannot read storage.buckets itself.
+  const PRIVATE_BUCKETS = new Set(['inquiry-files'])
 
   const userOf = (account) => ({
     id: account.id,
@@ -128,6 +132,31 @@ export function createGateway({ port, postgrestUrl, jwtSecret, accounts }) {
   async function handleStorage(req, res, url) {
     const path = url.pathname.replace(/^\/storage\/v1/, '')
 
+    // Signed URLs (Phase 23, for private buckets): POST /object/sign/<bucket>/<path…> answers
+    // with a short-lived link, GET /object/sign/<bucket>/<path…>?token=… serves it. The token
+    // is checked for the object it was issued for and for expiry, like the real service.
+    const sign = path.match(/^\/object\/sign\/([^/]+)\/(.+)$/)
+    if (sign && req.method === 'POST') {
+      const { expiresIn = 60 } = JSON.parse((await readBody(req)).toString('utf8') || '{}')
+      const key = `${sign[1]}/${decodeURIComponent(sign[2])}`
+      if (!objects.has(key)) return json(res, 400, { statusCode: '404', error: 'not_found', message: 'Object not found' })
+      const token = crypto.randomUUID()
+      signedTokens.set(token, { key, expires: Date.now() + Number(expiresIn) * 1000 })
+      return json(res, 200, { signedURL: `/object/sign/${sign[1]}/${sign[2]}?token=${token}` })
+    }
+    if (sign && req.method === 'GET') {
+      const grant = signedTokens.get(url.searchParams.get('token') ?? '')
+      const key = `${sign[1]}/${decodeURIComponent(sign[2])}`
+      if (!grant || grant.key !== key || grant.expires < Date.now()) return json(res, 400, { statusCode: '400', error: 'InvalidJWT', message: 'invalid or expired token' })
+      const object = objects.get(key)
+      if (!object) return json(res, 404, { statusCode: '404', error: 'not_found', message: 'Object not found' })
+      const headers = { 'content-type': object.contentType, 'content-length': object.body.length }
+      const download = url.searchParams.get('download')
+      if (download !== null) headers['content-disposition'] = `attachment; filename="${download || 'download'}"`
+      res.writeHead(200, headers)
+      return res.end(object.body)
+    }
+
     // Upload: POST /object/<bucket>/<path…>
     const upload = path.match(/^\/object\/([^/]+)\/(.+)$/)
     if (upload && (req.method === 'POST' || req.method === 'PUT') && upload[1] !== 'public') {
@@ -166,6 +195,8 @@ export function createGateway({ port, postgrestUrl, jwtSecret, accounts }) {
     // Public read: GET /object/public/<bucket>/<path…>
     const read = path.match(/^\/object\/public\/([^/]+)\/(.+)$/)
     if (read && req.method === 'GET') {
+      // A private bucket has no public URL — the real service answers "bucket not found".
+      if (PRIVATE_BUCKETS.has(read[1])) return json(res, 404, { statusCode: '404', error: 'Bucket not found', message: 'Bucket not found' })
       const object = objects.get(`${read[1]}/${decodeURIComponent(read[2])}`)
       if (!object) return json(res, 404, { statusCode: '404', error: 'not_found', message: 'Object not found' })
       res.writeHead(200, { 'content-type': object.contentType, 'content-length': object.body.length })

@@ -1,5 +1,6 @@
 'use server'
 
+import { checkRateLimit } from '@/lib/security/rate-limit'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { resolveRequestToken } from '@/lib/recommendations'
 import { enqueueEvidenceSubmitted } from '@/lib/notifications/events'
@@ -12,9 +13,15 @@ import type { RecommendationSubmissionInput } from '@/types/cms'
  * recommender opens `/recommend/[token]` and submits. Re-validates
  * everything server-side and applies the same honeypot + minimum
  * fill-time anti-spam check `app/actions/inquiries.ts` established for
- * the Brief Builder — but deliberately no per-IP rate limit (see the
- * comment at step 4 below for why one isn't needed here).
+ * the Brief Builder. Phase 23 added an attempt limit per address, per link
+ * and overall (`recommendation.submit`) — see step 1b.
  */
+
+// Every argument of a Server Action is untrusted input, whatever its TypeScript type says.
+const MAX_NAME = 120
+const MAX_STATEMENT = 3000
+const MAX_URL = 500
+
 
 const MIN_FORM_FILL_MS = 2000
 
@@ -43,6 +50,24 @@ export async function submitRecommendation(
   if (meta.honeypot.trim().length > 0) return { ok: false, code: 'rejected' }
   if (Date.now() - meta.formRenderedAt < MIN_FORM_FILL_MS) return { ok: false, code: 'rejected' }
 
+  // 1b. Phase 23 — attempt limits, before any lookup. The token is the second
+  //     dimension: one link cannot be hammered from many addresses either.
+  //     (The old note here said no limit was needed because the token is
+  //     unguessable — true for guessing, not for cost: every attempt with ANY
+  //     string still cost a database lookup.)
+  if (typeof token !== 'string' || token.length > 200) return { ok: false, code: 'closed' }
+  const attempts = await checkRateLimit('recommendation.submit', { subject: token })
+  if (!attempts.ok) return { ok: false, code: 'rejected' }
+
+  if (
+    !input ||
+    [input.personName, input.relationship, input.statement, input.personTitle, input.company, input.profileUrl].some(
+      (value) => typeof value !== 'string',
+    )
+  ) {
+    return { ok: false, code: 'invalid' }
+  }
+
   // 2. Server re-validates every required field — the client already
   //    ran the same checks, but nothing here trusts that alone.
   const personName = input.personName.trim()
@@ -56,6 +81,16 @@ export async function submitRecommendation(
     return { ok: false, code: 'invalid' }
   }
   if (!isValidUrl(profileUrl)) return { ok: false, code: 'invalid' }
+  if (
+    personName.length > MAX_NAME ||
+    relationship.length > MAX_NAME ||
+    personTitle.length > MAX_NAME ||
+    company.length > MAX_NAME ||
+    statement.length > MAX_STATEMENT ||
+    profileUrl.length > MAX_URL
+  ) {
+    return { ok: false, code: 'invalid' }
+  }
 
   const supabase = getSupabaseServerClient()
   if (!supabase) return { ok: false, code: 'not-configured' }
@@ -66,16 +101,7 @@ export async function submitRecommendation(
   const resolved = await resolveRequestToken(token, locale)
   if (resolved.state !== 'open') return { ok: false, code: 'closed' }
 
-  // 4. No separate per-IP rate limit here, unlike the Brief Builder —
-  //    deliberately, not an oversight. `/start` is a public, open
-  //    endpoint anyone can hammer; this route only does anything once
-  //    someone already holds a real, owner-issued, unguessable token
-  //    (`generateRequestToken()` — 24 random bytes), and a token that
-  //    isn't `'open'` (already used, revoked, expired) is rejected by
-  //    `resolveRequestToken` above regardless of how many times it's
-  //    tried. The honeypot/fill-time checks above still guard the one
-  //    real repeat-submission path that exists — a "request change"
-  //    reopening the same link for a genuine resubmission.
+  // 4. The request row this token belongs to.
   const { data: requestRow, error: requestError } = await supabase
     .from('recommendation_requests')
     .select('id, recommendation_id, suggested_related_project_id, suggested_related_service_id')

@@ -48,8 +48,17 @@ export const ROUTES: [string, string][] = [
 /** Text that means a template or a data bug leaked into the page. */
 export const LEAK = /MISSING_MESSAGE|\bundefined\b|\bNaN\b|\[object Object\]|\bnull\b(?!\s*[-–—:])/
 
+/** Sign-in attempts are rate-limited per address and per account (Phase 23); every browser test comes from the same address, so each sign-in starts from empty admin buckets. The limits themselves are exercised in security.spec.ts. */
+export async function clearAdminRateLimits() {
+  await db('rate_limit_buckets?bucket_key=like.admin.*', { method: 'DELETE', prefer: 'return=minimal' })
+}
+
 export async function signInAsAdmin(page: Page, account: { email: string; password: string }, locale = 'en') {
+  await clearAdminRateLimits()
   await page.goto(`/${locale}/admin/login`)
+  // The admin has no site header for `goto` to probe: wait until the form is hydrated, or a click
+  // is a native submit of an unhydrated form (which is why the forms now say method="post").
+  await expect.poll(() => isInteractive(page.locator('form button[type=submit]').first()), { message: 'login form never hydrated' }).toBe(true)
   await page.locator('input[type=email], input[name=email]').first().fill(account.email)
   await page.locator('input[type=password]').first().fill(account.password)
   await page.locator('form button[type=submit]').first().click()
@@ -94,7 +103,9 @@ export const test = base.extend({
     page.on('console', (message) => {
       if (message.type() !== 'error') return
       const text = message.text()
-      if (/Base UI error|Minified React error|Hydration failed|hydrated but some attributes|Warning: /.test(text)) problems.push(`console: ${text.slice(0, 200)}`)
+      // Vercel Analytics' script is served by the Vercel platform (`/_vercel/insights/…`), which `next start` is not: there the path is a 404 page, and with `nosniff` (Phase 23) the browser now says so. Not the site's own resource.
+      if (text.includes('/_vercel/')) return
+      if (/Base UI error|Minified React error|Hydration failed|hydrated but some attributes|Warning: |Content Security Policy|Refused to (?:load|execute|apply|connect|frame)/.test(text)) problems.push(`console: ${text.slice(0, 200)}`)
     })
     await use(page)
     expect(problems, 'errors raised in the browser during the test').toEqual([])

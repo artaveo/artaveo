@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { createAuthServerClient } from '@/lib/supabase/server-auth'
 import { getAdminSession, mfaDestination, mfaSatisfied, type AdminRole } from '@/lib/admin/auth'
 import { writeAuditLog } from '@/lib/admin/audit'
+import { checkRateLimit } from '@/lib/security/rate-limit'
 
 /**
  * Roadmap § 13 — Admin Authentication & Authorization. Every action here
@@ -19,12 +20,12 @@ import { writeAuditLog } from '@/lib/admin/audit'
  */
 
 export type SignInResult =
-  | { ok: false; code: 'not-configured' | 'invalid-credentials' }
+  | { ok: false; code: 'not-configured' | 'invalid-credentials' | 'rate-limited' }
   | { ok: true; next: 'mfa-challenge' | 'security' | 'dashboard' }
 
 export async function adminSignIn(formData: FormData): Promise<SignInResult> {
-  const email = String(formData.get('email') ?? '').trim()
-  const password = String(formData.get('password') ?? '')
+  const email = String(formData.get('email') ?? '').trim().slice(0, 254)
+  const password = String(formData.get('password') ?? '').slice(0, 1024)
 
   const authClient = await createAuthServerClient()
   if (!authClient) {
@@ -33,6 +34,19 @@ export async function adminSignIn(formData: FormData): Promise<SignInResult> {
 
   if (!email || !password) {
     return { ok: false, code: 'invalid-credentials' }
+  }
+
+  // Phase 23: attempts are limited per address, per e-mail and overall BEFORE the
+  // password is checked, so a guessing run gets nothing back but this. Supabase Auth
+  // has its own limits too; ours also bound the audit rows an attacker can cause.
+  // One audit row when a limit is first crossed — never one per refused attempt,
+  // and never carrying the attacker's text.
+  const attempts = await checkRateLimit('admin.sign-in', { subject: email })
+  if (!attempts.ok) {
+    if (attempts.hits === attempts.limit + 1) {
+      await writeAuditLog({ actor: 'system', action: 'admin.sign_in_rate_limited', entity: 'admin_session', after: { dimension: attempts.dimension } })
+    }
+    return { ok: false, code: 'rate-limited' }
   }
 
   const { error: signInError } = await authClient.auth.signInWithPassword({ email, password })
@@ -67,7 +81,7 @@ export async function adminSignIn(formData: FormData): Promise<SignInResult> {
 }
 
 export type MfaChallengeResult =
-  | { ok: false; code: 'not-configured' | 'no-factor' | 'invalid-code' }
+  | { ok: false; code: 'not-configured' | 'no-factor' | 'invalid-code' | 'rate-limited' }
   | { ok: true }
 
 /** For `/admin/mfa-challenge` — verifying a factor that's already enrolled from an earlier session. */
@@ -77,6 +91,15 @@ export async function verifyMfaChallenge(formData: FormData): Promise<MfaChallen
   const authClient = await createAuthServerClient()
   if (!authClient) {
     return { ok: false, code: 'not-configured' }
+  }
+
+  // Phase 23: a six-digit code has a million values — the attempts are what protect it.
+  // Limited per address and per signed-in user; the user id is the second dimension
+  // (this step only exists for someone who already passed the password).
+  const { data: whoData } = await authClient.auth.getUser()
+  const attempts = await checkRateLimit('admin.mfa', { subject: whoData.user?.id ?? null })
+  if (!attempts.ok) {
+    return { ok: false, code: 'rate-limited' }
   }
 
   const { data: factorsData } = await authClient.auth.mfa.listFactors()
@@ -142,6 +165,12 @@ export async function enrollMfaVerify(formData: FormData): Promise<MfaEnrollVeri
   const authClient = await createAuthServerClient()
   if (!authClient) {
     return { ok: false, code: 'not-configured' }
+  }
+
+  const { data: whoData } = await authClient.auth.getUser()
+  const attempts = await checkRateLimit('admin.mfa', { subject: whoData.user?.id ?? null })
+  if (!attempts.ok) {
+    return { ok: false, code: 'invalid-code' }
   }
 
   const { error } = await authClient.auth.mfa.challengeAndVerify({ factorId, code })

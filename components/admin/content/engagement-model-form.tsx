@@ -92,7 +92,7 @@ export function EngagementModelForm({
         </Card>
       ) : null}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form method="post" onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Card>
           <CardContent className="flex flex-col gap-4 pt-6">
             <Field>

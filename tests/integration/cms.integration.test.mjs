@@ -274,7 +274,9 @@ describe('uploads', () => {
 
   it('exactly 5 MiB is accepted (the limit is inclusive)', async () => {
     await login(EDITOR)
-    const result = await media.uploadMedia(upload({ file: new File([Buffer.alloc(5 * 1024 * 1024)], 'edge.png', { type: 'image/png' }) }))
+    // A real PNG header followed by padding to exactly 5 MiB (the inspector reads the header, not the pixels).
+    const padded = Buffer.concat([PNG, Buffer.alloc(5 * 1024 * 1024 - PNG.length)])
+    const result = await media.uploadMedia(upload({ file: new File([padded], 'edge.png', { type: 'image/png' }) }))
     assert.equal(result.ok, true)
   })
 
@@ -286,53 +288,103 @@ describe('uploads', () => {
     assert.equal((await fetch(url)).status, 404)
   })
 
-  describe('public Brief Builder attachments', () => {
+  describe('public Brief Builder attachments (private bucket, Phase 23)', () => {
     const attach = (over) => uploadInquiryAttachment(upload({ altEn: null, altFa: null, ...over }))
     const ipHeaders = (n) => ({ 'x-forwarded-for': `198.51.100.${n}` })
+    const files = async (id) => (await db.from('inquiry_files').select('*').eq('id', id).single()).data
 
-    it('needs no login, records only the IP hash, and rejects the same bad types and sizes', async () => {
+    it('needs no login, records only the IP hash, lands in the PRIVATE bucket and never in the CMS library', async () => {
       resetRequest(ipHeaders(1))
+      const libraryBefore = await mediaCount()
       const ok = await attach({})
       assert.equal(ok.ok, true)
-      const row = (await db.from('media_assets').select('uploaded_by_ip_hash, alt').eq('id', ok.mediaId).single()).data
-      assert.equal(row.uploaded_by_ip_hash, hashIp('198.51.100.1'), 'same hash as the inquiry rate limit uses — the two code paths must not drift')
-      assert.equal(row.alt, null)
-      assert.deepEqual(await attach({ file: new File(['x'], 'a.exe', { type: 'application/x-msdownload' }) }), { ok: false, code: 'invalid-type' })
-      assert.deepEqual(await attach({ file: new File([Buffer.alloc(5 * 1024 * 1024 + 1)], 'b.png', { type: 'image/png' }) }), { ok: false, code: 'too-large' })
+      const row = await files(ok.mediaId)
+      assert.equal(row.uploaded_by_ip_hash, hashIp('198.51.100.1'), 'same hash as the inquiry rate limit uses — the flows must not drift')
+      assert.equal(row.content_type, 'image/png')
+      assert.equal(row.inquiry_id, null)
+      assert.equal(await mediaCount(), libraryBefore, 'a visitor file is not a CMS asset: editors never see it')
+      assert.ok((await stored()).some((o) => o.key === `inquiry-files/${row.storage_path}`))
+      assert.ok(!(await stored()).some((o) => o.key.startsWith('media/') && o.key.includes(row.storage_path.slice(0, 20))))
+      // Private: there is no public URL for it.
+      assert.equal((await fetch(`${stackUrl}/storage/v1/object/public/inquiry-files/${row.storage_path}`)).status, 404)
     })
 
-    it('is capped at 15 files per address per hour; another address is unaffected', async () => {
+    it('rejects bad types and sizes — and a file whose BYTES are not the declared image', async () => {
+      resetRequest(ipHeaders(7))
+      assert.deepEqual(await attach({ file: new File(['x'], 'a.exe', { type: 'application/x-msdownload' }) }), { ok: false, code: 'invalid-type' })
+      assert.deepEqual(await attach({ file: new File([Buffer.alloc(5 * 1024 * 1024 + 1)], 'b.png', { type: 'image/png' }) }), { ok: false, code: 'too-large' })
+      assert.deepEqual(await attach({ type: 'image/svg+xml', file: new File(['<svg xmlns="http://www.w3.org/2000/svg"/>'], 's.svg', { type: 'image/svg+xml' }) }), { ok: false, code: 'invalid-type' }, 'no SVG from strangers')
+      assert.deepEqual(await attach({ file: new File(['<html><script>alert(1)</script></html>'], 'evil.png', { type: 'image/png' }) }), { ok: false, code: 'invalid-type' }, 'HTML wearing a PNG label')
+      assert.deepEqual(await attach({ file: new File([PNG], 'liar.jpg', { type: 'image/jpeg' }) }), { ok: false, code: 'invalid-type' }, 'a PNG declared as JPEG')
+      assert.equal((await db.from('inquiry_files').select('id', { count: 'exact', head: true }).eq('uploaded_by_ip_hash', hashIp('198.51.100.7'))).count, 0, 'refusals leave no row')
+    })
+
+    it('one address may hold at most 6 unlinked files; another address is unaffected', async () => {
       resetRequest(ipHeaders(2))
       const outcomes = []
-      for (let i = 0; i < 16; i += 1) outcomes.push((await attach({ name: `f${i}.png` })).ok)
-      assert.deepEqual(outcomes, [...Array(15).fill(true), false])
+      for (let i = 0; i < 7; i += 1) outcomes.push((await attach({ name: `f${i}.png` })).ok)
+      assert.deepEqual(outcomes, [...Array(6).fill(true), false])
       resetRequest(ipHeaders(3))
       assert.equal((await attach({})).ok, true)
     })
 
-    it('an uploader can remove only its own, still-unlinked file', async () => {
-      resetRequest(ipHeaders(4))
-      const mine = await attach({ name: 'mine.png' })
-      resetRequest(ipHeaders(5))
-      assert.deepEqual(await removeInquiryAttachment(mine.mediaId), { ok: false }, 'someone else cannot delete it')
-      resetRequest(ipHeaders(4))
-      assert.deepEqual(await removeInquiryAttachment(mine.mediaId), { ok: true })
-      assert.equal((await db.from('media_assets').select('id').eq('id', mine.mediaId)).data.length, 0)
+    it('the attempt limit counts every try, including refused ones (20 per hour per address)', async () => {
+      resetRequest(ipHeaders(8))
+      let refusedByLimit = 0
+      for (let i = 0; i < 24; i += 1) {
+        const r = await attach({ file: new File(['<html>'], 'x.png', { type: 'image/png' }) })
+        if (r.code === 'rejected') refusedByLimit += 1
+      }
+      assert.equal(refusedByLimit, 4, 'attempts 21–24 are turned away before any file is read')
     })
 
-    it('once linked to an inquiry a file can no longer be removed by the visitor; the inquiry links at most 3', async () => {
+    it('an unlinked file can be removed with its id (the id is the capability); a linked one, or an unknown id, cannot', async () => {
+      resetRequest(ipHeaders(4))
+      const mine = await attach({ name: 'mine.png' })
+      const path = (await files(mine.mediaId)).storage_path
+      assert.deepEqual(await removeInquiryAttachment(uuid()), { ok: false })
+      assert.deepEqual(await removeInquiryAttachment('not-a-uuid'), { ok: false })
+      resetRequest(ipHeaders(5)) // another network: the visitor's phone switched from wifi to mobile data
+      assert.deepEqual(await removeInquiryAttachment(mine.mediaId), { ok: true })
+      assert.equal((await db.from('inquiry_files').select('id').eq('id', mine.mediaId)).data.length, 0)
+      assert.ok(!(await stored()).some((o) => o.key === `inquiry-files/${path}`), 'the stored object goes too')
+    })
+
+    it('linking: at most 3, only unlinked files, never one already attached to another brief; then it cannot be removed by the visitor', async () => {
       resetRequest(ipHeaders(6))
       const uploaded = []
       for (let i = 0; i < 4; i += 1) uploaded.push((await attach({ name: `a${i}.png` })).mediaId)
-      const draft = {
-        ...createEmptyInquiryDraft('en'), projectType: 'web-app-or-mvp', goal: 'Attachment probe goal text', timeline: 'asap',
-        name: 'Attach Probe', email: `att-${uuid().slice(0, 6)}@example.com`, consent: true, attachmentMediaIds: uploaded,
-      }
-      const result = await submitInquiry(draft, { honeypot: '', formRenderedAt: Date.now() - 60000, idempotencyKey: uuid() })
-      assert.equal(result.ok, true)
-      const links = (await db.from('inquiry_attachments').select('media_id').eq('inquiry_id', result.id)).data
-      assert.equal(links.length, 3, 'never trust the client: capped server-side')
-      assert.deepEqual(await removeInquiryAttachment(links[0].media_id), { ok: false })
+      const submit = (attachmentMediaIds) => submitInquiry(
+        { ...createEmptyInquiryDraft('en'), projectType: 'web-app-or-mvp', goal: 'Attachment probe goal text', timeline: 'asap',
+          name: 'Attach Probe', email: `att-${uuid().slice(0, 6)}@example.com`, consent: true, attachmentMediaIds },
+        { honeypot: '', formRenderedAt: Date.now() - 60000, idempotencyKey: uuid() },
+      )
+      const first = await submit(uploaded)
+      assert.equal(first.ok, true)
+      const linked = (await db.from('inquiry_files').select('id').eq('inquiry_id', first.id)).data
+      assert.equal(linked.length, 3, 'never trust the client: capped server-side')
+      assert.deepEqual(await removeInquiryAttachment(linked[0].id), { ok: false })
+      // A second brief that names the first brief's file does not steal it.
+      const second = await submit([linked[0].id, 'not-a-uuid', linked[0].id])
+      assert.equal(second.ok, true)
+      assert.equal((await db.from('inquiry_files').select('id').eq('inquiry_id', second.id)).data.length, 0)
+      assert.equal((await files(linked[0].id)).inquiry_id, first.id)
+    })
+
+    it('the daily sweep deletes unlinked files older than a day, object and row, and leaves linked and fresh ones', async () => {
+      const { sweepUnlinkedInquiryFiles } = await import('../../lib/inquiry-files.ts')
+      resetRequest(ipHeaders(9))
+      const old = (await attach({ name: 'old.png' })).mediaId
+      const fresh = (await attach({ name: 'fresh.png' })).mediaId
+      const linkedOld = (await attach({ name: 'linked.png' })).mediaId
+      const owner = (await db.from('inquiries').select('id').limit(1).single()).data.id
+      sql(`update public.inquiry_files set created_at = now() - interval '25 hours' where id in ('${old}', '${linkedOld}')`)
+      sql(`update public.inquiry_files set inquiry_id = '${owner}' where id = '${linkedOld}'`)
+      const oldPath = (await files(old)).storage_path
+      assert.deepEqual(await sweepUnlinkedInquiryFiles(db), { deleted: 1 })
+      assert.equal((await db.from('inquiry_files').select('id').eq('id', old)).data.length, 0)
+      assert.ok(!(await stored()).some((o) => o.key === `inquiry-files/${oldPath}`))
+      assert.equal((await db.from('inquiry_files').select('id').in('id', [fresh, linkedOld])).data.length, 2)
     })
   })
 })

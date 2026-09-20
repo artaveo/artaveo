@@ -114,7 +114,7 @@ export function ConfirmForm({
   const moving = status === 'confirmed'
 
   return (
-    <form className="flex flex-col gap-5" onSubmit={submit} noValidate>
+    <form method="post" className="flex flex-col gap-5" onSubmit={submit} noValidate>
       <p className="text-sm text-muted-foreground">{t('consultationConfirmHint')}</p>
 
       <Field>

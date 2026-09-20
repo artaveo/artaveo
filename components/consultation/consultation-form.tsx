@@ -151,7 +151,7 @@ export function ConsultationForm({ locale }: { locale: Locale }) {
   return (
     <Card>
       <CardContent className="pt-6">
-        <form className="flex flex-col gap-6" onSubmit={handleSubmit} noValidate>
+        <form method="post" className="flex flex-col gap-6" onSubmit={handleSubmit} noValidate>
           {/* Honeypot — same off-screen pattern as the Brief Builder. A real visitor never sees or fills this. */}
           <div aria-hidden="true" style={{ position: 'absolute', insetInlineStart: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
             <Label htmlFor="consult-website">Leave this field blank</Label>

@@ -112,3 +112,22 @@ axe finds the mechanical problems (names, roles, contrast, duplicate ids, landma
 - A URL that matches no route (`/fa/no-such-page`) is a real 404 but is drawn by the plain, English-only root not-found page (no header, `<title>` or `<h1>`); pinned in `routes.spec.ts`, allow-listed in `a11y.spec.ts`.
 - After Publish/Unpublish, the first visitor to a list page may still see the previous version once (Next serves the old page while it regenerates). `admin.spec.ts` reloads until the change shows.
 - `notification_outbox` rows and the audit log are truncated by the suites; never point them at a real database. `stack.mjs` only ever creates its own cluster in a temp directory.
+
+## Security tests (Phase 23)
+
+Run with the rest — `npm run test:unit`, `npm run test:integration`, `npm run test:e2e` — and in CI. What is where (rationale and the full model: `docs/security.md`):
+
+| File | Layer | What it pins |
+|---|---|---|
+| `tests/unit/security-input.test.mjs` | unit | the search-term escaper (with hostile terms), CSV formula neutralising (phone numbers untouched), upload inspection by bytes (each image type, lying labels, huge canvases, SVG allow/deny lists), display names, client-address choice on and off Vercel, the hash salt, the rate-limit policy's shape, the configuration check (never prints a value), article link filtering |
+| `tests/unit/security-csp.test.mjs` | unit | both Content Security Policy variants (no `'unsafe-inline'` in the admin, no nonce/hash beside it in the public one, the theme-script hash equals the script's real hash), the static header set, private-path rules and their order |
+| `tests/unit/security-static.test.mjs` | unit (reads the source) | **every Server Action is either gated before it touches data or a reviewed public entry point that calls the rate limiter**; `'use server'` only in `app/actions`; the list of places that can produce HTML; no `.or()`/`.filter()` built from free text; no form that can fall back to GET; migration `0020` ↔ code ↔ test stand-in agree on the upload rules; every environment variable the code reads is in `docs/security.md` |
+| `tests/integration/security.integration.test.mjs` | integration (real PostgreSQL) | the limiter function (limit, windows, 40-way race lets exactly 10 through, nonsense arguments, unreachable by browser roles), the limiter inside the real actions, the lead search with **a control that proves the old code was injectable**, the CSV export, RLS and constraints on the new tables |
+| `tests/integration/cms.integration.test.mjs` | integration | rewritten attachment tests: private bucket, never in the CMS library, bytes checked, linking rules, the daily sweep |
+| `tests/e2e/security.spec.ts` | browser | headers and **no policy violation on every route type in both languages**; the admin walk with its nonce policy and `httpOnly` cookies; an injected script does not run in the admin; the sign-in limit through the UI; **a Server Action call with a foreign `Origin` is refused, and the identical call from our own origin runs (control)**; a hostile lead is shown as text; the private attachment (no public URL, anonymous/editor/malformed all 404, owner gets a 60-second download link) |
+
+Every other browser test now also **fails on any Content Security Policy violation** (see the console filter in `tests/e2e/support.ts`), so the policy is exercised by the whole suite, not only by this file.
+
+**Fixtures.** The many sign-ins and submissions a suite makes would otherwise share one rate-limit bucket: integration suites give every fresh request context its own address (`resetRequest`, `__TEST_AUTO_IP__`) and clear the admin windows; browser tests clear them in `signInAsAdmin`. The rate-limit tests themselves do not — they are the ones that need the windows. The storage stand-in now models private buckets and signed URLs (`tests/support/stack/gateway.mjs`); which buckets are private is checked against the migration by `security-static`.
+
+**Not covered:** real Supabase Storage (bucket limits, real signed-URL behaviour, the `Content-Type`/CSP headers Storage adds), Vercel's platform limits (the 4.5 MB body cap, the firewall), and Supabase Auth's own limits and MFA.

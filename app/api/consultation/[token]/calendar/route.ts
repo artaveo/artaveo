@@ -4,6 +4,7 @@ import { buildConsultationIcs, consultationUid } from '@/lib/consultation/ics'
 import { loadConsultationByToken } from '@/lib/consultation/queries'
 import { linkExpired, looksLikeToken } from '@/lib/consultation/windows'
 import { consultationSummary } from '@/lib/notifications/consultation-templates'
+import { checkRateLimit } from '@/lib/security/rate-limit'
 import { siteConfig } from '@/lib/site'
 import { absoluteUrl } from '@/lib/site-url'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
@@ -31,6 +32,15 @@ export async function GET(_request: Request, { params }: { params: Promise<{ tok
 
   const supabase = getSupabaseServerClient()
   if (!supabase) return NOT_FOUND()
+
+  // Phase 23: a public GET that costs a database lookup per call.
+  const attempts = await checkRateLimit('token.calendar', { subject: token })
+  if (!attempts.ok) {
+    return new NextResponse('Too many requests', {
+      status: 429,
+      headers: { 'Cache-Control': 'no-store', 'Retry-After': String(Math.max(1, attempts.retryAfterSeconds)), 'X-Robots-Tag': 'noindex' },
+    })
+  }
 
   const consultation = await loadConsultationByToken(supabase, token)
   if (!consultation || linkExpired(consultation, new Date())) return NOT_FOUND()

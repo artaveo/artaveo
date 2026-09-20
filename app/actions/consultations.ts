@@ -3,6 +3,7 @@
 import { createConsultationRequest, cancelConsultationAsClient, requestConsultationReschedule } from '@/lib/consultation/service'
 import { looksLikeToken } from '@/lib/consultation/windows'
 import { getClientIp, hashIp } from '@/lib/request-ip'
+import { checkRateLimit } from '@/lib/security/rate-limit'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import type { Locale } from '@/types/content'
 import type {
@@ -37,6 +38,10 @@ export async function submitConsultationRequest(
   const supabase = getSupabaseServerClient()
   if (!supabase) return { ok: false, code: 'not-configured' }
 
+  // Phase 23: attempt limit before any work (the service's own per-record limits stay).
+  const attempts = await checkRateLimit('consultation.request')
+  if (!attempts.ok) return { ok: false, code: 'rejected' }
+
   const ipHash = hashIp(await getClientIp())
   return createConsultationRequest(
     { supabase },
@@ -63,6 +68,8 @@ export async function cancelMyConsultation(token: string, reason: string): Promi
   if (typeof token !== 'string' || !looksLikeToken(token)) return { ok: false, code: 'not-found' }
   const supabase = getSupabaseServerClient()
   if (!supabase) return { ok: false, code: 'not-configured' }
+  const attempts = await checkRateLimit('consultation.client-action', { subject: token })
+  if (!attempts.ok) return { ok: false, code: 'rejected' }
   return cancelConsultationAsClient({ supabase }, token, typeof reason === 'string' ? reason : '')
 }
 
@@ -74,6 +81,8 @@ export async function rescheduleMyConsultation(
   if (typeof token !== 'string' || !looksLikeToken(token)) return { ok: false, code: 'not-found' }
   const supabase = getSupabaseServerClient()
   if (!supabase) return { ok: false, code: 'not-configured' }
+  const attempts = await checkRateLimit('consultation.client-action', { subject: token })
+  if (!attempts.ok) return { ok: false, code: 'rejected' }
   return requestConsultationReschedule(
     { supabase },
     token,

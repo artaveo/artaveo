@@ -1,5 +1,7 @@
 import createNextIntlPlugin from 'next-intl/plugin'
 
+import { buildHeaderRules } from './lib/security/static-headers.mjs'
+
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
 /** @type {import('next').NextConfig} */
@@ -39,12 +41,20 @@ const nextConfig = {
    * available" prompt this header exists to make reliable.
    */
   async headers() {
-    return [
-      {
-        source: '/sw.js',
-        headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }],
-      },
-    ]
+    // Phase 23: security headers for every path, stricter ones for private links and
+    // the admin, and the /sw.js rule above — all in lib/security/static-headers.mjs
+    // (the Content Security Policy is set per request by proxy.ts).
+    return buildHeaderRules()
+  },
+  // Phase 23: no `X-Powered-By: Next.js` — it tells a scanner what to try.
+  poweredByHeader: false,
+  experimental: {
+    // Server Actions accept 1 MB by default (Next's documented default), while uploads are
+    // allowed up to 5 MB (`MAX_MEDIA_FILE_SIZE_BYTES`); multipart overhead needs a little more
+    // than the file itself. Set explicitly so the framework limit and ours are one decision.
+    // NOTE: Vercel caps a function's request body at about 4.5 MB (platform limit as documented
+    // by Vercel; not verifiable from here) — see docs/security.md § 5 for what to do if it bites.
+    serverActions: { bodySizeLimit: '6mb' },
   },
 }
 

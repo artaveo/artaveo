@@ -38,7 +38,7 @@ export function NoteForm({ inquiryId }: { inquiryId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <form method="post" onSubmit={handleSubmit} className="flex flex-col gap-3">
       <Field>
         <FieldLabel htmlFor={`note-${inquiryId}`}>{t('noteFormLabel')}</FieldLabel>
         <Textarea
