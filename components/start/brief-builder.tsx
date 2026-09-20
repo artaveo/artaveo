@@ -105,7 +105,7 @@ export function BriefBuilder({
     // (§ 10.3): both are a visitor arriving at the Brief Builder. No form
     // contents here, just the fact of a start.
     trackEvent('brief_start', { prefilled: Boolean(initialServiceSlug) })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once per mount, by design
   }, [])
 
   useEffect(() => {
@@ -184,7 +184,6 @@ export function BriefBuilder({
     // Deliberately mount-only — the effect below handles a *later*
     // regain of connectivity for a queued item that was already restored
     // here (or queued fresh during this same session).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   /**
@@ -382,7 +381,11 @@ export function BriefBuilder({
   if (status === 'rate-limited') {
     return (
       <div className="rounded-xl border border-border bg-card p-6 md:p-8">
-        <RateLimitedState action={{ label: t18n('back'), onClick: () => setStatus('editing') }} />
+        <RateLimitedState
+          title={t18n('rateLimitedTitle')}
+          description={t18n('rateLimitedDescription')}
+          action={{ label: t18n('back'), onClick: () => setStatus('editing') }}
+        />
       </div>
     )
   }
@@ -452,7 +455,7 @@ export function BriefBuilder({
         this; app/actions/inquiries.ts rejects any submission where it's
         non-empty.
       */}
-      <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
+      <div aria-hidden="true" style={{ position: 'absolute', insetInlineStart: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
         <label htmlFor="bb-website">Leave this field blank</label>
         <input
           id="bb-website"

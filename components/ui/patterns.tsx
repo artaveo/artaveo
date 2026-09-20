@@ -272,7 +272,7 @@ function ProofRow({ items, className }: { items: React.ReactNode[]; className?: 
       className={cn('flex flex-wrap items-center gap-x-6 gap-y-3', className)}
     >
       {items.map((item, index) => (
-        // eslint-disable-next-line react/no-array-index-key -- static, order-stable content
+        // (index key: static, order-stable content)
         <li key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
           <Check aria-hidden="true" className="size-4 shrink-0 text-brand-text" />
           <span>{item}</span>

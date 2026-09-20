@@ -1,0 +1,20 @@
+# Secret scan configuration (Phase 22) — extends gitleaks' default rules.
+#
+# The scan reads the git HISTORY (that is what CI runs), so generated or ignored
+# directories are not in scope there. The paths below matter only when someone runs the scan on
+# the working tree with `gitleaks detect --no-git`: they are generated, git-ignored, and contain
+# the test stack's own throw-away keys (tests/support/stack) and Next's build manifests.
+title = "artaveo"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "generated, git-ignored output"
+paths = [
+  '''^\.next/''',
+  '''^\.test-stack/''',
+  '''^node_modules/''',
+  '''^playwright-report/''',
+  '''^test-results/''',
+]

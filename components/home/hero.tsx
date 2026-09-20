@@ -165,7 +165,7 @@ function HeroVisual({ className, footer }: { className?: string; footer: string 
 function Line({ n, children }: { n: number; children: React.ReactNode }) {
   return (
     <span className="block whitespace-pre">
-      <span className="inline-block w-6 text-muted-foreground/50 select-none">
+      <span aria-hidden="true" className="inline-block w-6 text-muted-foreground select-none">
         {n}
       </span>
       {children}

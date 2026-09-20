@@ -53,6 +53,8 @@ type StateShellProps = {
   size?: StateSize
   action?: StateAction
   role?: 'status' | 'alert'
+  /** A page-level state (404) is the page's only heading, so it must be the `h1`; inline states stay a paragraph. */
+  titleAs?: 'p' | 'h1'
   className?: string
 }
 
@@ -65,6 +67,7 @@ function StateShell({
   size = 'section',
   action,
   role = 'status',
+  titleAs: TitleTag = 'p',
   className,
 }: StateShellProps) {
   return (
@@ -78,7 +81,7 @@ function StateShell({
       )}
     >
       <Icon aria-hidden="true" className={cn(iconSizeClasses[size], iconClassName)} />
-      <p className={cn('font-medium text-foreground', size === 'inline' && 'text-sm')}>{title}</p>
+      <TitleTag className={cn('font-medium text-foreground', size === 'inline' && 'text-sm')}>{title}</TitleTag>
       {description ? (
         <p
           className={cn(
@@ -205,6 +208,7 @@ function NotFoundState({
     <StateShell
       icon={FileQuestion}
       iconClassName="text-muted-foreground"
+      titleAs={size === 'page' ? 'h1' : 'p'}
       title={title}
       description={description}
       action={action}

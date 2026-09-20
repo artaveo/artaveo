@@ -1,0 +1,15 @@
+# Who must review what. With "Require review from Code Owners" switched on in the branch
+# protection rule (docs/ci.md), a pull request touching these paths needs the owner's approval —
+# which is how work done by agents (v0, Claude, others) reaches `main` only after the owner has looked.
+*                          @artaveo
+
+# The paths where a mistake is a security, data or availability problem
+/db/migrations/            @artaveo
+/.github/                  @artaveo
+/.security/                @artaveo
+/proxy.ts                  @artaveo
+/vercel.json               @artaveo
+/app/actions/              @artaveo
+/lib/admin/                @artaveo
+/lib/supabase/             @artaveo
+/tests/support/stack/      @artaveo

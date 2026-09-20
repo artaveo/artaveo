@@ -8,18 +8,8 @@ import { Link } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
 import { trackEvent } from '@/lib/analytics'
-import { t, type Locale, type Price, type ServicePackage } from '@/types/content'
-
-function formatPrice(price: Price, locale: Locale, tPrice: (key: string) => string): string {
-  if (price.type === 'quote') return tPrice('quote')
-  if (price.amount == null) return tPrice('quote')
-  const formatted = new Intl.NumberFormat(locale === 'fa' ? 'fa-IR' : 'en-US', {
-    style: 'currency',
-    currency: price.currency ?? 'USD',
-    maximumFractionDigits: 0,
-  }).format(price.amount)
-  return price.type === 'from' ? `${tPrice('from')} ${formatted}` : formatted
-}
+import { formatPackagePrice as formatPrice } from '@/lib/pricing'
+import { t, type Locale, type ServicePackage } from '@/types/content'
 
 function TierBody({
   pkg,

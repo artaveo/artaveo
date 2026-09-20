@@ -37,20 +37,19 @@ export function ReviewStep({
 
       <dl className="flex flex-col divide-y divide-border rounded-xl border border-border bg-card">
         {lines.map((line) => (
-          <div key={line.label} className="flex items-start justify-between gap-4 p-4">
-            <div className="min-w-0">
-              <dt className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-                {line.label}
-              </dt>
-              {/* `dir="auto"` (not `LatinTerm`): these values are free text or
-                  contact details the visitor typed, which may themselves be
-                  Persian — unlike a fixed Latin technical term, forcing LTR
-                  here would be wrong. `auto` still keeps embedded numbers/URLs
-                  from being reordered inside an RTL sentence. */}
-              <dd dir="auto" className="mt-1 text-sm leading-relaxed text-pretty">
-                {line.value}
-              </dd>
-            </div>
+          // <dl> > <div> > <dt> + <dd> is the only nesting HTML allows (axe: definition-list, dlitem).
+          <div key={line.label} className="min-w-0 p-4">
+            <dt className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+              {line.label}
+            </dt>
+            {/* `dir="auto"` (not `LatinTerm`): these values are free text or
+                contact details the visitor typed, which may themselves be
+                Persian — unlike a fixed Latin technical term, forcing LTR
+                here would be wrong. `auto` still keeps embedded numbers/URLs
+                from being reordered inside an RTL sentence. */}
+            <dd dir="auto" className="mt-1 text-sm leading-relaxed text-pretty">
+              {line.value}
+            </dd>
           </div>
         ))}
       </dl>

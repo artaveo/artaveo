@@ -21,6 +21,13 @@ export async function resolve(specifier, context, nextResolve) {
     return { url: 'data:text/javascript,', shortCircuit: true }
   }
 
+  // Phase 21: the Next.js runtime modules the server actions import cannot load
+  // under plain Node. Route them to stand-ins so the real actions run against a
+  // real database in the integration suite (tests/support/stubs/next-runtime.mjs).
+  if (specifier === 'next/headers' || specifier === 'next/cache' || specifier === 'next/navigation') {
+    return { url: new URL('../tests/support/stubs/next-runtime.mjs', import.meta.url).href, shortCircuit: true }
+  }
+
   // `@/lib/search/scoring` → <repo>/lib/search/scoring.ts  (Phase 18)
   if (specifier.startsWith('@/')) {
     const target = new URL(specifier.slice(2), ROOT).href

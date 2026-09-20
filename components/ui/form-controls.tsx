@@ -25,6 +25,17 @@ function Field({ className, ...props }: React.ComponentProps<typeof FieldPrimiti
   )
 }
 
+/**
+ * FieldItem — one option of a radio or checkbox GROUP (its control plus its
+ * label). Base UI needs this wrapper to tie each label to its own control:
+ * without it every radio in a group inherits the Field's single control id, so
+ * clicking the text of options 2..n selects nothing and the page carries
+ * duplicate ids (found by the Phase 21 end-to-end suite in the Brief Builder).
+ */
+function FieldItem({ className, ...props }: React.ComponentProps<typeof FieldPrimitive.Item>) {
+  return <FieldPrimitive.Item data-slot="field-item" className={className} {...props} />
+}
+
 function FieldLabel({ className, ...props }: React.ComponentProps<typeof FieldPrimitive.Label>) {
   return (
     <FieldPrimitive.Label
@@ -52,6 +63,12 @@ function FieldDescription({
 function FieldError({ className, ...props }: React.ComponentProps<typeof FieldPrimitive.Error>) {
   return (
     <FieldPrimitive.Error
+      // Every caller renders this only when it has an error to show (the form
+      // decides, via the Field's `invalid` prop). Without `match`, Base UI shows it
+      // only for a native-validity failure, so custom messages such as "a little
+      // more detail would help" or "enter a valid email" never appeared and the
+      // visitor saw only the generic form-level line (found by the Phase 21 e2e suite).
+      match
       data-slot="field-error"
       className={cn('flex items-center gap-1 text-xs text-destructive-text', className)}
       {...props}
@@ -194,6 +211,7 @@ function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimi
 
 export {
   Field,
+  FieldItem,
   FieldLabel,
   FieldDescription,
   FieldError,

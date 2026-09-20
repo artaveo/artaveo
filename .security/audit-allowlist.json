@@ -1,0 +1,29 @@
+{
+  "_readme": "Reviewed exceptions to the dependency-advisory gate (scripts/audit-gate.mjs). Each entry needs an advisory id (GHSA-…), the reason it is acceptable, and a date by which it must be judged again. Delete an entry when the dependency is updated past the fix.",
+  "entries": [
+    {
+      "id": "GHSA-2v37-7h3g-55p8",
+      "package": "nanoid",
+      "reason": "Reached only through PostCSS inside Next.js's compiler at build time. nanoid is never called with a caller-supplied size at run time or from visitor input. Goes away with the next Next.js/PostCSS update.",
+      "expires": "2026-12-19"
+    },
+    {
+      "id": "GHSA-c83g-rgw3-j3cx",
+      "package": "browserslist",
+      "reason": "Reached only through styled-jsx → Babel inside Next.js at build time. The advisory needs untrusted browserslist queries; the project's are fixed in the repository. Goes away with the next Next.js update.",
+      "expires": "2026-12-19"
+    },
+    {
+      "id": "GHSA-73wf-gq98-2v4g",
+      "package": "browserslist",
+      "reason": "Same path and same reasoning as GHSA-c83g-rgw3-j3cx: build-time only, queries come from the repository, not from a visitor.",
+      "expires": "2026-12-19"
+    },
+    {
+      "id": "GHSA-rgj7-g3m4-5g8c",
+      "package": "sharp",
+      "reason": "Concerns decoding HEIF/HEIC files (libheif). The only files a visitor can upload are png, jpeg, webp, gif and svg (lib/media-upload.ts, checked against the storage bucket by tests/unit/media-upload.test.mjs), so a HEIF file never reaches the image optimiser. Goes away when Next.js takes sharp >= 0.35.4.",
+      "expires": "2026-12-19"
+    }
+  ]
+}

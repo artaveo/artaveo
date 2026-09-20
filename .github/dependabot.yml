@@ -1,0 +1,31 @@
+# Dependency updates arrive as pull requests, and a pull request has to pass every gate in
+# .github/workflows/ci.yml before it can merge. That is the point: a `^` range in package.json
+# resolves to newer packages than the lockfile pins (Phase 21 found the Brief Builder breaking
+# on a newer @base-ui/react this way), so updates should be deliberate, reviewed and tested —
+# never a side effect of an install.
+version: 2
+updates:
+  - package-ecosystem: npm # also reads pnpm-lock.yaml
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Patch and minor releases of everything, in one pull request a week.
+      minor-and-patch:
+        update-types: [minor, patch]
+    # Majors (Next.js, React, Base UI, Tailwind, TypeScript, ESLint …) are never grouped: one
+    # pull request each, so a break can be traced to one change.
+    labels: [dependencies]
+    commit-message:
+      prefix: 'deps'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    labels: [dependencies, ci]
+    commit-message:
+      prefix: 'ci'

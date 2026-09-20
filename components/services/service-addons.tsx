@@ -1,11 +1,7 @@
 import { useLocale, useTranslations } from 'next-intl'
 
-import { t, type Locale, type Price, type ServiceAddon } from '@/types/content'
-
-function formatAddonPrice(price: Price, tPrice: (key: string) => string): string {
-  if (price.type === 'quote' || price.amount == null) return tPrice('quote')
-  return `+${price.amount} ${price.currency ?? 'USD'}`
-}
+import { formatAddonPrice } from '@/lib/pricing'
+import { t, type Locale, type ServiceAddon } from '@/types/content'
 
 /**
  * ServiceAddOns — configurable add-on records (roadmap § 7.2), rendered

@@ -8,7 +8,7 @@
 export function JsonLd({ data }: { data: Record<string, unknown> }) {
   const json = JSON.stringify(data).replace(/</g, '\\u003c')
   return (
-    // eslint-disable-next-line react/no-danger
+    // `dangerouslySetInnerHTML` is intentional: JSON-LD must be raw JSON in a <script>; `<` is escaped above.
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: json }} />
   )
 }

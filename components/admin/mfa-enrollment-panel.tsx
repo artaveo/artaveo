@@ -121,6 +121,7 @@ export function MfaEnrollmentPanel({
             Supabase's own `data:image/svg+xml;utf-8,<svg>...` data URI, not
             bare SVG markup — an `<img>` renders it correctly and avoids
             `dangerouslySetInnerHTML` entirely. */}
+        {/* eslint-disable-next-line @next/next/no-img-element -- a data: URI, which next/image cannot optimise */}
         <img
           src={state.qrCodeSvg}
           alt={t('mfaQrAlt')}

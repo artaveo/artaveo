@@ -42,6 +42,10 @@ function Stepper({
               className={cn(
                 'max-w-20 text-center text-xs whitespace-nowrap',
                 step.status === 'upcoming' ? 'text-muted-foreground' : 'text-foreground',
+                // Seven labelled steps do not fit a 393 px phone (16 px of sideways scroll, found by the
+                // Phase 21 mobile suite): off small screens only the current step keeps its visible label;
+                // every label stays in the accessibility tree.
+                step.status !== 'current' && 'sr-only sm:not-sr-only',
               )}
             >
               {step.label}

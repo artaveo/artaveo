@@ -60,7 +60,7 @@ export function AboutContent() {
       />
 
       <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-        <div className="lg:col-span-8">
+        <div className="min-w-0 lg:col-span-8">
           {/* Story — "not a CV" */}
           <Prose>
             {story.map((paragraph) => (
@@ -144,7 +144,7 @@ export function AboutContent() {
           </div>
         </div>
 
-        <aside className="lg:col-span-4">
+        <aside className="min-w-0 lg:col-span-4">
           <div className="flex flex-col gap-6 lg:sticky lg:top-24">
             <div className="rounded-xl border border-border bg-card p-6">
               <IdentityHeader profile={developer} title={t18n('identityTitle')} locale={locale} />

@@ -153,7 +153,7 @@ export function ConsultationForm({ locale }: { locale: Locale }) {
       <CardContent className="pt-6">
         <form className="flex flex-col gap-6" onSubmit={handleSubmit} noValidate>
           {/* Honeypot — same off-screen pattern as the Brief Builder. A real visitor never sees or fills this. */}
-          <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
+          <div aria-hidden="true" style={{ position: 'absolute', insetInlineStart: '-9999px', width: 1, height: 1, overflow: 'hidden' }}>
             <Label htmlFor="consult-website">Leave this field blank</Label>
             <input id="consult-website" name="website" type="text" tabIndex={-1} autoComplete="off" value={honeypot} onChange={(event) => setHoneypot(event.target.value)} />
           </div>

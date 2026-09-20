@@ -1,7 +1,6 @@
 import type {
   AvailabilityState,
   DecisionRecord,
-  EngagementModel,
   FaqItem,
   LocalizedText,
   Price,

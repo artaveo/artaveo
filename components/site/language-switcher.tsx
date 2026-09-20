@@ -1,7 +1,7 @@
 'use client'
 
-import { useLocale } from 'next-intl'
-import { useParams } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useTransition } from 'react'
 
 import { usePathname, useRouter } from '@/i18n/navigation'
@@ -26,6 +26,8 @@ export function LanguageSwitcher() {
   const router = useRouter()
   const pathname = usePathname()
   const params = useParams()
+  const searchParams = useSearchParams()
+  const t = useTranslations('Common')
   const [isPending, startTransition] = useTransition()
 
   function apply(nextLocale: (typeof routing.locales)[number]) {
@@ -35,7 +37,9 @@ export function LanguageSwitcher() {
       router.replace(
         // @ts-expect-error -- `params` is a generic Record here; next-intl
         // narrows it against the actual route params at each call site.
-        { pathname, params },
+        // The query string travels with the switch: a chosen package (`?service=…&package=…`)
+        // must survive it, or the visitor lands on an empty form.
+        { pathname, params, query: Object.fromEntries(searchParams.entries()) },
         { locale: nextLocale },
       )
     })
@@ -44,7 +48,7 @@ export function LanguageSwitcher() {
   return (
     <div
       role="group"
-      aria-label="Language"
+      aria-label={t('language')}
       aria-busy={isPending}
       className="inline-flex items-center rounded-lg border border-border bg-card p-0.5"
     >

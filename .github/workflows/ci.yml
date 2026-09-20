@@ -1,0 +1,223 @@
+# Release gates (roadmap Phase 22):
+#
+#   INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E → SECURITY → (DEPLOY)
+#
+# Four jobs run in parallel and one final job, "CI passed", waits for all of them. That last
+# job is the ONLY status check branch protection needs to require (docs/ci.md): rename or
+# add a job above and the protection rule does not change.
+#
+# DEPLOY is Vercel's Git integration, not a step here: it builds every pull request as a
+# preview and deploys `main` to production. What makes "a failing gate blocks the release"
+# true is branch protection — a red pull request cannot be merged, so `main` only ever
+# receives green commits. See docs/ci.md for the settings.
+#
+# Every action is pinned to a commit SHA (the tag is in the comment); Dependabot proposes
+# the updates. Nothing here needs a secret: the tests run against a throw-away local
+# database (docs/testing.md), never against the real Supabase project.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  CI: 'true'
+  NEXT_TELEMETRY_DISABLED: '1'
+  PNPM_VERSION: '10'
+  POSTGREST_VERSION: 'v12.2.3'
+  # sha256 of postgrest-v12.2.3-linux-static-x64.tar.xz (from the release; verified again below)
+  POSTGREST_SHA256: '9f71269e61ac3a940281e93ff415760f5957e430e475ba4c3889f3ede7d5527c'
+  GITLEAKS_VERSION: '8.30.1'
+  GITLEAKS_SHA256: '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb'
+
+jobs:
+  verify:
+    name: Typecheck, lint, unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: "Install (the lockfile is the truth: no resolution happens in CI)"
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm run typecheck
+      - name: Lint (errors block; warnings may not grow — see eslint.config.mjs)
+        run: pnpm run lint
+      - name: Content placeholders (no [PLACEHOLDER] in published copy)
+        run: pnpm run check:content
+      - name: Unit tests
+        run: pnpm run test:unit
+
+  integration:
+    name: Integration tests (real PostgreSQL + PostgREST)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: PostgreSQL server binaries
+        run: |
+          if ! ls /usr/lib/postgresql/*/bin/initdb >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql
+          fi
+          ls -d /usr/lib/postgresql/*/bin
+      - name: PostgREST (pinned, checksum-verified)
+        run: |
+          curl -fsSL -o postgrest.tar.xz "https://github.com/PostgREST/postgrest/releases/download/${POSTGREST_VERSION}/postgrest-${POSTGREST_VERSION}-linux-static-x64.tar.xz"
+          echo "${POSTGREST_SHA256}  postgrest.tar.xz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/bin"
+          tar -xJf postgrest.tar.xz -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+      - name: Start the test stack
+        run: pnpm run test:stack:up
+      - name: Integration tests
+        run: pnpm run test:integration
+      - name: Stack logs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: integration-stack-logs
+          path: .test-stack/*.log
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Stop the test stack
+        if: always()
+        run: pnpm run test:stack:down
+
+  e2e:
+    name: Build and end-to-end + accessibility tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: PostgreSQL server binaries
+        run: |
+          if ! ls /usr/lib/postgresql/*/bin/initdb >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y postgresql
+          fi
+          ls -d /usr/lib/postgresql/*/bin
+      - name: PostgREST (pinned, checksum-verified)
+        run: |
+          curl -fsSL -o postgrest.tar.xz "https://github.com/PostgREST/postgrest/releases/download/${POSTGREST_VERSION}/postgrest-${POSTGREST_VERSION}-linux-static-x64.tar.xz"
+          echo "${POSTGREST_SHA256}  postgrest.tar.xz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/bin"
+          tar -xJf postgrest.tar.xz -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+      - name: Playwright browser cache
+        id: browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Chromium (and its system libraries)
+        run: |
+          if [ "${{ steps.browsers.outputs.cache-hit }}" = "true" ]; then
+            pnpm exec playwright install-deps chromium
+          else
+            pnpm exec playwright install --with-deps chromium
+          fi
+      - name: Start the test stack
+        run: pnpm run test:stack:up
+      - name: Production build against the stack
+        run: pnpm run test:stack:build
+      - name: End-to-end and accessibility tests
+        run: pnpm run test:e2e
+      - name: Report, traces and stack logs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: e2e-report
+          path: |
+            playwright-report/
+            test-results/
+            .test-stack/*.log
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Stop the test stack
+        if: always()
+        run: pnpm run test:stack:down
+
+  security:
+    name: Dependency audit and secret scan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # the secret scan reads the whole history
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+      - name: "Dependency advisories (policy: scripts/audit-gate.mjs, exceptions: .security/audit-allowlist.json)"
+        run: pnpm run check:audit
+      - name: Secret scan (gitleaks, pinned, checksum-verified; scans the full history)
+        run: |
+          curl -fsSL -o gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum --check
+          tar -xzf gitleaks.tar.gz gitleaks
+          ./gitleaks detect --source . --config .gitleaks.toml --redact --no-banner --verbose
+
+  gate:
+    name: CI passed
+    if: always()
+    needs: [verify, integration, e2e, security]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Every gate must have succeeded (skipped or cancelled counts as failed)
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          for result in $RESULTS; do
+            if [ "$result" != "success" ]; then
+              echo "::error::a required job did not succeed ($result)"
+              exit 1
+            fi
+          done

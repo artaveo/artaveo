@@ -8,11 +8,12 @@ import {
   Field,
   FieldDescription,
   FieldError,
+  FieldItem,
   FieldLabel,
   Radio,
   RadioGroup,
 } from '@/components/ui/form-controls'
-import { Input, Label, Textarea } from '@/components/ui/input'
+import { Input, Textarea } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -170,17 +171,17 @@ export function ProjectStep({ draft, errors, locale, onChange }: StepProps) {
           className="gap-3"
         >
           {projectTypeOptions.map((option) => (
-            <div key={option.id} className="flex items-start gap-2.5">
-              <Radio value={option.id} id={`brief-project-${option.id}`} className="mt-0.5" />
+            <FieldItem key={option.id} className="flex items-start gap-2.5">
+              <Radio value={option.id} className="mt-0.5" />
               <div className="flex flex-col gap-0.5">
-                <FieldLabel htmlFor={`brief-project-${option.id}`} className="font-normal">
+                <FieldLabel className="font-normal">
                   {t(option.label, locale)}
                 </FieldLabel>
                 {option.description ? (
                   <span className="text-xs text-muted-foreground">{t(option.description, locale)}</span>
                 ) : null}
               </div>
-            </div>
+            </FieldItem>
           ))}
         </RadioGroup>
         {errors.projectType ? <FieldError>{fieldError(errors.projectType)}</FieldError> : null}
@@ -283,12 +284,12 @@ export function TimelineStep({ draft, errors, locale, onChange }: StepProps) {
           className="gap-2.5"
         >
           {timelineOptions.map((option) => (
-            <div key={option.id} className="flex items-center gap-2.5">
-              <Radio value={option.id} id={`brief-timeline-${option.id}`} />
-              <FieldLabel htmlFor={`brief-timeline-${option.id}`} className="font-normal">
+            <FieldItem key={option.id} className="flex items-center gap-2.5">
+              <Radio value={option.id} />
+              <FieldLabel className="font-normal">
                 {t(option.label, locale)}
               </FieldLabel>
-            </div>
+            </FieldItem>
           ))}
         </RadioGroup>
         {errors.timeline ? <FieldError>{fieldError(errors.timeline)}</FieldError> : null}
@@ -429,7 +430,8 @@ export function LinksStep({ draft, errors, onChange }: StepProps) {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-3">
+      {/* Must be a Field: FieldLabel / FieldDescription / FieldError throw ("FieldRootContext is missing") outside one, which crashed the whole builder at this step. */}
+      <Field className="gap-3" invalid={Boolean(uploadError)}>
         <FieldLabel>{t18n('attachmentsLabel')}</FieldLabel>
         <FieldDescription>{t18n('attachmentsDescription')}</FieldDescription>
 
@@ -453,12 +455,13 @@ export function LinksStep({ draft, errors, onChange }: StepProps) {
             accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
             disabled={uploading}
             onChange={handleFileSelected}
+            aria-label={t18n('attachmentsLabel')}
             className="text-sm"
           />
         ) : null}
         {uploadError ? <FieldError>{uploadError}</FieldError> : null}
         <FieldDescription>{t18n('attachmentsRules')}</FieldDescription>
-      </div>
+      </Field>
     </div>
   )
 }
@@ -532,12 +535,12 @@ export function ContactStep({ draft, errors, locale, onChange }: StepProps) {
           className="flex-row gap-5"
         >
           {preferredChannelOptions.map((option) => (
-            <div key={option.id} className="flex items-center gap-2.5">
-              <Radio value={option.id} id={`brief-channel-${option.id}`} />
-              <FieldLabel htmlFor={`brief-channel-${option.id}`} className="font-normal">
+            <FieldItem key={option.id} className="flex items-center gap-2.5">
+              <Radio value={option.id} />
+              <FieldLabel className="font-normal">
                 {t(option.label, locale)}
               </FieldLabel>
-            </div>
+            </FieldItem>
           ))}
         </RadioGroup>
       </Field>
