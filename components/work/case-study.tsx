@@ -12,7 +12,7 @@ import { Prose } from '@/components/ui/prose'
 import { StatusBadge } from '@/components/ui/tag'
 import { CaseStudyEvidenceGroup, CaseStudyHeroMedia } from '@/components/work/case-study-media'
 import { ProjectGallery } from '@/components/work/project-gallery'
-import { t, type Locale, type Project, type ProjectMediaItem } from '@/types/content'
+import { t, type Locale, type LocalizedText, type Project, type ProjectMediaItem } from '@/types/content'
 
 /**
  * CaseStudy — the shared `/work/[slug]` template (roadmap § 6.1). Every
@@ -35,6 +35,23 @@ import { t, type Locale, type Project, type ProjectMediaItem } from '@/types/con
  * given anchor simply renders nothing extra there. `placement: 'gallery'`
  * images are unchanged from before this pass.
  */
+
+function LocalizedBody({ value, locale }: { value?: LocalizedText; locale: Locale }) {
+  if (!value) return null
+
+  const paragraphs = t(value, locale)
+    .split(/\n\s*\n/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean)
+
+  return (
+    <>
+      {paragraphs.map((paragraph, index) => (
+        <p key={index}>{paragraph}</p>
+      ))}
+    </>
+  )
+}
 
 export function CaseStudy({
   project,
@@ -193,7 +210,7 @@ export function CaseStudy({
             {project.context ? (
               <section>
                 <h2>{t18n('context')}</h2>
-                <p>{t(project.context, locale)}</p>
+                <LocalizedBody value={project.context} locale={locale} />
               </section>
             ) : null}
 
@@ -209,7 +226,7 @@ export function CaseStudy({
             {project.problemAndGoals ? (
               <section>
                 <h2>{t18n('problemAndGoals')}</h2>
-                <p>{t(project.problemAndGoals, locale)}</p>
+                <LocalizedBody value={project.problemAndGoals} locale={locale} />
               </section>
             ) : null}
 
@@ -243,7 +260,7 @@ export function CaseStudy({
             {project.architecture ? (
               <section>
                 <h2>{t18n('architecture')}</h2>
-                <p>{t(project.architecture, locale)}</p>
+                <LocalizedBody value={project.architecture} locale={locale} />
               </section>
             ) : null}
 
@@ -286,14 +303,14 @@ export function CaseStudy({
             {project.engineeringHighlight ? (
               <section>
                 <h2>{t18n('engineeringHighlight')}</h2>
-                <p>{t(project.engineeringHighlight, locale)}</p>
+                <LocalizedBody value={project.engineeringHighlight} locale={locale} />
               </section>
             ) : null}
 
             {project.dataIntegrityAndSecurity ? (
               <section>
                 <h2>{t18n('dataIntegrityAndSecurity')}</h2>
-                <p>{t(project.dataIntegrityAndSecurity, locale)}</p>
+                <LocalizedBody value={project.dataIntegrityAndSecurity} locale={locale} />
               </section>
             ) : null}
 
@@ -309,28 +326,28 @@ export function CaseStudy({
             {project.responsiveAndRtl ? (
               <section>
                 <h2>{t18n('responsiveAndRtl')}</h2>
-                <p>{t(project.responsiveAndRtl, locale)}</p>
+                <LocalizedBody value={project.responsiveAndRtl} locale={locale} />
               </section>
             ) : null}
 
             {project.quality ? (
               <section>
                 <h2>{t18n('quality')}</h2>
-                <p>{t(project.quality, locale)}</p>
+                <LocalizedBody value={project.quality} locale={locale} />
               </section>
             ) : null}
 
             {project.currentStatusAndNext ? (
               <section>
                 <h2>{t18n('currentStatusAndNext')}</h2>
-                <p>{t(project.currentStatusAndNext, locale)}</p>
+                <LocalizedBody value={project.currentStatusAndNext} locale={locale} />
               </section>
             ) : null}
 
             {project.lessonsLearned ? (
               <section>
                 <h2>{t18n('lessonsLearned')}</h2>
-                <p>{t(project.lessonsLearned, locale)}</p>
+                <LocalizedBody value={project.lessonsLearned} locale={locale} />
               </section>
             ) : null}
           </Prose>
