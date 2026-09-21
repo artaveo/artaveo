@@ -28,6 +28,12 @@ export async function resolve(specifier, context, nextResolve) {
     return { url: new URL('../tests/support/stubs/next-runtime.mjs', import.meta.url).href, shortCircuit: true }
   }
 
+  // Phase 24: route handlers import `NextResponse` from 'next/server', which Node's ESM resolver only
+  // finds with the extension. The module itself is the real one — only its name is completed.
+  if (specifier === 'next/server') {
+    return nextResolve('next/server.js', context)
+  }
+
   // `@/lib/search/scoring` → <repo>/lib/search/scoring.ts  (Phase 18)
   if (specifier.startsWith('@/')) {
     const target = new URL(specifier.slice(2), ROOT).href

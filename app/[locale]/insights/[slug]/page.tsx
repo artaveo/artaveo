@@ -11,6 +11,7 @@ import { getArticleDetailBySlug, getPublishedArticleSummaries } from '@/lib/insi
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
 import { buildArticleJsonLd, buildBreadcrumbJsonLd } from '@/lib/structured-data'
 import { t, type Locale } from '@/types/content'
+import { log } from '@/lib/observability/logger'
 
 /**
  * Pre-renders what is published at build time. A Supabase hiccup during a
@@ -23,7 +24,7 @@ export async function generateStaticParams() {
     const articles = await getPublishedArticleSummaries()
     return routing.locales.flatMap((locale) => articles.map((article) => ({ locale, slug: article.slug })))
   } catch (error) {
-    console.error('insights generateStaticParams skipped:', error)
+    log.error('insights.static_params_skipped', { err: error })
     return []
   }
 }

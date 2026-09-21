@@ -1,5 +1,7 @@
 'use server'
 
+import { captureError } from '@/lib/observability/store'
+import { bindRequestId, getRequestId } from '@/lib/observability/context'
 import { getClientIp, hashIp } from '@/lib/request-ip'
 import { INQUIRY_FILES_BUCKET, MAX_MEDIA_FILE_SIZE_BYTES, VISITOR_MIME_TYPES, displayFileName, safeStoragePath } from '@/lib/media-upload'
 import { checkRateLimit } from '@/lib/security/rate-limit'
@@ -45,6 +47,7 @@ export type InquiryAttachmentUploadResult =
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function removeInquiryAttachment(mediaId: string): Promise<{ ok: boolean }> {
+  bindRequestId(await getRequestId())
   if (typeof mediaId !== 'string' || !UUID.test(mediaId)) return { ok: false }
 
   const limit = await checkRateLimit('inquiry.upload-remove')
@@ -68,6 +71,7 @@ export async function removeInquiryAttachment(mediaId: string): Promise<{ ok: bo
 }
 
 export async function uploadInquiryAttachment(formData: FormData): Promise<InquiryAttachmentUploadResult> {
+  bindRequestId(await getRequestId())
   const file = formData.get('file')
   if (!(file instanceof File) || file.size === 0) return { ok: false, code: 'error' }
 
@@ -98,7 +102,10 @@ export async function uploadInquiryAttachment(formData: FormData): Promise<Inqui
   const { error: uploadError } = await supabase.storage
     .from(INQUIRY_FILES_BUCKET)
     .upload(path, bytes, { contentType: inspection.contentType, upsert: false })
-  if (uploadError) return { ok: false, code: 'error' }
+  if (uploadError) {
+    await captureError(uploadError, { event: 'inquiry.upload_storage_failed', source: 'action', supabase })
+    return { ok: false, code: 'error' }
+  }
 
   const fileName = displayFileName(file.name)
   const { data: inserted, error: insertError } = await supabase
@@ -114,6 +121,7 @@ export async function uploadInquiryAttachment(formData: FormData): Promise<Inqui
     .single()
 
   if (insertError || !inserted) {
+    await captureError(insertError ?? new Error('insert returned no row'), { event: 'inquiry.upload_persist_failed', source: 'action', supabase })
     await supabase.storage.from(INQUIRY_FILES_BUCKET).remove([path])
     return { ok: false, code: 'error' }
   }

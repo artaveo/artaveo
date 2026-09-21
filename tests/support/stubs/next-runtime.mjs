@@ -54,3 +54,8 @@ export function notFound() {
   error.digest = 'NEXT_HTTP_ERROR_FALLBACK;404'
   throw error
 }
+
+/** Next's `unstable_rethrow` re-throws its own control-flow errors (redirect, not-found, dynamic-usage) and ignores everything else. */
+export function unstable_rethrow(err) {
+  if (err && typeof err.digest === 'string' && /^(NEXT_|DYNAMIC_SERVER_USAGE|BAILOUT)/.test(err.digest)) throw err
+}

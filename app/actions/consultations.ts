@@ -1,5 +1,6 @@
 'use server'
 
+import { bindRequestId, getRequestId } from '@/lib/observability/context'
 import { createConsultationRequest, cancelConsultationAsClient, requestConsultationReschedule } from '@/lib/consultation/service'
 import { looksLikeToken } from '@/lib/consultation/windows'
 import { getClientIp, hashIp } from '@/lib/request-ip'
@@ -32,6 +33,7 @@ export async function submitConsultationRequest(
   input: ConsultationRequestInput,
   meta: ConsultationRequestMeta,
 ): Promise<ConsultationRequestResult> {
+  bindRequestId(await getRequestId())
   if (!isLocale(locale) || !input || !meta || typeof input.name !== 'string' || typeof input.email !== 'string') {
     return { ok: false, code: 'invalid' }
   }
@@ -65,6 +67,7 @@ export async function submitConsultationRequest(
 }
 
 export async function cancelMyConsultation(token: string, reason: string): Promise<ClientActionResult> {
+  bindRequestId(await getRequestId())
   if (typeof token !== 'string' || !looksLikeToken(token)) return { ok: false, code: 'not-found' }
   const supabase = getSupabaseServerClient()
   if (!supabase) return { ok: false, code: 'not-configured' }
@@ -78,6 +81,7 @@ export async function rescheduleMyConsultation(
   timezone: string,
   windows: WindowInput[],
 ): Promise<ClientActionResult> {
+  bindRequestId(await getRequestId())
   if (typeof token !== 'string' || !looksLikeToken(token)) return { ok: false, code: 'not-found' }
   const supabase = getSupabaseServerClient()
   if (!supabase) return { ok: false, code: 'not-configured' }

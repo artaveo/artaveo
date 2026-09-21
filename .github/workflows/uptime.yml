@@ -1,0 +1,100 @@
+# The external check (roadmap Phase 24).
+#
+# A site cannot report its own outage, and Vercel's Hobby plan runs its own cron once a day.
+# This workflow calls the site from outside every 15 minutes. It uses no third-party action
+# (nothing to pin, nothing to trust): `curl` and `jq`, both on GitHub's runners.
+#
+# WHY GITHUB'S FAILURE E-MAIL IS THE ALERT. The site's own e-mail is log-only until D-01 (the
+# domain), and even afterwards it is the channel that would be down in half the interesting
+# outages. A failing scheduled run makes GitHub e-mail the person who last edited this
+# schedule — a channel that works today and does not depend on the site.
+#
+# WHAT IT CHECKS, in order, each a separate step so the red one names the problem:
+#   1. the site answers                     GET /api/health
+#   2. a brief would be saved               GET /api/health/inquiry   (database, outbox, limiter —
+#                                           NOT a real submission: that would put fake leads in the pipeline)
+#   3. the start page renders               GET /en/start
+#   4. no error-level alert is firing       GET /api/ops/check?probe=github   (needs the CRON_SECRET secret)
+#
+# SETUP (owner, once — docs/observability.md § 5): repository → Settings → Secrets and variables →
+#   Actions: a SECRET named CRON_SECRET (the same value as in Vercel) and, optionally, a VARIABLE
+#   named SITE_URL (default: the interim Vercel URL). Without the secret, steps 1–3 still run and
+#   step 4 says so.
+#
+# HONEST LIMITS: GitHub does not promise the minute (runs can be late or skipped under load), and it
+# switches scheduled workflows OFF after 60 days without repository activity — the site notices
+# that too (the `monitor.silent` warning appears when this stops checking in).
+
+name: Uptime
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  check:
+    name: Site, inquiry path and alerts
+    # A fork of the repository must not probe the owner's site (or wait for a secret it does not have).
+    if: github.repository == 'artaveo/artaveo'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      SITE_URL: ${{ vars.SITE_URL || 'https://artaveo-seven.vercel.app' }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Site URL is https
+        run: |
+          case "$SITE_URL" in
+            https://*) ;;
+            *) echo "::error::SITE_URL must start with https:// (it is where the secret is sent)"; exit 1 ;;
+          esac
+          SITE_URL="${SITE_URL%/}"
+          echo "SITE_URL=$SITE_URL" >> "$GITHUB_ENV"
+
+      # A blip is not an outage: three tries, five seconds apart, on connection errors and 5xx alike.
+      - name: 1. The site answers
+        run: |
+          curl --fail --silent --show-error --max-time 20 --retry 2 --retry-delay 5 --retry-all-errors \
+            "$SITE_URL/api/health" -o /dev/null -w 'liveness: HTTP %{http_code} in %{time_total}s\n'
+
+      - name: 2. A brief would be saved
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 25 --retry 2 --retry-delay 5 --retry-all-errors \
+            "$SITE_URL/api/health/inquiry" | tee /tmp/inquiry.json
+          echo
+          if [ "$(jq -r '.degraded' /tmp/inquiry.json)" = "true" ]; then
+            echo "::warning::A brief would be saved, but the rate limiter is not answering (it fails open). See Observability."
+          fi
+
+      - name: 3. The start page renders
+        run: |
+          curl --fail --silent --show-error --max-time 25 --retry 2 --retry-delay 5 --retry-all-errors \
+            "$SITE_URL/en/start" -o /tmp/start.html -w 'start page: HTTP %{http_code} in %{time_total}s\n'
+          grep -q 'Start a project' /tmp/start.html || { echo "::error::The start page answered but does not contain the expected heading"; exit 1; }
+
+      - name: 4. No error-level alert is firing
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::notice::CRON_SECRET is not set as a repository secret: the alert check was skipped (steps 1-3 ran). See docs/observability.md section 5."
+            exit 0
+          fi
+          # `set +x` is the default in Actions `run:`; the secret is only ever in a header, never echoed.
+          curl --silent --show-error --max-time 30 --retry 2 --retry-delay 5 --retry-all-errors \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$SITE_URL/api/ops/check?probe=github" -o /tmp/check.json -w 'ops check: HTTP %{http_code}\n' || true
+
+          status="$(jq -r '.status // "unreadable"' /tmp/check.json 2>/dev/null || echo unreadable)"
+          jq -r '.alerts[]? | "  \(.severity)  \(.id)  x\(.count)"' /tmp/check.json 2>/dev/null || true
+          case "$status" in
+            ok) echo "No alert is firing." ;;
+            degraded) echo "::warning::Only warnings are firing. Open /en/admin/observability." ;;
+            failing) echo "::error::An error-level alert is firing, or the database is unreachable. Open /en/admin/observability."; exit 1 ;;
+            *) echo "::error::The check did not return a readable answer (wrong CRON_SECRET, or the site is down)."; exit 1 ;;
+          esac

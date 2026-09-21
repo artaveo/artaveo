@@ -5,6 +5,7 @@ import { ilikeAnyOf } from '@/lib/postgrest'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import type { LocalizedText } from '@/types/content'
 import type { InquiryEvent, PipelineFilters, PipelineInquiry, SlaStatus } from '@/types/pipeline'
+import { captureError } from '@/lib/observability/store'
 
 /** Maps a raw `inquiries` row (snake_case, from Supabase) to `PipelineInquiry`. */
 function mapInquiryRow(row: Record<string, unknown>): PipelineInquiry {
@@ -86,7 +87,7 @@ export async function listInquiries(filters: PipelineFilters): Promise<PipelineL
   const { data, error, count } = await query.range(from, to)
 
   if (error || !data) {
-    console.error('listInquiries failed:', error)
+    await captureError(error, { event: 'admin.list_inquiries_failed', source: 'database' })
     return { inquiries: [], total: 0 }
   }
 
@@ -116,7 +117,7 @@ export async function listInquiriesForExport(
 
   const { data, error } = await query
   if (error || !data) {
-    console.error('listInquiriesForExport failed:', error)
+    await captureError(error, { event: 'admin.list_inquiries_for_export_failed', source: 'database' })
     return []
   }
   return data.map(mapInquiryRow)
@@ -142,7 +143,7 @@ export async function getInquiryEvents(id: string): Promise<InquiryEvent[]> {
     .order('created_at', { ascending: true })
 
   if (error || !data) {
-    console.error('getInquiryEvents failed:', error)
+    await captureError(error, { event: 'admin.get_inquiry_events_failed', source: 'database' })
     return []
   }
   return data.map(mapEventRow)

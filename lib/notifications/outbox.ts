@@ -5,6 +5,8 @@ import type { AuditEntry } from '@/lib/admin/audit'
 import { writeAuditLog } from '@/lib/admin/audit'
 import { failureOutcome, maxAttemptsAfterManualRetry, nextAttemptAt } from '@/lib/notifications/backoff'
 import { enqueueSystemAlert } from '@/lib/notifications/events'
+import { log } from '@/lib/observability/logger'
+import { captureError, track } from '@/lib/observability/store'
 import { DEFAULT_SEND_TIMEOUT_MS, getEmailProvider, type EmailProvider } from '@/lib/notifications/provider'
 import type { NotificationOutboxRow } from '@/types/notifications'
 
@@ -81,7 +83,7 @@ async function claim(
     p_lease_seconds: LEASE_SECONDS,
   })
   if (error) {
-    console.error('claim_notification_outbox failed (is migration 0017 applied?):', error)
+    await captureError(error, { event: 'notification.claim_failed', source: 'notification', fields: { hint: 'is migration 0017 applied?' }, supabase })
     return null
   }
   return (data ?? []) as NotificationOutboxRow[]
@@ -123,7 +125,7 @@ export async function processOutboxBatch(
   } catch (err) {
     // Belt and braces: nothing above is meant to throw, but a caller in the
     // middle of saving an inquiry must never see an exception from here.
-    console.error('processOutboxBatch failed unexpectedly:', err)
+    await captureError(err, { event: 'notification.batch_failed', source: 'notification', supabase })
   }
 
   return total
@@ -185,9 +187,10 @@ async function attemptOne(
       locked_until: null,
     })
     if (error || !data || data.length === 0) {
-      console.error(`notification_outbox row ${row.id}: sent, but the row could not be marked sent`, error)
+      await captureError(error ?? new Error('lease lost'), { event: 'notification.mark_sent_failed', source: 'notification', fields: { outboxId: row.id, consequence: 'the message was sent but is not marked sent' }, supabase })
       return 'lost-lease'
     }
+    log.info('notification.sent', { outboxId: row.id, kind: row.kind, attempt: attemptNo, provider: provider.id, ms: durationMs, requestId: row.request_id ?? undefined })
     await recordAttempt(supabase, row.id, attemptNo, attemptedAt, provider.id, {
       ok: true,
       providerMessageId: result.providerMessageId ?? null,
@@ -210,10 +213,21 @@ async function attemptOne(
     ...(exhausted ? {} : { next_attempt_at: nextAttemptAt(attemptNo, now) }),
   })
   if (error || !data || data.length === 0) {
-    console.error(`notification_outbox row ${row.id}: attempt failed and the row could not be updated`, error)
+    await captureError(error ?? new Error('lease lost'), { event: 'notification.state_update_failed', source: 'notification', fields: { outboxId: row.id }, supabase })
     return 'lost-lease'
   }
 
+  log.warn('notification.attempt_failed', {
+    outboxId: row.id,
+    kind: row.kind,
+    attempt: attemptNo,
+    provider: provider.id,
+    retryable: result.retryable,
+    outcome,
+    ms: durationMs,
+    err: lastError,
+    requestId: row.request_id ?? undefined,
+  })
   await recordAttempt(supabase, row.id, attemptNo, attemptedAt, provider.id, {
     ok: false,
     retryable: result.retryable,
@@ -252,7 +266,7 @@ async function recordAttempt(
   // Best-effort by design: the outbox row already carries the authoritative
   // state, and a missed log line must never turn a delivered message into a
   // failed one.
-  if (error) console.error(`notification_attempts insert failed for ${outboxId} #${attemptNo}:`, error)
+  if (error) await captureError(error, { event: 'notification.attempt_log_failed', source: 'notification', level: 'warn', fields: { outboxId, attemptNo }, supabase })
 }
 
 /**
@@ -275,10 +289,13 @@ async function raiseExhaustedAlert(
   permanent: boolean,
   options: ProcessOutboxOptions,
 ): Promise<void> {
-  console.error(
-    `notification_outbox row ${row.id} (${row.kind}) exhausted after ${attempts} attempt(s)${permanent ? ' — permanent failure' : ''}:`,
-    lastError,
-  )
+  // A persisted event, not only a line: the `notifications.failing` alert and the admin page read it.
+  await track('notification.exhausted', {
+    level: 'error',
+    subject: { type: 'notification', id: row.id },
+    data: { kind: row.kind, attempts, permanent, error: lastError.slice(0, 200) },
+    supabase,
+  })
 
   const audit = options.audit ?? writeAuditLog
   await audit({
@@ -327,7 +344,7 @@ export async function processAfterEnqueue(supabase: SupabaseClient, ids: string[
     }
     await processOutboxBatch(supabase, { limit: 3, sendTimeoutMs: 4_000, deadlineMs: 3_000 })
   } catch (err) {
-    console.error('notification send attempt failed (the event itself was saved):', err)
+    await captureError(err, { event: 'notification.send_after_enqueue_failed', source: 'notification', fields: { consequence: 'the event itself was saved' }, supabase })
   }
 }
 

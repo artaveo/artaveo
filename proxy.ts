@@ -2,6 +2,7 @@ import createMiddleware from 'next-intl/middleware'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { routing } from '@/i18n/routing'
+import { newRequestId, REQUEST_ID_HEADER } from '@/lib/observability/request-id'
 import { buildCsp, cspHeaderName, newNonce } from '@/lib/security/csp'
 import { refreshSupabaseSession } from '@/lib/supabase/middleware'
 
@@ -52,15 +53,19 @@ export default async function middleware(incoming: NextRequest) {
     upgradeInsecure: Boolean(process.env.VERCEL),
   })
 
-  let request = incoming
-  if (admin) {
-    const requestHeaders = new Headers(incoming.headers)
-    requestHeaders.set('content-security-policy', csp)
-    request = new NextRequest(incoming, { headers: requestHeaders })
-  }
+  // Phase 24 — the correlation id. Always made here, never taken from the caller: the
+  // header can be set by anyone, and the id ends up in logs and a uuid column. Written
+  // onto the REQUEST (so Server Actions and pages can read it) and the response (so a
+  // visitor's error report, or a support message, can quote it).
+  const requestId = newRequestId()
+  const requestHeaders = new Headers(incoming.headers)
+  requestHeaders.set(REQUEST_ID_HEADER, requestId)
+  if (admin) requestHeaders.set('content-security-policy', csp)
+  const request = new NextRequest(incoming, { headers: requestHeaders })
 
   const response = intlMiddleware(request)
   response.headers.set(cspHeaderName(), csp)
+  response.headers.set(REQUEST_ID_HEADER, requestId)
 
   if (!admin) {
     return response
@@ -78,7 +83,9 @@ export default async function middleware(incoming: NextRequest) {
     const locale = localeMatch ? localeMatch[1] : routing.defaultLocale
     const loginUrl = new URL(`/${locale}${ADMIN_LOGIN_PATH}`, request.url)
     loginUrl.searchParams.set('next', request.nextUrl.pathname)
-    return NextResponse.redirect(loginUrl)
+    const redirect = NextResponse.redirect(loginUrl)
+    redirect.headers.set(REQUEST_ID_HEADER, requestId)
+    return redirect
   }
 
   return response

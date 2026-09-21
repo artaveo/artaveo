@@ -42,6 +42,7 @@ import type {
   RecommendationStatus,
   ServiceCoreInput,
 } from '@/types/cms'
+import { captureError } from '@/lib/observability/store'
 
 /**
  * § 15.1 Server Actions for the Services cluster (services, packages,
@@ -868,7 +869,7 @@ export async function createArticle(input: ArticleInput): Promise<ContentActionR
   await writeAuditLog({ actor: auth.userId, action: 'content.article_created', entity: 'article', entityId: data.id, after: { slug: input.slug, status: input.status } })
   // The article row exists either way. A failed link write does not turn a created article into an error (a retry would only hit
   // `duplicate-slug`): the editor lands on the edit page, where the empty link lists are visible and can simply be picked again.
-  if (!linked) console.error(`[articles] created ${data.id} but could not save its links`)
+  if (!linked) await captureError(new Error('article created but its links could not be saved'), { event: 'content.article_links_failed', source: 'action', level: 'warn' })
   return { ok: true, id: data.id }
 }
 
@@ -1225,7 +1226,7 @@ export async function createRecommendationRequest(input: RecommendationRequestIn
     )
     return { ok: true, id: data.id, email: 'queued' }
   } catch (err) {
-    console.error('recommendation request e-mail could not be queued (the link itself was created):', err)
+    await captureError(err, { event: 'recommendation.request_email_failed', source: 'notification', fields: { consequence: 'the link itself was created' } })
     return { ok: true, id: data.id, email: 'queue-failed' }
   }
 }
@@ -1257,7 +1258,7 @@ async function sendChangeRequestEmail(
       rows.map((row) => row.id),
     )
   } catch (err) {
-    console.error('change-request e-mail failed (the moderation itself was saved):', err)
+    await captureError(err, { event: 'recommendation.change_email_failed', source: 'notification', fields: { consequence: 'the moderation itself was saved' } })
   }
 }
 

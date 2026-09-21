@@ -3,6 +3,7 @@ import { hasLocale } from 'next-intl'
 import { routing } from '@/i18n/routing'
 import { buildSearchIndex } from '@/lib/search/build-index'
 import type { Locale } from '@/types/content'
+import { captureError } from '@/lib/observability/store'
 
 /**
  * Phase 18 — `GET /api/search/index/en` · `GET /api/search/index/fa`.
@@ -38,7 +39,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ loc
     const index = await buildSearchIndex(locale as Locale)
     return Response.json(index, { headers: { 'Cache-Control': CACHE_HIT } })
   } catch (error) {
-    console.error('Search index build failed:', error)
+    await captureError(error, { event: 'search.index_build_failed', source: 'route', route: '/api/search/index/[locale]' })
     return Response.json(
       { error: 'search-index-unavailable' },
       { status: 503, headers: { 'Cache-Control': NO_STORE } },

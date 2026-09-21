@@ -18,12 +18,16 @@ import {
   buildClientConfirmationEmail,
   buildContentPublishedEmail,
   buildEvidenceSubmittedEmail,
+  buildOpsAlertEmail,
   buildOwnerAlertEmail,
   buildRecommendationChangesEmail,
   buildRecommendationRequestEmail,
   buildSystemAlertEmail,
   type PublishedEntity,
 } from '@/lib/notifications/templates'
+import { getRequestId } from '@/lib/observability/context'
+import { captureError } from '@/lib/observability/store'
+import type { Alert } from '@/lib/observability/alert-rules'
 import { siteConfig } from '@/lib/site'
 import { absoluteUrl } from '@/lib/site-url'
 import { getAllServices, getEngagementModels } from '@/lib/services-content'
@@ -85,6 +89,10 @@ export async function enqueueNotifications(
 ): Promise<{ id: string; kind: NotificationKind }[]> {
   if (specs.length === 0) return []
 
+  // Phase 24: the message remembers which request produced it, so an owner who finds an
+  // odd e-mail can be taken back to that request's log lines (and the reverse).
+  const requestId = await getRequestId()
+
   const { data, error } = await supabase
     .from('notification_outbox')
     .upsert(
@@ -100,6 +108,7 @@ export async function enqueueNotifications(
         entity_type: spec.entityType,
         entity_id: spec.entityId,
         inquiry_id: spec.inquiryId ?? null,
+        ...(requestId ? { request_id: requestId } : {}),
         // Only present when there is a file, so every older message keeps its exact stored shape.
         ...(spec.attachments && spec.attachments.length > 0 ? { attachments: spec.attachments } : {}),
       })),
@@ -108,7 +117,13 @@ export async function enqueueNotifications(
     .select('id, kind')
 
   if (error || !data) {
-    console.error('notification_outbox insert failed (the event itself was saved):', error)
+    await captureError(error ?? new Error('no rows returned'), {
+      event: 'notification.enqueue_failed',
+      source: 'notification',
+      level: 'error',
+      fields: { kinds: specs.map((spec) => spec.kind), consequence: 'the event itself was saved' },
+      supabase,
+    })
     return []
   }
   return data as { id: string; kind: NotificationKind }[]
@@ -349,6 +364,38 @@ export async function enqueueSystemAlert(
       dedupeKey: `system-alert:${input.failedOutboxId}:${input.attempts}`,
       entityType: 'notification',
       entityId: input.failedOutboxId,
+    },
+  ])
+}
+
+/**
+ * Phase 24 — an alert rule is firing (`lib/observability/alerts.ts`). The day is part
+ * of the key, so one problem produces one e-mail per day however often the check
+ * runs; if it is still firing tomorrow, tomorrow's e-mail says so again.
+ */
+export async function enqueueOpsAlert(
+  supabase: SupabaseClient,
+  input: { alert: Alert; day: string; text: { title: string; what: string; action: string } },
+): Promise<{ id: string; kind: NotificationKind }[]> {
+  const email = buildOpsAlertEmail({
+    title: input.text.title,
+    what: input.text.what,
+    action: input.text.action,
+    count: input.alert.count,
+    detail: input.alert.detail,
+    adminUrl: absoluteUrl('/en/admin/observability'),
+  })
+
+  return enqueueNotifications(supabase, [
+    {
+      kind: 'system-alert',
+      recipientEmail: siteConfig.email,
+      locale: 'en',
+      subject: email.subject,
+      bodyText: email.text,
+      dedupeKey: `ops-alert:${input.alert.id}:${input.day}`,
+      entityType: 'ops-alert',
+      entityId: input.alert.id,
     },
   ])
 }

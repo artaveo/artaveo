@@ -1,6 +1,7 @@
 import 'server-only'
 
 import type { EmailAttachment, EmailProviderInfo } from '@/types/notifications'
+import { log } from '@/lib/observability/logger'
 
 /**
  * § 9.3 / Phase 19 — Notifications: provider abstraction.
@@ -65,10 +66,11 @@ export class ConsoleEmailProvider implements EmailProvider {
   readonly id = 'console' as const
 
   async send(message: EmailMessage): Promise<EmailSendResult> {
-    console.log('[notifications:console] would send email (D-01 domain/DNS not yet resolved)', {
-      to: message.to,
-      subject: message.subject,
-      ...(message.attachments?.length ? { attachments: message.attachments.map((a) => a.filename) } : {}),
+    // Nothing about the message is logged — not the address, not the subject (which carries a client's name).
+    log.info('notification.console_provider_send', {
+      mode: 'log-only',
+      reason: 'D-01 domain/DNS not yet resolved: nothing leaves the server',
+      attachments: message.attachments?.length ?? 0,
     })
     return { ok: true }
   }
@@ -185,9 +187,10 @@ function resolveOnce(): { provider: EmailProvider; info: EmailProviderInfo } {
   if (cached) return cached
   cached = resolveEmailProvider(process.env)
   if (cached.info.misconfigured) {
-    console.warn(
-      `[notifications] EMAIL_PROVIDER=${cached.info.requested} but the provider is not fully configured (RESEND_API_KEY / EMAIL_FROM_ADDRESS) — falling back to the console provider. Nothing is being delivered.`,
-    )
+    log.warn('notification.provider_misconfigured', {
+      requested: cached.info.requested,
+      consequence: 'RESEND_API_KEY / EMAIL_FROM_ADDRESS incomplete: falling back to the log-only provider, nothing is delivered',
+    })
   }
   return cached
 }

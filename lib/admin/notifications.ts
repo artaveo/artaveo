@@ -12,6 +12,7 @@ import {
   type NotificationSummary,
   type NotificationView,
 } from '@/types/notifications'
+import { captureError } from '@/lib/observability/store'
 
 /**
  * Phase 19 — reads for `/admin/notifications`. Owner-only at the page and
@@ -57,6 +58,7 @@ function mapRow(row: NotificationOutboxRow): NotificationView {
     entityType: row.entity_type,
     entityId: row.entity_id,
     attachmentNames: Array.isArray(row.attachments) ? row.attachments.map((attachment) => attachment.filename) : [],
+    requestId: row.request_id ?? null,
   }
 }
 
@@ -91,7 +93,7 @@ export async function listNotifications(
   const from = (page - 1) * pageSize
   const { data, error, count } = await query.range(from, from + pageSize - 1)
   if (error || !data) {
-    console.error('listNotifications failed:', error)
+    await captureError(error, { event: 'admin.list_notifications_failed', source: 'database' })
     return { notifications: [], total: 0 }
   }
   return { notifications: (data as NotificationOutboxRow[]).map(mapRow), total: count ?? data.length }

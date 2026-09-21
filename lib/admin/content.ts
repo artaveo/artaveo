@@ -22,6 +22,7 @@ import type {
   RecommendationStatus,
   ArticleFormOptions,
 } from '@/types/cms'
+import { captureError } from '@/lib/observability/store'
 
 /**
  * Admin read layer for the § 15.1 Services cluster. Unlike
@@ -216,7 +217,7 @@ export async function listServicesAdmin(): Promise<AdminServiceListItem[] | null
     .select(SERVICE_COLUMNS)
     .order('sort_order', { ascending: true })
   if (error || !data) {
-    console.error('listServicesAdmin failed:', error)
+    await captureError(error, { event: 'admin.list_services_admin_failed', source: 'database' })
     return []
   }
 
@@ -274,7 +275,7 @@ export async function listGlobalFaqsAdmin(): Promise<AdminFaqItem[] | null> {
     .eq('scope', 'global')
     .order('sort_order', { ascending: true })
   if (error || !data) {
-    console.error('listGlobalFaqsAdmin failed:', error)
+    await captureError(error, { event: 'admin.list_global_faqs_admin_failed', source: 'database' })
     return []
   }
 
@@ -290,7 +291,7 @@ export async function listEngagementModelsAdmin(): Promise<AdminEngagementModel[
     .select('id, slug, title, when_it_fits, billing, published, sort_order, updated_at')
     .order('sort_order', { ascending: true })
   if (error || !data) {
-    console.error('listEngagementModelsAdmin failed:', error)
+    await captureError(error, { event: 'admin.list_engagement_models_admin_failed', source: 'database' })
     return []
   }
 
@@ -453,7 +454,7 @@ export async function listProjectsAdmin(): Promise<(AdminProject & { completenes
 
   const { data: rows, error } = await supabase.from('projects').select(PROJECT_COLUMNS).order('sort_order', { ascending: true })
   if (error || !rows) {
-    console.error('listProjectsAdmin failed:', error)
+    await captureError(error, { event: 'admin.list_projects_admin_failed', source: 'database' })
     return []
   }
   if (rows.length === 0) return []
@@ -505,7 +506,7 @@ export async function listTechnologiesAdmin(): Promise<AdminTechnology[] | null>
 
   const { data, error } = await supabase.from('technologies').select('id, slug, name, category').order('category', { ascending: true }).order('name', { ascending: true })
   if (error || !data) {
-    console.error('listTechnologiesAdmin failed:', error)
+    await captureError(error, { event: 'admin.list_technologies_admin_failed', source: 'database' })
     return []
   }
   return data as AdminTechnology[]
@@ -564,7 +565,7 @@ export async function listArticlesAdmin(): Promise<(AdminArticle & { completenes
 
   const { data, error } = await supabase.from('articles').select(ARTICLE_COLUMNS).order('updated_at', { ascending: false })
   if (error || !data) {
-    console.error('listArticlesAdmin failed:', error)
+    await captureError(error, { event: 'admin.list_articles_admin_failed', source: 'database' })
     return []
   }
   // The list view never shows relations, so it does not pay to load them.
@@ -672,7 +673,7 @@ export async function listRecommendationsAdmin(): Promise<(AdminRecommendation &
 
   const { data, error } = await supabase.from('recommendations').select(RECOMMENDATION_COLUMNS).order('created_at', { ascending: false })
   if (error || !data) {
-    console.error('listRecommendationsAdmin failed:', error)
+    await captureError(error, { event: 'admin.list_recommendations_admin_failed', source: 'database' })
     return []
   }
   return data.map((row: any) => {
@@ -751,7 +752,7 @@ export async function listRecommendationRequestsAdmin(): Promise<AdminRecommenda
 
   const { data, error } = await supabase.from('recommendation_requests').select(REQUEST_COLUMNS).order('created_at', { ascending: false })
   if (error || !data) {
-    console.error('listRecommendationRequestsAdmin failed:', error)
+    await captureError(error, { event: 'admin.list_recommendation_requests_admin_failed', source: 'database' })
     return []
   }
 

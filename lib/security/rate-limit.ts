@@ -2,6 +2,8 @@ import 'server-only'
 import crypto from 'node:crypto'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
+import { log } from '@/lib/observability/logger'
+import { track } from '@/lib/observability/store'
 import { getClientIp, hashSecret } from '@/lib/request-ip'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { bucketKey, RATE_LIMITS, type LimitRule, type RateLimitName } from '@/lib/security/rate-limit-policy'
@@ -18,7 +20,9 @@ import { bucketKey, RATE_LIMITS, type LimitRule, type RateLimitName } from '@/li
  * blocks everyone whenever it breaks would turn its own outage into the site's
  * outage — and into a lock-out of the owner at the sign-in form. The older
  * record-counting limits still apply on the forms that had them. Phase 24
- * (observability) is where "the limiter has been failing" becomes an alert.
+ * makes "the limiter has been failing" visible: the failure is recorded as a
+ * `rate_limit.unavailable` event (at most one a minute) and raises the
+ * `rate_limit.unavailable` warning on `/admin/observability`.
  */
 
 export type RateLimitResult =
@@ -39,7 +43,8 @@ async function consume(supabase: SupabaseClient, key: string, rule: LimitRule): 
     p_window_seconds: rule.windowSeconds,
   })
   if (error || !Array.isArray(data) || data.length === 0) {
-    console.error('[rate-limit] consume_rate_limit failed — allowing the request:', error?.message ?? 'no row returned')
+    log.error('rate_limit.consume_failed', { err: error ?? new Error('no row returned'), decision: 'allowed' })
+    await track('rate_limit.unavailable', { level: 'warn', dedupeSeconds: 60, data: { reason: (error?.message ?? 'no row returned').slice(0, 200) }, supabase })
     return null
   }
   return data[0] as ConsumeRow

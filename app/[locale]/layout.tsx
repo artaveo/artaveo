@@ -11,6 +11,7 @@ import { siteConfig } from '@/lib/site'
 import { SITE_URL, buildAlternates } from '@/lib/seo'
 import { buildSiteJsonLd } from '@/lib/structured-data'
 import { themeScript } from '@/lib/theme-script'
+import { ErrorReporter } from '@/components/site/error-reporter'
 import { ThemeSync } from '@/components/theme-sync'
 import { PwaManager } from '@/components/site/pwa-manager'
 import { SiteFlagsProvider } from '@/components/site/site-flags'
@@ -178,6 +179,7 @@ export default async function RootLayout({
       <body className="font-sans antialiased">
         <JsonLd data={buildSiteJsonLd(locale as Locale)} />
         <ThemeSync />
+        <ErrorReporter />
         <NextIntlClientProvider>
           <SiteFlagsProvider flags={{ insights: insightsVisible }}>
             {children}

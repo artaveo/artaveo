@@ -1,5 +1,6 @@
 'use server'
 
+import { bindRequestId, getRequestId } from '@/lib/observability/context'
 import { redirect } from 'next/navigation'
 
 import { createAuthServerClient } from '@/lib/supabase/server-auth'
@@ -24,6 +25,7 @@ export type SignInResult =
   | { ok: true; next: 'mfa-challenge' | 'security' | 'dashboard' }
 
 export async function adminSignIn(formData: FormData): Promise<SignInResult> {
+  bindRequestId(await getRequestId())
   const email = String(formData.get('email') ?? '').trim().slice(0, 254)
   const password = String(formData.get('password') ?? '').slice(0, 1024)
 
@@ -86,6 +88,7 @@ export type MfaChallengeResult =
 
 /** For `/admin/mfa-challenge` — verifying a factor that's already enrolled from an earlier session. */
 export async function verifyMfaChallenge(formData: FormData): Promise<MfaChallengeResult> {
+  bindRequestId(await getRequestId())
   const code = String(formData.get('code') ?? '').trim()
 
   const authClient = await createAuthServerClient()

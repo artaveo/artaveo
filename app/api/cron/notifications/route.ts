@@ -1,6 +1,6 @@
-import crypto from 'node:crypto'
 import { NextResponse } from 'next/server'
 
+import { checkCronAuth } from '@/lib/security/cron-auth'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { publishDueArticles } from '@/lib/insights-scheduler'
 import { enqueueContentPublished } from '@/lib/notifications/events'
@@ -8,6 +8,11 @@ import { processOutboxBatch } from '@/lib/notifications/outbox'
 import { sweepRecommendationRecipients } from '@/lib/recommendation-privacy'
 import { sweepUnlinkedInquiryFiles } from '@/lib/inquiry-files'
 import { purgeExpiredRateLimits } from '@/lib/security/rate-limit'
+import { runWithRequestId } from '@/lib/observability/context'
+import { log } from '@/lib/observability/logger'
+import { evaluateAlerts, raiseAlerts } from '@/lib/observability/alerts'
+import { newRequestId } from '@/lib/observability/request-id'
+import { captureError, purgeOpsData, track } from '@/lib/observability/store'
 
 /**
  * The daily run: the notification retry sweep (§ 9.3, Phase 19), the
@@ -45,29 +50,31 @@ export const maxDuration = 60
 
 const SWEEP_DEADLINE_MS = 40_000
 
-function isAuthorized(request: Request): 'ok' | 'not-configured' | 'unauthorized' {
-  const secret = process.env.CRON_SECRET
-  if (!secret) return 'not-configured'
-
-  const given = Buffer.from(request.headers.get('authorization') ?? '')
-  const expected = Buffer.from(`Bearer ${secret}`)
-  if (given.length !== expected.length) return 'unauthorized'
-  return crypto.timingSafeEqual(given, expected) ? 'ok' : 'unauthorized'
-}
-
 async function settle<T>(label: string, run: () => Promise<T>): Promise<T | { error: string }> {
   try {
     return await run()
   } catch (err) {
-    console.error(`[cron] ${label} failed:`, err)
+    await captureError(err, { event: 'cron.step_failed', source: 'cron', route: '/api/cron/notifications', fields: { step: label }, supabase: getSupabaseServerClient() })
     return { error: err instanceof Error ? err.message : String(err) }
   }
 }
 
-export async function GET(request: Request) {
-  const auth = isAuthorized(request)
+export function GET(request: Request) {
+  // Phase 24: the run has no visitor and no proxy, so it makes its own correlation id; every log
+  // line, error record and outbox row it produces carries it.
+  const requestId = newRequestId()
+  return runWithRequestId(requestId, async () => {
+    const response = await handle(request)
+    response.headers.set('x-request-id', requestId)
+    return response
+  })
+}
+
+async function handle(request: Request): Promise<NextResponse> {
+  const startedAt = Date.now()
+  const auth = checkCronAuth(request)
   if (auth === 'not-configured') {
-    console.error('[cron] CRON_SECRET is not set — refusing to run. Set it in the Vercel project settings and redeploy.')
+    log.error('cron.secret_not_configured', { consequence: 'the daily run refused to run: set CRON_SECRET in the Vercel project settings and redeploy' })
     return NextResponse.json({ ok: false, error: 'cron-secret-not-configured' }, { status: 401 })
   }
   if (auth === 'unauthorized') {
@@ -116,5 +123,23 @@ export async function GET(request: Request) {
   const rateLimits = await settle('rate limit purge', () => purgeExpiredRateLimits(supabase))
   const unlinkedFiles = await settle('unlinked file sweep', () => sweepUnlinkedInquiryFiles(supabase))
 
-  return NextResponse.json({ ok: true, notifications, articles, publishNotices, recommenderPrivacy, rateLimits, unlinkedFiles })
+  // Phase 24: housekeeping for the observability tables, then the alert check — so an
+  // e-mail about a failing channel or a stuck message goes out at least once a day even
+  // when nothing else checks (the external check, when it runs, does this every 15 minutes).
+  const opsPurge = await settle('ops purge', () => purgeOpsData(supabase))
+  const alerts = await settle('alert check', async () => {
+    const { alerts: firing } = await evaluateAlerts(supabase)
+    const raised = await raiseAlerts(supabase, firing)
+    return { firing: firing.map((alert) => alert.id), raised: raised.raised }
+  })
+
+  const results = { notifications, articles, publishNotices, recommenderPrivacy, rateLimits, unlinkedFiles, opsPurge, alerts }
+  const failedSteps = Object.entries(results)
+    .filter(([, value]) => value && typeof value === 'object' && 'error' in value)
+    .map(([name]) => name)
+
+  // The heartbeat: "the daily run completed". The `cron.stale` alert is the absence of this row.
+  await track('cron.completed', { data: { durationMs: Date.now() - startedAt, failedSteps }, supabase })
+
+  return NextResponse.json({ ok: true, ...results })
 }

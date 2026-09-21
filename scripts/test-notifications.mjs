@@ -202,6 +202,9 @@ function makeDb({ now = () => new Date() } = {}) {
     // single-threaded between awaits — the same guarantee the SQL gets from
     // FOR UPDATE SKIP LOCKED.
     async rpc(name, args) {
+      // Phase 24: failures and events are also recorded through the database (`record_error_event`,
+      // `record_ops_event`); this in-memory stand-in only models the outbox, so those are accepted and dropped.
+      if (name === 'record_error_event' || name === 'record_ops_event') return { data: null, error: null }
       assert.equal(name, 'claim_notification_outbox')
       calls.rpc.push(args)
       const t = now().getTime()

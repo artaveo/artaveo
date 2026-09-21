@@ -2,6 +2,7 @@ import 'server-only'
 
 import { requireSupabase } from '@/lib/admin/pipeline'
 import type { AdminMediaAsset, AdminProjectMediaItem } from '@/types/cms'
+import { captureError } from '@/lib/observability/store'
 
 /**
  * Admin read layer for § 15's media pipeline. `media_assets` has no
@@ -34,7 +35,7 @@ export async function listMediaAssets(): Promise<AdminMediaAsset[] | null> {
 
   const { data, error } = await supabase.from('media_assets').select(ASSET_COLUMNS).order('created_at', { ascending: false })
   if (error || !data) {
-    console.error('listMediaAssets failed:', error)
+    await captureError(error, { event: 'admin.list_media_assets_failed', source: 'database' })
     return []
   }
   return data.map(assembleAsset)
@@ -59,7 +60,7 @@ export async function listProjectMedia(projectId: string): Promise<AdminProjectM
     .eq('project_id', projectId)
     .order('sort_order', { ascending: true })
   if (error || !data) {
-    console.error('listProjectMedia failed:', error)
+    await captureError(error, { event: 'admin.list_project_media_failed', source: 'database' })
     return []
   }
 

@@ -7,6 +7,7 @@ import { collectMediaIds, parseArticleBody } from '@/lib/articles/markdown'
 import { estimateReadingMinutes } from '@/lib/articles/reading-time'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import type { Article, ArticleDetail, ArticleImage, ArticleSummary } from '@/types/content'
+import { log } from '@/lib/observability/logger'
 
 /**
  * Phase 17 — the public read layer for the journal (roadmap § 12,
@@ -99,12 +100,12 @@ export const hasPublishedArticles = cache(async (): Promise<boolean> => {
       .select('id', { count: 'exact', head: true })
       .eq('status', 'published')
     if (error) {
-      console.error('hasPublishedArticles failed:', error.message)
+      log.error('insights.has_published_failed', { err: error })
       return false
     }
     return (count ?? 0) > 0
   } catch (error) {
-    console.error('hasPublishedArticles failed:', error)
+    log.error('insights.has_published_failed', { err: error })
     return false
   }
 })

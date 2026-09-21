@@ -54,6 +54,7 @@ const GATES = {
   'content.ts': 'requireEditorSession',
   'media.ts': 'requireEditorSession',
   'notifications.ts': 'requireOwnerSession',
+  'observability.ts': 'requireOwnerSession',
   'pipeline.ts': 'requireOwnerSession',
   'settings.ts': 'requireEditorSession',
   'admin-auth.ts': 'getAdminSession',
@@ -141,9 +142,14 @@ describe('route handlers', () => {
     assert.match(source, /canAccessLeads\(session\)/)
   })
   it('the cron route fails closed and compares its secret in constant time', () => {
-    const source = read('app/api/cron/notifications/route.ts')
-    assert.match(source, /timingSafeEqual/)
-    assert.match(source, /not-configured/)
+    // Phase 24: the comparison moved to one shared helper so the daily run and the external check
+    // (`/api/ops/check`) cannot disagree about what "authorised" means.
+    for (const route of ['app/api/cron/notifications/route.ts', 'app/api/ops/check/route.ts']) {
+      assert.match(read(route), /checkCronAuth\(/, `${route} must use the shared check`)
+    }
+    const helper = read('lib/security/cron-auth.ts')
+    assert.match(helper, /timingSafeEqual/)
+    assert.match(helper, /not-configured/)
   })
   it('the public token route is rate-limited', () => {
     assert.match(read('app/api/consultation/[token]/calendar/route.ts'), /checkRateLimit\('token\.calendar'/)

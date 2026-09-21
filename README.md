@@ -13,6 +13,7 @@ This repository holds the public site, the private admin panel, the database sch
 - **Consultation** — a request-based intro call: the visitor proposes time windows in their own time zone, the owner confirms, and a calendar invitation is sent. A private page per request lets the visitor cancel or ask for another time.
 - **Verified recommendations** — people the owner has worked with submit a statement through a single-use link; nothing is published until the owner approves it.
 - **Admin panel** (`/admin`) — sign-in with optional two-factor authentication and two roles (`owner`, `editor`). The owner works the lead pipeline, consultations and the notification log; editors manage content (services, projects, articles, media, settings, navigation).
+- **Observability** — a correlation id on every request, structured logs, error tracking and business events kept in the database (the hosting log lasts about an hour), alert rules, an external uptime check, and an owner-only page that ties them together (`docs/observability.md`).
 - **Notifications** — one idempotent outbox with retries and a delivery log. Real e-mail sending is switched off until the production domain is set up (see *Status*).
 
 ## Stack

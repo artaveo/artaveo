@@ -1,3 +1,5 @@
+import { runWithRequestId } from '@/lib/observability/context'
+import { newRequestId } from '@/lib/observability/request-id'
 import { NextResponse } from 'next/server'
 
 import { writeAuditLog } from '@/lib/admin/audit'
@@ -27,7 +29,12 @@ const SIGNED_URL_SECONDS = 60
 const NOT_FOUND = () =>
   new NextResponse('Not found', { status: 404, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } })
 
-export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+  // Phase 24: outside proxy.ts's matcher, so the route makes its own correlation id.
+  return runWithRequestId(newRequestId(), () => handle(context))
+}
+
+async function handle({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   if (!UUID.test(id)) return NOT_FOUND()
 

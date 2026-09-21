@@ -8,10 +8,11 @@ import assert from 'node:assert/strict'
 import { before, beforeEach, describe, it } from 'node:test'
 
 import { OWNER } from '../support/stack/accounts.mjs'
-import { anon, service, signedIn, sql, uuid } from '../support/stack-env.mjs'
+import { anon, quietSink, service, signedIn, sql, uuid } from '../support/stack-env.mjs'
 import { resetRequest } from '../support/next-runtime.mjs'
 import { createEmptyInquiryDraft } from '../../types/inquiry.ts'
 
+const { setLogSink } = await import('../../lib/observability/logger.ts')
 const { checkRateLimit, hashForBucket, purgeExpiredRateLimits } = await import('../../lib/security/rate-limit.ts')
 const { RATE_LIMITS } = await import('../../lib/security/rate-limit-policy.ts')
 const { adminSignIn } = await import('../../app/actions/admin-auth.ts')
@@ -124,15 +125,18 @@ describe('checkRateLimit (the application layer)', () => {
 
   it('fails OPEN when the limiter itself is unavailable (and does not throw)', async () => {
     const broken = { rpc: async () => ({ data: null, error: { message: 'connection refused' } }) }
-    const original = console.error
-    let logged = ''
-    console.error = (...args) => { logged += args.join(' ') }
+    // Phase 24: the failure is a structured log line (and an ops event) rather than a console string.
+    const lines = []
+    setLogSink((level, line) => lines.push(JSON.parse(line)))
     try {
       assert.deepEqual(await checkRateLimit('inquiry.submit', { ip: '203.0.113.1' }, broken), { ok: true })
     } finally {
-      console.error = original
+      setLogSink(quietSink)
     }
-    assert.match(logged, /consume_rate_limit failed/)
+    const failure = lines.find((l) => l.event === 'rate_limit.consume_failed')
+    assert.equal(failure.level, 'error')
+    assert.equal(failure.decision, 'allowed')
+    assert.equal(failure.err.message, 'connection refused')
   })
 
   it('the daily purge removes windows that ended more than an hour ago and nothing else', async () => {

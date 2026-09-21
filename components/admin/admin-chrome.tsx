@@ -58,6 +58,15 @@ export async function AdminChrome({
                 {t('notifNavLink')}
               </Link>
             ) : null}
+            {/* Phase 24: request references and error text can point at leads — owner only, like the notification log. */}
+            {canAccessNotifications(session) ? (
+              <Link
+                href="/admin/observability"
+                className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+              >
+                {t('obsNavLink')}
+              </Link>
+            ) : null}
           </nav>
         </div>
         <div className="flex items-center gap-3">

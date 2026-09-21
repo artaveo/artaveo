@@ -185,3 +185,10 @@ after any change to those functions:
 select pg_get_functiondef('public.hold_seats(uuid, uuid[], integer)'::regprocedure);
 select proname, proacl from pg_proc where proname in ('hold_seats','release_seats','confirm_booking');
 ```
+
+## Phase 24 (21 September 2026)
+
+| Claim | Evidence | Verified |
+|---|---|---|
+| Privacy policy: a technical record of a failure is kept for up to 90 days (what went wrong, the kind of page with private-link addresses replaced, a random request number, the browser's error text), with e-mail addresses, phone-like numbers and long random strings removed automatically; no name, e-mail, IP or form content is put there on purpose; simple counts of what the site did; reports from the browser when the security policy blocks something | `lib/observability/redact.ts` + `observability-redact.test.mjs` (hostile-input cases); `observability.integration.test.mjs` "stores nothing private" (plants an address, a name, a token and free text and searches every stored row); `db/migrations/0021_observability.sql` + `purge_ops_data` (90 days) called by the daily run (`app/api/cron/notifications/route.ts`); no IP column exists in either table. The policy's own caveat — a browser-written message could in principle contain a fragment of a page — is stated in the policy | 2026-09-21 |
+| About page: "UTC — no fixed city is published" (English) / "شهر مشخصی منتشر نشده است" (Persian) — the previous English text pointed at the internal Decision Register; the previous Persian text added a claim the ledger does not have ("the time zone is independent of where I work") | D-02 resolution (11 Sep 2026): timezone UTC, no city published — the existing row of this ledger | 2026-09-21 |

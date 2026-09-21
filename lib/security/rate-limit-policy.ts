@@ -51,6 +51,9 @@ export const RATE_LIMITS = {
     subject: { limit: 10, windowSeconds: QUARTER_HOUR },
     global: { limit: 300, windowSeconds: QUARTER_HOUR },
   },
+  // Phase 24: the two endpoints a browser reports failures to. Cheap, unauthenticated, so tightly capped.
+  'observe.csp': { ip: { limit: 30, windowSeconds: HOUR }, global: { limit: 300, windowSeconds: HOUR } },
+  'observe.client-error': { ip: { limit: 20, windowSeconds: HOUR }, global: { limit: 200, windowSeconds: HOUR } },
   'admin.mfa': { ip: { limit: 20, windowSeconds: QUARTER_HOUR }, subject: { limit: 10, windowSeconds: QUARTER_HOUR } },
 } as const satisfies Record<string, RateLimitPolicy>
 

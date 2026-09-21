@@ -371,6 +371,7 @@ import {
   enqueueConsultationRequested,
 } from '../lib/notifications/events.ts'
 import { encodeResendAttachments, ResendEmailProvider, ConsoleEmailProvider } from '../lib/notifications/provider.ts'
+import { setLogSink } from '../lib/observability/logger.ts'
 import { KIND_LABEL_FOR_TESTS } from './helpers-consultations.mjs'
 import { NOTIFICATION_AUDIENCE, NOTIFICATION_KINDS } from '../types/notifications.ts'
 
@@ -561,7 +562,7 @@ test('enqueue: the owner\'s notice — each reschedule is its own message, a can
   assert.ok(db.upserts.every((u) => u.rows[0].recipient_email === 'artaveo.dev@gmail.com' && u.rows[0].reply_to === 'client@example.com'))
 })
 
-test('provider: attachments reach Resend base64-encoded with their content type; the console logs only names', async () => {
+test('provider: attachments reach Resend base64-encoded with their content type; the log-only provider logs no message content', async () => {
   const attachment = { filename: 'artaveo-intro-call.ics', contentType: 'text/calendar; charset=utf-8; method=REQUEST', content: 'BEGIN:VCALENDAR\r\nSUMMARY:گفتگو\r\nEND:VCALENDAR\r\n' }
   const [encoded] = encodeResendAttachments([attachment])
   assert.equal(encoded.filename, 'artaveo-intro-call.ics')
@@ -585,14 +586,18 @@ test('provider: attachments reach Resend base64-encoded with their content type;
     globalThis.fetch = realFetch
   }
 
+  // Phase 24: the log-only provider writes one structured line and nothing about the message —
+  // not the address, not the subject (it carries a client's name), not the file's name or content.
   const logged = []
-  const realLog = console.log
-  console.log = (...args) => logged.push(args)
+  setLogSink((level, line) => logged.push({ level, record: JSON.parse(line) }))
   try {
-    await new ConsoleEmailProvider().send({ to: 'a@b.co', subject: 's', text: 't', attachments: [attachment] })
+    await new ConsoleEmailProvider().send({ to: 'a@b.co', subject: 'New inquiry — Ada', text: 't', attachments: [attachment] })
   } finally {
-    console.log = realLog
+    setLogSink(null)
   }
-  assert.deepEqual(logged[0][1].attachments, ['artaveo-intro-call.ics'])
-  assert.ok(!JSON.stringify(logged).includes('VCALENDAR'))
+  assert.equal(logged.length, 1)
+  assert.equal(logged[0].record.event, 'notification.console_provider_send')
+  assert.equal(logged[0].record.attachments, 1)
+  const serialized = JSON.stringify(logged)
+  for (const secret of ['a@b.co', 'Ada', 'VCALENDAR', 'artaveo-intro-call.ics']) assert.ok(!serialized.includes(secret), `${secret} must not be logged`)
 })

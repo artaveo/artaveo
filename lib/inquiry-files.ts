@@ -2,6 +2,7 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { INQUIRY_FILES_BUCKET } from '@/lib/media-upload'
+import { captureError } from '@/lib/observability/store'
 
 /** How long an unlinked upload may wait for its brief to be sent. A visitor who uploads and walks away leaves nothing behind after this. */
 export const UNLINKED_FILE_TTL_HOURS = 24
@@ -23,7 +24,7 @@ export async function listInquiryFiles(supabase: SupabaseClient, inquiryId: stri
     .eq('inquiry_id', inquiryId)
     .order('created_at', { ascending: true })
   if (error || !data) {
-    if (error) console.error('listInquiryFiles failed:', error.message)
+    if (error) await captureError(error, { event: 'admin.list_inquiry_files_failed', source: 'database' })
     return []
   }
   return data.map((row) => ({

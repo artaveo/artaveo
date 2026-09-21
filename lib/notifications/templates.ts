@@ -278,6 +278,24 @@ export function notificationKindLabel(kind: NotificationKind): string {
   return KIND_LABEL[kind]
 }
 
+/** Phase 24 — an alert rule is firing. Plain text, no visitor data: only what the rule counted. */
+export function buildOpsAlertEmail(input: {
+  title: string
+  what: string
+  action: string
+  count: number
+  detail?: string
+  adminUrl: string
+}): { subject: string; text: string } {
+  const subject = `Artaveo alert — ${input.title}`
+  const lines = [input.what, '']
+  if (input.count > 1) lines.push(`Count: ${input.count}`)
+  if (input.detail) lines.push(`Detail: ${singleLine(input.detail, 200)}`)
+  lines.push('', `What to do: ${input.action}`, '', 'Everything on this list, with the request references that link to the log lines:', input.adminUrl, '')
+  lines.push('You get at most one e-mail a day per problem. It clears on its own when the cause is fixed.')
+  return { subject, text: lines.join('\n') }
+}
+
 export function buildSystemAlertEmail(input: {
   failedKind: NotificationKind
   attempts: number

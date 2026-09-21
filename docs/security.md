@@ -32,6 +32,7 @@ The browser never talks to Supabase (no browser client exists, no `NEXT_PUBLIC_`
 | Uploads: bytes checked, private bucket, sweep | `lib/upload-inspection.ts`, `app/actions/inquiry-attachments.ts` | `security-input.test.mjs`, `cms.integration.test.mjs`, `security.spec.ts` |
 | Session cookie `httpOnly` | `lib/supabase/server-auth.ts`, `lib/supabase/middleware.ts` | `security.spec.ts` |
 | Configuration and secrets | `lib/security/config-check.ts`, `instrumentation.ts`, section 6 | `security-static.test.mjs` (inventory), `security-input.test.mjs` |
+| Open reporting endpoints (CSP reports, browser errors) | `app/api/observe/*`, `lib/observability/reports.ts` | `observability-static.test.mjs`, `observability-routes.integration.test.mjs`, `observability.spec.ts` |
 | Dependencies | Phase 22 gate (`scripts/audit-gate.mjs`), Dependabot, secret scan | CI |
 
 ## 3. Headers and the Content Security Policy
@@ -58,6 +59,8 @@ Attempts are counted in Postgres (`rate_limit_buckets`, function `consume_rate_l
 | Brief Builder submit | 15 / hour | — | 300 / hour |
 | Upload / remove attachment | 20 / hour · 40 / hour | — | 400 / hour |
 | Consultation request | 15 / hour | — | 300 / hour |
+| CSP violation report (`/api/observe/csp`, Phase 24) | 30 / hour | — | 300 / hour |
+| Browser error report (`/api/observe/client-error`, Phase 24) | 20 / hour | — | 200 / hour |
 | Cancel / change a consultation | 40 / hour | link token, 20 / hour | — |
 | Recommendation submit | 30 / hour | link token, 15 / hour | 300 / hour |
 | Calendar download | 120 / hour | link token, 60 / hour | — |
@@ -65,7 +68,7 @@ Attempts are counted in Postgres (`rate_limit_buckets`, function `consume_rate_l
 | Admin MFA code | 20 / 15 min | user, 10 / 15 min | — |
 
 - **Fixed windows**: a caller can use one window's allowance at its end and the next at its start — at most twice the limit across a boundary.
-- **Fails open.** If the limiter cannot be reached (database down, or code deployed before migration `0020`) the request is allowed and the error is logged. A limiter that blocks everyone when it breaks turns its outage into the site's outage and locks the owner out of sign-in. The older record-based limits (5 inquiries per address per hour, 3 per e-mail per day, the consultation equivalents) still apply. Phase 24 should alert on `[rate-limit] consume_rate_limit failed`.
+- **Fails open.** If the limiter cannot be reached (database down, or code deployed before migration `0020`) the request is allowed and the error is logged. A limiter that blocks everyone when it breaks turns its outage into the site's outage and locks the owner out of sign-in. The older record-based limits (5 inquiries per address per hour, 3 per e-mail per day, the consultation equivalents) still apply. Since Phase 24 the failure is a `rate_limit.consume_failed` log line and a `rate_limit.unavailable` event (at most one a minute), which raises the `rate_limit.unavailable` warning on `/admin/observability` (`docs/observability.md` § 4).
 - **The address**: on Vercel the platform's `x-real-ip` is used (Vercel does not forward a client-supplied value). Elsewhere `x-forwarded-for` is only as good as the proxy in front of it, so a host that is not Vercel needs a look at `pickClientIp` first. An unknown caller shares one bucket — the safe direction.
 - **Housekeeping**: the daily run deletes windows that ended more than an hour ago.
 - **Not limited by this mechanism**: visits to a link page (a token is 192 bits; volumetric abuse is the platform's — see section 8, Vercel Firewall). Server Actions have no rate limit until they reach a limited action; the framework's body size limit is 6 MB.
@@ -130,6 +133,7 @@ Nothing here is a secret **in the repository**: `.env.example` holds names and t
 5. **Supabase Auth settings** live in the dashboard, not the repository. Check once, and after any Supabase change: **Sign-ups disabled** (Authentication → Sign In / Providers → Allow new users to sign up: off — there is no admin sign-up flow, so an open sign-up only creates useless accounts, but it is also a way to fill the auth tables); **e-mail confirmations on**; **minimum password length ≥ 12**. On 20 September 2026 the project had exactly one auth user (the owner) and no stray accounts.
 6. **GitHub / Vercel settings** from `docs/ci.md` (branch protection requiring `CI passed`; separate Preview database) still stand — they are part of this model.
 7. **Backups** are Phase 25.
+8. **Anyone can post to the two reporting endpoints** (Phase 24) and so can add rows to the error list. Bounded by: per-address and overall rate limits, an 8 KB body cap, a cap of 500 distinct error groups (past it, one shared `overflow` row), and the fact that `client` / `csp` groups never raise an alert. What a stranger can do is make the *Errors* list noisier; they cannot wake you, fill the table, or read anything.
 
 ## 9. Adding to the system — the checklist
 

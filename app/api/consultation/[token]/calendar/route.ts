@@ -1,3 +1,5 @@
+import { runWithRequestId } from '@/lib/observability/context'
+import { newRequestId } from '@/lib/observability/request-id'
 import { NextResponse } from 'next/server'
 
 import { buildConsultationIcs, consultationUid } from '@/lib/consultation/ics'
@@ -26,7 +28,12 @@ export const dynamic = 'force-dynamic'
 const NOT_FOUND = () =>
   new NextResponse('Not found', { status: 404, headers: { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex' } })
 
-export async function GET(_request: Request, { params }: { params: Promise<{ token: string }> }) {
+export function GET(_request: Request, context: { params: Promise<{ token: string }> }) {
+  // Phase 24: outside proxy.ts's matcher, so the route makes its own correlation id.
+  return runWithRequestId(newRequestId(), () => handle(context))
+}
+
+async function handle({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
   if (!looksLikeToken(token)) return NOT_FOUND()
 

@@ -1,5 +1,6 @@
 'use server'
 
+import { bindRequestId, getRequestId } from '@/lib/observability/context'
 import { checkRateLimit } from '@/lib/security/rate-limit'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { resolveRequestToken } from '@/lib/recommendations'
@@ -7,6 +8,7 @@ import { enqueueEvidenceSubmitted } from '@/lib/notifications/events'
 import { processAfterEnqueue } from '@/lib/notifications/outbox'
 import type { Locale, LocalizedText } from '@/types/content'
 import type { RecommendationSubmissionInput } from '@/types/cms'
+import { captureError, track } from '@/lib/observability/store'
 
 /**
  * § 16 — the public half of Verified Evidence: what happens when a
@@ -45,6 +47,7 @@ export async function submitRecommendation(
   input: RecommendationSubmissionInput,
   meta: { honeypot: string; formRenderedAt: number },
 ): Promise<RecommendationSubmissionResult> {
+  bindRequestId(await getRequestId())
   // 1. Anti-spam — same generic 'rejected' code either way, never
   //    signal which check tripped (matches app/actions/inquiries.ts).
   if (meta.honeypot.trim().length > 0) return { ok: false, code: 'rejected' }
@@ -107,6 +110,7 @@ export async function submitRecommendation(
     .select('id, recommendation_id, suggested_related_project_id, suggested_related_service_id')
     .eq('id', resolved.requestId)
     .maybeSingle()
+  if (requestError) await captureError(requestError, { event: 'recommendation.request_lookup_failed', source: 'action', route: '/[locale]/recommend/[token]', supabase })
   if (requestError || !requestRow) return { ok: false, code: 'error' }
 
   const isResubmission = Boolean(requestRow.recommendation_id)
@@ -139,7 +143,10 @@ export async function submitRecommendation(
         moderation_note: null,
       })
       .eq('id', requestRow.recommendation_id)
-    if (updateError) return { ok: false, code: 'error' }
+    if (updateError) {
+      await captureError(updateError, { event: 'recommendation.update_failed', source: 'action', route: '/[locale]/recommend/[token]', supabase })
+      return { ok: false, code: 'error' }
+    }
 
     await notifyOwner(supabase, requestRow.recommendation_id as string, {
       personName,
@@ -173,14 +180,17 @@ export async function submitRecommendation(
     .select('id')
     .single()
 
-  if (insertError || !inserted) return { ok: false, code: 'error' }
+  if (insertError || !inserted) {
+    await captureError(insertError ?? new Error('insert returned no row'), { event: 'recommendation.persist_failed', source: 'action', route: '/[locale]/recommend/[token]', fields: { consequence: 'the statement was NOT saved' }, supabase })
+    return { ok: false, code: 'error' }
+  }
 
   const { error: touchError } = await supabase
     .from('recommendation_requests')
     .update({ used_at: new Date().toISOString(), recommendation_id: inserted.id })
     .eq('id', requestRow.id)
   if (touchError) {
-    console.error('recommendation_requests touch failed (recommendation itself was saved):', touchError)
+    await captureError(touchError, { event: 'recommendation.request_touch_failed', source: 'database', level: 'warn', fields: { consequence: 'the recommendation itself was saved' } })
   }
 
   await notifyOwner(supabase, inserted.id as string, {
@@ -190,6 +200,7 @@ export async function submitRecommendation(
     locale,
     resubmission: false,
   })
+  await track('evidence.submitted', { subject: { type: 'recommendation', id: inserted.id as string }, data: { locale, resubmission: false }, supabase })
   return { ok: true }
 }
 
@@ -221,6 +232,6 @@ async function notifyOwner(
       rows.map((row) => row.id),
     )
   } catch (err) {
-    console.error('evidence notification failed (the recommendation itself was saved):', err)
+    await captureError(err, { event: 'recommendation.owner_notice_failed', source: 'notification', fields: { consequence: 'the recommendation itself was saved' } })
   }
 }

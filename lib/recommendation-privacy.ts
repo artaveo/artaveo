@@ -2,6 +2,7 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { REDACTED_MARKER } from '@/lib/notifications/outbox'
+import { captureError } from '@/lib/observability/store'
 
 /**
  * D-14 — how long a recommender's e-mail address is kept.
@@ -70,7 +71,7 @@ export async function redactRequestNotifications(supabase: SupabaseClient, reque
     .eq('entity_id', requestId)
     .in('status', ['pending', 'failed'])
     .select('id')
-  if (deleteError) console.error('recommendation-privacy: could not delete unsent messages:', deleteError)
+  if (deleteError) await captureError(deleteError, { event: 'recommendation_privacy.delete_unsent_failed', source: 'database' })
   touched += deleted?.length ?? 0
 
   const { data: redacted, error: redactError } = await supabase
@@ -81,7 +82,7 @@ export async function redactRequestNotifications(supabase: SupabaseClient, reque
     .in('status', ['sent', 'exhausted'])
     .neq('recipient_email', REDACTED_MARKER)
     .select('id')
-  if (redactError) console.error('recommendation-privacy: could not redact finished messages:', redactError)
+  if (redactError) await captureError(redactError, { event: 'recommendation_privacy.redact_failed', source: 'database' })
   touched += redacted?.length ?? 0
 
   return touched
@@ -98,10 +99,10 @@ export async function clearRecipientForRequest(supabase: SupabaseClient, request
       .from('recommendation_requests')
       .update({ recipient_email: null, recipient_locale: null })
       .eq('id', requestId)
-    if (error) console.error('recommendation-privacy: could not clear the recipient address:', error)
+    if (error) await captureError(error, { event: 'recommendation_privacy.clear_address_failed', source: 'database' })
     return await redactRequestNotifications(supabase, requestId)
   } catch (err) {
-    console.error('recommendation-privacy: clearing failed:', err)
+    await captureError(err, { event: 'recommendation_privacy.clear_failed', source: 'server' })
     return 0
   }
 }
@@ -130,7 +131,7 @@ export async function sweepRecommendationRecipients(
     )
     .not('recipient_email', 'is', null)
   if (error) {
-    console.error('recommendation-privacy: sweep could not read requests:', error)
+    await captureError(error, { event: 'recommendation_privacy.sweep_read_failed', source: 'database' })
   } else {
     for (const row of (candidates ?? []) as unknown as RequestRow[]) {
       if (!shouldClearRecipient(row, now)) continue

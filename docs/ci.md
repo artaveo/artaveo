@@ -86,7 +86,7 @@ Assume the secret is compromised. **Rotate it first** (Supabase key, provider ke
 - **Deploying from the workflow.** Vercel does it; the workflow only decides what may reach `main`.
 - **Browser tests against the Vercel preview.** They run against the app built inside the job and a local database. A preview points at a real database; running the suite there would write test data to it. A read-only smoke test of a preview is possible later.
 - **Static analysis for security (CodeQL or similar), headers/CSP checks, rate-limit tests** → Phase 23.
-- **Log/error alerting when a deployed site breaks** → Phase 24. **Performance budgets** → Phase 25.
+- **Log/error alerting when a deployed site breaks** → Phase 24 (below). **Performance budgets** → Phase 26.
 - **Visual regression** — the suite does not compare pixels (fonts are stubbed offline).
 
 ## Phase 23 additions (security)
@@ -95,3 +95,9 @@ Assume the secret is compromised. **Rotate it first** (Supabase key, provider ke
 - **New check worth knowing about:** `tests/unit/security-static.test.mjs` fails the pull request if a Server Action is added without being classified (gated, or a reviewed public entry point that calls the rate limiter), if a new place that can produce HTML appears, if an environment variable is read that `docs/security.md` § 6 does not describe, or if a form could fall back to GET. Fix the code or the list on purpose — `docs/security.md` § 9 is the checklist.
 - **Migrations:** the integration and e2e jobs apply every file in `db/migrations` (now through `0020`) to a throw-away database, so a migration that does not apply fails CI. Live application is still a manual step.
 - No new secret, no new permission.
+
+## Phase 24 additions (observability)
+
+- **A second workflow, `.github/workflows/uptime.yml`, is not part of CI and is not a required check.** It runs every 15 minutes on a schedule and calls the *deployed* site: liveness, "a brief would be saved" (`/api/health/inquiry`), the start page, and `/api/ops/check` (alerts). It uses no third-party action, so there is nothing to pin. Setup (a `CRON_SECRET` repository secret, an optional `SITE_URL` variable) and its honest limits (late runs; **scheduled workflows are switched off after 60 days without repository activity**) are in `docs/observability.md` § 5.
+- The new suites need no workflow change: `observability-*` in **verify** (unit), `observability*.integration` in **integration**, `observability.spec.ts` in **e2e**.
+- **Checks that fail a pull request now:** any `console.*` call in server code (use `lib/observability/logger.ts`); an event name that is not `area.what_happened`; `getRequestId()` called from a file outside the reviewed list; an alert rule without wording in the e-mail and both languages; a reporting endpoint without a rate limit; drift between `0021` and the code (`tests/unit/observability-static.test.mjs`).

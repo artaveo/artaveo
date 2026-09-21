@@ -21,17 +21,12 @@ try {
 }
 Object.assign(process.env, env)
 
-// The console e-mail provider logs every "would send"; that is expected noise
-// here, not signal. TEST_VERBOSE=1 brings it back.
-if (!process.env.TEST_VERBOSE) {
-  for (const level of ['log', 'info', 'warn']) {
-    const original = console[level].bind(console)
-    console[level] = (...args) => {
-      if (typeof args[0] === 'string' && args[0].startsWith('[notifications:console]')) return
-      original(...args)
-    }
-  }
-}
+// Phase 24: the app logs one JSON line per event. Expected noise here, not signal —
+// dropped unless TEST_VERBOSE is set. Tests that assert on log lines install their own sink
+// (`setLogSink`) and restore this one with `setLogSink(quietSink)`.
+const { setLogSink } = await import('../../lib/observability/logger.ts')
+export const quietSink = process.env.TEST_VERBOSE ? null : () => {}
+setLogSink(quietSink)
 
 const { createClient } = await import('@supabase/supabase-js')
 

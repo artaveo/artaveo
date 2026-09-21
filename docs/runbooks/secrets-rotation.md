@@ -31,7 +31,7 @@ The service-role key is the important one: it can read and write **everything**.
 Supabase → Authentication → Users → the owner → send a password reset, or change it from the admin once a password-change screen exists (known debt, Phase 13). Enrol or re-enrol the authenticator at `/admin/security`.
 
 ## Check it worked (after any change)
-1. **Deployment log**: open the new deployment's runtime log and look for lines starting `[security-config]`. Each names a variable that is missing or weak. No such line = nothing wrong. (It never prints a value.)
+1. **Deployment log**: open the new deployment's runtime log and look for log lines with `"event":"config.finding"`, and open `/en/admin/observability` → *Health* / *Alerts* (`config.invalid`). Each names a variable that is missing or weak. No such line = nothing wrong. (It never prints a value.)
 2. `/admin/login` → sign in → `/admin` loads.
 3. **Daily run**, by hand:
    ```bash

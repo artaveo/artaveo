@@ -87,6 +87,8 @@ export type NotificationOutboxRow = {
   sent_at: string | null
   /** Phase 20 (`0019`). `null` for every message without a file. */
   attachments: EmailAttachment[] | null
+  /** Phase 24 (`0021`): the request that queued this message. `null`/absent for older rows and for messages queued by a script. */
+  request_id?: string | null
 }
 
 /** `notification_attempts` as PostgREST returns it. */
@@ -126,6 +128,8 @@ export type NotificationView = {
   entityId: string | null
   /** File names only — the admin never needs the content, and it is not shown. */
   attachmentNames: string[]
+  /** Phase 24: the request that queued the message — paste it into `/admin/observability`. */
+  requestId: string | null
 }
 
 export type NotificationAttemptView = {

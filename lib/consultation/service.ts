@@ -35,6 +35,8 @@ import type {
   WindowInput,
 } from '@/types/consultation'
 import type { Locale } from '@/types/content'
+import { getRequestId } from '@/lib/observability/context'
+import { captureError, track } from '@/lib/observability/store'
 
 /**
  * Phase 20 — everything that changes a consultation, in one place.
@@ -101,7 +103,7 @@ async function deliver(
       rows.map((row) => row.id),
     )
   } catch (err) {
-    console.error(`${label} notification failed (the change itself was saved):`, err)
+    await captureError(err, { event: 'consultation.notification_failed', source: 'notification', fields: { step: label, consequence: 'the change itself was saved' } })
   }
 }
 
@@ -115,8 +117,8 @@ async function recordEvent(
 ): Promise<void> {
   const { error } = await supabase
     .from('inquiry_events')
-    .insert({ inquiry_id: inquiryId, type, actor, meta, note: note ?? null })
-  if (error) console.error(`inquiry_events insert failed (${type}; the change itself was saved):`, error)
+    .insert({ inquiry_id: inquiryId, type, actor, meta, note: note ?? null, request_id: (await getRequestId()) ?? null })
+  if (error) await captureError(error, { event: 'consultation.timeline_write_failed', source: 'database', level: 'warn', fields: { eventType: type, consequence: 'the change itself was saved' } })
 }
 
 const sanitizeText = (value: string, max: number) => value.replace(/\r\n?/g, '\n').trim().slice(0, max)
@@ -212,6 +214,7 @@ export async function createConsultationRequest(
       source_channel: 'consultation',
       source_referrer: meta.sourceReferrer ?? null,
       submitter_ip_hash: ctx.ipHash,
+      request_id: (await getRequestId()) ?? null,
     })
     .select('id')
     .single()
@@ -231,6 +234,12 @@ export async function createConsultationRequest(
         return insertConsultation(deps, raced, resolved, ctx)
       }
     }
+    await captureError(error ?? new Error('insert returned no row'), {
+      event: 'consultation.inquiry_persist_failed',
+      source: 'database',
+      route: '/[locale]/consultation',
+      fields: { consequence: 'the request was NOT saved' },
+    })
     return { ok: false, code: 'error' }
   }
 
@@ -240,8 +249,9 @@ export async function createConsultationRequest(
     type: 'created',
     actor: 'system',
     note: 'Inquiry created by a consultation request (/consultation).',
+    request_id: (await getRequestId()) ?? null,
   })
-  if (eventError) console.error('inquiry_events insert failed (the inquiry itself was saved):', eventError)
+  if (eventError) await captureError(eventError, { event: 'consultation.timeline_write_failed', source: 'database', level: 'warn', fields: { eventType: 'created', consequence: 'the inquiry itself was saved' } })
 
   return insertConsultation(deps, inquiryId, resolved, ctx)
 }
@@ -290,7 +300,7 @@ async function insertConsultation(
       const existing = await latestConsultationOfInquiry(supabase, inquiryId)
       if (existing) return { ok: true, token: existing.token, replay: true }
     }
-    console.error('consultations insert failed:', error)
+    await captureError(error ?? new Error('insert returned no row'), { event: 'consultation.persist_failed', source: 'database', fields: { consequence: 'the request was NOT saved' } })
     return { ok: false, code: 'error' }
   }
 
@@ -303,6 +313,7 @@ async function insertConsultation(
     timezone: resolved.timezone,
   })
   await notifyRequest(supabase, consultation)
+  await track('consultation.requested', { subject: { type: 'consultation', id: consultation.id }, data: { locale: ctx.locale, windows: resolved.windows.length }, supabase })
   return { ok: true, token }
 }
 
@@ -364,7 +375,10 @@ export async function cancelConsultationAsClient(
     .eq('status', consultation.status)
     .eq('sequence', consultation.sequence)
     .select('id')
-  if (error) return { ok: false, code: 'error' }
+  if (error) {
+    await captureError(error, { event: 'consultation.update_failed', source: 'database' })
+    return { ok: false, code: 'error' }
+  }
   if (!data || data.length === 0) return { ok: false, code: 'not-allowed' }
 
   await recordEvent(
@@ -431,7 +445,10 @@ export async function requestConsultationReschedule(
     .eq('status', consultation.status)
     .eq('reschedule_requests', consultation.rescheduleRequests)
     .select('id')
-  if (error) return { ok: false, code: 'error' }
+  if (error) {
+    await captureError(error, { event: 'consultation.update_failed', source: 'database' })
+    return { ok: false, code: 'error' }
+  }
   if (!data || data.length === 0) return { ok: false, code: 'not-allowed' }
 
   await recordEvent(supabase, consultation.inquiryId, 'consultation-reschedule-requested', 'client', {

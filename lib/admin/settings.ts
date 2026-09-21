@@ -2,6 +2,7 @@ import 'server-only'
 
 import { requireSupabase } from '@/lib/admin/pipeline'
 import type { AdminNavigationItem, AdminSiteSettings } from '@/types/cms'
+import { captureError } from '@/lib/observability/store'
 
 /**
  * Admin read layer for § 15's settings/availability and navigation
@@ -22,7 +23,7 @@ export async function getSiteSettings(): Promise<AdminSiteSettings | null> {
     .eq('id', true)
     .maybeSingle()
   if (error || !data) {
-    console.error('getSiteSettings failed:', error)
+    await captureError(error, { event: 'admin.get_site_settings_failed', source: 'database' })
     return null
   }
 
@@ -46,7 +47,7 @@ export async function listNavigationItemsAdmin(): Promise<AdminNavigationItem[] 
     .select('id, key, href, surfaces, has_description, has_content, sort_order')
     .order('sort_order', { ascending: true })
   if (error || !data) {
-    console.error('listNavigationItemsAdmin failed:', error)
+    await captureError(error, { event: 'admin.list_navigation_items_admin_failed', source: 'database' })
     return []
   }
 

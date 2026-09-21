@@ -4,6 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 
 import { writeAuditLog } from '@/lib/admin/audit'
 import { revalidateArticleRoutes } from '@/lib/insights-revalidate'
+import { captureError, track } from '@/lib/observability/store'
 
 export type PublishedArticle = {
   id: string
@@ -49,12 +50,13 @@ export async function publishDueArticles(
     .select('id, slug, title, published_at')
 
   if (error) {
-    console.error('[insights] scheduled-publish sweep failed:', error.message)
+    await captureError(error, { event: 'insights.scheduled_publish_failed', source: 'cron' })
     return { published: 0, items: [] }
   }
 
   const rows = data ?? []
   for (const row of rows) {
+    await track('content.published', { subject: { type: 'article', id: row.id as string }, data: { via: 'scheduled' } })
     await writeAuditLog({
       actor: 'system:cron',
       action: 'content.article_published_scheduled',

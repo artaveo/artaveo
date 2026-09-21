@@ -4,6 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { enqueueContentPublished } from '@/lib/notifications/events'
 import { processAfterEnqueue } from '@/lib/notifications/outbox'
 import type { PublishedEntity } from '@/lib/notifications/templates'
+import { captureError, track } from '@/lib/observability/store'
 
 const TABLE: Record<PublishedEntity, string> = {
   article: 'articles',
@@ -25,6 +26,7 @@ export async function notifyManualPublish(
   supabase: SupabaseClient,
   input: { entity: PublishedEntity; id: string; actorEmail: string },
 ): Promise<void> {
+  await track('content.published', { subject: { type: input.entity, id: input.id }, data: { via: 'manual' }, supabase })
   try {
     const { data } = await supabase.from(TABLE[input.entity]).select('slug, title').eq('id', input.id).maybeSingle()
     if (!data) return
@@ -40,6 +42,6 @@ export async function notifyManualPublish(
       rows.map((row) => row.id),
     )
   } catch (err) {
-    console.error('publish notice failed (the publish itself succeeded):', err)
+    await captureError(err, { event: 'content.publish_notice_failed', source: 'notification', fields: { entity: input.entity, consequence: 'the publish itself succeeded' } })
   }
 }

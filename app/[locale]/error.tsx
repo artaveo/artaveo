@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { Button } from '@/components/ui/button'
+import { reportClientError } from '@/components/site/error-reporter'
 import { ErrorState } from '@/components/ui/states'
 
 /**
@@ -28,7 +29,9 @@ export default function LocaleError({
   const t = useTranslations('ErrorPage')
 
   useEffect(() => {
-    console.error(error)
+    // A server render error already has a record (instrumentation.ts) and a digest; only an
+    // error that never reached the server — a client-side exception — has to be reported.
+    if (!error.digest) reportClientError({ error, kind: 'boundary' })
   }, [error])
 
   return (
@@ -40,6 +43,12 @@ export default function LocaleError({
         size="page"
         action={{ label: t('retry'), onClick: reset }}
       />
+      {/* Phase 24: the number the owner searches for in Observability. Shown only when there is one. */}
+      {error.digest ? (
+        <p className="text-xs text-muted-foreground">
+          {t('reference')} <bdi dir="ltr" className="font-mono select-all">{error.digest}</bdi>
+        </p>
+      ) : null}
       <Button variant="outline" size="sm" render={<Link href="/" />}>
         {t('backHome')}
       </Button>

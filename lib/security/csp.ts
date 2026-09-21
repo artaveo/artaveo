@@ -32,6 +32,9 @@ import { themeScript } from '@/lib/theme-script'
 
 export type CspMode = 'public' | 'admin'
 
+export const CSP_REPORT_PATH = '/api/observe/csp'
+
+
 export type CspOptions = {
   mode: CspMode
   /** Required for `admin`. */
@@ -88,6 +91,12 @@ export function buildCsp(options: CspOptions): string {
     ['frame-ancestors', ["'none'"]],
     ['base-uri', ["'self'"]],
     ['form-action', ["'self'"]],
+    // Phase 24: violations are sent to our own endpoint (lib/observability/reports.ts). Deliberately
+    // `report-uri` ONLY: a browser that finds `report-to` as well uses the Reporting API instead, which
+    // batches (up to about a minute) and needs a `Reporting-Endpoints` header — and Firefox ignores it.
+    // `report-uri` is delivered at once by every engine. The endpoint still understands the Reporting API's
+    // format, so adding `report-to` later is a one-line change.
+    ['report-uri', [CSP_REPORT_PATH]],
   ]
 
   const parts = directives.map(([name, values]) => `${name} ${values.join(' ')}`)

@@ -11,6 +11,7 @@ import type {
   ConsultationWindow,
 } from '@/types/consultation'
 import { CONSULTATION_STATUSES } from '@/types/consultation'
+import { captureError } from '@/lib/observability/store'
 
 /**
  * Phase 20 — every read of `consultations`.
@@ -107,7 +108,7 @@ export async function loadConsultationByToken(
     .eq('token', token)
     .maybeSingle()
   if (error) {
-    console.error('loadConsultationByToken failed:', error)
+    await captureError(error, { event: 'consultation.load_consultation_by_token_failed', source: 'database' })
     return null
   }
   return data ? mapAdminRow(data) : null
@@ -120,7 +121,7 @@ export async function loadConsultationById(supabase: SupabaseClient, id: string)
     .eq('id', id)
     .maybeSingle()
   if (error) {
-    console.error('loadConsultationById failed:', error)
+    await captureError(error, { event: 'consultation.load_consultation_by_id_failed', source: 'database' })
     return null
   }
   return data ? mapAdminRow(data) : null
@@ -202,7 +203,7 @@ export async function listConsultations(filters: {
   const from = (filters.page - 1) * pageSize
   const { data, error, count } = await query.range(from, from + pageSize - 1)
   if (error || !data) {
-    console.error('listConsultations failed:', error)
+    await captureError(error, { event: 'consultation.list_consultations_failed', source: 'database' })
     return { consultations: [], total: 0 }
   }
   return { consultations: data.map(mapAdminRow), total: count ?? data.length }
@@ -224,7 +225,7 @@ export async function listConsultationsForInquiry(inquiryId: string): Promise<Ad
     .eq('inquiry_id', inquiryId)
     .order('created_at', { ascending: false })
   if (error || !data) {
-    console.error('listConsultationsForInquiry failed:', error)
+    await captureError(error, { event: 'consultation.list_consultations_for_inquiry_failed', source: 'database' })
     return []
   }
   return data.map(mapAdminRow)
@@ -239,7 +240,7 @@ export async function countConsultationsAwaitingOwner(): Promise<number | null> 
     .select('id', { count: 'exact', head: true })
     .in('status', ['requested', 'rescheduled'])
   if (error) {
-    console.error('countConsultationsAwaitingOwner failed:', error)
+    await captureError(error, { event: 'consultation.count_consultations_awaiting_owner_failed', source: 'database' })
     return null
   }
   return count ?? 0

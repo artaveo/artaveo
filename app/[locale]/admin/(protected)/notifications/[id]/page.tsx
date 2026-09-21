@@ -195,6 +195,17 @@ export default async function NotificationDetailPage({
               <bdi dir="ltr">{notification.attachmentNames.join(', ')}</bdi>
             </div>
           ) : null}
+          {notification.requestId ? (
+            <div className="flex flex-col gap-1">
+              <span className="text-muted-foreground">{t('obsRequestReference')}</span>
+              <Link
+                href={`/admin/observability?ref=${notification.requestId}`}
+                className="w-fit font-mono text-xs text-primary underline-offset-4 hover:underline"
+              >
+                <bdi dir="ltr">{notification.requestId}</bdi>
+              </Link>
+            </div>
+          ) : null}
           <div className="flex flex-col gap-1">
             <span className="text-muted-foreground">{t('notifFieldBody')}</span>
             <pre

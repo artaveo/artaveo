@@ -1,6 +1,9 @@
 import 'server-only'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
+import { currentRequestId } from '@/lib/observability/context'
+import { REQUEST_ID_HEADER } from '@/lib/observability/request-id'
+
 /**
  * Server-only Supabase client (roadmap § 9.2). Uses the service-role key,
  * which bypasses RLS entirely — this is deliberate: § 9.2 requires
@@ -20,6 +23,28 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js'
  */
 let cached: SupabaseClient | null | undefined
 
+/**
+ * Phase 24: every request this client makes carries the id of the request that
+ * caused it (`x-request-id`), when one is bound (`lib/observability/context.ts`).
+ * That is what lets a database-side log line be matched to the request that
+ * produced it — whether Supabase's own logs show the header is something only the
+ * live project can say (`docs/observability.md` § 6). It reads the id from an
+ * AsyncLocalStorage and never from `headers()`: this client is also used while
+ * prerendering, and `headers()` there would make the page dynamic.
+ */
+const fetchWithRequestId: typeof fetch = (input, init) => {
+  const requestId = currentRequestId()
+  if (!requestId) return fetch(input, init)
+  if (input instanceof Request) {
+    const headers = new Headers(input.headers)
+    headers.set(REQUEST_ID_HEADER, requestId)
+    return fetch(new Request(input, { headers }), init)
+  }
+  const headers = new Headers(init?.headers)
+  headers.set(REQUEST_ID_HEADER, requestId)
+  return fetch(input, { ...init, headers })
+}
+
 export function getSupabaseServerClient(): SupabaseClient | null {
   if (cached !== undefined) {
     return cached
@@ -35,6 +60,7 @@ export function getSupabaseServerClient(): SupabaseClient | null {
 
   cached = createClient(url, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: { fetch: fetchWithRequestId },
   })
   return cached
 }
