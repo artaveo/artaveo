@@ -2,15 +2,15 @@
   "Nav": {
     "home": "Home",
     "work": "Work",
-    "workDescription": "Selected projects and case studies",
+    "workDescription": "Projects and case studies",
     "services": "Services",
-    "servicesDescription": "How I can help you ship",
+    "servicesDescription": "How I can help build your product",
     "process": "Process",
     "processDescription": "How I build, step by step",
     "about": "About",
     "aboutDescription": "The developer behind Artaveo",
     "insights": "Insights",
-    "insightsDescription": "Notes on engineering and product craft",
+    "insightsDescription": "Notes on engineering and product building",
     "designSystem": "Design System",
     "contact": "Contact",
     "start": "Start a project",
@@ -30,7 +30,7 @@
     "switchToLightMode": "Switch to light mode",
     "closeMenu": "Close menu",
     "language": "Language",
-    "siteDescription": "Artaveo is the work of one independent full-stack developer — building modern web products end to end, from architecture and interface to shipped software.",
+    "siteDescription": "Artaveo is the work of one independent full-stack developer — architecture, interface, backend and deployment in one path.",
     "location": "Remote · Worldwide",
     "tagline": "Independent full-stack developer",
     "capabilities": "Capabilities"
@@ -76,17 +76,17 @@
   },
   "Hero": {
     "badge": "Available for new projects",
-    "titleLine1": "Full-stack products,",
-    "titleLine2": "built end to end.",
-    "description": "Artaveo is the work of one independent full-stack developer. I build modern web applications, business platforms and digital products — from the first idea through architecture, interface and backend to a deployed product.",
+    "titleLine1": "Full-stack products",
+    "titleLine2": "from idea to launch.",
+    "description": "I build web applications, business platforms and digital products from the first architecture decision through interface, backend, database and deployment.",
     "ctaWork": "View my work",
     "ctaContact": "Start a project",
-    "codePanelFooter": "Typed from database to interface"
+    "codePanelFooter": "One path from database to interface"
   },
   "FeaturedWork": {
     "eyebrow": "Selected work",
-    "title": "Projects built from database to interface",
-    "description": "Real projects, presented as case studies: what was built, how it works and the stack behind it.",
+    "title": "Projects I’ve built",
+    "description": "Real projects with clear case studies covering the problem, the build, the architecture and the technologies behind them.",
     "allWork": "All work",
     "viewCaseStudy": "View case study",
     "liveDemo": "Live demo",
@@ -105,7 +105,7 @@
   "Work": {
     "eyebrow": "Selected work",
     "title": "Work",
-    "description": "Real projects, documented as honest case studies: what was built, how it works, and the stack behind it.",
+    "description": "Projects I’ve built, with clear notes on the problem, how each one works and the technology behind it.",
     "filterByCategory": "Category",
     "filterByTechnology": "Technology",
     "allCategories": "All categories",
@@ -148,7 +148,7 @@
   "Services": {
     "eyebrow": "Services",
     "title": "What Artaveo builds",
-    "description": "From a single website to a complete business platform — each service covers design, development and delivery.",
+    "description": "From a business website to a full product platform — design, development and deployment in one service path.",
     "allServices": "All services",
     "deliverables": "Deliverables"
   },
@@ -157,8 +157,8 @@
     "title": "Services",
     "description": "Seven defined services, each showing what’s included, what isn’t, the process and the timeline — so you can compare before the first call.",
     "viewService": "View service",
-    "engagementModelsTitle": "How we could work together",
-    "engagementModelsDescription": "Every project starts under one of these engagement models — which one depends on how clear the scope already is.",
+    "engagementModelsTitle": "Ways to work together",
+    "engagementModelsDescription": "Every project starts with one of these models. The right fit depends on how clearly the scope is defined.",
     "engagementModel": "Model",
     "engagementWhenItFits": "When it fits",
     "engagementBilling": "Billing"
@@ -175,8 +175,8 @@
   },
   "ServiceDetail": {
     "backToServices": "All services",
-    "forWhom": "Who it's for",
-    "notForWhom": "Who it's not for",
+    "forWhom": "A good fit for",
+    "notForWhom": "Not a good fit for",
     "problem": "The problem",
     "whatIDo": "What I do",
     "included": "Included",
@@ -190,7 +190,7 @@
     "startThisService": "Start this service",
     "packages": "Packages",
     "addOns": "Add-ons",
-    "whatDrivesCost": "What drives cost",
+    "whatDrivesCost": "What affects the cost",
     "paymentSchedule": "Payment schedule",
     "paymentScheduleLink": "See how payment, ownership and handover work",
     "choosePackage": "Choose this package",
@@ -198,22 +198,22 @@
   },
   "WhyArtaveo": {
     "eyebrow": "Why Artaveo",
-    "titleLine1": "One developer. One workflow.",
+    "titleLine1": "One developer.",
     "titleLine2": "The whole product.",
-    "description": "Artaveo is not an agency with layers of handoffs. One person carries each project from idea to production, keeping the architecture, interface and code consistent.",
+    "description": "Artaveo is not a multi-layer agency. One person carries the project from idea to production, so the architecture, interface and code stay on one path.",
     "fromIdeaToDeployment": "From idea to deployment",
     "handledByOneDeveloper": "Handled by one developer",
     "noHandoffs": "No handoffs between designers, frontend and backend teams — every decision is made with the whole system in view."
   },
   "TechStack": {
     "eyebrow": "Expertise",
-    "title": "A focused, modern stack",
+    "title": "A focused technical stack",
     "description": "Proven tools chosen for type safety, performance and long-term maintainability. Every one of them is used in the real work further down this page."
   },
   "Process": {
     "eyebrow": "Process",
-    "title": "A clear path from first call to launch",
-    "description": "Seven defined stages, each with a visible result, so you always know where the project stands.",
+    "title": "A clear path from start to launch",
+    "description": "Each stage has a visible outcome, so you always know where the project stands.",
     "seeFullProcess": "See the full process"
   },
   "ProcessPage": {
@@ -250,7 +250,7 @@
     "eyebrow": "About",
     "titleWithName": "<name>{name}</name>, the developer behind Artaveo",
     "titleNoName": "The developer behind Artaveo",
-    "description": "One independent full-stack developer, planning, designing, building and deploying every project end to end.",
+    "description": "I’m an independent full-stack developer. I plan, design, build and deploy each project myself.",
     "metaTitle": "About",
     "identityTitle": "Independent full-stack developer",
     "timezoneLabel": "Timezone:",
@@ -267,8 +267,8 @@
   },
   "Insights": {
     "eyebrow": "Insights",
-    "title": "Notes from real projects",
-    "description": "Practical writing on architecture, interfaces and the problems that come up while building production software.",
+    "title": "Notes from building real software",
+    "description": "Practical writing on architecture, interfaces and the problems that show up while building real software.",
     "allInsights": "All insights",
     "readArticle": "Read article",
     "minRead": "{minutes} min read",
@@ -330,7 +330,7 @@
   "FinalCta": {
     "titleLine1": "Have a project in mind?",
     "titleLine2": "Let's build it.",
-    "description": "Share the idea, timeline and what you need. You’ll get a clear, direct reply about scope and next steps.",
+    "description": "Share the idea, timeline and what you need. I’ll reply clearly about scope and next steps.",
     "startProject": "Start a project",
     "viewWork": "View work"
   },
@@ -361,7 +361,7 @@
   "ContactPage": {
     "eyebrow": "Contact",
     "title": "Let's start a conversation",
-    "description": "Two ways to work with me — choose the one that fits how you want to start.",
+    "description": "Two ways to start working together: direct contact or a freelance platform.",
     "metaTitle": "Contact",
     "hireChannelsTitle": "Choose how to hire",
     "hireChannelsDescription": "The website stays the canonical source either way — a platform profile only ever links back here.",
@@ -374,8 +374,8 @@
   },
   "StartPage": {
     "eyebrow": "Start a project",
-    "title": "Let’s scope your project",
-    "description": "A short, structured brief — ten minutes now saves back-and-forth later. Answer what you know; skip what you don't.",
+    "title": "Let’s scope the project",
+    "description": "A short, structured brief. A few minutes now means less back-and-forth later. Answer what you know and skip what you don’t.",
     "metaTitle": "Start a project"
   },
   "BriefBuilder": {
@@ -437,7 +437,7 @@
     "rateLimitedTitle": "You're going a bit fast",
     "rateLimitedDescription": "Please wait a moment before trying again.",
     "notLiveTitle": "Submissions aren't live yet",
-    "notLiveDescription": "The Brief Builder's backend is built but not yet connected to a live database (roadmap Phase 9.2, pending the Supabase project setup) — nothing was lost, but it wasn't saved on this site either. Send it by email instead and I'll reply directly; your answers above are already in the message.",
+    "notLiveDescription": "The Brief Builder backend is built, but it is not connected to a live database yet. Your answers are not saved on this site. Send the brief by email instead, and I'll reply directly.",
     "genericErrorTitle": "Something went wrong",
     "genericErrorDescription": "Your brief wasn't saved due to an unexpected error. Nothing was lost — send it by email instead and I'll reply directly; your answers above are already in the message.",
     "emailInstead": "Email this brief",

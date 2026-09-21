@@ -98,7 +98,7 @@ export function getHireChannels(): HireChannel[] {
         tx('No platform fee — the full budget goes to the work', 'بدون کارمزد پلتفرم — کل بودجه صرف خود کار می‌شود'),
         tx(
           'Direct relationship: the Working Agreement (see Process) governs payment, ownership and warranty',
-          'رابطه‌ی مستقیم: توافق‌نامه‌ی همکاری (نگاه کنید به صفحه‌ی فرآیند) پرداخت، مالکیت و ضمانت را مشخص می‌کند',
+          'رابطه‌ی مستقیم: توافق‌نامه‌ی همکاری (صفحه‌ی روند کار) پرداخت، مالکیت و ضمانت را مشخص می‌کند',
         ),
         tx(
           'No built-in escrow or buyer protection — suited to clients comfortable agreeing terms directly',
@@ -118,7 +118,7 @@ export function getHireChannels(): HireChannel[] {
       title: tx('Via Fiverr', 'از طریق Fiverr'),
       summary: tx(
         'Hire through my verified Fiverr profile when you want the platform’s buyer protection, escrow and dispute process.',
-        'از طریق پروفایل تأییدشده‌ام در Fiverr استخدام کن، وقتی محافظت خریدار، سپرده‌ی امانی و فرایند رسیدگی به اختلاف پلتفرم را می‌خواهی.',
+        'از پروفایل تأییدشده‌ام در Fiverr استخدام کن؛ مناسب وقتی است که محافظت خریدار، سپرده‌ی امانی و فرایند رسیدگی به اختلاف پلتفرم را می‌خواهی.',
       ),
       points: [
         tx('Payment held in escrow and released on delivery', 'پرداخت در سپرده‌ی امانی نگه‌داری و پس از تحویل آزاد می‌شود'),

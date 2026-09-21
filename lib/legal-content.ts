@@ -58,7 +58,7 @@ const privacySections: LegalSection[] = [
       ),
       tx(
         'Afghanistan does not currently have a comprehensive data-protection law of its own. Nothing on this page is a claim that a specific law (like the EU\'s GDPR) applies here — the commitments below are offered voluntarily, as good practice, regardless of what the law requires.',
-        'افغانستان در حال حاضر یک قانون جامع حفاظت از داده ندارد. هیچ‌جای این صفحه ادعا نمی‌کند که قانون مشخصی (مثل GDPR اتحادیه‌ی اروپا) این‌جا اعمال می‌شود — تعهدات زیر داوطلبانه و به‌عنوان یک روش خوب ارائه می‌شوند، صرف‌نظر از این‌که قانون چه چیزی را الزامی می‌کند.',
+        'افغانستان در حال حاضر قانون جامع حفاظت از داده ندارد. این صفحه ادعا نمی‌کند که قانون مشخصی، مثل GDPR اتحادیه‌ی اروپا، در این‌جا اعمال می‌شود. تعهدات زیر داوطلبانه‌اند و به‌عنوان یک روش خوب ارائه می‌شوند، صرف‌نظر از این‌که قانون چه چیزی را الزامی می‌کند.',
       ),
     ],
   ),
@@ -72,7 +72,7 @@ const privacySections: LegalSection[] = [
       ),
       tx(
         'If you e-mail or WhatsApp me directly instead, whatever you choose to send is between us — the website itself doesn\'t collect or log that.',
-        'اگر به‌جای این کار مستقیم ایمیل یا واتساپ بزنی، هرچه بفرستی فقط بین ما می‌ماند — خودِ وب‌سایت آن را جمع‌آوری یا ثبت نمی‌کند.',
+        'اگر مستقیم ایمیل یا واتساپ بزنی، چیزی که می‌فرستی فقط بین ما می‌ماند؛ خودِ وب‌سایت آن را جمع‌آوری یا ثبت نمی‌کند.',
       ),
       tx(
         "If I've sent you a personal link to write a recommendation, that page asks for your name, your role and relationship to me, your statement, an optional profile link, and your explicit consent to publish it — nothing appears on the site without that consent and my review. If I typed your e-mail address in to send you that link, it's used for that and nothing else. I delete it, and the stored copies of those e-mails, once the request is finished: the link is revoked, your recommendation is approved or rejected, or the link expired unused. A link with no expiry that is never used or revoked keeps the address until I revoke it.",
@@ -84,7 +84,7 @@ const privacySections: LegalSection[] = [
       ),
       tx(
         "Automatic, anonymized traffic data comes from Vercel Web Analytics, which doesn't use cookies and identifies visitors only by a short-lived hash derived from the request itself — never a persistent ID. It records aggregate page views and a handful of interaction events (a package tier switch, a CTA click, a language switch, and similar) with no name, e-mail, or message content ever included in any of them.",
-        'داده‌ی ترافیک به‌صورت خودکار و ناشناس از Vercel Web Analytics می‌آید، که از کوکی استفاده نمی‌کند و بازدیدکننده را فقط با یک هش کوتاه‌مدت برگرفته از خود درخواست شناسایی می‌کند — نه یک شناسه‌ی دائمی. این ابزار بازدید صفحات به‌صورت تجمیعی و چند رویداد تعامل (تعویض پلن، کلیک روی دکمه‌ی فراخوان، تعویض زبان و مواردی مشابه) را ثبت می‌کند، بدون این‌که هیچ‌کدام حاوی نام، ایمیل یا محتوای پیام باشند.',
+        'داده‌ی ترافیک به‌صورت خودکار و ناشناس از Vercel Web Analytics می‌آید. این ابزار از کوکی استفاده نمی‌کند و بازدیدکننده را فقط با یک هش کوتاه‌مدتِ برگرفته از درخواست شناسایی می‌کند، نه با یک شناسه‌ی دائمی. بازدید صفحات به‌صورت تجمیعی و چند رویداد تعاملی مثل تعویض پلن، کلیک روی دکمه‌ی فراخوان و تعویض زبان ثبت می‌شوند؛ هیچ‌کدام شامل نام، ایمیل یا محتوای پیام نیستند.',
       ),
       tx(
         'One small, first-party cookie (`artaveo-locale`) remembers whether you\'re viewing the site in English or Persian. It\'s strictly functional — it isn\'t used to track you, and no other cookie is set by this site.',
@@ -92,7 +92,7 @@ const privacySections: LegalSection[] = [
       ),
       tx(
         "Your own browser also keeps a few things locally, never sent anywhere: a light/dark theme preference, the last few things you searched for on the site (so the search box can offer them again — you can clear them there at any time), and — only if you start the Brief Builder while offline — a temporary local copy of your not-yet-sent answers, held only on your own device until you're back online and it sends automatically.",
-        'مرورگر خودت هم چند چیز را به‌صورت محلی نگه می‌دارد که هیچ‌جا فرستاده نمی‌شود: یک ترجیح تم روشن/تاریک، چند جستجوی آخرِ تو در سایت (تا کادر جستجو دوباره پیشنهادشان بدهد؛ هر وقت خواستی همان‌جا پاکشان کن)، و — فقط اگر Brief Builder را در حالت آفلاین شروع کنی — یک نسخه‌ی موقت و محلی از پاسخ‌های هنوز-نفرستاده‌ات، که فقط روی دستگاه خودت می‌ماند تا وقتی دوباره آنلاین شوی و به‌صورت خودکار ارسال شود.',
+        'مرورگر هم چند چیز را فقط روی همان دستگاه نگه می‌دارد و جایی ارسال نمی‌کند: ترجیح تم روشن/تاریک، چند جستجوی آخر سایت برای پیشنهاد دوباره در کادر جستجو، و — فقط اگر Brief Builder را آفلاین شروع کنی — یک نسخه‌ی موقت از پاسخ‌های هنوز ارسال‌نشده. این بریف تا زمانی که دوباره آنلاین شوی روی همان دستگاه می‌ماند و بعد خودکار ارسال می‌شود.',
       ),
     ],
   ),
@@ -116,7 +116,7 @@ const privacySections: LegalSection[] = [
       ),
       tx(
         "This site is hosted on Vercel, which also runs the anonymized analytics described above. No inquiry data is currently sent to any third-party e-mail-sending service — a confirmation e-mail is logged internally only, while real sending stays intentionally inactive pending a registered domain. This page will be updated to name the real provider once that changes. A copy of every e-mail the site generates for you (such as the confirmation of your brief or the calendar invitation for your call) is stored in the same database, together with a log of each attempt to send it.",
-        'این سایت روی Vercel میزبانی می‌شود، که همان تحلیل ناشناس توضیح‌داده‌شده در بالا را هم اجرا می‌کند. در حال حاضر هیچ داده‌ی درخواستی به هیچ سرویس ایمیل شخص‌ثالثی فرستاده نمی‌شود — یک ایمیل تأییدیه فقط به‌صورت داخلی ثبت می‌شود، در حالی‌که ارسال واقعی عمداً تا زمان ثبت یک دامنه‌ی واقعی غیرفعال نگه داشته شده. این صفحه با فعال‌شدن آن، برای معرفی سرویس واقعی به‌روزرسانی خواهد شد. یک نسخه از هر ایمیلی که سایت برای تو می‌سازد (مثل تأییدیه‌ی بریف یا دعوت‌نامه‌ی تقویم تماست) به‌همراه گزارش هر تلاش برای ارسال آن، در همان پایگاه‌داده نگه‌داری می‌شود.',
+        'این سایت روی Vercel میزبانی می‌شود و همان تحلیل ناشناس توضیح‌داده‌شده در بالا را اجرا می‌کند. فعلاً هیچ داده‌ی درخواستی به سرویس ایمیل شخص‌ثالثی فرستاده نمی‌شود. ایمیل‌های تأییدیه فقط به‌صورت داخلی ثبت می‌شوند و ارسال واقعی تا زمان ثبت یک دامنه‌ی واقعی غیرفعال است. یک نسخه از هر ایمیلی که سایت برایت آماده می‌کند، مثل تأییدیه‌ی بریف یا دعوت‌نامه‌ی تقویم تماس، همراه با گزارش تلاش‌های ارسال در همان پایگاه‌داده نگه‌داری می‌شود.',
       ),
     ],
   ),
@@ -126,7 +126,7 @@ const privacySections: LegalSection[] = [
     [
       tx(
         "There's no automatic deletion schedule in place yet — this is a known gap, tracked as future work, not a claim that one already exists. In practice, submissions are kept as long as needed to respond to you and for reasonable business record-keeping, and deleted on request (see Your choices below).",
-        'در حال حاضر هیچ زمان‌بندی حذف خودکاری وجود ندارد — این یک کمبود شناخته‌شده است که به‌عنوان کار آینده ثبت شده، نه ادعایی که چنین چیزی از قبل وجود دارد. در عمل، ارسالی‌ها تا زمانی که برای پاسخ‌دادن به تو و نگه‌داری معقول سوابق کسب‌وکار لازم است نگه‌داری می‌شوند، و در صورت درخواست حذف می‌شوند (بخش «انتخاب‌های تو» را ببین).',
+        'فعلاً زمان‌بندی حذف خودکار وجود ندارد؛ این یک کمبود شناخته‌شده و ثبت‌شده برای کار آینده است. در عمل، ارسالی‌ها تا وقتی برای پاسخ‌دادن به تو و نگه‌داری معقول سوابق کسب‌وکار لازم باشند نگه داشته می‌شوند و در صورت درخواست حذف می‌شوند (بخش «انتخاب‌های تو» را ببین).',
       ),
     ],
   ),
@@ -169,7 +169,7 @@ const termsSections: LegalSection[] = [
     [
       tx(
         `These terms cover using this website. They don't cover the specific terms of a paid project — those are agreed in writing (scope and estimate) during the Define phase described on the Process page, following the working-agreement principles set out there (communication, payment, ownership, handover, warranty, confidentiality).`,
-        'این شرایط استفاده از این وب‌سایت را پوشش می‌دهند. این‌ها شرایط مشخص یک پروژه‌ی پولی را پوشش نمی‌دهند — آن‌ها به‌صورت مکتوب (محدوده و برآورد) در فاز «تعریف» که در صفحه‌ی فرایند توضیح داده شده توافق می‌شوند، و از اصول توافق‌نامه‌ی کاری همان صفحه پیروی می‌کنند (ارتباط، پرداخت، مالکیت، تحویل، ضمانت، محرمانگی).',
+        'این شرایط فقط استفاده از این وب‌سایت را پوشش می‌دهند. شرایط یک پروژه‌ی پولی جداگانه و به‌صورت مکتوب، شامل محدوده و برآورد، در فاز «تعریف» که در صفحه‌ی روند کار توضیح داده شده توافق می‌شوند و از اصول همان توافق‌نامه‌ی همکاری پیروی می‌کنند: ارتباط، پرداخت، مالکیت، تحویل، ضمانت و محرمانگی.',
       ),
     ],
   ),
@@ -209,7 +209,7 @@ const termsSections: LegalSection[] = [
     [
       tx(
         "This website is provided on a best-effort basis, \"as is,\" with no guarantee of uninterrupted availability. (A specific project you engage Artaveo for is a separate matter, covered by that project's own written agreement, not this page.)",
-        'این وب‌سایت به‌صورت تلاش‌بهترین («همان‌گونه که هست») ارائه می‌شود، بدون هیچ تضمینی برای در دسترس‌بودن بدون وقفه. (یک پروژه‌ی مشخص که برای آن آرتاویو را استخدام می‌کنی موضوع جداگانه‌ای است که تحت قرارداد مکتوب همان پروژه است، نه این صفحه.)',
+        'این وب‌سایت («همان‌گونه که هست») ارائه می‌شود و برای در دسترس‌بودن بدون وقفه تضمینی نمی‌دهد. یک پروژه‌ی مشخص که آرتاویو را برای آن استخدام می‌کنی، قرارداد مکتوب جداگانه‌ی خودش را دارد و تابع این صفحه نیست.',
       ),
     ],
   ),
