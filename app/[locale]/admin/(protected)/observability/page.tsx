@@ -175,6 +175,18 @@ export default async function ObservabilityPage({
             value={provider.deliversRealEmail ? t('obsHealthEmailReal') : t('obsHealthEmailLogOnly')}
             ok={provider.deliversRealEmail}
           />
+          <HealthRow
+            label={t('obsHealthBackup')}
+            value={facts.events.lastBackupAt ? formatDate(facts.events.lastBackupAt, loc, dateTime) : t('obsHealthNeverYet')}
+            ok={facts.events.lastBackupAt !== null && (facts.events.lastBackupFailedAt === null || facts.events.lastBackupFailedAt <= facts.events.lastBackupAt)}
+            note={!facts.events.lastBackupAt ? t('obsHealthBackupHint') : undefined}
+          />
+          <HealthRow
+            label={t('obsHealthRestoreTest')}
+            value={facts.events.lastRestoreVerifiedAt ? formatDate(facts.events.lastRestoreVerifiedAt, loc, dateTime) : t('obsHealthNeverYet')}
+            ok={facts.events.lastRestoreVerifiedAt !== null && (facts.events.lastRestoreFailedAt === null || facts.events.lastRestoreFailedAt <= facts.events.lastRestoreVerifiedAt)}
+            note={!facts.events.lastRestoreVerifiedAt ? t('obsHealthRestoreTestHint') : undefined}
+          />
           {overview.configFindings.length > 0 ? (
             <div className="flex flex-col gap-2 border-t border-border pt-3">
               <span className="font-medium">{t('obsConfigTitle')}</span>

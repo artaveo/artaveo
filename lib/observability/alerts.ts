@@ -69,6 +69,10 @@ export async function gatherFacts(supabase: SupabaseClient, now: Date = new Date
     signInCrossings,
     lastCronAt,
     lastMonitorAt,
+    lastBackupAt,
+    lastBackupFailedAt,
+    lastRestoreVerifiedAt,
+    lastRestoreFailedAt,
   ] = await Promise.all([
     count(supabase.from('notification_attempts').select('id', { count: 'exact', head: true }).eq('ok', false).gte('at', ago(now, HOUR_MS)), 'failed attempts'),
     count(supabase.from('notification_outbox').select('id', { count: 'exact', head: true }).eq('status', 'exhausted').gte('last_attempt_at', ago(now, DAY_MS)), 'exhausted messages'),
@@ -108,6 +112,10 @@ export async function gatherFacts(supabase: SupabaseClient, now: Date = new Date
     count(supabase.from('audit_log').select('id', { count: 'exact', head: true }).eq('action', 'admin.sign_in_rate_limited').gte('at', ago(now, DAY_MS)), 'sign-in limit crossings'),
     latestEventAt(supabase, 'cron.completed'),
     latestEventAt(supabase, 'monitor.checked'),
+    latestEventAt(supabase, 'backup.completed'),
+    latestEventAt(supabase, 'backup.failed'),
+    latestEventAt(supabase, 'backup.restore_verified'),
+    latestEventAt(supabase, 'backup.restore_failed'),
   ])
 
   return {
@@ -125,6 +133,10 @@ export async function gatherFacts(supabase: SupabaseClient, now: Date = new Date
       lastCronAt,
       lastMonitorAt,
       signInLimitCrossingsLast24h: signInCrossings,
+      lastBackupAt,
+      lastBackupFailedAt,
+      lastRestoreVerifiedAt,
+      lastRestoreFailedAt,
     },
     configErrors: checkSecurityConfig(env)
       .filter((finding) => finding.severity === 'error')

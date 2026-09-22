@@ -29,9 +29,13 @@ export const ALERT_IDS = [
   'audit.write_failed',
   'rate_limit.unavailable',
   'cron.stale',
+  'backup.failing',
+  'backup.stale',
+  'backup.restore_failed',
   'monitor.silent',
   'config.invalid',
   'auth.sign_in_pressure',
+  'backup.restore_stale',
 ] as const
 export type AlertId = (typeof ALERT_IDS)[number]
 
@@ -61,6 +65,10 @@ export const THRESHOLDS = {
   monitorSilentHours: 3,
   /** Sign-in limit crossings in a day that mean somebody is knocking, not the owner mistyping. */
   signInLimitCrossingsPerDay: 2,
+  /** A completed backup older than this (Phase 25's daily run + a margin) is stale. */
+  backupStaleHours: 50,
+  /** A verified restore older than this (the weekly restore test + a margin) is stale. */
+  restoreTestStaleHours: 24 * 10,
 } as const
 
 export type AlertFacts = {
@@ -85,6 +93,12 @@ export type AlertFacts = {
     lastCronAt: string | null
     lastMonitorAt: string | null
     signInLimitCrossingsLast24h: number
+    /** Most recent `backup.completed` / `backup.failed` event, so a failure that comes after the last success is caught even before staleness would be. */
+    lastBackupAt: string | null
+    lastBackupFailedAt: string | null
+    /** Most recent `backup.restore_verified` / `backup.restore_failed` event (Phase 25's own restore test, not a platform feature). */
+    lastRestoreVerifiedAt: string | null
+    lastRestoreFailedAt: string | null
   }
   /** Names of security-relevant variables that are missing or malformed, from `checkSecurityConfig`. Names only. */
   configErrors: string[]
@@ -139,6 +153,25 @@ export function deriveAlerts(facts: AlertFacts): Alert[] {
     alerts.push({ id: 'cron.stale', severity: 'error', count: 1, detail: `${Math.floor(cronAge)} h` })
   }
 
+  // The last completed backup attempt failed (fires immediately — a failed first run matters
+  // as much as a failed hundredth one, unlike staleness, which needs a prior success to compare to).
+  if (events.lastBackupFailedAt !== null && (events.lastBackupAt === null || events.lastBackupFailedAt > events.lastBackupAt)) {
+    alerts.push({ id: 'backup.failing', severity: 'error', count: 1 })
+  }
+
+  // Same "only if it ever ran" convention as cron.stale: a site that has never backed up yet is
+  // an onboarding step (docs/runbooks/backup-restore.md), not a failure to alert on forever.
+  const backupAge = hoursSince(events.lastBackupAt, now)
+  if (backupAge !== null && backupAge > THRESHOLDS.backupStaleHours) {
+    alerts.push({ id: 'backup.stale', severity: 'error', count: 1, detail: `${Math.floor(backupAge)} h` })
+  }
+
+  // A backup that cannot be restored is not a backup — this is the one Phase 25 rule that
+  // fires on the restore test's own failure, not merely its absence.
+  if (events.lastRestoreFailedAt !== null && (events.lastRestoreVerifiedAt === null || events.lastRestoreFailedAt > events.lastRestoreVerifiedAt)) {
+    alerts.push({ id: 'backup.restore_failed', severity: 'error', count: 1 })
+  }
+
   if (facts.configErrors.length > 0) {
     alerts.push({ id: 'config.invalid', severity: 'error', count: facts.configErrors.length, detail: facts.configErrors.join(', ') })
   }
@@ -160,6 +193,10 @@ export function deriveAlerts(facts: AlertFacts): Alert[] {
   }
   if (events.signInLimitCrossingsLast24h >= THRESHOLDS.signInLimitCrossingsPerDay) {
     alerts.push({ id: 'auth.sign_in_pressure', severity: 'warning', count: events.signInLimitCrossingsLast24h })
+  }
+  const restoreAge = hoursSince(events.lastRestoreVerifiedAt, now)
+  if (restoreAge !== null && restoreAge > THRESHOLDS.restoreTestStaleHours) {
+    alerts.push({ id: 'backup.restore_stale', severity: 'warning', count: 1, detail: `${Math.floor(restoreAge / 24)} d` })
   }
 
   const rank = (alert: Alert) => (alert.severity === 'error' ? 0 : 1)
@@ -222,5 +259,25 @@ export const ALERT_TEXT: Record<AlertId, { title: string; what: string; action: 
     title: 'Repeated sign-in limit crossings',
     what: 'The admin sign-in limit was crossed more than once today.',
     action: 'Check Audit log entries named admin.sign_in_rate_limited; if it is not you, consider enabling MFA and Vercel’s Attack Challenge Mode.',
+  },
+  'backup.failing': {
+    title: 'The last backup failed',
+    what: 'The daily backup workflow ran and did not complete successfully.',
+    action: 'Open the "Backup" workflow in the repository’s Actions tab, read the failed step, and re-run it; docs/runbooks/backup-restore.md has the recovery steps if it keeps failing.',
+  },
+  'backup.stale': {
+    title: 'No backup has completed recently',
+    what: 'Backups run once a day; the last completed one is older than the daily schedule plus a margin.',
+    action: 'Check that the "Backup" workflow is scheduled and enabled in the repository’s Actions tab (GitHub disables a schedule after 60 days with no repository activity).',
+  },
+  'backup.restore_failed': {
+    title: 'The last restore test failed',
+    what: 'A backup exists, but restoring it into a throw-away database did not reproduce the data — the backup may not be usable.',
+    action: 'Open the "Backup" workflow’s restore-test job and read the failed step; docs/runbooks/backup-restore.md § Restore has the manual procedure to try in the meantime.',
+  },
+  'backup.restore_stale': {
+    title: 'No restore has been verified recently',
+    what: 'The restore test runs weekly; the last one that actually restored and checked the data is older than that plus a margin.',
+    action: 'Open the "Backup" workflow in the repository’s Actions tab and check that its weekly restore-test job is running.',
   },
 }

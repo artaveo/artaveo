@@ -126,6 +126,17 @@ export function createGateway({ port, postgrestUrl, jwtSecret, accounts }) {
       return res.end()
     }
 
+    // Admin API (service-role only in the real service; this stand-in doesn't re-check the
+    // caller's role — same simplification as the rest of this file). Used by
+    // scripts/backup/collect.mjs to resolve an `admin_users` row's e-mail for the restore
+    // manifest (Phase 25) — the real endpoint Supabase's own auth-js `admin.getUserById` calls.
+    const adminUser = path.match(/^\/admin\/users\/([0-9a-f-]{36})$/)
+    if (adminUser && req.method === 'GET') {
+      const account = accounts.find((a) => a.id === adminUser[1])
+      if (!account) return json(res, 404, { error: 'user_not_found', message: 'User not found', code: 'user_not_found' })
+      return json(res, 200, userOf(account))
+    }
+
     return json(res, 404, { code: 404, error_code: 'not_implemented_in_test_stack', msg: `${req.method} ${path} is not implemented by the test stack` })
   }
 
@@ -157,6 +168,39 @@ export function createGateway({ port, postgrestUrl, jwtSecret, accounts }) {
       return res.end(object.body)
     }
 
+    // List: POST /object/list/<bucket> — used by `.storage.from(bucket).list(prefix)`
+    // (scripts/backup/collect.mjs). Real Storage synthesizes one entry per immediate child of
+    // `prefix`: a file has a real `id`; a folder is a group with `id: null` (no `metadata`) —
+    // exactly what the real API returns for a "virtual" folder that has no `storage.objects` row
+    // of its own, which is also the signal `collect.mjs` reads to recurse instead of downloading.
+    const list = path.match(/^\/object\/list\/([^/]+)$/)
+    if (list && req.method === 'POST') {
+      const [, bucket] = list
+      const { prefix = '' } = JSON.parse((await readBody(req)).toString('utf8') || '{}')
+      const base = prefix ? `${prefix.replace(/\/+$/, '')}/` : ''
+      const seenFolders = new Set()
+      const entries = []
+      for (const [key, object] of objects) {
+        const keyPrefix = `${bucket}/`
+        if (!key.startsWith(keyPrefix)) continue
+        const relative = key.slice(keyPrefix.length)
+        if (!relative.startsWith(base)) continue
+        const rest = relative.slice(base.length)
+        if (rest === '') continue
+        const slash = rest.indexOf('/')
+        if (slash === -1) {
+          entries.push({ name: rest, id: crypto.randomUUID(), updated_at: null, created_at: null, last_accessed_at: null, metadata: { size: object.body.length, mimetype: object.contentType } })
+        } else {
+          const folderName = rest.slice(0, slash)
+          if (!seenFolders.has(folderName)) {
+            seenFolders.add(folderName)
+            entries.push({ name: folderName, id: null, updated_at: null, created_at: null, last_accessed_at: null, metadata: null })
+          }
+        }
+      }
+      return json(res, 200, entries)
+    }
+
     // Upload: POST /object/<bucket>/<path…>
     const upload = path.match(/^\/object\/([^/]+)\/(.+)$/)
     if (upload && (req.method === 'POST' || req.method === 'PUT') && upload[1] !== 'public') {
@@ -179,6 +223,17 @@ export function createGateway({ port, postgrestUrl, jwtSecret, accounts }) {
       }
       objects.set(key, { body, contentType: type })
       return json(res, 200, { Id: crypto.randomUUID(), Key: key })
+    }
+
+    // Authenticated download: GET /object/<bucket>/<path…> — `.storage.from(bucket).download(path)`
+    // (any bucket; this stand-in does not simulate Storage's own access-control policies, same
+    // simplification the rest of this file already makes — see the file header).
+    if (upload && req.method === 'GET' && upload[1] !== 'public') {
+      const [, bucket, objectPath] = upload
+      const object = objects.get(`${bucket}/${decodeURIComponent(objectPath)}`)
+      if (!object) return json(res, 400, { statusCode: '404', error: 'not_found', message: 'Object not found' })
+      res.writeHead(200, { 'content-type': object.contentType, 'content-length': object.body.length })
+      return res.end(object.body)
     }
 
     // Remove: DELETE /object/<bucket> with { prefixes: [...] }

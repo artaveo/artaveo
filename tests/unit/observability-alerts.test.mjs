@@ -19,7 +19,17 @@ const calm = () => ({
   now: NOW,
   notifications: { failedAttemptsLastHour: 0, exhaustedLast24h: 0, stuckMessages: 0, inquiriesWithoutMessages: 0 },
   errors: { spikes: [], newOpenLast24h: 0 },
-  events: { limiterUnavailableLastHour: 0, auditWriteFailedLast24h: 0, lastCronAt: hoursAgo(5), lastMonitorAt: hoursAgo(0.2), signInLimitCrossingsLast24h: 0 },
+  events: {
+    limiterUnavailableLastHour: 0,
+    auditWriteFailedLast24h: 0,
+    lastCronAt: hoursAgo(5),
+    lastMonitorAt: hoursAgo(0.2),
+    signInLimitCrossingsLast24h: 0,
+    lastBackupAt: hoursAgo(5),
+    lastBackupFailedAt: null,
+    lastRestoreVerifiedAt: hoursAgo(5),
+    lastRestoreFailedAt: null,
+  },
   configErrors: [],
 })
 const ids = (facts) => deriveAlerts(facts).map((a) => a.id)
@@ -68,6 +78,25 @@ describe('deriveAlerts', () => {
     assert.deepEqual(ids(withFacts({ events: { signInLimitCrossingsLast24h: THRESHOLDS.signInLimitCrossingsPerDay - 1 } })), [])
     assert.deepEqual(ids(withFacts({ events: { signInLimitCrossingsLast24h: THRESHOLDS.signInLimitCrossingsPerDay } })), ['auth.sign_in_pressure'])
   })
+  it('a backup failure is an error, whether or not a backup ever succeeded before', () => {
+    assert.deepEqual(ids(withFacts({ events: { lastBackupFailedAt: hoursAgo(1) } })), ['backup.failing'], 'fails even though calm() already has an earlier success')
+    assert.deepEqual(ids(withFacts({ events: { lastBackupAt: null, lastBackupFailedAt: hoursAgo(1) } })), ['backup.failing'], 'and on the very first run')
+    assert.deepEqual(ids(withFacts({ events: { lastBackupAt: hoursAgo(1), lastBackupFailedAt: hoursAgo(5) } })), [], 'a later success clears an earlier failure')
+  })
+  it('a backup is stale only after the threshold, and only if one ever completed', () => {
+    assert.deepEqual(ids(withFacts({ events: { lastBackupAt: hoursAgo(THRESHOLDS.backupStaleHours - 1) } })), [])
+    assert.deepEqual(ids(withFacts({ events: { lastBackupAt: hoursAgo(THRESHOLDS.backupStaleHours + 1) } })), ['backup.stale'])
+    assert.deepEqual(ids(withFacts({ events: { lastBackupAt: null } })), [], 'never backed up yet is onboarding, not an alert')
+  })
+  it('a failed restore test is an error even with an earlier successful one', () => {
+    assert.deepEqual(ids(withFacts({ events: { lastRestoreFailedAt: hoursAgo(1) } })), ['backup.restore_failed'])
+    assert.deepEqual(ids(withFacts({ events: { lastRestoreVerifiedAt: hoursAgo(1), lastRestoreFailedAt: hoursAgo(5) } })), [], 'a later verified restore clears an earlier failure')
+  })
+  it('an unverified restore is stale only after the threshold, and only if one was ever verified', () => {
+    assert.deepEqual(ids(withFacts({ events: { lastRestoreVerifiedAt: hoursAgo(THRESHOLDS.restoreTestStaleHours - 1) } })), [])
+    assert.equal(deriveAlerts(withFacts({ events: { lastRestoreVerifiedAt: hoursAgo(THRESHOLDS.restoreTestStaleHours + 1) } }))[0].severity, 'warning')
+    assert.deepEqual(ids(withFacts({ events: { lastRestoreVerifiedAt: null } })), [])
+  })
   it('configuration errors carry variable NAMES only', () => {
     const [alert] = deriveAlerts(withFacts({ configErrors: ['CRON_SECRET', 'SUPABASE_ANON_KEY'] }))
     assert.equal(alert.id, 'config.invalid')
@@ -82,13 +111,26 @@ describe('deriveAlerts', () => {
       now: NOW,
       notifications: { failedAttemptsLastHour: 9, exhaustedLast24h: 1, stuckMessages: 1, inquiriesWithoutMessages: 1 },
       errors: { spikes: [{ event: 'x.y', windowCount: 20 }], newOpenLast24h: 3 },
-      events: { limiterUnavailableLastHour: 4, auditWriteFailedLast24h: 1, lastCronAt: hoursAgo(80), lastMonitorAt: hoursAgo(9), signInLimitCrossingsLast24h: 5 },
+      events: {
+        limiterUnavailableLastHour: 4,
+        auditWriteFailedLast24h: 1,
+        lastCronAt: hoursAgo(80),
+        lastMonitorAt: hoursAgo(9),
+        signInLimitCrossingsLast24h: 5,
+        lastBackupAt: hoursAgo(80),
+        lastBackupFailedAt: hoursAgo(1),
+        lastRestoreVerifiedAt: hoursAgo(300),
+        lastRestoreFailedAt: hoursAgo(1),
+      },
       configErrors: ['CRON_SECRET'],
     })
     const severities = all.map((a) => a.severity)
     assert.deepEqual(severities, [...severities].sort((a, b) => (a === b ? 0 : a === 'error' ? -1 : 1)))
     assert.equal(all.length, ALERT_IDS.length, 'every rule can fire')
-    assert.deepEqual(all.map((a) => a.id).filter((id) => all.find((a) => a.id === id).severity === 'error'), ['notifications.failing', 'notifications.uncovered', 'errors.spike', 'audit.write_failed', 'cron.stale', 'config.invalid'])
+    assert.deepEqual(
+      all.map((a) => a.id).filter((id) => all.find((a) => a.id === id).severity === 'error'),
+      ['notifications.failing', 'notifications.uncovered', 'errors.spike', 'audit.write_failed', 'cron.stale', 'backup.failing', 'backup.stale', 'backup.restore_failed', 'config.invalid'],
+    )
   })
 })
 

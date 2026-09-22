@@ -44,7 +44,7 @@ function section(id: string, title: LocalizedText, paragraphs: LocalizedText[], 
 }
 
 /** Kept separate: a change to one document must not re-date the other. */
-const PRIVACY_LAST_UPDATED = '2026-09-21' // + failure records, event counts and security-policy reports (Phase 24), + local search history (Phase 18), + stored e-mail copies and delivery log (Phase 19), + recommenders' e-mail address (D-14), + consultation requests (Phase 20)
+const PRIVACY_LAST_UPDATED = '2026-09-22' // + encrypted daily backups (Phase 25), + failure records, event counts and security-policy reports (Phase 24), + local search history (Phase 18), + stored e-mail copies and delivery log (Phase 19), + recommenders' e-mail address (D-14), + consultation requests (Phase 20)
 const TERMS_LAST_UPDATED = '2026-09-13'
 
 const privacySections: LegalSection[] = [
@@ -131,6 +131,10 @@ const privacySections: LegalSection[] = [
       tx(
         "There's no automatic deletion schedule in place yet — this is a known gap, tracked as future work, not a claim that one already exists. In practice, submissions are kept as long as needed to respond to you and for reasonable business record-keeping, and deleted on request (see Your choices below).",
         'فعلاً زمان‌بندی حذف خودکار وجود ندارد؛ این یک کمبود شناخته‌شده و ثبت‌شده برای کار آینده است. در عمل، ارسالی‌ها تا وقتی برای پاسخ‌دادن به تو و نگه‌داری معقول سوابق کسب‌وکار لازم باشند نگه داشته می‌شوند و در صورت درخواست حذف می‌شوند (بخش «انتخاب‌های تو» را ببین).',
+      ),
+      tx(
+        'The database is also copied into an encrypted daily backup, kept for about a month, so the site can recover from a real failure. Only I hold the key that can read a backup; deleting your data from the live database on request does not by itself remove it from a backup already taken before that request, which ages out on its own within that month.',
+        'پایگاه‌داده همچنین هر روز در یک نسخه‌ی پشتیبان رمزنگاری‌شده کپی می‌شود که حدود یک ماه نگه داشته می‌شود، تا سایت بتواند از یک خرابی واقعی برگردد. فقط من کلیدی را دارم که می‌تواند یک پشتیبان را بخواند؛ حذف داده‌ات از پایگاه‌داده‌ی زنده به‌درخواست، به‌خودی‌خود آن را از پشتیبانی که پیش از آن درخواست گرفته شده حذف نمی‌کند، که خودش ظرف همان یک ماه از بین می‌رود.',
       ),
     ],
   ),

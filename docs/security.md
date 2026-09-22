@@ -132,7 +132,7 @@ Nothing here is a secret **in the repository**: `.env.example` holds names and t
 4. **MFA is optional** (owner decision, revision 27). Enrol at `/admin/security`.
 5. **Supabase Auth settings** live in the dashboard, not the repository. Check once, and after any Supabase change: **Sign-ups disabled** (Authentication → Sign In / Providers → Allow new users to sign up: off — there is no admin sign-up flow, so an open sign-up only creates useless accounts, but it is also a way to fill the auth tables); **e-mail confirmations on**; **minimum password length ≥ 12**. On 20 September 2026 the project had exactly one auth user (the owner) and no stray accounts.
 6. **GitHub / Vercel settings** from `docs/ci.md` (branch protection requiring `CI passed`; separate Preview database) still stand — they are part of this model.
-7. **Backups** are Phase 25.
+7. **Backups** (Phase 25): a daily encrypted external dump, since the free Supabase plan has no platform backups — `docs/runbooks/backup-restore.md`. RPO 24 hours; a restore test runs weekly.
 8. **Anyone can post to the two reporting endpoints** (Phase 24) and so can add rows to the error list. Bounded by: per-address and overall rate limits, an 8 KB body cap, a cap of 500 distinct error groups (past it, one shared `overflow` row), and the fact that `client` / `csp` groups never raise an alert. What a stranger can do is make the *Errors* list noisier; they cannot wake you, fill the table, or read anything.
 
 ## 9. Adding to the system — the checklist

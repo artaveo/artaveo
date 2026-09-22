@@ -144,7 +144,7 @@ describe('route handlers', () => {
   it('the cron route fails closed and compares its secret in constant time', () => {
     // Phase 24: the comparison moved to one shared helper so the daily run and the external check
     // (`/api/ops/check`) cannot disagree about what "authorised" means.
-    for (const route of ['app/api/cron/notifications/route.ts', 'app/api/ops/check/route.ts']) {
+    for (const route of ['app/api/cron/notifications/route.ts', 'app/api/ops/check/route.ts', 'app/api/ops/backup-report/route.ts']) {
       assert.match(read(route), /checkCronAuth\(/, `${route} must use the shared check`)
     }
     const helper = read('lib/security/cron-auth.ts')
