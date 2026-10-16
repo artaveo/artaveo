@@ -1,5 +1,5 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import type { AuditEntry } from '@/lib/admin/audit'
 import { writeAuditLog } from '@/lib/admin/audit'
@@ -73,17 +73,17 @@ const EMPTY_RESULT: ProcessOutboxResult = { attempted: 0, sent: 0, failed: 0, ex
 const LEASE_SECONDS = 120
 
 async function claim(
-  supabase: SupabaseClient,
+  db: DbClient,
   ids: string[] | undefined,
   limit: number,
 ): Promise<NotificationOutboxRow[] | null> {
-  const { data, error } = await supabase.rpc('claim_notification_outbox', {
+  const { data, error } = await db.rpc('claim_notification_outbox', {
     p_ids: ids && ids.length > 0 ? ids : null,
     p_limit: limit,
     p_lease_seconds: LEASE_SECONDS,
   })
   if (error) {
-    await captureError(error, { event: 'notification.claim_failed', source: 'notification', fields: { hint: 'is migration 0017 applied?' }, supabase })
+    await captureError(error, { event: 'notification.claim_failed', source: 'notification', fields: { hint: 'is migration 0017 applied?' }, db })
     return null
   }
   return (data ?? []) as NotificationOutboxRow[]
@@ -91,7 +91,7 @@ async function claim(
 
 /** Attempts to send every due row (or the given `ids`). Never throws — every row's own outcome is recorded on that row. */
 export async function processOutboxBatch(
-  supabase: SupabaseClient,
+  db: DbClient,
   options: ProcessOutboxOptions = {},
 ): Promise<ProcessOutboxResult> {
   const limit = options.limit ?? 20
@@ -105,12 +105,12 @@ export async function processOutboxBatch(
     while (total.attempted < limit) {
       if (options.deadlineMs !== undefined && Date.now() - startedAt >= options.deadlineMs) break
 
-      const claimed = await claim(supabase, options.ids, Math.min(chunkSize, limit - total.attempted))
+      const claimed = await claim(db, options.ids, Math.min(chunkSize, limit - total.attempted))
       if (!claimed || claimed.length === 0) break
 
       // Rows in one chunk are independent; sending them together keeps a
       // visitor's form submission from waiting for two sends in sequence.
-      const outcomes = await Promise.all(claimed.map((row) => attemptOne(supabase, row, provider, options)))
+      const outcomes = await Promise.all(claimed.map((row) => attemptOne(db, row, provider, options)))
       for (const outcome of outcomes) {
         total.attempted += 1
         if (outcome === 'sent') total.sent += 1
@@ -125,7 +125,7 @@ export async function processOutboxBatch(
   } catch (err) {
     // Belt and braces: nothing above is meant to throw, but a caller in the
     // middle of saving an inquiry must never see an exception from here.
-    await captureError(err, { event: 'notification.batch_failed', source: 'notification', supabase })
+    await captureError(err, { event: 'notification.batch_failed', source: 'notification', db })
   }
 
   return total
@@ -134,7 +134,7 @@ export async function processOutboxBatch(
 type AttemptOutcome = 'sent' | 'failed' | 'exhausted' | 'lost-lease'
 
 async function attemptOne(
-  supabase: SupabaseClient,
+  db: DbClient,
   row: NotificationOutboxRow,
   provider: EmailProvider,
   options: ProcessOutboxOptions,
@@ -168,7 +168,7 @@ async function attemptOne(
   // The update only applies while this worker still holds the lease it
   // claimed the row with.
   const guarded = (patch: Record<string, unknown>) =>
-    supabase
+    db
       .from('notification_outbox')
       .update(patch)
       .eq('id', row.id)
@@ -187,11 +187,11 @@ async function attemptOne(
       locked_until: null,
     })
     if (error || !data || data.length === 0) {
-      await captureError(error ?? new Error('lease lost'), { event: 'notification.mark_sent_failed', source: 'notification', fields: { outboxId: row.id, consequence: 'the message was sent but is not marked sent' }, supabase })
+      await captureError(error ?? new Error('lease lost'), { event: 'notification.mark_sent_failed', source: 'notification', fields: { outboxId: row.id, consequence: 'the message was sent but is not marked sent' }, db })
       return 'lost-lease'
     }
     log.info('notification.sent', { outboxId: row.id, kind: row.kind, attempt: attemptNo, provider: provider.id, ms: durationMs, requestId: row.request_id ?? undefined })
-    await recordAttempt(supabase, row.id, attemptNo, attemptedAt, provider.id, {
+    await recordAttempt(db, row.id, attemptNo, attemptedAt, provider.id, {
       ok: true,
       providerMessageId: result.providerMessageId ?? null,
       durationMs,
@@ -213,7 +213,7 @@ async function attemptOne(
     ...(exhausted ? {} : { next_attempt_at: nextAttemptAt(attemptNo, now) }),
   })
   if (error || !data || data.length === 0) {
-    await captureError(error ?? new Error('lease lost'), { event: 'notification.state_update_failed', source: 'notification', fields: { outboxId: row.id }, supabase })
+    await captureError(error ?? new Error('lease lost'), { event: 'notification.state_update_failed', source: 'notification', fields: { outboxId: row.id }, db })
     return 'lost-lease'
   }
 
@@ -228,7 +228,7 @@ async function attemptOne(
     err: lastError,
     requestId: row.request_id ?? undefined,
   })
-  await recordAttempt(supabase, row.id, attemptNo, attemptedAt, provider.id, {
+  await recordAttempt(db, row.id, attemptNo, attemptedAt, provider.id, {
     ok: false,
     retryable: result.retryable,
     error: lastError,
@@ -236,14 +236,14 @@ async function attemptOne(
   })
 
   if (exhausted) {
-    await raiseExhaustedAlert(supabase, row, attemptNo, lastError, !result.retryable, options)
+    await raiseExhaustedAlert(db, row, attemptNo, lastError, !result.retryable, options)
     return 'exhausted'
   }
   return 'failed'
 }
 
 async function recordAttempt(
-  supabase: SupabaseClient,
+  db: DbClient,
   outboxId: string,
   attemptNo: number,
   at: string,
@@ -252,7 +252,7 @@ async function recordAttempt(
     | { ok: true; providerMessageId: string | null; durationMs: number }
     | { ok: false; retryable: boolean; error: string; durationMs: number },
 ): Promise<void> {
-  const { error } = await supabase.from('notification_attempts').insert({
+  const { error } = await db.from('notification_attempts').insert({
     outbox_id: outboxId,
     attempt_no: attemptNo,
     at,
@@ -266,7 +266,7 @@ async function recordAttempt(
   // Best-effort by design: the outbox row already carries the authoritative
   // state, and a missed log line must never turn a delivered message into a
   // failed one.
-  if (error) await captureError(error, { event: 'notification.attempt_log_failed', source: 'notification', level: 'warn', fields: { outboxId, attemptNo }, supabase })
+  if (error) await captureError(error, { event: 'notification.attempt_log_failed', source: 'notification', level: 'warn', fields: { outboxId, attemptNo }, db })
 }
 
 /**
@@ -282,7 +282,7 @@ async function recordAttempt(
  * e-mail at all.
  */
 async function raiseExhaustedAlert(
-  supabase: SupabaseClient,
+  db: DbClient,
   row: NotificationOutboxRow,
   attempts: number,
   lastError: string,
@@ -294,7 +294,7 @@ async function raiseExhaustedAlert(
     level: 'error',
     subject: { type: 'notification', id: row.id },
     data: { kind: row.kind, attempts, permanent, error: lastError.slice(0, 200) },
-    supabase,
+    db,
   })
 
   const audit = options.audit ?? writeAuditLog
@@ -308,7 +308,7 @@ async function raiseExhaustedAlert(
 
   if (row.kind === 'system-alert' || options.alerts === false) return
 
-  const alertRows = await enqueueSystemAlert(supabase, {
+  const alertRows = await enqueueSystemAlert(db, {
     failedOutboxId: row.id,
     failedKind: row.kind,
     attempts,
@@ -317,7 +317,7 @@ async function raiseExhaustedAlert(
   })
   if (alertRows.length === 0) return
 
-  await processOutboxBatch(supabase, {
+  await processOutboxBatch(db, {
     ids: alertRows.map((alert) => alert.id),
     alerts: false,
     sendTimeoutMs: options.sendTimeoutMs,
@@ -337,14 +337,14 @@ async function raiseExhaustedAlert(
  * inquiry, a recommendation) drives the retries instead, bounded so a visitor's
  * form never waits long: a 4 s send timeout and a 6 s overall budget.
  */
-export async function processAfterEnqueue(supabase: SupabaseClient, ids: string[]): Promise<void> {
+export async function processAfterEnqueue(db: DbClient, ids: string[]): Promise<void> {
   try {
     if (ids.length > 0) {
-      await processOutboxBatch(supabase, { ids, sendTimeoutMs: 4_000, deadlineMs: 6_000 })
+      await processOutboxBatch(db, { ids, sendTimeoutMs: 4_000, deadlineMs: 6_000 })
     }
-    await processOutboxBatch(supabase, { limit: 3, sendTimeoutMs: 4_000, deadlineMs: 3_000 })
+    await processOutboxBatch(db, { limit: 3, sendTimeoutMs: 4_000, deadlineMs: 3_000 })
   } catch (err) {
-    await captureError(err, { event: 'notification.send_after_enqueue_failed', source: 'notification', fields: { consequence: 'the event itself was saved' }, supabase })
+    await captureError(err, { event: 'notification.send_after_enqueue_failed', source: 'notification', fields: { consequence: 'the event itself was saved' }, db })
   }
 }
 
@@ -357,11 +357,11 @@ export type RequeueResult = 'requeued' | 'not-found' | 'not-retryable' | 'error'
  * and the ceiling is raised so the message really gets more tries.
  */
 export async function requeueNotification(
-  supabase: SupabaseClient,
+  db: DbClient,
   id: string,
   now: Date = new Date(),
 ): Promise<RequeueResult> {
-  const { data: row, error } = await supabase
+  const { data: row, error } = await db
     .from('notification_outbox')
     .select('id, status, attempts, max_attempts, recipient_email')
     .eq('id', id)
@@ -373,7 +373,7 @@ export async function requeueNotification(
   // finished — there is nothing left to send.
   if (row.recipient_email === REDACTED_MARKER) return 'not-retryable'
 
-  const { data: updated, error: updateError } = await supabase
+  const { data: updated, error: updateError } = await db
     .from('notification_outbox')
     .update({
       status: 'pending',

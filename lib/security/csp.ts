@@ -41,8 +41,8 @@ export type CspOptions = {
   nonce?: string
   /** `next dev` needs `eval` for its overlay and websockets for hot reload. Never true in production. */
   dev?: boolean
-  /** `SUPABASE_URL` — uploaded media is served from the Storage host, so `img-src` names exactly that origin. */
-  supabaseUrl?: string | null
+  /** `NEON_STORAGE_ENDPOINT` — uploaded media is served from the Neon Object Storage host, so `img-src` names exactly that origin. */
+  storageUrl?: string | null
   /** Only where the site is served over HTTPS (Vercel). Behind plain http (the test stack) it would break every subresource. */
   upgradeInsecure?: boolean
 }
@@ -65,7 +65,7 @@ function originOf(url: string | null | undefined): string | null {
 }
 
 export function buildCsp(options: CspOptions): string {
-  const { mode, nonce, dev = false, supabaseUrl = null, upgradeInsecure = false } = options
+  const { mode, nonce, dev = false, storageUrl = null, upgradeInsecure = false } = options
   if (mode === 'admin' && !nonce) throw new Error('the admin policy needs a nonce')
 
   const script =
@@ -74,7 +74,7 @@ export function buildCsp(options: CspOptions): string {
       : ["'self'", "'unsafe-inline'"]
   if (dev) script.push("'unsafe-eval'")
 
-  const storage = originOf(supabaseUrl)
+  const storage = originOf(storageUrl)
 
   const directives: [string, string[]][] = [
     ['default-src', ["'self'"]],

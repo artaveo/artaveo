@@ -1,5 +1,5 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { enqueueContentPublished } from '@/lib/notifications/events'
 import { processAfterEnqueue } from '@/lib/notifications/outbox'
@@ -23,14 +23,14 @@ const TABLE: Record<PublishedEntity, string> = {
  * failure here is logged and changes nothing the admin sees.
  */
 export async function notifyManualPublish(
-  supabase: SupabaseClient,
+  db: DbClient,
   input: { entity: PublishedEntity; id: string; actorEmail: string },
 ): Promise<void> {
-  await track('content.published', { subject: { type: input.entity, id: input.id }, data: { via: 'manual' }, supabase })
+  await track('content.published', { subject: { type: input.entity, id: input.id }, data: { via: 'manual' }, db })
   try {
-    const { data } = await supabase.from(TABLE[input.entity]).select('slug, title').eq('id', input.id).maybeSingle()
+    const { data } = await db.from(TABLE[input.entity]).select('slug, title').eq('id', input.id).maybeSingle()
     if (!data) return
-    const rows = await enqueueContentPublished(supabase, {
+    const rows = await enqueueContentPublished(db, {
       entity: input.entity,
       id: input.id,
       slug: data.slug as string,
@@ -38,7 +38,7 @@ export async function notifyManualPublish(
       how: { via: 'manual', by: input.actorEmail, at: new Date().toISOString() },
     })
     await processAfterEnqueue(
-      supabase,
+      db,
       rows.map((row) => row.id),
     )
   } catch (err) {

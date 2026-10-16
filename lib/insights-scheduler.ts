@@ -1,6 +1,6 @@
 import 'server-only'
 
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { writeAuditLog } from '@/lib/admin/audit'
 import { revalidateArticleRoutes } from '@/lib/insights-revalidate'
@@ -39,7 +39,7 @@ export type PublishedArticle = {
  * misleading "Updated" line.
  */
 export async function publishDueArticles(
-  client: SupabaseClient,
+  client: DbClient,
   now: Date = new Date(),
 ): Promise<{ published: number; items: PublishedArticle[] }> {
   const { data, error } = await client

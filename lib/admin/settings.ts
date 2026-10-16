@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { requireSupabase } from '@/lib/admin/pipeline'
+import { requireDb } from '@/lib/admin/pipeline'
 import type { AdminNavigationItem, AdminSiteSettings } from '@/types/cms'
 import { captureError } from '@/lib/observability/store'
 
@@ -14,10 +14,10 @@ import { captureError } from '@/lib/observability/store'
  */
 
 export async function getSiteSettings(): Promise<AdminSiteSettings | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('site_settings')
     .select('availability_state, next_opening, response_commitment, timezone, languages, external_profiles, updated_at')
     .eq('id', true)
@@ -39,10 +39,10 @@ export async function getSiteSettings(): Promise<AdminSiteSettings | null> {
 }
 
 export async function listNavigationItemsAdmin(): Promise<AdminNavigationItem[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('navigation_items')
     .select('id, key, href, surfaces, has_description, has_content, sort_order')
     .order('sort_order', { ascending: true })

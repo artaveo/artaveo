@@ -3,7 +3,7 @@ import 'server-only'
 import { getRequestId } from '@/lib/observability/context'
 import { log } from '@/lib/observability/logger'
 import { track } from '@/lib/observability/store'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 
 /** Matches `db/migrations/0008_admin_and_audit.sql`'s `audit_log` columns (roadmap § 12's table). */
 export type AuditEntry = {
@@ -35,9 +35,9 @@ export async function writeAuditLog(entry: AuditEntry): Promise<void> {
   const correlationId = entry.correlationId ?? (await getRequestId())
   log.info('audit.recorded', { action: entry.action, entity: entry.entity, entityId: entry.entityId, requestId: correlationId })
 
-  const client = getSupabaseServerClient()
+  const client = getDbClient()
   if (!client) {
-    log.error('audit.write_failed', { action: entry.action, reason: 'supabase-not-configured' })
+    log.error('audit.write_failed', { action: entry.action, reason: 'db-not-configured' })
     return
   }
 
@@ -57,7 +57,7 @@ export async function writeAuditLog(entry: AuditEntry): Promise<void> {
       dedupeSeconds: 60,
       requestId: correlationId,
       data: { action: entry.action, entity: entry.entity, reason: error.message.slice(0, 200) },
-      supabase: client,
+      db: client,
     })
   }
 }

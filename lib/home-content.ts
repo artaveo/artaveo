@@ -513,9 +513,9 @@ export function getCapabilities(): Capability[] {
 /**
  * Phase 12.2 (roadmap § 12): the project selectors — `getFeaturedProjects`,
  * `getAllProjects`, `getProjectBySlug` — moved to `./home-content-projects`
- * and now read from Supabase instead of `featuredProjectsData` below. They
+ * and now read from the database instead of `featuredProjectsData` below. They
  * are not re-exported from here because that file imports `server-only`
- * (via `lib/supabase/content-queries.ts`) — this file (`home-content.ts`)
+ * (via `lib/db/content-queries.ts`) — this file (`home-content.ts`)
  * is still imported by a genuine Client Component (`site-shell.tsx`, for
  * `getDeveloperProfile()`), and a `server-only` import anywhere in this
  * file's module graph would break that component's build. Import the
@@ -524,7 +524,7 @@ export function getCapabilities(): Capability[] {
 
 /**
  * The raw, file-based project array — for `scripts/import-content-to-db.ts`
- * only. Every page/component reads the Supabase-backed selectors in
+ * only. Every page/component reads the database-backed selectors in
  * `@/lib/home-content-projects`, never this.
  */
 export function getAllProjectsRaw(): Project[] {

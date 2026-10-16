@@ -1,54 +1,35 @@
 #!/usr/bin/env node
 /**
- * Phase 20 — verification against a REAL PostgreSQL + PostgREST + supabase-js
- * stack (a fake cannot prove a constraint, a trigger, a unique index or a
- * conditional update). Not part of `npm test`: it needs a database.
+ * Phase 20 — verification against a REAL PostgreSQL + PostgREST stack (a fake
+ * cannot prove a constraint, a trigger, a unique index or a conditional
+ * update). Not part of `npm test`: it needs a database.
  *
- *   PGREST_URL=http://127.0.0.1:3111 SERVICE_JWT=<service_role jwt> \
- *     node --import ./scripts/register-ts-resolve.mjs scripts/verify-consultations-stack.mjs
+ * Since Phase 21 the stack is `tests/support/stack/stack.mjs`; this script reads
+ * the environment that stack writes (the same NEON_* variables the app uses, so
+ * the app's own client is exercised):
  *
- * Setup used for the phase (see docs/phases/PHASE-20-README.md § Verification):
- * PostgreSQL 16 with migrations 0001–0019 applied over minimal Supabase shims
- * (roles anon/authenticated/service_role, `auth.users`, `storage.*`), PostgREST
- * 12.2 in front of it, `service_role` granted the public schema. The script
- * puts a tiny proxy in front of PostgREST because supabase-js talks to
- * `<url>/rest/v1` and a bare PostgREST serves at the root.
+ *   npm run test:stack:up
+ *   node --import ./scripts/register-ts-resolve.mjs scripts/verify-consultations-stack.mjs
  *
  * It drives the actual service functions (`lib/consultation/service.ts`), the
  * actual enqueue functions and the actual outbox worker (with the console
  * provider), then reads the rows back and checks them.
  */
 import assert from 'node:assert/strict'
-import http from 'node:http'
+import fs from 'node:fs'
 
-const PGREST = process.env.PGREST_URL ?? 'http://127.0.0.1:3111'
-const JWT = process.env.SERVICE_JWT
-if (!JWT) throw new Error('SERVICE_JWT is required')
+Object.assign(process.env, JSON.parse(fs.readFileSync(new URL('../.test-stack/env.json', import.meta.url), 'utf8')))
 
-// supabase-js → <base>/rest/v1/<path>; PostgREST serves <path>.
-const proxy = http.createServer((req, res) => {
-  const target = new URL(req.url.replace(/^\/rest\/v1/, ''), PGREST)
-  const upstream = http.request(target, { method: req.method, headers: { ...req.headers, host: target.host } }, (r) => {
-    res.writeHead(r.statusCode, r.headers)
-    r.pipe(res)
-  })
-  req.pipe(upstream)
-})
-await new Promise((resolve) => proxy.listen(3112, '127.0.0.1', resolve))
-
-process.env.SUPABASE_URL = 'http://127.0.0.1:3112'
-process.env.SUPABASE_SERVICE_ROLE_KEY = JWT
-
-const { getSupabaseServerClient } = await import('../lib/supabase/server.ts')
+const { getDbClient } = await import('../lib/db/server.ts')
 const service = await import('../lib/consultation/service.ts')
 const queries = await import('../lib/consultation/queries.ts')
 const { dateOptions } = await import('../lib/consultation/time.ts')
 const { getFirstResponseTimes, isOwnerAction } = await import('../lib/admin/pipeline.ts')
 const { processOutboxBatch } = await import('../lib/notifications/outbox.ts')
 
-const supabase = getSupabaseServerClient()
-assert.ok(supabase, 'supabase client')
-const deps = { supabase }
+const db = getDbClient()
+assert.ok(db, 'db client')
+const deps = { db }
 
 let passed = 0
 const check = async (name, fn) => {
@@ -82,7 +63,7 @@ const input = (extra = {}) => ({
 const ctx = (extra = {}) => ({ locale: 'en', ipHash: `ip-${uuid()}`, ...extra })
 
 async function outboxFor(consultationId) {
-  const { data } = await supabase.from('notification_outbox').select('*').eq('entity_id', consultationId).order('created_at')
+  const { data } = await db.from('notification_outbox').select('*').eq('entity_id', consultationId).order('created_at')
   return data ?? []
 }
 const byKind = (rows, kind) => rows.filter((r) => r.kind === kind)
@@ -97,7 +78,7 @@ await check('request: creates an inquiry AND a consultation, a private token, tw
   tokenA = result.token
   assert.match(tokenA, /^[A-Za-z0-9_-]{32}$/)
 
-  A = await queries.loadConsultationByToken(supabase, tokenA)
+  A = await queries.loadConsultationByToken(db, tokenA)
   assert.equal(A.status, 'requested')
   assert.equal(A.locale, 'fa')
   assert.equal(A.timezone, 'Asia/Kabul')
@@ -107,7 +88,7 @@ await check('request: creates an inquiry AND a consultation, a private token, tw
   assert.equal(A.inquiry.preferredChannel, 'whatsapp') // a phone number was given
   assert.equal(A.inquiry.preferredLocale, 'fa')
 
-  const { data: inq } = await supabase.from('inquiries').select('source_channel, goal, consent').eq('id', A.inquiryId).single()
+  const { data: inq } = await db.from('inquiries').select('source_channel, goal, consent').eq('id', A.inquiryId).single()
   assert.equal(inq.source_channel, 'consultation')
   assert.equal(inq.consent, true)
 
@@ -116,11 +97,11 @@ await check('request: creates an inquiry AND a consultation, a private token, tw
   assert.ok(rows.every((r) => r.status === 'sent' && r.inquiry_id === A.inquiryId && r.attachments === null))
   assert.ok(byKind(rows, 'consultation-received')[0].body_text.includes(`/fa/consultation/${tokenA}`))
 
-  const { data: attempts } = await supabase.from('notification_attempts').select('provider, ok').in('outbox_id', rows.map((r) => r.id))
+  const { data: attempts } = await db.from('notification_attempts').select('provider, ok').in('outbox_id', rows.map((r) => r.id))
   assert.equal(attempts.length, 2)
   assert.ok(attempts.every((a) => a.provider === 'console' && a.ok))
 
-  const { data: events } = await supabase.from('inquiry_events').select('type, actor').eq('inquiry_id', A.inquiryId).order('created_at')
+  const { data: events } = await db.from('inquiry_events').select('type, actor').eq('inquiry_id', A.inquiryId).order('created_at')
   assert.deepEqual(events.map((e) => `${e.type}:${e.actor}`), ['created:system', 'consultation-requested:client'])
 })
 
@@ -128,14 +109,14 @@ await check('request: replay with the same key returns the same link and queues 
   const m = meta()
   const body = input()
   const first = await service.createConsultationRequest(deps, body, m, ctx())
-  const before = (await outboxFor((await queries.loadConsultationByToken(supabase, first.token)).id)).length
+  const before = (await outboxFor((await queries.loadConsultationByToken(db, first.token)).id)).length
   const second = await service.createConsultationRequest(deps, body, m, ctx())
   assert.equal(second.ok, true)
   assert.equal(second.token, first.token)
   assert.equal(second.replay, true)
-  const c = await queries.loadConsultationByToken(supabase, first.token)
+  const c = await queries.loadConsultationByToken(db, first.token)
   assert.equal((await outboxFor(c.id)).length, before)
-  const { count } = await supabase.from('consultations').select('id', { count: 'exact', head: true }).eq('inquiry_id', c.inquiryId)
+  const { count } = await db.from('consultations').select('id', { count: 'exact', head: true }).eq('inquiry_id', c.inquiryId)
   assert.equal(count, 1)
 })
 
@@ -148,14 +129,14 @@ await check('request: two racing submits with one key create ONE consultation', 
   ])
   assert.equal(r1.ok && r2.ok, true, JSON.stringify([r1, r2]))
   assert.equal(r1.token, r2.token)
-  const c = await queries.loadConsultationByToken(supabase, r1.token)
-  const { count } = await supabase.from('consultations').select('id', { count: 'exact', head: true }).eq('inquiry_id', c.inquiryId)
+  const c = await queries.loadConsultationByToken(db, r1.token)
+  const { count } = await db.from('consultations').select('id', { count: 'exact', head: true }).eq('inquiry_id', c.inquiryId)
   assert.equal(count, 1)
   assert.equal(byKind(await outboxFor(c.id), 'consultation-requested').length, 1)
 })
 
 await check('request: honeypot, fast fill, bad input and bad windows are refused with codes, and write nothing', async () => {
-  const before = (await supabase.from('inquiries').select('id', { count: 'exact', head: true })).count
+  const before = (await db.from('inquiries').select('id', { count: 'exact', head: true })).count
   assert.deepEqual(await service.createConsultationRequest(deps, input(), meta({ honeypot: 'x' }), ctx()), { ok: false, code: 'rejected' })
   assert.deepEqual(await service.createConsultationRequest(deps, input(), meta({ formRenderedAt: Date.now() }), ctx()), { ok: false, code: 'rejected' })
   assert.equal((await service.createConsultationRequest(deps, input({ email: 'nope' }), meta(), ctx())).code, 'invalid')
@@ -165,7 +146,7 @@ await check('request: honeypot, fast fill, bad input and bad windows are refused
   assert.equal((await service.createConsultationRequest(deps, input({ windows: [] }), meta(), ctx())).code, 'window-count')
   assert.equal((await service.createConsultationRequest(deps, input({ windows: [{ date: '2020-01-01', from: '10:00', to: '11:00' }] }), meta(), ctx())).code, 'window-too-soon')
   assert.equal((await service.createConsultationRequest(deps, input(), meta({ idempotencyKey: 'not-a-uuid' }), ctx())).code, 'invalid')
-  const after = (await supabase.from('inquiries').select('id', { count: 'exact', head: true })).count
+  const after = (await db.from('inquiries').select('id', { count: 'exact', head: true })).count
   assert.equal(after, before)
 })
 
@@ -179,10 +160,10 @@ await check('request: the per-IP and per-e-mail limits (same as the Brief Builde
 })
 
 await check('reschedule while requested: windows replaced, status stays requested, owner notified once per change', async () => {
-  const before = await queries.loadConsultationByToken(supabase, tokenA)
+  const before = await queries.loadConsultationByToken(db, tokenA)
   const result = await service.requestConsultationReschedule(deps, tokenA, 'Asia/Tehran', [{ date: day(5), from: '09:00', to: '10:00' }])
   assert.deepEqual(result, { ok: true })
-  const after = await queries.loadConsultationByToken(supabase, tokenA)
+  const after = await queries.loadConsultationByToken(db, tokenA)
   assert.equal(after.status, 'requested')
   assert.equal(after.rescheduleRequests, 1)
   assert.equal(after.timezone, 'Asia/Tehran')
@@ -196,12 +177,12 @@ await check('reschedule while requested: windows replaced, status stays requeste
 })
 
 await check('owner confirms: state, sequence, event, audit row, and an invitation that carries UID + SEQUENCE:0', async () => {
-  const current = await queries.loadConsultationByToken(supabase, tokenA)
+  const current = await queries.loadConsultationByToken(db, tokenA)
   const start = current.windows[0].start
   const result = await service.confirmConsultation(deps, { consultationId: A.id, actor: 'owner-1', start: new Date(start), meetingDetails: 'WhatsApp voice call' })
   assert.deepEqual(result, { ok: true })
 
-  const c = await queries.loadConsultationByToken(supabase, tokenA)
+  const c = await queries.loadConsultationByToken(db, tokenA)
   assert.equal(c.status, 'confirmed')
   assert.equal(new Date(c.confirmedStart).getTime(), new Date(start).getTime())
   assert.equal(new Date(c.confirmedEnd).getTime() - new Date(c.confirmedStart).getTime(), 30 * 60_000)
@@ -218,9 +199,9 @@ await check('owner confirms: state, sequence, event, audit row, and an invitatio
   assert.ok(ics.includes(`UID:${A.id}@consultations.artaveo`) && ics.includes('SEQUENCE:0') && ics.includes('METHOD:REQUEST'))
   assert.ok(ics.includes(`DTSTART:${new Date(start).toISOString().replace(/[-:]|\.000/g, '')}`))
 
-  const { data: events } = await supabase.from('inquiry_events').select('type, actor').eq('inquiry_id', A.inquiryId).eq('type', 'consultation-confirmed')
+  const { data: events } = await db.from('inquiry_events').select('type, actor').eq('inquiry_id', A.inquiryId).eq('type', 'consultation-confirmed')
   assert.deepEqual(events, [{ type: 'consultation-confirmed', actor: 'owner-1' }])
-  const { data: audit } = await supabase.from('audit_log').select('action, entity_id').eq('entity_id', A.id)
+  const { data: audit } = await db.from('audit_log').select('action, entity_id').eq('entity_id', A.id)
   assert.ok(audit.some((row) => row.action === 'consultation.confirmed'))
 })
 
@@ -235,9 +216,9 @@ await check('the client\'s page data: meeting details visible while a call stand
 })
 
 await check('reschedule after confirmation: → rescheduled, the confirmed time still stands; limit of 3 enforced', async () => {
-  const before = await queries.loadConsultationByToken(supabase, tokenA)
+  const before = await queries.loadConsultationByToken(db, tokenA)
   assert.deepEqual(await service.requestConsultationReschedule(deps, tokenA, 'Asia/Kabul', [{ date: day(6), from: '10:00', to: '12:00' }]), { ok: true })
-  const c = await queries.loadConsultationByToken(supabase, tokenA)
+  const c = await queries.loadConsultationByToken(db, tokenA)
   assert.equal(c.status, 'rescheduled')
   assert.equal(c.confirmedStart, before.confirmedStart)
   assert.equal(c.rescheduleRequests, 2)
@@ -250,11 +231,11 @@ await check('reschedule after confirmation: → rescheduled, the confirmed time 
 })
 
 await check('owner moves the call: rescheduled → confirmed, SEQUENCE 1, same UID, the old time named in the message', async () => {
-  const current = await queries.loadConsultationByToken(supabase, tokenA)
+  const current = await queries.loadConsultationByToken(db, tokenA)
   const newStart = new Date(current.windows[0].start)
   const previousStart = current.confirmedStart
   assert.deepEqual(await service.confirmConsultation(deps, { consultationId: A.id, actor: 'owner-1', start: newStart, meetingDetails: 'Google Meet: https://meet.example.test/x' }), { ok: true })
-  const c = await queries.loadConsultationByToken(supabase, tokenA)
+  const c = await queries.loadConsultationByToken(db, tokenA)
   assert.equal(c.status, 'confirmed')
   assert.equal(c.sequence, 2)
   const mails = byKind(await outboxFor(A.id), 'consultation-confirmed')
@@ -269,7 +250,7 @@ await check('owner moves the call: rescheduled → confirmed, SEQUENCE 1, same U
 
 await check('two owners confirming at once: exactly one wins, the other gets `conflict` — never a silent overwrite', async () => {
   const fresh = await service.createConsultationRequest(deps, input(), meta(), ctx())
-  const c = await queries.loadConsultationByToken(supabase, fresh.token)
+  const c = await queries.loadConsultationByToken(db, fresh.token)
   const start1 = new Date(c.windows[0].start)
   const start2 = new Date(c.windows[1].start)
   const results = await Promise.all([
@@ -279,14 +260,14 @@ await check('two owners confirming at once: exactly one wins, the other gets `co
   const oks = results.filter((r) => r.ok).length
   assert.equal(oks, 1, JSON.stringify(results))
   assert.ok(results.some((r) => !r.ok && r.code === 'conflict'), JSON.stringify(results))
-  const after = await queries.loadConsultationByToken(supabase, fresh.token)
+  const after = await queries.loadConsultationByToken(db, fresh.token)
   assert.equal(after.sequence, 1)
   assert.equal(byKind(await outboxFor(c.id), 'consultation-confirmed').length, 1)
 })
 
 await check('owner input rules: past time, empty details, terminal states', async () => {
   const fresh = await service.createConsultationRequest(deps, input(), meta(), ctx())
-  const c = await queries.loadConsultationByToken(supabase, fresh.token)
+  const c = await queries.loadConsultationByToken(db, fresh.token)
   assert.equal((await service.confirmConsultation(deps, { consultationId: c.id, actor: 'a', start: new Date(Date.now() - 1000), meetingDetails: 'x' })).code, 'in-the-past')
   assert.equal((await service.confirmConsultation(deps, { consultationId: c.id, actor: 'a', start: new Date(c.windows[0].start), meetingDetails: '   ' })).code, 'invalid')
   assert.equal((await service.confirmConsultation(deps, { consultationId: uuid(), actor: 'a', start: new Date(c.windows[0].start), meetingDetails: 'x' })).code, 'not-found')
@@ -294,11 +275,11 @@ await check('owner input rules: past time, empty details, terminal states', asyn
 })
 
 await check('client cancels a CONFIRMED call: cancelled, closed_at, CANCEL invitation with the next SEQUENCE, owner notice', async () => {
-  const c0 = await queries.loadConsultationByToken(supabase, tokenA)
+  const c0 = await queries.loadConsultationByToken(db, tokenA)
   assert.equal(c0.status, 'confirmed')
   const result = await service.cancelConsultationAsClient(deps, tokenA, 'Something came up')
   assert.deepEqual(result, { ok: true })
-  const c = await queries.loadConsultationByToken(supabase, tokenA)
+  const c = await queries.loadConsultationByToken(db, tokenA)
   assert.equal(c.status, 'cancelled')
   assert.equal(c.cancelledBy, 'client')
   assert.equal(c.cancelReason, 'Something came up')
@@ -328,18 +309,18 @@ await check('terminal: no further client or owner action is possible; a NEW requ
 
 await check('client cancels a call that was never confirmed: nothing to remove from a calendar, so no message to the client', async () => {
   const fresh = await service.createConsultationRequest(deps, input(), meta(), ctx())
-  const c = await queries.loadConsultationByToken(supabase, fresh.token)
+  const c = await queries.loadConsultationByToken(db, fresh.token)
   assert.deepEqual(await service.cancelConsultationAsClient(deps, fresh.token, ''), { ok: true })
   const rows = await outboxFor(c.id)
   assert.equal(byKind(rows, 'consultation-cancelled').length, 0)
   assert.equal(byKind(rows, 'consultation-client-update').length, 1)
-  const after = await queries.loadConsultationByToken(supabase, fresh.token)
+  const after = await queries.loadConsultationByToken(db, fresh.token)
   assert.equal(after.sequence, 0, 'no calendar entry existed, so the sequence is untouched')
 })
 
 await check('owner cancels: the client is always told; a confirmed time also gets the calendar cancellation', async () => {
   const fresh = await service.createConsultationRequest(deps, input(), meta(), ctx({ locale: 'en' }))
-  const c = await queries.loadConsultationByToken(supabase, fresh.token)
+  const c = await queries.loadConsultationByToken(db, fresh.token)
   assert.deepEqual(await service.cancelConsultationAsOwner(deps, { consultationId: c.id, actor: 'owner-1', reason: 'Out of office' }), { ok: true })
   const cancelled = byKind(await outboxFor(c.id), 'consultation-cancelled')
   assert.equal(cancelled.length, 1)
@@ -347,7 +328,7 @@ await check('owner cancels: the client is always told; a confirmed time also get
   assert.ok(cancelled[0].body_text.includes('Out of office'))
 
   const fresh2 = await service.createConsultationRequest(deps, input(), meta(), ctx())
-  const c2 = await queries.loadConsultationByToken(supabase, fresh2.token)
+  const c2 = await queries.loadConsultationByToken(db, fresh2.token)
   await service.confirmConsultation(deps, { consultationId: c2.id, actor: 'o', start: new Date(c2.windows[0].start), meetingDetails: 'x' })
   await service.cancelConsultationAsOwner(deps, { consultationId: c2.id, actor: 'o', reason: '' })
   const cancelled2 = byKind(await outboxFor(c2.id), 'consultation-cancelled')
@@ -356,30 +337,30 @@ await check('owner cancels: the client is always told; a confirmed time also get
 
 await check('completed: only after the confirmed time; then the link lingers 14 days and expires', async () => {
   const fresh = await service.createConsultationRequest(deps, input(), meta(), ctx())
-  const c = await queries.loadConsultationByToken(supabase, fresh.token)
+  const c = await queries.loadConsultationByToken(db, fresh.token)
   const start = new Date(c.windows[0].start)
   await service.confirmConsultation(deps, { consultationId: c.id, actor: 'o', start, meetingDetails: 'x' })
   assert.equal((await service.completeConsultation(deps, { consultationId: c.id, actor: 'o' })).code, 'not-finished')
 
-  const later = { supabase, now: () => new Date(start.getTime() + 31 * 60_000) }
+  const later = { db, now: () => new Date(start.getTime() + 31 * 60_000) }
   assert.deepEqual(await service.completeConsultation(later, { consultationId: c.id, actor: 'o' }), { ok: true })
-  const done = await queries.loadConsultationByToken(supabase, fresh.token)
+  const done = await queries.loadConsultationByToken(db, fresh.token)
   assert.equal(done.status, 'completed')
   assert.ok(done.closedAt)
   const closed = new Date(done.closedAt).getTime()
   assert.equal((await queries.resolveConsultationToken(fresh.token, new Date(closed + 13 * 86_400_000))).state, 'ok')
   assert.equal((await queries.resolveConsultationToken(fresh.token, new Date(closed + 15 * 86_400_000))).state, 'expired')
 
-  const expiredLater = { supabase, now: () => new Date(closed + 15 * 86_400_000) }
+  const expiredLater = { db, now: () => new Date(closed + 15 * 86_400_000) }
   assert.deepEqual(await service.cancelConsultationAsClient(expiredLater, fresh.token, ''), { ok: false, code: 'expired' })
 })
 
 await check('SLA: a consultation request and the client\'s own actions are not the owner responding', async () => {
   const fresh = await service.createConsultationRequest(deps, input(), meta(), ctx())
-  const c = await queries.loadConsultationByToken(supabase, fresh.token)
+  const c = await queries.loadConsultationByToken(db, fresh.token)
   await service.requestConsultationReschedule(deps, fresh.token, 'Asia/Kabul', [{ date: day(5), from: '09:00', to: '10:00' }])
   assert.deepEqual(await getFirstResponseTimes([c.inquiryId]), {}, 'nothing from the owner yet')
-  const c2 = await queries.loadConsultationByToken(supabase, fresh.token)
+  const c2 = await queries.loadConsultationByToken(db, fresh.token)
   await service.confirmConsultation(deps, { consultationId: c.id, actor: 'owner-1', start: new Date(c2.windows[0].start), meetingDetails: 'x' })
   const times = await getFirstResponseTimes([c.inquiryId])
   assert.ok(times[c.inquiryId], 'the owner\'s confirmation is the first response')
@@ -396,7 +377,7 @@ await check('admin reads: list with filter and paging, awaiting count, per-inqui
   const cancelled = await queries.listConsultations({ status: 'cancelled', page: 1 })
   assert.ok(cancelled.consultations.length >= 3 && cancelled.consultations.every((x) => x.status === 'cancelled'))
   const awaiting = await queries.countConsultationsAwaitingOwner()
-  const { count } = await supabase.from('consultations').select('id', { count: 'exact', head: true }).in('status', ['requested', 'rescheduled'])
+  const { count } = await db.from('consultations').select('id', { count: 'exact', head: true }).in('status', ['requested', 'rescheduled'])
   assert.equal(awaiting, count)
   const per = await queries.listConsultationsForInquiry(A.inquiryId)
   assert.equal(per.length, 1)
@@ -407,32 +388,31 @@ await check('admin reads: list with filter and paging, awaiting count, per-inqui
 
 await check('the database itself refuses what the code would never do (trigger, checks, unique index)', async () => {
   const fresh = await service.createConsultationRequest(deps, input(), meta(), ctx())
-  const c = await queries.loadConsultationByToken(supabase, fresh.token)
-  let r = await supabase.from('consultations').update({ status: 'completed', closed_at: new Date().toISOString() }).eq('id', c.id)
+  const c = await queries.loadConsultationByToken(db, fresh.token)
+  let r = await db.from('consultations').update({ status: 'completed', closed_at: new Date().toISOString() }).eq('id', c.id)
   assert.equal(r.error?.code, '23514') // requested → completed
-  r = await supabase.from('consultations').update({ status: 'confirmed' }).eq('id', c.id)
+  r = await db.from('consultations').update({ status: 'confirmed' }).eq('id', c.id)
   assert.equal(r.error?.code, '23514') // confirmed needs a time and details
-  r = await supabase.from('consultations').insert({ inquiry_id: c.inquiryId, requested_windows: [], timezone: 'UTC', token: 'dup'.repeat(11) })
+  r = await db.from('consultations').insert({ inquiry_id: c.inquiryId, requested_windows: [], timezone: 'UTC', token: 'dup'.repeat(11) })
   assert.equal(r.error?.code, '23505') // one live consultation per inquiry
-  r = await supabase.from('consultations').update({ requested_windows: [{}, {}, {}, {}] }).eq('id', c.id)
+  r = await db.from('consultations').update({ requested_windows: [{}, {}, {}, {}] }).eq('id', c.id)
   assert.equal(r.error?.code, '23514')
 })
 
 await check('deleting an inquiry removes its consultation and every stored e-mail copy (the privacy policy\'s deletion promise)', async () => {
   const fresh = await service.createConsultationRequest(deps, input(), meta(), ctx())
-  const c = await queries.loadConsultationByToken(supabase, fresh.token)
+  const c = await queries.loadConsultationByToken(db, fresh.token)
   await service.confirmConsultation(deps, { consultationId: c.id, actor: 'o', start: new Date(c.windows[0].start), meetingDetails: 'x' })
   assert.ok((await outboxFor(c.id)).length >= 3)
-  const del = await supabase.from('inquiries').delete().eq('id', c.inquiryId)
+  const del = await db.from('inquiries').delete().eq('id', c.inquiryId)
   assert.equal(del.error, null)
   assert.equal((await outboxFor(c.id)).length, 0)
-  assert.equal((await queries.loadConsultationByToken(supabase, fresh.token)), null)
+  assert.equal((await queries.loadConsultationByToken(db, fresh.token)), null)
 })
 
 await check('the outbox sweep still works with attachments in the queue', async () => {
-  const result = await processOutboxBatch(supabase, { limit: 50 })
+  const result = await processOutboxBatch(db, { limit: 50 })
   assert.equal(result.exhausted, 0)
 })
 
 console.log(`\n${passed} checks passed${process.exitCode ? ' — WITH FAILURES' : ''}`)
-proxy.close()

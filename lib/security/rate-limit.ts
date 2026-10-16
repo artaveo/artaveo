@@ -1,11 +1,11 @@
 import 'server-only'
 import crypto from 'node:crypto'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { log } from '@/lib/observability/logger'
 import { track } from '@/lib/observability/store'
 import { getClientIp, hashSecret } from '@/lib/request-ip'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import { bucketKey, RATE_LIMITS, type LimitRule, type RateLimitName } from '@/lib/security/rate-limit-policy'
 
 /**
@@ -36,15 +36,15 @@ export function hashForBucket(dimension: string, value: string): string {
 
 type ConsumeRow = { allowed: boolean; hit_count: number; retry_after_seconds: number }
 
-async function consume(supabase: SupabaseClient, key: string, rule: LimitRule): Promise<ConsumeRow | null> {
-  const { data, error } = await supabase.rpc('consume_rate_limit', {
+async function consume(db: DbClient, key: string, rule: LimitRule): Promise<ConsumeRow | null> {
+  const { data, error } = await db.rpc('consume_rate_limit', {
     p_key: key,
     p_limit: rule.limit,
     p_window_seconds: rule.windowSeconds,
   })
   if (error || !Array.isArray(data) || data.length === 0) {
     log.error('rate_limit.consume_failed', { err: error ?? new Error('no row returned'), decision: 'allowed' })
-    await track('rate_limit.unavailable', { level: 'warn', dedupeSeconds: 60, data: { reason: (error?.message ?? 'no row returned').slice(0, 200) }, supabase })
+    await track('rate_limit.unavailable', { level: 'warn', dedupeSeconds: 60, data: { reason: (error?.message ?? 'no row returned').slice(0, 200) }, db })
     return null
   }
   return data[0] as ConsumeRow
@@ -60,10 +60,10 @@ export type RateLimitInput = {
 export async function checkRateLimit(
   name: RateLimitName,
   input: RateLimitInput = {},
-  supabaseOverride?: SupabaseClient | null,
+  dbOverride?: DbClient | null,
 ): Promise<RateLimitResult> {
-  const supabase = supabaseOverride ?? getSupabaseServerClient()
-  if (!supabase) return { ok: true } // not configured: nothing to protect yet, and the action itself says so
+  const db = dbOverride ?? getDbClient()
+  if (!db) return { ok: true } // not configured: nothing to protect yet, and the action itself says so
 
   const policy = RATE_LIMITS[name] as { ip: LimitRule; subject?: LimitRule; global?: LimitRule }
   const ip = input.ip ?? (await getClientIp())
@@ -79,7 +79,7 @@ export async function checkRateLimit(
     checks.push({ dimension: 'global', key: bucketKey(name, 'global', 'all'), rule: policy.global })
   }
 
-  const rows = await Promise.all(checks.map((check) => consume(supabase, check.key, check.rule)))
+  const rows = await Promise.all(checks.map((check) => consume(db, check.key, check.rule)))
 
   let worst: RateLimitResult = { ok: true }
   rows.forEach((row, index) => {
@@ -93,9 +93,9 @@ export async function checkRateLimit(
 }
 
 /** Delete buckets whose window ended more than an hour ago. Called by the daily run; keeps the table the size of "who knocked recently". */
-export async function purgeExpiredRateLimits(supabase: SupabaseClient): Promise<{ deleted: number }> {
+export async function purgeExpiredRateLimits(db: DbClient): Promise<{ deleted: number }> {
   const cutoff = new Date(Date.now() - 60 * 60 * 1000).toISOString()
-  const { data, error } = await supabase.from('rate_limit_buckets').delete().lt('expires_at', cutoff).select('bucket_key')
+  const { data, error } = await db.from('rate_limit_buckets').delete().lt('expires_at', cutoff).select('bucket_key')
   if (error) throw new Error(`rate limit purge failed: ${error.message}`)
   return { deleted: data?.length ?? 0 }
 }

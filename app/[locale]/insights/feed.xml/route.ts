@@ -17,8 +17,8 @@ import { t, type Locale } from '@/types/content'
  * here instead of by the i18n middleware. With nothing published the feed
  * is a 404, the same "empty means hidden" rule as `/insights` itself.
  *
- * Deliberately dynamic (no `force-static`): it reads Supabase on request
- * and is cached at the CDN instead, so a Supabase outage can never fail a
+ * Deliberately dynamic (no `force-static`): it reads the database on request
+ * and is cached at the CDN instead, so a database outage can never fail a
  * build over an optional feed, and a publish shows up within the window
  * below without needing its own revalidation hook.
  */

@@ -20,15 +20,35 @@ Do them one at a time, and after each one run **Check it worked** below.
 2. Replace in Vercel. Redeploy. Send a test (`/admin/notifications` → "Send due messages now", or submit a brief).
 3. Delete the old key in Resend **after** the test succeeds.
 
-### Supabase keys (`SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`)
-The service-role key is the important one: it can read and write **everything**.
-1. Supabase dashboard → Project Settings → API (or the key-management page it points to). Rotate the service key / JWT secret there. Note what the page says about the effect on sessions: rotating the JWT secret signs every user out, the owner included.
-2. Copy the new keys into Vercel (`SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`). Redeploy.
-3. Sign in again at `/admin/login`.
-4. Your own `.env.local` needs the same new values.
+### The server's Data API signing key (`NEON_SERVICE_JWT_PRIVATE_KEY`, `NEON_SERVICE_JWT_KID`)
+The important one: whoever holds it can read and write **everything** in the database. The Data API trusts the public half, published as `jwks.json` in the public `service-jwks` bucket of the `main` branch. Rotate without downtime by publishing the new key **next to** the old one first:
+1. Generate a new pair (Node, no dependencies) — it prints the new `kid`, the private key for Vercel (base64 PEM, one line) and the public JWK:
+   ```bash
+   node -e "const c=require('crypto');const {privateKey,publicKey}=c.generateKeyPairSync('ec',{namedCurve:'P-256'});const kid='artaveo-server-'+new Date().toISOString().slice(0,10);console.log(kid);console.log(Buffer.from(privateKey.export({format:'pem',type:'pkcs8'})).toString('base64'));console.log(JSON.stringify({...publicKey.export({format:'jwk'}),kid,alg:'ES256',use:'sig'}))"
+   ```
+2. Download the current `jwks.json` (`https://<branch storage endpoint>/service-jwks/jwks.json`), add the new JWK to its `keys` array, upload it back (Neon Console → Object storage → `service-jwks`, or `neon buckets`).
+3. Set `NEON_SERVICE_JWT_PRIVATE_KEY` and `NEON_SERVICE_JWT_KID` in Vercel to the new values. Redeploy. Your own `.env.local` too.
+4. After the deployment is live (and at least 5 minutes — a token's lifetime — have passed), remove the old JWK from `jwks.json` and upload it again. The old private key is now worthless.
+
+### Object Storage credential (`NEON_STORAGE_ACCESS_KEY_ID`, `NEON_STORAGE_SECRET_ACCESS_KEY`)
+Reads and writes every stored file, including visitors' private attachments.
+1. Neon Console → Settings → Credentials → the `artaveo-app-storage` credential → rotate (or `neon credentials rotate <token_id>`). The access key id stays; only the secret changes.
+2. Replace `NEON_STORAGE_SECRET_ACCESS_KEY` in Vercel. Redeploy.
+
+### `NEON_AUTH_COOKIE_SECRET`
+1. Generate: `openssl rand -base64 32` (at least 32 characters). Replace in Vercel. Redeploy.
+2. Effect: the cached session cookie of every signed-in admin stops validating; they are asked to sign in again.
+
+### `MFA_ENCRYPTION_KEY`
+Rotate only if it leaked: every enrolled authenticator becomes unreadable with a new key.
+1. Generate: `openssl rand -base64 32`. Replace in Vercel. Redeploy.
+2. Each admin who had two-factor clears it (the SQL in `docs/runbooks/admin-onboarding.md` § 4) and enrols again at `/admin/security`.
+
+### The database password (`DATABASE_URL`, operations only)
+The app never uses it. Neon Console → Roles → `artaveo_owner` → Reset password; update wherever you keep it for `pg_dump`.
 
 ### The owner's password and authenticator
-Supabase → Authentication → Users → the owner → send a password reset, or change it from the admin once a password-change screen exists (known debt, Phase 13). Enrol or re-enrol the authenticator at `/admin/security`.
+Neon Console → Auth → Users → the owner → reset the password (there is no password-change screen in the admin yet — known debt, Phase 13). Enrol or re-enrol the authenticator at `/admin/security`.
 
 ## Check it worked (after any change)
 1. **Deployment log**: open the new deployment's runtime log and look for log lines with `"event":"config.finding"`, and open `/en/admin/observability` → *Health* / *Alerts* (`config.invalid`). Each names a variable that is missing or weak. No such line = nothing wrong. (It never prints a value.)
@@ -44,14 +64,14 @@ Supabase → Authentication → Users → the owner → send a password reset, o
 Speed matters more than certainty. In this order:
 
 1. **Which one?** Match it to the table in `docs/security.md` § 6 — the "if it leaks" column says how bad it is.
-2. **Rotate it now** using the section above. For `SUPABASE_SERVICE_ROLE_KEY` do it before anything else; it is the only one whose leak means the data is exposed.
+2. **Rotate it now** using the section above. For `NEON_SERVICE_JWT_PRIVATE_KEY` and the storage credential do it before anything else; they are the ones whose leak means the data is exposed. For a leak, skip the "next to the old one" step: replace the JWKS with only the new key at once.
 3. **Find how it leaked** so it does not happen again. Search the repository history: the pipeline's secret scan (gitleaks) runs on every pull request over the full history; run it locally with the same `.gitleaks.toml` if in doubt. If it was pasted into a chat, an issue, a screenshot or a shared document, delete it there too — rotating makes the old value useless, deleting stops the next reader from wondering.
 4. **Look for use of the old value.**
-   - Supabase → Logs (API / Auth) for the time window since the leak: requests you do not recognise, sign-ins from unfamiliar places.
+   - Neon Console → Monitoring / logs (Data API, Object storage, Auth) for the time window since the leak: requests you do not recognise, sign-ins from unfamiliar places.
    - `/admin` → the audit log entries (`audit_log`): `admin.sign_in_succeeded` you did not do, `pipeline.csv_exported`, `pipeline.file_opened`.
    - `/admin/notifications` for messages you did not send.
-5. **If the service-role key leaked and you cannot rule out use:** treat the leads as exposed. The people in them gave their details to you under the privacy policy on the site (`/privacy`); telling them is your decision, and the wording is yours — write down what you found and when, first.
+5. **If the signing key or the storage credential leaked and you cannot rule out use:** treat the leads as exposed. The people in them gave their details to you under the privacy policy on the site (`/privacy`); telling them is your decision, and the wording is yours — write down what you found and when, first.
 6. Write what happened, what you rotated and when, in `docs/phases/` (or an incident note) — future you will want it.
 
 ## Owner-only settings that belong to this model
-Checked once, and after any Supabase or Vercel change (details in `docs/security.md` § 8): Supabase Auth **sign-ups off**, **e-mail confirmation on**, **minimum password length ≥ 12**; GitHub **secret scanning + push protection** on (`docs/ci.md`); Vercel **Preview** environment with its own Supabase project or keys.
+Checked once, and after any Neon or Vercel change (details in `docs/security.md` § 8): Neon Auth **sign-ups off**, **no OAuth providers**, **trusted domains** only the site's own; GitHub **secret scanning + push protection** on (`docs/ci.md`); Vercel **Preview** environment pointed at its own Neon branch, never `main`.

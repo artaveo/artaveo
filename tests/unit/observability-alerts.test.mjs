@@ -98,9 +98,9 @@ describe('deriveAlerts', () => {
     assert.deepEqual(ids(withFacts({ events: { lastRestoreVerifiedAt: null } })), [])
   })
   it('configuration errors carry variable NAMES only', () => {
-    const [alert] = deriveAlerts(withFacts({ configErrors: ['CRON_SECRET', 'SUPABASE_ANON_KEY'] }))
+    const [alert] = deriveAlerts(withFacts({ configErrors: ['CRON_SECRET', 'NEON_AUTH_BASE_URL'] }))
     assert.equal(alert.id, 'config.invalid')
-    assert.equal(alert.detail, 'CRON_SECRET, SUPABASE_ANON_KEY')
+    assert.equal(alert.detail, 'CRON_SECRET, NEON_AUTH_BASE_URL')
   })
   it('stuck messages and new error groups are warnings', () => {
     assert.equal(deriveAlerts(withFacts({ notifications: { stuckMessages: 1 } }))[0].severity, 'warning')

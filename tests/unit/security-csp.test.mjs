@@ -55,10 +55,10 @@ describe('Content Security Policy — both variants', () => {
     assert.ok(Buffer.from(newNonce(), 'base64').length >= 16)
   })
   it('images may come from the Storage host and nowhere else external; fonts and connections stay same-origin', () => {
-    const csp = buildCsp({ mode: 'public', supabaseUrl: 'https://abc.supabase.co/rest/v1?x=1' })
-    assert.deepEqual(directive(csp, 'img-src'), ["'self'", 'data:', 'blob:', 'https://abc.supabase.co'])
+    const csp = buildCsp({ mode: 'public', storageUrl: 'https://br-x.storage.c-2.ap-southeast-1.aws.neon.tech/media/a.png?x=1' })
+    assert.deepEqual(directive(csp, 'img-src'), ["'self'", 'data:', 'blob:', 'https://br-x.storage.c-2.ap-southeast-1.aws.neon.tech'])
     assert.deepEqual(directive(csp, 'font-src'), ["'self'", 'data:'])
-    assert.deepEqual(directive(buildCsp({ mode: 'public', supabaseUrl: 'javascript:alert(1)' }), 'img-src'), ["'self'", 'data:', 'blob:'])
+    assert.deepEqual(directive(buildCsp({ mode: 'public', storageUrl: 'javascript:alert(1)' }), 'img-src'), ["'self'", 'data:', 'blob:'])
     assert.deepEqual(directive(buildCsp({ mode: 'public' }), 'img-src'), ["'self'", 'data:', 'blob:'])
   })
   it('upgrade-insecure-requests only when asked for (plain-http test servers would break)', () => {

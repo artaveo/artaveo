@@ -1105,8 +1105,8 @@ const engagementModelsData: EngagementModel[] = [
 ]
 
 /**
- * Phase 12.2 (roadmap § 12): these three now read from Supabase — see
- * `lib/supabase/content-queries.ts` — instead of `servicesData`/
+ * Phase 12.2 (roadmap § 12): these three now read from the database — see
+ * `lib/db/content-queries.ts` — instead of `servicesData`/
  * `engagementModelsData` above. The import into `content-queries.ts` is
  * dynamic (`await import(...)`), not a static top-level import, for a
  * concrete reason: `scripts/import-content-to-db.ts` loads this whole
@@ -1120,24 +1120,24 @@ const engagementModelsData: EngagementModel[] = [
  */
 
 export async function getAllServices(): Promise<Service[]> {
-  const { queryAllServices } = await import('@/lib/supabase/content-queries')
+  const { queryAllServices } = await import('@/lib/db/content-queries')
   return queryAllServices()
 }
 
 export async function getServiceBySlug(slug: string): Promise<Service | undefined> {
-  const { queryServiceBySlug } = await import('@/lib/supabase/content-queries')
+  const { queryServiceBySlug } = await import('@/lib/db/content-queries')
   return queryServiceBySlug(slug)
 }
 
 export async function getEngagementModels(): Promise<EngagementModel[]> {
-  const { queryEngagementModels } = await import('@/lib/supabase/content-queries')
+  const { queryEngagementModels } = await import('@/lib/db/content-queries')
   return queryEngagementModels()
 }
 
 /**
  * The raw, file-based arrays — for `scripts/import-content-to-db.ts` only.
  * Every page/component reads `getAllServices()`/`getServiceBySlug()`/
- * `getEngagementModels()` above (now Supabase-backed), never these.
+ * `getEngagementModels()` above (now database-backed), never these.
  */
 export function getAllServicesRaw(): Service[] {
   return servicesData

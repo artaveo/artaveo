@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import {
   NOTIFICATION_KINDS,
   NOTIFICATION_STATUSES,
@@ -76,17 +76,17 @@ function mapAttempt(row: NotificationAttemptRow): NotificationAttemptView {
   }
 }
 
-/** `null` = Supabase is not configured (the page says so); `[]` with a total of 0 = a real empty result or a failed query (logged). */
+/** `null` = the database is not configured (the page says so); `[]` with a total of 0 = a real empty result or a failed query (logged). */
 export async function listNotifications(
   filters: NotificationFilters,
 ): Promise<{ notifications: NotificationView[]; total: number } | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
+  const db = getDbClient()
+  if (!db) return null
 
   const page = Math.max(1, filters.page ?? 1)
   const pageSize = filters.pageSize ?? NOTIFICATIONS_PAGE_SIZE
 
-  let query = supabase.from('notification_outbox').select('*', { count: 'exact' }).order('created_at', { ascending: false })
+  let query = db.from('notification_outbox').select('*', { count: 'exact' }).order('created_at', { ascending: false })
   if (filters.status) query = query.eq('status', filters.status)
   if (filters.kind) query = query.eq('kind', filters.kind)
 
@@ -102,12 +102,12 @@ export async function listNotifications(
 export async function getNotification(
   id: string,
 ): Promise<{ notification: NotificationView; attempts: NotificationAttemptView[] } | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase || !isNotificationId(id)) return null
+  const db = getDbClient()
+  if (!db || !isNotificationId(id)) return null
 
   const [rowResult, attemptsResult] = await Promise.all([
-    supabase.from('notification_outbox').select('*').eq('id', id).maybeSingle(),
-    supabase.from('notification_attempts').select('*').eq('outbox_id', id).order('attempt_no', { ascending: true }),
+    db.from('notification_outbox').select('*').eq('id', id).maybeSingle(),
+    db.from('notification_attempts').select('*').eq('outbox_id', id).order('attempt_no', { ascending: true }),
   ])
   if (rowResult.error || !rowResult.data) return null
 
@@ -119,9 +119,9 @@ export async function getNotification(
 
 /** Cheap enough for the dashboard: one head-only count. `null` when it cannot be read. */
 export async function countExhaustedNotifications(): Promise<number | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
-  const { count, error } = await supabase
+  const db = getDbClient()
+  if (!db) return null
+  const { count, error } = await db
     .from('notification_outbox')
     .select('id', { count: 'exact', head: true })
     .eq('status', 'exhausted')
@@ -130,8 +130,8 @@ export async function countExhaustedNotifications(): Promise<number | null> {
 }
 
 export async function getNotificationSummary(now: Date = new Date()): Promise<NotificationSummary | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
+  const db = getDbClient()
+  if (!db) return null
 
   const nowIso = now.toISOString()
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
@@ -139,15 +139,15 @@ export async function getNotificationSummary(now: Date = new Date()): Promise<No
   const [statusCounts, overdue, oldest, recentInquiries] = await Promise.all([
     Promise.all(
       NOTIFICATION_STATUSES.map((status) =>
-        supabase.from('notification_outbox').select('id', { count: 'exact', head: true }).eq('status', status),
+        db.from('notification_outbox').select('id', { count: 'exact', head: true }).eq('status', status),
       ),
     ),
-    supabase
+    db
       .from('notification_outbox')
       .select('id', { count: 'exact', head: true })
       .in('status', ['pending', 'failed'])
       .lte('next_attempt_at', nowIso),
-    supabase
+    db
       .from('notification_outbox')
       .select('next_attempt_at')
       .in('status', ['pending', 'failed'])
@@ -155,7 +155,7 @@ export async function getNotificationSummary(now: Date = new Date()): Promise<No
       .order('next_attempt_at', { ascending: true })
       .limit(1)
       .maybeSingle(),
-    supabase.from('inquiries').select('id').gte('created_at', weekAgo).order('created_at', { ascending: false }).limit(200),
+    db.from('inquiries').select('id').gte('created_at', weekAgo).order('created_at', { ascending: false }).limit(200),
   ])
 
   const counts = Object.fromEntries(
@@ -167,7 +167,7 @@ export async function getNotificationSummary(now: Date = new Date()): Promise<No
   let withoutNotifications = 0
   const inquiryIds = ((recentInquiries.data ?? []) as { id: string }[]).map((row) => row.id)
   if (inquiryIds.length > 0) {
-    const { data: covered } = await supabase.from('notification_outbox').select('inquiry_id').in('inquiry_id', inquiryIds)
+    const { data: covered } = await db.from('notification_outbox').select('inquiry_id').in('inquiry_id', inquiryIds)
     const coveredIds = new Set(((covered ?? []) as { inquiry_id: string }[]).map((row) => row.inquiry_id))
     withoutNotifications = inquiryIds.filter((id) => !coveredIds.has(id)).length
   }

@@ -16,7 +16,7 @@ import { siteConfig } from '@/lib/site'
  *
  * `services`/`engagementModels` are passed in rather than fetched here
  * (Phase 12.2, roadmap § 12): this function is called both from a Client
- * Component during render (`review.tsx`, which can't await Supabase) and
+ * Component during render (`review.tsx`, which can't await the database) and
  * from server-side email-template code (`lib/notifications/templates.ts`,
  * already async) — a plain, synchronous function taking the data as
  * parameters works for both, where importing the now-async

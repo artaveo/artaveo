@@ -5,7 +5,7 @@ import { log } from '@/lib/observability/logger'
 import { newRequestId } from '@/lib/observability/request-id'
 import { track } from '@/lib/observability/store'
 import { checkCronAuth } from '@/lib/security/cron-auth'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 
 /**
  * Phase 25 — where the backup workflow (`.github/workflows/backup.yml`) reports what it
@@ -14,7 +14,7 @@ import { getSupabaseServerClient } from '@/lib/supabase/server'
  * secret the daily run and the uptime check already use — no new server secret).
  *
  * WHY A REPORT ROUTE AND NOT A DIRECT DATABASE WRITE FROM THE WORKFLOW. The workflow needs
- * the Supabase service-role key anyway (to export Storage objects), but writing `ops_events`
+ * the server's database and storage credentials anyway (to export the stored files), but writing `ops_events`
  * straight from Actions would mean the *shape* of that table's row is decided in two places
  * (this app and a YAML file) and would skip every check this route enforces (rate limit,
  * length caps, that the event name is one of the four this phase defines). One authenticated
@@ -71,8 +71,8 @@ async function handle(request: Request): Promise<NextResponse> {
   const event = str(record.event, 30)
   if (!event || !EVENTS.has(event)) return NextResponse.json({ ok: false, error: 'unknown-event' }, { status: 400 })
 
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return NextResponse.json({ ok: false, error: 'not-configured' }, { status: 503 })
+  const db = getDbClient()
+  if (!db) return NextResponse.json({ ok: false, error: 'not-configured' }, { status: 503 })
 
   const step = str(record.step, 30)
   const data: Record<string, unknown> = {
@@ -89,7 +89,7 @@ async function handle(request: Request): Promise<NextResponse> {
   const written = await track(`backup.${event}`, {
     level: event === 'failed' || event === 'restore_failed' ? 'error' : 'info',
     data,
-    supabase,
+    db,
   })
 
   return NextResponse.json({ ok: true, recorded: written })

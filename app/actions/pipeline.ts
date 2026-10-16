@@ -3,7 +3,7 @@
 import { canAccessLeads, getAdminSession, mfaSatisfied } from '@/lib/admin/auth'
 import { writeAuditLog } from '@/lib/admin/audit'
 import { toCsv } from '@/lib/csv'
-import { getInquiry, listInquiriesForExport, requireSupabase } from '@/lib/admin/pipeline'
+import { getInquiry, listInquiriesForExport, requireDb } from '@/lib/admin/pipeline'
 import { ALLOWED_STAGE_TRANSITIONS, type InquiryPriority, type InquiryStage, type PipelineFilters } from '@/types/pipeline'
 
 /**
@@ -29,8 +29,8 @@ export async function transitionInquiryStage(inquiryId: string, nextStage: Inqui
   const auth = await requireOwnerSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   const current = await getInquiry(inquiryId)
   if (!current) return { ok: false, code: 'error' }
@@ -42,7 +42,7 @@ export async function transitionInquiryStage(inquiryId: string, nextStage: Inqui
     return { ok: false, code: 'invalid-transition' }
   }
 
-  const { error } = await supabase.from('inquiries').update({ stage: nextStage }).eq('id', inquiryId)
+  const { error } = await db.from('inquiries').update({ stage: nextStage }).eq('id', inquiryId)
   if (error) {
     // The trigger itself rejected it (e.g. a race with another admin) —
     // still an honest invalid-transition, not a generic error.
@@ -50,7 +50,7 @@ export async function transitionInquiryStage(inquiryId: string, nextStage: Inqui
     return { ok: false, code: 'error' }
   }
 
-  await supabase.from('inquiry_events').insert({
+  await db.from('inquiry_events').insert({
     inquiry_id: inquiryId,
     type: 'stage-changed',
     actor: auth.userId,
@@ -73,16 +73,16 @@ export async function updateInquiryPriority(inquiryId: string, priority: Inquiry
   const auth = await requireOwnerSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   const current = await getInquiry(inquiryId)
   if (!current) return { ok: false, code: 'error' }
 
-  const { error } = await supabase.from('inquiries').update({ priority }).eq('id', inquiryId)
+  const { error } = await db.from('inquiries').update({ priority }).eq('id', inquiryId)
   if (error) return { ok: false, code: 'error' }
 
-  await supabase.from('inquiry_events').insert({
+  await db.from('inquiry_events').insert({
     inquiry_id: inquiryId,
     type: 'priority-changed',
     actor: auth.userId,
@@ -105,13 +105,13 @@ export async function updateInquiryFollowUp(inquiryId: string, followUpAt: strin
   const auth = await requireOwnerSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('inquiries').update({ follow_up_at: followUpAt }).eq('id', inquiryId)
+  const { error } = await db.from('inquiries').update({ follow_up_at: followUpAt }).eq('id', inquiryId)
   if (error) return { ok: false, code: 'error' }
 
-  await supabase.from('inquiry_events').insert({
+  await db.from('inquiry_events').insert({
     inquiry_id: inquiryId,
     type: 'follow-up-set',
     actor: auth.userId,
@@ -132,8 +132,8 @@ export async function updateInquiryTags(inquiryId: string, tags: string[]): Prom
   const auth = await requireOwnerSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   const normalized = Array.from(
     new Set(
@@ -143,10 +143,10 @@ export async function updateInquiryTags(inquiryId: string, tags: string[]): Prom
     ),
   ).slice(0, 20)
 
-  const { error } = await supabase.from('inquiries').update({ tags: normalized }).eq('id', inquiryId)
+  const { error } = await db.from('inquiries').update({ tags: normalized }).eq('id', inquiryId)
   if (error) return { ok: false, code: 'error' }
 
-  await supabase.from('inquiry_events').insert({
+  await db.from('inquiry_events').insert({
     inquiry_id: inquiryId,
     type: 'tags-changed',
     actor: auth.userId,
@@ -170,10 +170,10 @@ export async function addInquiryNote(inquiryId: string, note: string): Promise<P
   const trimmed = note.trim()
   if (!trimmed) return { ok: false, code: 'error' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('inquiry_events').insert({
+  const { error } = await db.from('inquiry_events').insert({
     inquiry_id: inquiryId,
     type: 'note-added',
     actor: auth.userId,

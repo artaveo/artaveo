@@ -1,5 +1,5 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import type { Locale } from '@/types/content'
 import type { InquiryDraft } from '@/types/inquiry'
@@ -84,7 +84,7 @@ export function usableReplyTo(value: string | null | undefined): string | null {
  * there is nothing new to send.
  */
 export async function enqueueNotifications(
-  supabase: SupabaseClient,
+  db: DbClient,
   specs: EnqueueSpec[],
 ): Promise<{ id: string; kind: NotificationKind }[]> {
   if (specs.length === 0) return []
@@ -93,7 +93,7 @@ export async function enqueueNotifications(
   // odd e-mail can be taken back to that request's log lines (and the reverse).
   const requestId = await getRequestId()
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('notification_outbox')
     .upsert(
       specs.map((spec) => ({
@@ -122,7 +122,7 @@ export async function enqueueNotifications(
       source: 'notification',
       level: 'error',
       fields: { kinds: specs.map((spec) => spec.kind), consequence: 'the event itself was saved' },
-      supabase,
+      db,
     })
     return []
   }
@@ -135,11 +135,11 @@ function adminNotificationUrl(id: string): string {
 
 /** § 9.3 — the owner alert and the client's confirmation for one inquiry. */
 export async function enqueueInquiryNotifications(
-  supabase: SupabaseClient,
+  db: DbClient,
   inquiryId: string,
   draft: InquiryDraft,
 ): Promise<{ id: string; kind: NotificationKind }[]> {
-  // Phase 12.2 (roadmap § 12): services/engagement models are Supabase-backed
+  // Phase 12.2 (roadmap § 12): services/engagement models are database-backed
   // — fetched here rather than threaded as parameters, since this function is
   // already server-only and async.
   const [services, engagementModels] = await Promise.all([getAllServices(), getEngagementModels()])
@@ -153,7 +153,7 @@ export async function enqueueInquiryNotifications(
   )
   const client = buildClientConfirmationEmail(draft, draft.preferredLocale, services, engagementModels)
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'owner-alert',
       recipientEmail: siteConfig.email,
@@ -185,7 +185,7 @@ export async function enqueueInquiryNotifications(
 
 /** § 16 — a recommender submitted (or re-submitted) a statement. Owner-only; nothing is public until moderation. */
 export async function enqueueEvidenceSubmitted(
-  supabase: SupabaseClient,
+  db: DbClient,
   input: {
     recommendationId: string
     personName: string
@@ -206,7 +206,7 @@ export async function enqueueEvidenceSubmitted(
     reviewUrl: absoluteUrl('/en/admin/content/recommendations'),
   })
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'evidence-submitted',
       recipientEmail: siteConfig.email,
@@ -235,7 +235,7 @@ const PUBLIC_PATH: Record<PublishedEntity, string> = {
  * same publish can never queue two.
  */
 export async function enqueueContentPublished(
-  supabase: SupabaseClient,
+  db: DbClient,
   input: {
     entity: PublishedEntity
     id: string
@@ -252,7 +252,7 @@ export async function enqueueContentPublished(
   })
   const moment = input.how.via === 'scheduled' ? input.how.scheduledFor : input.how.at
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'content-published',
       recipientEmail: siteConfig.email,
@@ -272,7 +272,7 @@ export async function enqueueContentPublished(
  * `lib/recommendation-privacy.ts` redacts it once the request is finished.
  */
 export async function enqueueRecommendationRequest(
-  supabase: SupabaseClient,
+  db: DbClient,
   input: { requestId: string; token: string; recipientEmail: string; locale: Locale; expiresAt: string | null },
 ): Promise<{ id: string; kind: NotificationKind }[]> {
   const email = buildRecommendationRequestEmail({
@@ -281,7 +281,7 @@ export async function enqueueRecommendationRequest(
     expiresAt: input.expiresAt,
   })
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'recommendation-request',
       recipientEmail: input.recipientEmail,
@@ -299,7 +299,7 @@ export async function enqueueRecommendationRequest(
 
 /** D-14 — the owner asked for a change while moderating; `moderatedAt` makes each ask its own message. */
 export async function enqueueRecommendationChanges(
-  supabase: SupabaseClient,
+  db: DbClient,
   input: {
     requestId: string
     token: string
@@ -315,7 +315,7 @@ export async function enqueueRecommendationChanges(
     note: input.note,
   })
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'recommendation-changes',
       recipientEmail: input.recipientEmail,
@@ -337,7 +337,7 @@ export async function enqueueRecommendationChanges(
  * never raise two.
  */
 export async function enqueueSystemAlert(
-  supabase: SupabaseClient,
+  db: DbClient,
   input: {
     failedOutboxId: string
     failedKind: NotificationKind
@@ -354,7 +354,7 @@ export async function enqueueSystemAlert(
     adminUrl: adminNotificationUrl(input.failedOutboxId),
   })
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'system-alert',
       recipientEmail: siteConfig.email,
@@ -374,7 +374,7 @@ export async function enqueueSystemAlert(
  * runs; if it is still firing tomorrow, tomorrow's e-mail says so again.
  */
 export async function enqueueOpsAlert(
-  supabase: SupabaseClient,
+  db: DbClient,
   input: { alert: Alert; day: string; text: { title: string; what: string; action: string } },
 ): Promise<{ id: string; kind: NotificationKind }[]> {
   const email = buildOpsAlertEmail({
@@ -386,7 +386,7 @@ export async function enqueueOpsAlert(
     adminUrl: absoluteUrl('/en/admin/observability'),
   })
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'system-alert',
       recipientEmail: siteConfig.email,
@@ -430,7 +430,7 @@ const ORGANIZER = { email: siteConfig.email, name: 'Zakir Naseri' }
  * action can call it again and queue nothing new.
  */
 export async function enqueueConsultationRequested(
-  supabase: SupabaseClient,
+  db: DbClient,
   ctx: ConsultationContext & { phone: string; goal: string; windows: ConsultationWindow[] },
 ): Promise<{ id: string; kind: NotificationKind }[]> {
   const clientEmail = ctx.clientEmail.trim().toLowerCase()
@@ -451,7 +451,7 @@ export async function enqueueConsultationRequested(
     manageUrl: consultationManageUrl(ctx),
   })
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'consultation-requested',
       recipientEmail: siteConfig.email,
@@ -486,7 +486,7 @@ export async function enqueueConsultationRequested(
  * part of the dedupe key so each move is its own message.
  */
 export async function enqueueConsultationConfirmed(
-  supabase: SupabaseClient,
+  db: DbClient,
   ctx: ConsultationContext,
   input: {
     range: ConsultationWindow
@@ -521,7 +521,7 @@ export async function enqueueConsultationConfirmed(
     now: input.now ?? new Date(),
   })
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'consultation-confirmed',
       recipientEmail: ctx.clientEmail,
@@ -546,7 +546,7 @@ export async function enqueueConsultationConfirmed(
  * nothing is queued in that one case; the owner's cancellation always is.
  */
 export async function enqueueConsultationCancelled(
-  supabase: SupabaseClient,
+  db: DbClient,
   ctx: ConsultationContext,
   input: {
     by: 'owner' | 'client'
@@ -585,7 +585,7 @@ export async function enqueueConsultationCancelled(
       ]
     : undefined
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'consultation-cancelled',
       recipientEmail: ctx.clientEmail,
@@ -604,7 +604,7 @@ export async function enqueueConsultationCancelled(
 
 /** The client cancelled, or replaced their times, using their private link. Owner-only. */
 export async function enqueueConsultationClientUpdate(
-  supabase: SupabaseClient,
+  db: DbClient,
   ctx: ConsultationContext,
   input:
     | { change: 'cancelled'; reason: string | null; confirmedRange: ConsultationWindow | null }
@@ -635,7 +635,7 @@ export async function enqueueConsultationClientUpdate(
           adminUrl: adminConsultationUrl(ctx.consultationId),
         })
 
-  return enqueueNotifications(supabase, [
+  return enqueueNotifications(db, [
     {
       kind: 'consultation-client-update',
       recipientEmail: siteConfig.email,

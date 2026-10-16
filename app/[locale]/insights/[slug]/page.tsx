@@ -14,7 +14,7 @@ import { t, type Locale } from '@/types/content'
 import { log } from '@/lib/observability/logger'
 
 /**
- * Pre-renders what is published at build time. A Supabase hiccup during a
+ * Pre-renders what is published at build time. A database hiccup during a
  * build must not fail the deploy over an *optional* section, so this alone
  * degrades to "generate on first request" (`dynamicParams` stays on) —
  * publish/unpublish revalidate the affected routes (`revalidateArticleRoutes`).

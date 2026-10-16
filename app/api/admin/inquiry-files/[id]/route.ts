@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 import { writeAuditLog } from '@/lib/admin/audit'
 import { canAccessLeads, getAdminSession, mfaSatisfied } from '@/lib/admin/auth'
 import { INQUIRY_FILES_BUCKET } from '@/lib/media-upload'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 
 /**
  * A lead's attachment, for the owner (Phase 23).
@@ -41,11 +41,11 @@ async function handle({ params }: { params: Promise<{ id: string }> }) {
   const session = await getAdminSession()
   if (!session || !mfaSatisfied(session) || !canAccessLeads(session)) return NOT_FOUND()
 
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return NOT_FOUND()
+  const db = getDbClient()
+  if (!db) return NOT_FOUND()
 
   // Only a file that belongs to a submitted brief: an unlinked upload is nobody's lead data yet.
-  const { data: file } = await supabase
+  const { data: file } = await db
     .from('inquiry_files')
     .select('id, inquiry_id, storage_path, original_name')
     .eq('id', id)
@@ -53,7 +53,7 @@ async function handle({ params }: { params: Promise<{ id: string }> }) {
     .maybeSingle()
   if (!file) return NOT_FOUND()
 
-  const { data: signed, error } = await supabase.storage
+  const { data: signed, error } = await db.storage
     .from(INQUIRY_FILES_BUCKET)
     .createSignedUrl(file.storage_path as string, SIGNED_URL_SECONDS, { download: file.original_name as string })
   if (error || !signed?.signedUrl) return NOT_FOUND()

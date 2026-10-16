@@ -4,7 +4,7 @@ import { canAccessLeads, getAdminSession, mfaSatisfied } from '@/lib/admin/auth'
 import { isConsultationId, loadConsultationById } from '@/lib/consultation/queries'
 import { cancelConsultationAsOwner, completeConsultation, confirmConsultation } from '@/lib/consultation/service'
 import { canonicalTimeZone, zonedWallTimeToUtc } from '@/lib/consultation/time'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import type { AdminActionResult } from '@/types/consultation'
 
 /**
@@ -38,13 +38,13 @@ export async function confirmConsultationAction(
   if (!auth) return { ok: false, code: 'forbidden' }
   if (typeof consultationId !== 'string' || !isConsultationId(consultationId)) return { ok: false, code: 'not-found' }
 
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = getDbClient()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   let start: Date | null = null
   if (choice?.kind === 'slot' && typeof choice.start === 'string') {
     // A slot must be one the client actually offered — a tampered value is not a choice, it is a different request.
-    const consultation = await loadConsultationById(supabase, consultationId)
+    const consultation = await loadConsultationById(db, consultationId)
     if (!consultation) return { ok: false, code: 'not-found' }
     const candidate = new Date(choice.start)
     const offered =
@@ -65,7 +65,7 @@ export async function confirmConsultationAction(
   if (!start) return { ok: false, code: 'invalid' }
 
   return confirmConsultation(
-    { supabase },
+    { db },
     { consultationId, actor: auth.userId, start, meetingDetails: String(meetingDetails ?? '') },
   )
 }
@@ -74,16 +74,16 @@ export async function cancelConsultationAction(consultationId: string, reason: s
   const auth = await requireOwner()
   if (!auth) return { ok: false, code: 'forbidden' }
   if (typeof consultationId !== 'string' || !isConsultationId(consultationId)) return { ok: false, code: 'not-found' }
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { ok: false, code: 'not-configured' }
-  return cancelConsultationAsOwner({ supabase }, { consultationId, actor: auth.userId, reason: String(reason ?? '') })
+  const db = getDbClient()
+  if (!db) return { ok: false, code: 'not-configured' }
+  return cancelConsultationAsOwner({ db }, { consultationId, actor: auth.userId, reason: String(reason ?? '') })
 }
 
 export async function completeConsultationAction(consultationId: string): Promise<AdminActionResult> {
   const auth = await requireOwner()
   if (!auth) return { ok: false, code: 'forbidden' }
   if (typeof consultationId !== 'string' || !isConsultationId(consultationId)) return { ok: false, code: 'not-found' }
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { ok: false, code: 'not-configured' }
-  return completeConsultation({ supabase }, { consultationId, actor: auth.userId })
+  const db = getDbClient()
+  if (!db) return { ok: false, code: 'not-configured' }
+  return completeConsultation({ db }, { consultationId, actor: auth.userId })
 }

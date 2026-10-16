@@ -3,7 +3,7 @@
 import { canAccessNotifications, getAdminSession, mfaSatisfied } from '@/lib/admin/auth'
 import { writeAuditLog } from '@/lib/admin/audit'
 import { isNotificationId } from '@/lib/admin/notifications'
-import { requireSupabase } from '@/lib/admin/pipeline'
+import { requireDb } from '@/lib/admin/pipeline'
 import { processOutboxBatch, requeueNotification } from '@/lib/notifications/outbox'
 import type { NotificationStatus } from '@/types/notifications'
 
@@ -37,14 +37,14 @@ export async function retryNotification(id: string): Promise<RetryNotificationRe
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!isNotificationId(id)) return { ok: false, code: 'not-found' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data: current } = await supabase.from('notification_outbox').select('status').eq('id', id).maybeSingle()
+  const { data: current } = await db.from('notification_outbox').select('status').eq('id', id).maybeSingle()
   if (!current) return { ok: false, code: 'not-found' }
 
   if (current.status === 'failed' || current.status === 'exhausted') {
-    const requeued = await requeueNotification(supabase, id)
+    const requeued = await requeueNotification(db, id)
     if (requeued === 'not-found') return { ok: false, code: 'not-found' }
     if (requeued === 'not-retryable') return { ok: false, code: 'not-retryable' }
     if (requeued === 'error') return { ok: false, code: 'error' }
@@ -53,9 +53,9 @@ export async function retryNotification(id: string): Promise<RetryNotificationRe
     return { ok: false, code: 'not-retryable' }
   }
 
-  await processOutboxBatch(supabase, { ids: [id], deadlineMs: 15_000 })
+  await processOutboxBatch(db, { ids: [id], deadlineMs: 15_000 })
 
-  const { data: after } = await supabase.from('notification_outbox').select('status').eq('id', id).maybeSingle()
+  const { data: after } = await db.from('notification_outbox').select('status').eq('id', id).maybeSingle()
 
   await writeAuditLog({
     actor: auth.userId,
@@ -74,10 +74,10 @@ export async function sendDueNotifications(): Promise<SendDueResult> {
   const auth = await requireOwnerSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const result = await processOutboxBatch(supabase, { limit: 50, deadlineMs: 20_000 })
+  const result = await processOutboxBatch(db, { limit: 50, deadlineMs: 20_000 })
 
   await writeAuditLog({
     actor: auth.userId,

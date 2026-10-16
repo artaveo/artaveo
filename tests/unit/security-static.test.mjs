@@ -41,7 +41,7 @@ const PUBLIC_ACTIONS = {
   'admin-auth.ts': {
     adminSignIn: 'rate-limited',
     verifyMfaChallenge: 'rate-limited',
-    // The auth service itself refuses a factor challenge without a signed-in (aal1) session; limited per user.
+    // Refuses without a signed-in admin session (it reads the pending factor of that admin only); limited per user.
     enrollMfaVerify: 'rate-limited',
     // Signing OUT needs no authority; it only clears the caller's own cookies.
     adminSignOut: 'open',
@@ -60,8 +60,8 @@ const GATES = {
   'admin-auth.ts': 'getAdminSession',
 }
 
-// (`createAuthServerClient` only builds a cookie-bound client; nothing is read until a method is called on it.)
-const DATA_ACCESS = /\b(getSupabaseServerClient|requireSupabase)\s*\(|\.from\(/
+// (`getNeonAuth` only builds the auth client; nothing is read until a method is called on it.)
+const DATA_ACCESS = /\b(getDbClient|requireDb)\s*\(|\.from\(/
 
 function allFunctionBodies(file) {
   const source = ts.createSourceFile(file, read(`app/actions/${file}`), ts.ScriptTarget.Latest, true)
@@ -235,11 +235,15 @@ describe('migration 0020 and the code that relies on it', () => {
     assert.ok(!/create policy[^;]*on public\.(rate_limit_buckets|inquiry_files)/.test(migration))
   })
   it('the public bucket can no longer be listed', () => assert.match(migration, /drop policy if exists "media bucket is publicly readable" on storage\.objects/))
-  it("the test stand-in treats exactly the migration's private buckets as private", () => {
-    const gateway = read('tests/support/stack/gateway.mjs')
-    const privateInMigration = [...migration.matchAll(/values\s*\(\s*'([^']+)',\s*'[^']+',\s*false/g)].map((m) => m[1])
-    const privateInGateway = [...(/PRIVATE_BUCKETS = new Set\(\[([^\]]*)\]\)/.exec(gateway)[1]).matchAll(/'([^']+)'/g)].map((m) => m[1])
-    assert.deepEqual(privateInGateway.sort(), privateInMigration.sort())
+  it('the test stand-in serves publicly exactly the bucket that is public_read on Neon — never the private one', async () => {
+    // On Neon the access level is set on the branch's bucket, not by a migration
+    // (lib/db/storage.ts lists both); the stand-in is told which are public in stack.mjs.
+    const { MEDIA_BUCKET, INQUIRY_FILES_BUCKET } = await import('../../lib/media-upload.ts')
+    const stack = read('tests/support/stack/stack.mjs')
+    const publicInStack = [...(/publicBuckets: \[([^\]]*)\]/.exec(stack)[1]).matchAll(/'([^']+)'/g)].map((m) => m[1])
+    assert.deepEqual(publicInStack, [MEDIA_BUCKET])
+    assert.ok(!publicInStack.includes(INQUIRY_FILES_BUCKET))
+    assert.match(read('lib/db/storage.ts'), new RegExp(`\`${INQUIRY_FILES_BUCKET}\` private`))
   })
 })
 
@@ -264,16 +268,26 @@ describe('secret inventory', () => {
     const example = read('.env.example')
     for (const m of example.matchAll(/^([A-Z][A-Z0-9_]+)=(.*)$/gm)) {
       assert.ok(doc.includes(m[1]), `${m[1]} is in .env.example but not in docs/security.md`)
-      // SUPABASE_URL is the public project address (documented as such); everything else must be empty or a short placeholder.
-      if (m[1] === 'SUPABASE_URL') continue
-      assert.ok(m[2].length < 40 && !/^eyJ/.test(m[2]), `${m[1]} looks like it holds a real secret`)
+      // Everything must be empty or a short placeholder.
+      assert.ok(m[2].length < 40 && !/^(eyJ|nsk_|nak_|npg_)/.test(m[2]), `${m[1]} looks like it holds a real secret`)
     }
   })
-  it('the service-role key is only ever read in the server-only client and the config check', () => {
-    const readers = codeFiles.filter((file) => /\benv\.SUPABASE_SERVICE_ROLE_KEY/.test(read(file))).sort()
-    assert.deepEqual(readers, ['lib/request-ip.ts', 'lib/security/config-check.ts', 'lib/supabase/server.ts'])
-    assert.match(read('lib/supabase/server.ts'), /import 'server-only'/)
-    assert.ok(!walk('components', ['.ts', '.tsx']).some((file) => /SUPABASE_SERVICE_ROLE_KEY|NEXT_PUBLIC_SUPABASE/.test(read(file))))
+  it('the server-side secrets are only ever read where they are used, and those files are server-only', () => {
+    const SECRETS = /\benv\.(NEON_SERVICE_JWT_PRIVATE_KEY|NEON_STORAGE_SECRET_ACCESS_KEY|NEON_AUTH_COOKIE_SECRET|MFA_ENCRYPTION_KEY)\b/
+    const readers = codeFiles.filter((file) => SECRETS.test(read(file))).sort()
+    assert.deepEqual(readers, [
+      'lib/admin/totp.ts', 'lib/auth/server.ts', 'lib/db/service-token.ts', 'lib/db/storage.ts', 'lib/request-ip.ts', 'lib/security/config-check.ts',
+    ])
+    // Two exceptions to `server-only`: lib/auth/server.ts, because proxy.ts imports it, and the
+    // pure config check, which only looks at presence and length (instrumentation.ts runs it).
+    // No Client Component imports either (or any lib/db module) — the next assertion.
+    const NOT_SERVER_ONLY = new Set(['lib/auth/server.ts', 'lib/security/config-check.ts'])
+    for (const file of readers.filter((f) => !NOT_SERVER_ONLY.has(f))) assert.match(read(file), /import 'server-only'/, file)
+    assert.ok(
+      !walk('components', ['.ts', '.tsx']).some((file) =>
+        /NEON_SERVICE_JWT|NEON_STORAGE_SECRET|NEON_AUTH_COOKIE|MFA_ENCRYPTION|lib\/auth\/server|lib\/db\//.test(read(file)),
+      ),
+    )
   })
   it('nothing is exposed to the browser through NEXT_PUBLIC_ except the site URL', () => {
     const publicNames = [...names].filter((name) => name.startsWith('NEXT_PUBLIC_'))

@@ -1,45 +1,42 @@
 #!/usr/bin/env node
 /**
- * Phase 25 — the two things `pg_dump` cannot give a backup on its own:
+ * Phase 25 — the two things `pg_dump` cannot give a backup on its own (Neon since October 2026):
  *
- *  1. Storage OBJECTS. `pg_dump -n public` (what `.github/workflows/backup.yml` runs) never
- *     touches `storage.*` — Supabase manages that schema — and even a dump of `storage.objects`
- *     would only be metadata: the file bytes live in Supabase Storage, not in Postgres. This
- *     script downloads every object in both buckets (`media`, `inquiry-files`) with the
- *     service-role key and writes it to disk at `<bucket>/<path>`.
+ *  1. Storage OBJECTS. A dump of the database never contains the files: they live in Neon
+ *     Object Storage buckets, not in Postgres. This script downloads every object in both
+ *     buckets (`media`, `inquiry-files`) with the app's storage credential and writes it to
+ *     disk at `<bucket>/<path>`.
  *
- *  2. A restore MANIFEST. `admin_users` (migration 0008) is deliberately just `(id, role)` —
- *     `id` is a foreign key into `auth.users`, which this backup does NOT dump (Supabase's own
- *     auth schema is platform-managed; restoring it by hand is exactly the kind of thing
- *     https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore warns
- *     needs its own care). Restoring `public` into a brand-new project therefore needs to know
- *     which EMAIL each `admin_users` row belonged to, so the owner can recreate that Supabase
- *     Auth user first and remap the id — see docs/runbooks/backup-restore.md § Restore. This
- *     script resolves each admin's email once, here, while the original project still exists,
- *     and never again (the manifest is encrypted with the rest of the backup, same as everything
- *     else this phase produces — see the workflow for the `age` step).
+ *  2. A restore MANIFEST. `admin_users` is deliberately just `(id, role, …)`, and `id` is the
+ *     admin's Neon Auth account, which lives in Neon's own `neon_auth` schema. Restoring
+ *     `public` into a brand-new project therefore needs to know which EMAIL each `admin_users`
+ *     row belonged to, so the owner can recreate that account first and remap the id — see
+ *     docs/runbooks/backup-restore.md § Restore. This script resolves each admin's email
+ *     once, here, while the original project still exists (the manifest is encrypted with the
+ *     rest of the backup).
  *
- * Env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (server-only; never the anon key — this needs to
- * bypass RLS and call the Auth admin API). Output: OUT_DIR (default ./.backup-work), which the
- * workflow tars alongside the `pg_dump` file before encrypting.
+ * Run with the app's own database client, so it needs the server env (NEON_DATA_API_URL,
+ * NEON_SERVICE_JWT_PRIVATE_KEY / _KID, NEON_STORAGE_*) and the module hook:
+ *
+ *   node --import ./scripts/register-ts-resolve.mjs scripts/backup/collect.mjs
+ *
+ * Output: OUT_DIR (default ./.backup-work), which is tarred alongside the `pg_dump` file
+ * before encrypting.
  */
 import fs from 'node:fs'
 import path from 'node:path'
 
-const SUPABASE_URL = process.env.SUPABASE_URL
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 const OUT_DIR = process.env.OUT_DIR ?? path.join(process.cwd(), '.backup-work')
 
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  console.error('collect.mjs: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required')
+const { getDbClient } = await import('../../lib/db/server.ts')
+const db = getDbClient()
+if (!db) {
+  console.error('collect.mjs: NEON_DATA_API_URL, NEON_SERVICE_JWT_PRIVATE_KEY and NEON_SERVICE_JWT_KID are required')
   process.exit(1)
 }
 
-const { createClient } = await import('@supabase/supabase-js')
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, { auth: { persistSession: false } })
-
-// Every bucket this app creates (0012, 0020) — kept as a literal list, not a `storage.buckets`
-// query, so a bucket renamed or removed in a migration is a visible diff here, not a silent gap.
+// Every bucket this app writes to (configured on the Neon branch) — kept as a literal list, so a
+// bucket added or renamed is a visible diff here, not a silent gap.
 const BUCKETS = ['media', 'inquiry-files']
 
 // The tables a restore is worth checking against (every table with real content or leads —
@@ -58,16 +55,16 @@ async function downloadBucket(bucket) {
   let bytes = 0
 
   async function walk(prefix) {
-    const { data, error } = await supabase.storage.from(bucket).list(prefix, { limit: 1000 })
+    const { data, error } = await db.storage.from(bucket).list(prefix, { limit: 1000 })
     if (error) throw new Error(`list ${bucket}/${prefix}: ${error.message}`)
     for (const entry of data ?? []) {
       const entryPath = prefix ? `${prefix}/${entry.name}` : entry.name
-      // The Storage API's `list` returns folders as entries with `id: null` and no `metadata`.
+      // `list` returns folders as entries with `id: null` and no `metadata` (lib/db/storage.ts).
       if (entry.id === null) {
         await walk(entryPath)
         continue
       }
-      const { data: file, error: downloadError } = await supabase.storage.from(bucket).download(entryPath)
+      const { data: file, error: downloadError } = await db.storage.from(bucket).download(entryPath)
       if (downloadError) throw new Error(`download ${bucket}/${entryPath}: ${downloadError.message}`)
       const dest = path.join(destRoot, entryPath)
       fs.mkdirSync(path.dirname(dest), { recursive: true })
@@ -83,21 +80,20 @@ async function downloadBucket(bucket) {
 }
 
 async function adminManifest() {
-  const { data, error } = await supabase.from('admin_users').select('id, role, created_at')
+  // Neon Auth keeps the accounts in its own schema; 0023's service-only function returns
+  // the e-mail of each ADMIN, nothing else.
+  const { data, error } = await db.from('admin_users').select('id, role, created_at')
   if (error) throw new Error(`admin_users: ${error.message}`)
-  const admins = []
-  for (const row of data ?? []) {
-    const { data: user, error: userError } = await supabase.auth.admin.getUserById(row.id)
-    if (userError) throw new Error(`auth user ${row.id}: ${userError.message}`)
-    admins.push({ id: row.id, role: row.role, createdAt: row.created_at, email: user.user?.email ?? null })
-  }
-  return admins
+  const { data: emails, error: emailError } = await db.rpc('admin_user_emails')
+  if (emailError) throw new Error(`admin_user_emails: ${emailError.message}`)
+  const emailById = new Map((emails ?? []).map((row) => [row.id, row.email]))
+  return (data ?? []).map((row) => ({ id: row.id, role: row.role, createdAt: row.created_at, email: emailById.get(row.id) ?? null }))
 }
 
 async function rowCounts() {
   const counts = {}
   for (const table of ROW_COUNT_TABLES) {
-    const { count, error } = await supabase.from(table).select('id', { count: 'exact', head: true })
+    const { count, error } = await db.from(table).select('id', { count: 'exact', head: true })
     if (error) throw new Error(`row count ${table}: ${error.message}`)
     counts[table] = count ?? 0
   }

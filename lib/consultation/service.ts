@@ -1,5 +1,5 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { writeAuditLog } from '@/lib/admin/audit'
 import {
@@ -44,7 +44,7 @@ import { captureError, track } from '@/lib/observability/store'
  * The public and admin Server Actions (`app/actions/consultations.ts`,
  * `app/actions/consultation-admin.ts`) do the caller-specific work — anti-spam,
  * the token, the admin session — and then call these. Each function takes the
- * Supabase client and the clock as arguments, so the same code can be run
+ * database client and the clock as arguments, so the same code can be run
  * against a real PostgreSQL + PostgREST in the phase's verification.
  *
  * Rules that hold throughout:
@@ -65,7 +65,7 @@ import { captureError, track } from '@/lib/observability/store'
  */
 
 export type ServiceDeps = {
-  supabase: SupabaseClient
+  db: DbClient
   now?: () => Date
 }
 
@@ -92,14 +92,14 @@ const confirmedRangeOf = (consultation: AdminConsultation): ConsultationWindow |
 
 /** Send now, without ever throwing into the caller's own write path. */
 async function deliver(
-  supabase: SupabaseClient,
+  db: DbClient,
   label: string,
   enqueue: () => Promise<{ id: string }[]>,
 ): Promise<void> {
   try {
     const rows = await enqueue()
     await processAfterEnqueue(
-      supabase,
+      db,
       rows.map((row) => row.id),
     )
   } catch (err) {
@@ -108,14 +108,14 @@ async function deliver(
 }
 
 async function recordEvent(
-  supabase: SupabaseClient,
+  db: DbClient,
   inquiryId: string,
   type: string,
   actor: string,
   meta: Record<string, unknown>,
   note?: string,
 ): Promise<void> {
-  const { error } = await supabase
+  const { error } = await db
     .from('inquiry_events')
     .insert({ inquiry_id: inquiryId, type, actor, meta, note: note ?? null, request_id: (await getRequestId()) ?? null })
   if (error) await captureError(error, { event: 'consultation.timeline_write_failed', source: 'database', level: 'warn', fields: { eventType: type, consequence: 'the change itself was saved' } })
@@ -143,7 +143,7 @@ export async function createConsultationRequest(
   meta: ConsultationRequestMeta,
   ctx: CreateRequestContext,
 ): Promise<ConsultationRequestResult> {
-  const { supabase } = deps
+  const { db } = deps
   const now = clock(deps)
 
   // Anti-spam: the same two checks, with the same single generic code, as the
@@ -172,11 +172,11 @@ export async function createConsultationRequest(
   if (!resolved.ok) return { ok: false, code: resolved.code }
 
   // 1. Replay: this exact submission already persisted.
-  const existingInquiry = await findInquiryByKey(supabase, meta.idempotencyKey)
+  const existingInquiry = await findInquiryByKey(db, meta.idempotencyKey)
   if (existingInquiry) {
-    const consultation = await latestConsultationOfInquiry(supabase, existingInquiry)
+    const consultation = await latestConsultationOfInquiry(db, existingInquiry)
     if (consultation) {
-      await notifyRequest(supabase, consultation)
+      await notifyRequest(db, consultation)
       return { ok: true, token: consultation.token, replay: true }
     }
     // The inquiry was saved but the consultation was not (a crash between the
@@ -188,19 +188,19 @@ export async function createConsultationRequest(
   const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000).toISOString()
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
   const [byIp, byEmail] = await Promise.all([
-    supabase
+    db
       .from('inquiries')
       .select('id', { count: 'exact', head: true })
       .eq('submitter_ip_hash', ctx.ipHash)
       .gte('created_at', oneHourAgo),
-    supabase.from('inquiries').select('id', { count: 'exact', head: true }).eq('email', email).gte('created_at', oneDayAgo),
+    db.from('inquiries').select('id', { count: 'exact', head: true }).eq('email', email).gte('created_at', oneDayAgo),
   ])
   if ((byIp.count ?? 0) >= MAX_REQUESTS_PER_IP_PER_HOUR || (byEmail.count ?? 0) >= MAX_REQUESTS_PER_EMAIL_PER_DAY) {
     return { ok: false, code: 'rejected' }
   }
 
   // 3. The inquiry. A consultation is always linked to one (§ 20).
-  const { data: inserted, error } = await supabase
+  const { data: inserted, error } = await db
     .from('inquiries')
     .insert({
       idempotency_key: meta.idempotencyKey,
@@ -227,9 +227,9 @@ export async function createConsultationRequest(
       // too: the one-live-consultation-per-inquiry index makes whichever insert
       // comes second fall back to the first one's row, and both callers get the
       // same private link.
-      const raced = await findInquiryByKey(supabase, meta.idempotencyKey)
+      const raced = await findInquiryByKey(db, meta.idempotencyKey)
       if (raced) {
-        const consultation = await latestConsultationOfInquiry(supabase, raced)
+        const consultation = await latestConsultationOfInquiry(db, raced)
         if (consultation) return { ok: true, token: consultation.token, replay: true }
         return insertConsultation(deps, raced, resolved, ctx)
       }
@@ -244,7 +244,7 @@ export async function createConsultationRequest(
   }
 
   const inquiryId = inserted.id as string
-  const { error: eventError } = await supabase.from('inquiry_events').insert({
+  const { error: eventError } = await db.from('inquiry_events').insert({
     inquiry_id: inquiryId,
     type: 'created',
     actor: 'system',
@@ -256,20 +256,20 @@ export async function createConsultationRequest(
   return insertConsultation(deps, inquiryId, resolved, ctx)
 }
 
-async function findInquiryByKey(supabase: SupabaseClient, key: string): Promise<string | null> {
-  const { data } = await supabase.from('inquiries').select('id').eq('idempotency_key', key).maybeSingle()
+async function findInquiryByKey(db: DbClient, key: string): Promise<string | null> {
+  const { data } = await db.from('inquiries').select('id').eq('idempotency_key', key).maybeSingle()
   return (data?.id as string | undefined) ?? null
 }
 
-async function latestConsultationOfInquiry(supabase: SupabaseClient, inquiryId: string): Promise<AdminConsultation | null> {
-  const { data } = await supabase
+async function latestConsultationOfInquiry(db: DbClient, inquiryId: string): Promise<AdminConsultation | null> {
+  const { data } = await db
     .from('consultations')
     .select('id')
     .eq('inquiry_id', inquiryId)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle()
-  return data ? loadConsultationById(supabase, data.id as string) : null
+  return data ? loadConsultationById(db, data.id as string) : null
 }
 
 async function insertConsultation(
@@ -278,10 +278,10 @@ async function insertConsultation(
   resolved: { timezone: string; windows: ConsultationWindow[] },
   ctx: CreateRequestContext,
 ): Promise<ConsultationRequestResult> {
-  const { supabase } = deps
+  const { db } = deps
   const token = generateConsultationToken()
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('consultations')
     .insert({
       inquiry_id: inquiryId,
@@ -297,29 +297,29 @@ async function insertConsultation(
   if (error || !data) {
     if (error?.code === '23505') {
       // One live consultation per inquiry: a concurrent replay created it first.
-      const existing = await latestConsultationOfInquiry(supabase, inquiryId)
+      const existing = await latestConsultationOfInquiry(db, inquiryId)
       if (existing) return { ok: true, token: existing.token, replay: true }
     }
     await captureError(error ?? new Error('insert returned no row'), { event: 'consultation.persist_failed', source: 'database', fields: { consequence: 'the request was NOT saved' } })
     return { ok: false, code: 'error' }
   }
 
-  const consultation = await loadConsultationById(supabase, data.id as string)
+  const consultation = await loadConsultationById(db, data.id as string)
   if (!consultation) return { ok: true, token }
 
-  await recordEvent(supabase, inquiryId, 'consultation-requested', 'client', {
+  await recordEvent(db, inquiryId, 'consultation-requested', 'client', {
     consultationId: consultation.id,
     windows: resolved.windows.length,
     timezone: resolved.timezone,
   })
-  await notifyRequest(supabase, consultation)
-  await track('consultation.requested', { subject: { type: 'consultation', id: consultation.id }, data: { locale: ctx.locale, windows: resolved.windows.length }, supabase })
+  await notifyRequest(db, consultation)
+  await track('consultation.requested', { subject: { type: 'consultation', id: consultation.id }, data: { locale: ctx.locale, windows: resolved.windows.length }, db })
   return { ok: true, token }
 }
 
-async function notifyRequest(supabase: SupabaseClient, consultation: AdminConsultation): Promise<void> {
-  await deliver(supabase, 'consultation request', () =>
-    enqueueConsultationRequested(supabase, {
+async function notifyRequest(db: DbClient, consultation: AdminConsultation): Promise<void> {
+  await deliver(db, 'consultation request', () =>
+    enqueueConsultationRequested(db, {
       ...contextOf(consultation),
       phone: consultation.inquiry.phone,
       goal: consultation.inquiry.goal,
@@ -336,7 +336,7 @@ async function loadForClient(
   deps: ServiceDeps,
   token: string,
 ): Promise<{ ok: true; consultation: AdminConsultation } | { ok: false; code: 'not-found' | 'expired' }> {
-  const consultation = await loadConsultationByToken(deps.supabase, token)
+  const consultation = await loadConsultationByToken(deps.db, token)
   if (!consultation) return { ok: false, code: 'not-found' }
   if (linkExpired(consultation, clock(deps))) return { ok: false, code: 'expired' }
   return { ok: true, consultation }
@@ -347,7 +347,7 @@ export async function cancelConsultationAsClient(
   token: string,
   reason: string,
 ): Promise<ClientActionResult> {
-  const { supabase } = deps
+  const { db } = deps
   const now = clock(deps)
   const loaded = await loadForClient(deps, token)
   if (!loaded.ok) return loaded
@@ -362,7 +362,7 @@ export async function cancelConsultationAsClient(
   const confirmedRange = confirmedRangeOf(consultation)
   const cleanReason = sanitizeText(reason, MAX_CANCEL_REASON_LENGTH) || null
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('consultations')
     .update({
       status: 'cancelled',
@@ -382,7 +382,7 @@ export async function cancelConsultationAsClient(
   if (!data || data.length === 0) return { ok: false, code: 'not-allowed' }
 
   await recordEvent(
-    supabase,
+    db,
     consultation.inquiryId,
     'consultation-cancelled',
     'client',
@@ -391,11 +391,11 @@ export async function cancelConsultationAsClient(
   )
 
   const ctx = contextOf(consultation)
-  await deliver(supabase, 'consultation client cancel (owner)', () =>
-    enqueueConsultationClientUpdate(supabase, ctx, { change: 'cancelled', reason: cleanReason, confirmedRange }),
+  await deliver(db, 'consultation client cancel (owner)', () =>
+    enqueueConsultationClientUpdate(db, ctx, { change: 'cancelled', reason: cleanReason, confirmedRange }),
   )
-  await deliver(supabase, 'consultation client cancel (client)', () =>
-    enqueueConsultationCancelled(supabase, ctx, {
+  await deliver(db, 'consultation client cancel (client)', () =>
+    enqueueConsultationCancelled(db, ctx, {
       by: 'client',
       range: confirmedRange,
       reason: cleanReason,
@@ -418,7 +418,7 @@ export async function requestConsultationReschedule(
   timezone: string,
   windows: WindowInput[],
 ): Promise<ClientActionResult> {
-  const { supabase } = deps
+  const { db } = deps
   const now = clock(deps)
   const loaded = await loadForClient(deps, token)
   if (!loaded.ok) return loaded
@@ -433,7 +433,7 @@ export async function requestConsultationReschedule(
   const nextStatus = consultation.status === 'requested' ? 'requested' : 'rescheduled'
   const requestNumber = consultation.rescheduleRequests + 1
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('consultations')
     .update({
       status: nextStatus,
@@ -451,16 +451,16 @@ export async function requestConsultationReschedule(
   }
   if (!data || data.length === 0) return { ok: false, code: 'not-allowed' }
 
-  await recordEvent(supabase, consultation.inquiryId, 'consultation-reschedule-requested', 'client', {
+  await recordEvent(db, consultation.inquiryId, 'consultation-reschedule-requested', 'client', {
     consultationId: consultation.id,
     windows: resolved.windows.length,
     timezone: resolved.timezone,
     requestNumber,
   })
 
-  await deliver(supabase, 'consultation reschedule request', () =>
+  await deliver(db, 'consultation reschedule request', () =>
     enqueueConsultationClientUpdate(
-      supabase,
+      db,
       { ...contextOf(consultation), timezone: resolved.timezone },
       {
         change: 'rescheduled',
@@ -486,10 +486,10 @@ export async function confirmConsultation(
   deps: ServiceDeps,
   input: { consultationId: string; actor: string; start: Date; meetingDetails: string },
 ): Promise<AdminActionResult> {
-  const { supabase } = deps
+  const { db } = deps
   const now = clock(deps)
 
-  const consultation = await loadConsultationById(supabase, input.consultationId)
+  const consultation = await loadConsultationById(db, input.consultationId)
   if (!consultation) return { ok: false, code: 'not-found' }
   if (!canOwnerConfirm(consultation.status)) return { ok: false, code: 'invalid-transition' }
 
@@ -501,7 +501,7 @@ export async function confirmConsultation(
   const range: ConsultationWindow = { start: input.start.toISOString(), end: end.toISOString() }
   const previous = confirmedRangeOf(consultation)
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('consultations')
     .update({
       status: 'confirmed',
@@ -521,7 +521,7 @@ export async function confirmConsultation(
   }
   if (!data || data.length === 0) return { ok: false, code: 'conflict' }
 
-  await recordEvent(supabase, consultation.inquiryId, 'consultation-confirmed', input.actor, {
+  await recordEvent(db, consultation.inquiryId, 'consultation-confirmed', input.actor, {
     consultationId: consultation.id,
     start: range.start,
     moved: previous !== null && previous.start !== range.start,
@@ -535,8 +535,8 @@ export async function confirmConsultation(
     after: { status: 'confirmed', start: range.start },
   })
 
-  await deliver(supabase, 'consultation confirmation', () =>
-    enqueueConsultationConfirmed(supabase, contextOf(consultation), {
+  await deliver(db, 'consultation confirmation', () =>
+    enqueueConsultationConfirmed(db, contextOf(consultation), {
       range,
       meetingDetails: details,
       // The sequence this invitation carries is the one that was current when
@@ -553,17 +553,17 @@ export async function cancelConsultationAsOwner(
   deps: ServiceDeps,
   input: { consultationId: string; actor: string; reason: string },
 ): Promise<AdminActionResult> {
-  const { supabase } = deps
+  const { db } = deps
   const now = clock(deps)
 
-  const consultation = await loadConsultationById(supabase, input.consultationId)
+  const consultation = await loadConsultationById(db, input.consultationId)
   if (!consultation) return { ok: false, code: 'not-found' }
   if (!canTransition(consultation.status, 'cancelled')) return { ok: false, code: 'invalid-transition' }
 
   const confirmedRange = confirmedRangeOf(consultation)
   const reason = sanitizeText(input.reason, MAX_CANCEL_REASON_LENGTH) || null
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('consultations')
     .update({
       status: 'cancelled',
@@ -580,7 +580,7 @@ export async function cancelConsultationAsOwner(
   if (!data || data.length === 0) return { ok: false, code: 'conflict' }
 
   await recordEvent(
-    supabase,
+    db,
     consultation.inquiryId,
     'consultation-cancelled',
     input.actor,
@@ -596,8 +596,8 @@ export async function cancelConsultationAsOwner(
     after: { status: 'cancelled', by: 'owner' },
   })
 
-  await deliver(supabase, 'consultation cancellation', () =>
-    enqueueConsultationCancelled(supabase, contextOf(consultation), {
+  await deliver(db, 'consultation cancellation', () =>
+    enqueueConsultationCancelled(db, contextOf(consultation), {
       by: 'owner',
       range: confirmedRange,
       reason,
@@ -613,15 +613,15 @@ export async function completeConsultation(
   deps: ServiceDeps,
   input: { consultationId: string; actor: string },
 ): Promise<AdminActionResult> {
-  const { supabase } = deps
+  const { db } = deps
   const now = clock(deps)
 
-  const consultation = await loadConsultationById(supabase, input.consultationId)
+  const consultation = await loadConsultationById(db, input.consultationId)
   if (!consultation) return { ok: false, code: 'not-found' }
   if (!canTransition(consultation.status, 'completed')) return { ok: false, code: 'invalid-transition' }
   if (!canMarkCompleted(consultation, now)) return { ok: false, code: 'not-finished' }
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('consultations')
     .update({ status: 'completed', closed_at: now.toISOString() })
     .eq('id', consultation.id)
@@ -630,7 +630,7 @@ export async function completeConsultation(
   if (error) return { ok: false, code: error.code === '23514' ? 'invalid-transition' : 'error' }
   if (!data || data.length === 0) return { ok: false, code: 'conflict' }
 
-  await recordEvent(supabase, consultation.inquiryId, 'consultation-completed', input.actor, {
+  await recordEvent(db, consultation.inquiryId, 'consultation-completed', input.actor, {
     consultationId: consultation.id,
   })
   await writeAuditLog({

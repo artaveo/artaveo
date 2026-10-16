@@ -29,7 +29,7 @@ import { siteConfig } from '@/lib/site'
  * `/about` (D-02: real name) and in the footer, which is what an imprint
  * would otherwise duplicate.
  *
- * Every fact cited below (Supabase region, RLS posture, § 9.3's
+ * Every fact cited below (Neon region, RLS posture, § 9.3's
  * notification status, the analytics package used) is pulled from the
  * actual current implementation — nothing here describes a system that
  * doesn't exist yet.
@@ -44,7 +44,7 @@ function section(id: string, title: LocalizedText, paragraphs: LocalizedText[], 
 }
 
 /** Kept separate: a change to one document must not re-date the other. */
-const PRIVACY_LAST_UPDATED = '2026-09-22' // + encrypted daily backups (Phase 25), + failure records, event counts and security-policy reports (Phase 24), + local search history (Phase 18), + stored e-mail copies and delivery log (Phase 19), + recommenders' e-mail address (D-14), + consultation requests (Phase 20)
+const PRIVACY_LAST_UPDATED = '2026-10-16' // + storage moved from Supabase to Neon (Singapore), + encrypted daily backups (Phase 25), + failure records, event counts and security-policy reports (Phase 24), + local search history (Phase 18), + stored e-mail copies and delivery log (Phase 19), + recommenders' e-mail address (D-14), + consultation requests (Phase 20)
 const TERMS_LAST_UPDATED = '2026-09-13'
 
 const privacySections: LegalSection[] = [
@@ -115,8 +115,8 @@ const privacySections: LegalSection[] = [
     tx('Where it\'s stored', 'کجا نگه‌داری می‌شود'),
     [
       tx(
-        'Brief Builder submissions and consultation requests are stored in a Supabase-hosted PostgreSQL database (Southeast Asia region), behind Row Level Security with no public read policies — only server-side code with the service-role key can read it, never a public API.',
-        'ارسالی‌های Brief Builder و درخواست‌های مشاوره در یک پایگاه‌داده‌ی PostgreSQL میزبانی‌شده روی Supabase (منطقه‌ی جنوب‌شرق آسیا) نگه‌داری می‌شوند، پشت Row Level Security و بدون هیچ سیاست خواندن عمومی — فقط کد سمت سرور با کلید service-role می‌تواند آن را بخواند، هرگز یک API عمومی.',
+        'Brief Builder submissions and consultation requests are stored in a PostgreSQL database hosted by Neon (Singapore region), behind Row Level Security with no public read policies — only this site\'s own server code, with its own signing key, can read it, never a public API. Files attached to a brief are kept in a private Neon storage bucket with no public address.',
+        'ارسالی‌های Brief Builder و درخواست‌های مشاوره در یک پایگاه‌داده‌ی PostgreSQL میزبانی‌شده روی Neon (منطقه‌ی سنگاپور) نگه‌داری می‌شوند، پشت Row Level Security و بدون هیچ سیاست خواندن عمومی — فقط کد سمت سرور خودِ این سایت، با کلید امضای خودش، می‌تواند آن را بخواند، هرگز یک API عمومی. فایل‌های پیوست یک درخواست در یک فضای ذخیره‌سازی خصوصی Neon نگه‌داری می‌شوند که نشانی عمومی ندارد.',
       ),
       tx(
         "This site is hosted on Vercel, which also runs the anonymized analytics described above. No inquiry data is currently sent to any third-party e-mail-sending service — a confirmation e-mail is logged internally only, while real sending stays intentionally inactive pending a registered domain. This page will be updated to name the real provider once that changes. A copy of every e-mail the site generates for you (such as the confirmation of your brief or the calendar invitation for your call) is stored in the same database, together with a log of each attempt to send it.",

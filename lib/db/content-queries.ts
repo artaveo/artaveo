@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { getSupabaseServerClient } from './server'
+import { getDbClient } from './server'
 import type {
   DecisionRecord,
   EngagementModel,
@@ -18,7 +18,7 @@ import type {
 /**
  * Phase 12.2 selector-layer switch (roadmap § 12): read the Phase 12
  * entities — Project, Service, ServicePackage, ServiceAddon,
- * EngagementModel, Technology — from Supabase instead of
+ * EngagementModel, Technology — from the database instead of
  * `lib/home-content.ts`/`lib/services-content.ts`'s static arrays. Those
  * two files still hold the file-based content for everything NOT in that
  * list (Capability, Principle, ProcessStep, WorkingLanguage, ProcessPhase,
@@ -31,7 +31,7 @@ import type {
  *
  * By this phase the database is mandatory infrastructure, not an optional
  * enhancement the way `inquiries` was before D-10 — so unlike
- * `getSupabaseServerClient()`'s own callers in § 9.2, every function here
+ * `getDbClient()`'s own callers in § 9.2, every function here
  * throws instead of silently returning an empty list when the client isn't
  * configured. A visibly broken page during a misconfigured deploy is
  * better than a page that silently renders "no projects" / "no services"
@@ -39,10 +39,10 @@ import type {
  */
 
 function requireClient() {
-  const client = getSupabaseServerClient()
+  const client = getDbClient()
   if (!client) {
     throw new Error(
-      'Supabase is not configured (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY) — ' +
+      'The database is not configured (NEON_DATA_API_URL / NEON_SERVICE_JWT_PRIVATE_KEY) — ' +
         'content cannot be read from the database.',
     )
   }

@@ -1,8 +1,8 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { linkExpired, looksLikeToken } from '@/lib/consultation/windows'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import type { Locale } from '@/types/content'
 import type {
   AdminConsultation,
@@ -98,11 +98,11 @@ function mapAdminRow(row: Row): AdminConsultation {
 
 /** A consultation together with the client it belongs to — what the service layer works from. */
 export async function loadConsultationByToken(
-  supabase: SupabaseClient,
+  db: DbClient,
   token: string,
 ): Promise<AdminConsultation | null> {
   if (!looksLikeToken(token)) return null
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('consultations')
     .select(`*, inquiry:inquiries(${INQUIRY_COLUMNS})`)
     .eq('token', token)
@@ -114,8 +114,8 @@ export async function loadConsultationByToken(
   return data ? mapAdminRow(data) : null
 }
 
-export async function loadConsultationById(supabase: SupabaseClient, id: string): Promise<AdminConsultation | null> {
-  const { data, error } = await supabase
+export async function loadConsultationById(db: DbClient, id: string): Promise<AdminConsultation | null> {
+  const { data, error } = await db
     .from('consultations')
     .select(`*, inquiry:inquiries(${INQUIRY_COLUMNS})`)
     .eq('id', id)
@@ -168,10 +168,10 @@ export function toPublicConsultation(view: ConsultationView): PublicConsultation
 }
 
 export async function resolveConsultationToken(token: string, now: Date = new Date()): Promise<ConsultationLinkState> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { state: 'not-found' }
+  const db = getDbClient()
+  if (!db) return { state: 'not-found' }
 
-  const row = await loadConsultationByToken(supabase, token)
+  const row = await loadConsultationByToken(db, token)
   if (!row) return { state: 'not-found' }
   if (linkExpired(row, now)) return { state: 'expired' }
   return { state: 'ok', consultation: toPublicConsultation(row) }
@@ -190,11 +190,11 @@ export async function listConsultations(filters: {
   page: number
   pageSize?: number
 }): Promise<{ consultations: AdminConsultation[]; total: number } | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
+  const db = getDbClient()
+  if (!db) return null
 
   const pageSize = filters.pageSize ?? CONSULTATIONS_PAGE_SIZE
-  let query = supabase
+  let query = db
     .from('consultations')
     .select(`*, inquiry:inquiries(${INQUIRY_COLUMNS})`, { count: 'exact' })
     .order('created_at', { ascending: false })
@@ -210,16 +210,16 @@ export async function listConsultations(filters: {
 }
 
 export async function getAdminConsultation(id: string): Promise<AdminConsultation | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
-  return loadConsultationById(supabase, id)
+  const db = getDbClient()
+  if (!db) return null
+  return loadConsultationById(db, id)
 }
 
 /** Every consultation for one inquiry, newest first — the lead detail page shows them. */
 export async function listConsultationsForInquiry(inquiryId: string): Promise<AdminConsultation[]> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return []
-  const { data, error } = await supabase
+  const db = getDbClient()
+  if (!db) return []
+  const { data, error } = await db
     .from('consultations')
     .select(`*, inquiry:inquiries(${INQUIRY_COLUMNS})`)
     .eq('inquiry_id', inquiryId)
@@ -233,9 +233,9 @@ export async function listConsultationsForInquiry(inquiryId: string): Promise<Ad
 
 /** Requests waiting for the owner to confirm a time (new ones, and ones where the client asked for a new time). */
 export async function countConsultationsAwaitingOwner(): Promise<number | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
-  const { count, error } = await supabase
+  const db = getDbClient()
+  if (!db) return null
+  const { count, error } = await db
     .from('consultations')
     .select('id', { count: 'exact', head: true })
     .in('status', ['requested', 'rescheduled'])

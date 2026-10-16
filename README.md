@@ -18,9 +18,9 @@ This repository holds the public site, the private admin panel, the database sch
 
 ## Stack
 
-Next.js (App Router) · React 19 · TypeScript · Tailwind CSS v4 · `next-intl` (en / fa) · Supabase (PostgreSQL, Auth, Storage) · Base UI · deployed on Vercel.
+Next.js (App Router) · React 19 · TypeScript · Tailwind CSS v4 · `next-intl` (en / fa) · Neon (PostgreSQL + Data API, Managed Better Auth, Object Storage) · Base UI · deployed on Vercel.
 
-No component library is used for the site's own design system beyond Base UI primitives; there is no client-side Supabase — the browser never talks to the database, every read and write goes through server code.
+No component library is used for the site's own design system beyond Base UI primitives; there is no client-side database or auth SDK — the browser never talks to Neon, every read and write goes through server code.
 
 ## Getting started
 
@@ -34,7 +34,7 @@ pnpm dev                        # http://localhost:3000
 
 Environment variables are described in `.env.example`, and every one the code reads is explained — purpose, what a leak costs, how to rotate — in [`docs/security.md`](docs/security.md) § 6. Nothing secret belongs in the repository.
 
-Most content and every form are backed by Supabase. Without `SUPABASE_URL` and the keys, database-backed features (inquiries, consultations, the admin, CMS content) are unavailable. For a complete local environment with no external account, use the **test stack** — a throw-away PostgreSQL and PostgREST with every migration applied — described in [`docs/testing.md`](docs/testing.md).
+Most content and every form are backed by Neon (project `Artaveo`, Singapore). Without the `NEON_*` variables (`.env.example`; what each one is: `docs/security.md` § 6), database-backed features (inquiries, consultations, the admin, CMS content) are unavailable. For a complete local environment with no external account, use the **test stack** — a throw-away PostgreSQL and PostgREST with every migration applied — described in [`docs/testing.md`](docs/testing.md).
 
 ### Scripts
 

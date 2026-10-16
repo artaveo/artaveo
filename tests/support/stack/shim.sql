@@ -1,9 +1,11 @@
--- Test-only stand-in for the parts of Supabase the migrations depend on.
+-- Test-only stand-in for the platform pieces the migrations depend on: the
+-- Supabase roles and schemas 0001–0021 were written against (removed again by
+-- 0022_neon_platform, as on the real Neon database — db/neon/prelude.sql is the
+-- production counterpart of this file) and Neon Auth's user table.
 --
--- The real project gets these from the platform; a plain PostgreSQL has none
--- of them. Nothing here is application schema — it exists so that
--- db/migrations/0001…0019 can be applied unchanged and PostgREST can serve
--- the result the way Supabase does. Applied by tests/support/stack/stack.mjs
+-- Nothing here is application schema — it exists so that
+-- db/migrations/* can be applied unchanged and PostgREST can serve
+-- the result the way the Neon Data API does. Applied by tests/support/stack/stack.mjs
 -- BEFORE the migrations, on a throw-away database.
 --
 -- What is deliberately mirrored from Supabase, because the RLS tests depend on it:
@@ -76,3 +78,16 @@ alter table storage.objects enable row level security;
 grant usage on schema storage to anon, authenticated, service_role;
 grant select on storage.objects to anon, authenticated;
 grant select on storage.buckets to anon, authenticated, service_role;
+
+-- neon_auth."user" — the table Neon's Managed Better Auth keeps its accounts in
+-- (the stand-in auth service in gateway.mjs holds the passwords; this only
+-- carries the ids and e-mails migration 0023's admin_user_emails() reads).
+-- 0022_neon_platform drops the `auth` and `storage` stand-ins above; this one stays.
+create schema if not exists neon_auth;
+create table if not exists neon_auth."user" (
+  id uuid primary key,
+  email text not null unique,
+  name text,
+  "createdAt" timestamptz not null default now(),
+  "updatedAt" timestamptz not null default now()
+);

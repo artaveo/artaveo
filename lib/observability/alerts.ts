@@ -1,5 +1,5 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { ALERT_TEXT, deriveAlerts, THRESHOLDS, type Alert, type AlertFacts } from '@/lib/observability/alert-rules'
 import { log } from '@/lib/observability/logger'
@@ -32,8 +32,8 @@ async function count(query: PromiseLike<{ count: number | null; error: { message
 }
 
 /** Inquiries from the last 7 days, older than the grace period, that have no outbox row at all. */
-export async function countInquiriesWithoutMessages(supabase: SupabaseClient, now: Date): Promise<number> {
-  const { data, error } = await supabase
+export async function countInquiriesWithoutMessages(db: DbClient, now: Date): Promise<number> {
+  const { data, error } = await db
     .from('inquiries')
     .select('id')
     .gte('created_at', ago(now, 7 * DAY_MS))
@@ -44,19 +44,19 @@ export async function countInquiriesWithoutMessages(supabase: SupabaseClient, no
   const ids = ((data ?? []) as { id: string }[]).map((row) => row.id)
   if (ids.length === 0) return 0
 
-  const { data: covered, error: coveredError } = await supabase.from('notification_outbox').select('inquiry_id').in('inquiry_id', ids)
+  const { data: covered, error: coveredError } = await db.from('notification_outbox').select('inquiry_id').in('inquiry_id', ids)
   if (coveredError) throw new Error(`alert facts: covered inquiries: ${coveredError.message}`)
   const coveredIds = new Set(((covered ?? []) as { inquiry_id: string }[]).map((row) => row.inquiry_id))
   return ids.filter((id) => !coveredIds.has(id)).length
 }
 
-async function latestEventAt(supabase: SupabaseClient, name: string): Promise<string | null> {
-  const { data, error } = await supabase.from('ops_events').select('occurred_at').eq('name', name).order('occurred_at', { ascending: false }).limit(1).maybeSingle()
+async function latestEventAt(db: DbClient, name: string): Promise<string | null> {
+  const { data, error } = await db.from('ops_events').select('occurred_at').eq('name', name).order('occurred_at', { ascending: false }).limit(1).maybeSingle()
   if (error) throw new Error(`alert facts: latest ${name}: ${error.message}`)
   return (data as { occurred_at: string } | null)?.occurred_at ?? null
 }
 
-export async function gatherFacts(supabase: SupabaseClient, now: Date = new Date(), env: NodeJS.ProcessEnv = process.env): Promise<AlertFacts> {
+export async function gatherFacts(db: DbClient, now: Date = new Date(), env: NodeJS.ProcessEnv = process.env): Promise<AlertFacts> {
   const [
     failedAttempts,
     exhausted,
@@ -74,20 +74,20 @@ export async function gatherFacts(supabase: SupabaseClient, now: Date = new Date
     lastRestoreVerifiedAt,
     lastRestoreFailedAt,
   ] = await Promise.all([
-    count(supabase.from('notification_attempts').select('id', { count: 'exact', head: true }).eq('ok', false).gte('at', ago(now, HOUR_MS)), 'failed attempts'),
-    count(supabase.from('notification_outbox').select('id', { count: 'exact', head: true }).eq('status', 'exhausted').gte('last_attempt_at', ago(now, DAY_MS)), 'exhausted messages'),
+    count(db.from('notification_attempts').select('id', { count: 'exact', head: true }).eq('ok', false).gte('at', ago(now, HOUR_MS)), 'failed attempts'),
+    count(db.from('notification_outbox').select('id', { count: 'exact', head: true }).eq('status', 'exhausted').gte('last_attempt_at', ago(now, DAY_MS)), 'exhausted messages'),
     count(
-      supabase
+      db
         .from('notification_outbox')
         .select('id', { count: 'exact', head: true })
         .in('status', ['pending', 'failed'])
         .lte('next_attempt_at', ago(now, THRESHOLDS.stuckMessageHours * HOUR_MS)),
       'stuck messages',
     ),
-    countInquiriesWithoutMessages(supabase, now),
+    countInquiriesWithoutMessages(db, now),
     (async () => {
       // Client and CSP reports come from the public and can be forged: they are listed on the admin page, never alarming.
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('error_groups')
         .select('event, window_count')
         .eq('status', 'open')
@@ -99,7 +99,7 @@ export async function gatherFacts(supabase: SupabaseClient, now: Date = new Date
       return ((data ?? []) as { event: string; window_count: number }[]).map((row) => ({ event: row.event, windowCount: row.window_count }))
     })(),
     count(
-      supabase
+      db
         .from('error_groups')
         .select('fingerprint', { count: 'exact', head: true })
         .eq('status', 'open')
@@ -107,15 +107,15 @@ export async function gatherFacts(supabase: SupabaseClient, now: Date = new Date
         .gte('first_seen_at', ago(now, DAY_MS)),
       'new error groups',
     ),
-    count(supabase.from('ops_events').select('id', { count: 'exact', head: true }).eq('name', 'rate_limit.unavailable').gte('occurred_at', ago(now, HOUR_MS)), 'limiter events'),
-    count(supabase.from('ops_events').select('id', { count: 'exact', head: true }).eq('name', 'audit.write_failed').gte('occurred_at', ago(now, DAY_MS)), 'audit failures'),
-    count(supabase.from('audit_log').select('id', { count: 'exact', head: true }).eq('action', 'admin.sign_in_rate_limited').gte('at', ago(now, DAY_MS)), 'sign-in limit crossings'),
-    latestEventAt(supabase, 'cron.completed'),
-    latestEventAt(supabase, 'monitor.checked'),
-    latestEventAt(supabase, 'backup.completed'),
-    latestEventAt(supabase, 'backup.failed'),
-    latestEventAt(supabase, 'backup.restore_verified'),
-    latestEventAt(supabase, 'backup.restore_failed'),
+    count(db.from('ops_events').select('id', { count: 'exact', head: true }).eq('name', 'rate_limit.unavailable').gte('occurred_at', ago(now, HOUR_MS)), 'limiter events'),
+    count(db.from('ops_events').select('id', { count: 'exact', head: true }).eq('name', 'audit.write_failed').gte('occurred_at', ago(now, DAY_MS)), 'audit failures'),
+    count(db.from('audit_log').select('id', { count: 'exact', head: true }).eq('action', 'admin.sign_in_rate_limited').gte('at', ago(now, DAY_MS)), 'sign-in limit crossings'),
+    latestEventAt(db, 'cron.completed'),
+    latestEventAt(db, 'monitor.checked'),
+    latestEventAt(db, 'backup.completed'),
+    latestEventAt(db, 'backup.failed'),
+    latestEventAt(db, 'backup.restore_verified'),
+    latestEventAt(db, 'backup.restore_failed'),
   ])
 
   return {
@@ -144,8 +144,8 @@ export async function gatherFacts(supabase: SupabaseClient, now: Date = new Date
   }
 }
 
-export async function evaluateAlerts(supabase: SupabaseClient, now: Date = new Date(), env: NodeJS.ProcessEnv = process.env): Promise<{ facts: AlertFacts; alerts: Alert[] }> {
-  const facts = await gatherFacts(supabase, now, env)
+export async function evaluateAlerts(db: DbClient, now: Date = new Date(), env: NodeJS.ProcessEnv = process.env): Promise<{ facts: AlertFacts; alerts: Alert[] }> {
+  const facts = await gatherFacts(db, now, env)
   return { facts, alerts: deriveAlerts(facts) }
 }
 
@@ -165,27 +165,27 @@ export type RaiseResult = { raised: string[]; alreadySent: string[] }
  * is also visible on the admin page and in the external check's result, neither
  * of which depends on e-mail.
  */
-export async function raiseAlerts(supabase: SupabaseClient, alerts: Alert[], now: Date = new Date()): Promise<RaiseResult> {
+export async function raiseAlerts(db: DbClient, alerts: Alert[], now: Date = new Date()): Promise<RaiseResult> {
   const result: RaiseResult = { raised: [], alreadySent: [] }
   const day = alertDay(now)
   const outboxIds: string[] = []
 
   for (const alert of alerts) {
     if (alert.severity !== 'error') continue
-    const rows = await enqueueOpsAlert(supabase, { alert, day, text: ALERT_TEXT[alert.id] })
+    const rows = await enqueueOpsAlert(db, { alert, day, text: ALERT_TEXT[alert.id] })
     if (rows.length === 0) {
       result.alreadySent.push(alert.id)
       continue
     }
     result.raised.push(alert.id)
     outboxIds.push(...rows.map((row) => row.id))
-    await track('alert.raised', { level: 'warn', subject: { type: 'alert', id: alert.id }, data: { count: alert.count, severity: alert.severity }, supabase })
+    await track('alert.raised', { level: 'warn', subject: { type: 'alert', id: alert.id }, data: { count: alert.count, severity: alert.severity }, db })
   }
 
   if (outboxIds.length > 0) {
     try {
       // `alerts: false`: an alert e-mail that fails must not raise an alert about itself.
-      await processOutboxBatch(supabase, { ids: outboxIds, alerts: false, sendTimeoutMs: 4_000, deadlineMs: 8_000 })
+      await processOutboxBatch(db, { ids: outboxIds, alerts: false, sendTimeoutMs: 4_000, deadlineMs: 8_000 })
     } catch (err) {
       log.warn('alerts.send_failed', { err })
     }

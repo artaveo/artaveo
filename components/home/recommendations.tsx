@@ -5,14 +5,14 @@ import { Link } from '@/i18n/navigation'
 import { SectionHeader } from '@/components/home/section-header'
 import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/format'
-import { queryApprovedRecommendations } from '@/lib/supabase/content-queries'
+import { queryApprovedRecommendations } from '@/lib/db/content-queries'
 import { t, type Locale, type Recommendation, type RecommendationVerification } from '@/types/content'
 
 /**
  * § 3.3: "Rendered only when ≥ 1 verified recommendation is published" —
  * same empty-means-hidden pattern `InsightsPreview` already uses. Unlike
  * that component (still file-based, Phase 17 not started), this one
- * reads Supabase directly — Phase 16 is the real, live phase these rows
+ * reads the database directly — Phase 16 is the real, live phase these rows
  * belong to. No ratings anywhere (§ 14's own component inventory:
  * "Recommendation Card … no ratings").
  */

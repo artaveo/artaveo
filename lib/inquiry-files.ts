@@ -1,5 +1,5 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { INQUIRY_FILES_BUCKET } from '@/lib/media-upload'
 import { captureError } from '@/lib/observability/store'
@@ -17,8 +17,8 @@ export type InquiryFile = {
 }
 
 /** Files attached to one inquiry — the owner's lead page. The caller has already checked the owner role. */
-export async function listInquiryFiles(supabase: SupabaseClient, inquiryId: string): Promise<InquiryFile[]> {
-  const { data, error } = await supabase
+export async function listInquiryFiles(db: DbClient, inquiryId: string): Promise<InquiryFile[]> {
+  const { data, error } = await db
     .from('inquiry_files')
     .select('id, inquiry_id, original_name, content_type, size_bytes, created_at')
     .eq('inquiry_id', inquiryId)
@@ -43,9 +43,9 @@ export async function listInquiryFiles(supabase: SupabaseClient, inquiryId: stri
  * would be invisible and permanent). Bounded per run so the daily job stays
  * well inside its time budget.
  */
-export async function sweepUnlinkedInquiryFiles(supabase: SupabaseClient, limit = 200): Promise<{ deleted: number }> {
+export async function sweepUnlinkedInquiryFiles(db: DbClient, limit = 200): Promise<{ deleted: number }> {
   const cutoff = new Date(Date.now() - UNLINKED_FILE_TTL_HOURS * 3600 * 1000).toISOString()
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('inquiry_files')
     .select('id, storage_path')
     .is('inquiry_id', null)
@@ -54,9 +54,9 @@ export async function sweepUnlinkedInquiryFiles(supabase: SupabaseClient, limit 
   if (error) throw new Error(`unlinked file sweep failed: ${error.message}`)
   if (!data || data.length === 0) return { deleted: 0 }
 
-  await supabase.storage.from(INQUIRY_FILES_BUCKET).remove(data.map((row) => row.storage_path as string))
+  await db.storage.from(INQUIRY_FILES_BUCKET).remove(data.map((row) => row.storage_path as string))
   const ids = data.map((row) => row.id as string)
-  const { error: deleteError } = await supabase.from('inquiry_files').delete().in('id', ids).is('inquiry_id', null)
+  const { error: deleteError } = await db.from('inquiry_files').delete().in('id', ids).is('inquiry_id', null)
   if (deleteError) throw new Error(`unlinked file sweep failed: ${deleteError.message}`)
   return { deleted: ids.length }
 }

@@ -121,7 +121,7 @@ function messageOf(value: unknown): string {
 /**
  * Turns anything that was thrown or returned as an error into the small, scrubbed
  * shape that is logged and stored. Handles `Error`, the plain `{ message, code }`
- * objects Supabase returns, strings, and things that are not errors at all.
+ * objects the Data API client returns, strings, and things that are not errors at all.
  * Deliberately drops `details` and `hint`: for a database error they hold the row
  * values.
  */

@@ -13,7 +13,7 @@
 #
 # Every action is pinned to a commit SHA (the tag is in the comment); Dependabot proposes
 # the updates. Nothing here needs a secret: the tests run against a throw-away local
-# database (docs/testing.md), never against the real Supabase project.
+# database (docs/testing.md), never against the real Neon project.
 
 name: CI
 

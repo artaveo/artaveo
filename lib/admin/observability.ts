@@ -6,7 +6,7 @@ import { checkDatabase, type CheckResult } from '@/lib/observability/health'
 import { isRequestId } from '@/lib/observability/request-id'
 import { captureError } from '@/lib/observability/store'
 import { checkSecurityConfig, type ConfigFinding } from '@/lib/security/config-check'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 
 /**
  * Phase 24 — reads for `/admin/observability`. Owner-only at the page and the
@@ -121,24 +121,24 @@ export function parseGroupStatus(value: string | undefined): ErrorGroupStatus | 
 }
 
 /**
- * `null` = Supabase is not configured (the page says so). Throws when a query fails —
+ * `null` = the database is not configured (the page says so). Throws when a query fails —
  * the page catches it and says "could not read", because an overview that shows
  * zeros when it could not look is a lie.
  */
 export async function getObservabilityOverview(now: Date = new Date()): Promise<ObservabilityOverview | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
+  const db = getDbClient()
+  if (!db) return null
 
   const since = (ms: number) => new Date(now.getTime() - ms).toISOString()
   const funnelCount = async (name: string, ms: number) => {
-    const { count, error } = await supabase.from('ops_events').select('id', { count: 'exact', head: true }).eq('name', name).gte('occurred_at', since(ms))
+    const { count, error } = await db.from('ops_events').select('id', { count: 'exact', head: true }).eq('name', name).gte('occurred_at', since(ms))
     if (error) throw new Error(`funnel ${name}: ${error.message}`)
     return count ?? 0
   }
 
   const [database, evaluated, funnel, groups, openCount, events] = await Promise.all([
-    checkDatabase(supabase),
-    evaluateAlerts(supabase, now),
+    checkDatabase(db),
+    evaluateAlerts(db, now),
     Promise.all(
       FUNNEL_EVENTS.map(async (name): Promise<FunnelRow> => ({
         name,
@@ -147,9 +147,9 @@ export async function getObservabilityOverview(now: Date = new Date()): Promise<
         last30d: await funnelCount(name, 30 * DAY_MS),
       })),
     ),
-    supabase.from('error_groups').select('*').order('status', { ascending: true }).order('last_seen_at', { ascending: false }).limit(200),
-    supabase.from('error_groups').select('fingerprint', { count: 'exact', head: true }).eq('status', 'open'),
-    supabase.from('ops_events').select('id, occurred_at, level, name, request_id, subject_type, subject_id').order('occurred_at', { ascending: false }).limit(40),
+    db.from('error_groups').select('*').order('status', { ascending: true }).order('last_seen_at', { ascending: false }).limit(200),
+    db.from('error_groups').select('fingerprint', { count: 'exact', head: true }).eq('status', 'open'),
+    db.from('ops_events').select('id, occurred_at, level, name, request_id, subject_type, subject_id').order('occurred_at', { ascending: false }).limit(40),
   ])
   if (groups.error) throw new Error(`error groups: ${groups.error.message}`)
   if (events.error) throw new Error(`events: ${events.error.message}`)
@@ -174,13 +174,13 @@ export async function getObservabilityOverview(now: Date = new Date()): Promise<
 
 /** Cheap enough for the dashboard. `null` when it cannot be read (the dashboard then simply omits the banner). */
 export async function countFiringAlerts(): Promise<{ errors: number; warnings: number } | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
+  const db = getDbClient()
+  if (!db) return null
   try {
-    const { alerts } = await evaluateAlerts(supabase)
+    const { alerts } = await evaluateAlerts(db)
     return { errors: alerts.filter((alert) => alert.severity === 'error').length, warnings: alerts.filter((alert) => alert.severity === 'warning').length }
   } catch (err) {
-    await captureError(err, { event: 'admin.alert_count_failed', source: 'database', level: 'warn', supabase })
+    await captureError(err, { event: 'admin.alert_count_failed', source: 'database', level: 'warn', db })
     return null
   }
 }
@@ -205,13 +205,13 @@ export type ReferenceResult =
  * column; nothing free-form reaches a filter.
  */
 export async function lookupReference(input: string): Promise<ReferenceResult | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
+  const db = getDbClient()
+  if (!db) return null
   const ref = input.trim()
   const isId = isRequestId(ref)
   if (!isId && !/^[A-Za-z0-9_-]{1,40}$/.test(ref)) return { kind: 'invalid' }
 
-  const groupsQuery = supabase.from('error_groups').select('*').limit(20)
+  const groupsQuery = db.from('error_groups').select('*').limit(20)
   const groups = await (isId ? groupsQuery.eq('last_request_id', ref.toLowerCase()) : groupsQuery.eq('digest', ref))
   if (groups.error) throw new Error(`reference: ${groups.error.message}`)
 
@@ -221,11 +221,11 @@ export async function lookupReference(input: string): Promise<ReferenceResult | 
 
   const id = ref.toLowerCase()
   const [events, audit, outbox, inquiries, timeline] = await Promise.all([
-    supabase.from('ops_events').select('id, occurred_at, level, name, request_id, subject_type, subject_id').eq('request_id', id).order('occurred_at', { ascending: true }).limit(50),
-    supabase.from('audit_log').select('id, at, action, entity').eq('correlation_id', id).order('at', { ascending: true }).limit(50),
-    supabase.from('notification_outbox').select('id, created_at, kind, status').eq('request_id', id).limit(50),
-    supabase.from('inquiries').select('id, created_at').eq('request_id', id).limit(20),
-    supabase.from('inquiry_events').select('id, inquiry_id, created_at, type').eq('request_id', id).order('created_at', { ascending: true }).limit(50),
+    db.from('ops_events').select('id, occurred_at, level, name, request_id, subject_type, subject_id').eq('request_id', id).order('occurred_at', { ascending: true }).limit(50),
+    db.from('audit_log').select('id, at, action, entity').eq('correlation_id', id).order('at', { ascending: true }).limit(50),
+    db.from('notification_outbox').select('id, created_at, kind, status').eq('request_id', id).limit(50),
+    db.from('inquiries').select('id, created_at').eq('request_id', id).limit(20),
+    db.from('inquiry_events').select('id, inquiry_id, created_at, type').eq('request_id', id).order('created_at', { ascending: true }).limit(50),
   ])
   for (const result of [events, audit, outbox, inquiries, timeline]) {
     if (result.error) throw new Error(`reference: ${result.error.message}`)

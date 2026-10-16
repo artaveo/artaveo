@@ -102,10 +102,10 @@ test.describe('the admin', () => {
       await settle(page)
       expect(await violations(page), route).toEqual([])
     }
-    const cookies = (await context.cookies()).filter((cookie) => /^sb-/.test(cookie.name))
+    const cookies = (await context.cookies()).filter((cookie) => /^__Secure-neon-auth\./.test(cookie.name))
     expect(cookies.length).toBeGreaterThan(0)
     for (const cookie of cookies) expect(cookie.httpOnly, cookie.name).toBe(true)
-    expect(await page.evaluate(() => document.cookie)).not.toMatch(/sb-/)
+    expect(await page.evaluate(() => document.cookie)).not.toMatch(/neon-auth/)
   })
 
   test('an injected inline script does not run in the admin', async ({ browser }) => {
@@ -215,9 +215,10 @@ test.describe('a visitor\'s attachment is private', () => {
       body: { idempotency_key: crypto.randomUUID(), goal: 'A lead with an attachment', name: 'Attach Lead', email: `attach-${Date.now().toString(36)}@example.com`, preferred_locale: 'en', preferred_channel: 'email', consent: true },
     })
     storagePath = `e2e-${Date.now().toString(36)}-file.png`
-    const upload = await fetch(`${env.SUPABASE_URL}/storage/v1/object/inquiry-files/${storagePath}`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`, 'content-type': 'image/png' },
+    // The stack's storage stand-in only checks that a write is signed at all (tests/support/stack/gateway.mjs).
+    const upload = await fetch(`${env.NEON_STORAGE_ENDPOINT}/inquiry-files/${storagePath}`, {
+      method: 'PUT',
+      headers: { authorization: 'AWS4-HMAC-SHA256 Credential=test-only', 'content-type': 'image/png' },
       body: PNG,
     })
     expect(upload.ok).toBe(true)
@@ -229,7 +230,7 @@ test.describe('a visitor\'s attachment is private', () => {
   })
 
   test('there is no public URL for it', async ({ request }) => {
-    expect((await request.get(`${env.SUPABASE_URL}/storage/v1/object/public/inquiry-files/${storagePath}`)).status()).toBe(404)
+    expect((await request.get(`${env.NEON_STORAGE_ENDPOINT}/inquiry-files/${storagePath}`)).status()).toBe(403)
   })
 
   test('anonymous and malformed requests get the same plain 404', async ({ request }) => {
@@ -255,7 +256,8 @@ test.describe('a visitor\'s attachment is private', () => {
     expect(granted.headers()['cache-control']).toBe('no-store')
     expect(granted.headers()['referrer-policy']).toBe('no-referrer')
     const signed = granted.headers()['location']
-    expect(signed).toContain('/object/sign/inquiry-files/')
+    expect(signed).toContain(`${env.NEON_STORAGE_ENDPOINT}/inquiry-files/`)
+    expect(signed).toContain('X-Amz-Signature=')
     const file = await fetch(signed)
     expect(file.status).toBe(200)
     expect(file.headers.get('content-disposition')).toMatch(/^attachment/)

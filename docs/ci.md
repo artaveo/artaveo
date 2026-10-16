@@ -43,11 +43,11 @@ The four jobs run **in parallel**; a fifth, **`CI passed`**, waits for all of th
 
 - Git integration on, **Production Branch = `main`**. Vercel then builds every pull request as a **preview** and deploys `main` to production — the DEPLOY stage. Because `main` only receives commits that passed the gates, a failing gate blocks the release.
 - Optional: *Deployment Checks* (where your plan has them) can additionally hold a production deployment until the `CI passed` check is green.
-- **Check what Preview deployments are pointed at.** If the Preview environment uses the same Supabase project and keys as Production, every preview writes to the real database. Give Preview its own Supabase project (or at least its own keys) before opening the site's forms on previews.
+- **Check what Preview deployments are pointed at.** If the Preview environment uses the same Neon branch and keys as Production, every preview writes to the real database. Give Preview its own Neon branch (Neon branches are instant copies — the Data API, Auth and buckets come with them) before opening the site's forms on previews.
 
 ## What the pipeline needs — nothing secret
 
-No secrets are configured for CI. The tests run against a throw-away local database with test-only keys (`docs/testing.md`), never against the real Supabase project. If you ever add a secret to the workflow, the pull-request-from-fork rule above matters.
+No secrets are configured for CI. The tests run against a throw-away local database with test-only keys (`docs/testing.md`), never against the real Neon project. If you ever add a secret to the workflow, the pull-request-from-fork rule above matters.
 
 ## Running the same thing locally
 
@@ -79,7 +79,7 @@ npm run test:stack:down
 
 ## If the secret scan fires
 
-Assume the secret is compromised. **Rotate it first** (Supabase key, provider key, `CRON_SECRET`…), then remove it from history if you want to — removing it from history does not un-leak it. Only add a path or a rule to `.gitleaks.toml` for a genuine false positive, with a comment saying why.
+Assume the secret is compromised. **Rotate it first** (the Data API signing key, the storage credential, a provider key, `CRON_SECRET`…), then remove it from history if you want to — removing it from history does not un-leak it. Only add a path or a rule to `.gitleaks.toml` for a genuine false positive, with a comment saying why.
 
 ## Not covered (deliberately)
 

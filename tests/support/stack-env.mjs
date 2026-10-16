@@ -2,7 +2,7 @@
  * Loads the running test stack's environment (written by
  * tests/support/stack/stack.mjs `up`) into process.env and hands out clients.
  * Import this FIRST in an integration test, before any app module: the app's
- * Supabase client reads its env once, at first use.
+ * database client reads its env once, at first use.
  */
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
@@ -28,19 +28,30 @@ const { setLogSink } = await import('../../lib/observability/logger.ts')
 export const quietSink = process.env.TEST_VERBOSE ? null : () => {}
 setLogSink(quietSink)
 
-const { createClient } = await import('@supabase/supabase-js')
+const { PostgrestClient } = await import('@supabase/postgrest-js')
+const { accounts } = await import('./stack/accounts.mjs')
+const { signJwt } = await import('./stack/jwt.mjs')
 
-const auth = { persistSession: false, autoRefreshToken: false }
-/** Anonymous (public) access — what any visitor's browser could do with the anon key. */
-export const anon = () => createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, { auth })
-/** The server's own access: bypasses RLS, like the app's `getSupabaseServerClient()`. */
-export const service = () => createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth })
-/** A signed-in user, as the browser would be (session obtained from the stack's auth service). */
+const clientWith = (token) => new PostgrestClient(env.NEON_DATA_API_URL, { headers: { Authorization: `Bearer ${token}` } })
+
+/**
+ * Anonymous (public) access through the Data API's `anon` role. On the real Neon
+ * branch a request with no token is refused outright and `anonymous` is granted
+ * nothing, so this is the WIDER of the two — what the public-read policies allow.
+ */
+export const anon = () => clientWith(env.ARTAVEO_TEST_ANON_KEY)
+/** The server's own access: bypasses RLS, like the app's `getDbClient()`. */
+export const service = () => clientWith(env.ARTAVEO_TEST_SERVICE_KEY)
+/**
+ * A signed-in user querying the Data API directly as `authenticated` (what a
+ * Neon Auth JWT maps to) — the case the RLS suites check is never more than a
+ * visitor gets. The password is checked against the stack's accounts.
+ */
 export async function signedIn(email, password) {
-  const client = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, { auth })
-  const { error } = await client.auth.signInWithPassword({ email, password })
-  if (error) throw error
-  return client
+  const account = accounts.find((a) => a.email === email && a.password === password)
+  if (!account) throw new Error(`no test account ${email} with that password`)
+  const now = Math.floor(Date.now() / 1000)
+  return clientWith(signJwt({ sub: account.id, email: account.email, role: 'authenticated', iat: now, exp: now + 3600 }, env.ARTAVEO_TEST_JWT_SECRET))
 }
 
 /** Raw SQL against the test database (for triggers, constraints and rollbacks PostgREST cannot express). */
@@ -64,5 +75,8 @@ sql('truncate public.rate_limit_buckets')
 globalThis.__TEST_CLEAR_ADMIN_BUCKETS__ = () => sql("delete from public.rate_limit_buckets where bucket_key like 'admin.%'")
 
 export const uuid = () => globalThis.crypto.randomUUID()
-export const stackUrl = env.SUPABASE_URL
+/** The gateway origin (`/_test/*` inspection lives there). */
+export const stackUrl = env.ARTAVEO_TEST_GATEWAY_URL
+/** Where a stored object would be served from, as the app's storage client builds it (lib/db/storage.ts). */
+export const objectUrl = (bucket, key) => `${env.NEON_STORAGE_ENDPOINT}/${bucket}/${key.split('/').map(encodeURIComponent).join('/')}`
 export const stackEnv = env

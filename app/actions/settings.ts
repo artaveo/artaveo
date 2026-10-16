@@ -2,7 +2,7 @@
 
 import { getAdminSession, mfaSatisfied } from '@/lib/admin/auth'
 import { writeAuditLog } from '@/lib/admin/audit'
-import { requireSupabase } from '@/lib/admin/pipeline'
+import { requireDb } from '@/lib/admin/pipeline'
 import type { NavigationItemInput, SiteSettingsInput } from '@/types/cms'
 
 /**
@@ -27,10 +27,10 @@ async function requireEditorSession(): Promise<{ userId: string } | { code: 'for
 export async function updateSiteSettings(input: SiteSettingsInput): Promise<SettingsActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase
+  const { error } = await db
     .from('site_settings')
     .update({
       availability_state: input.availabilityState,
@@ -53,10 +53,10 @@ export async function updateSiteSettings(input: SiteSettingsInput): Promise<Sett
 export async function updateNavigationItem(id: string, input: NavigationItemInput): Promise<SettingsActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase
+  const { error } = await db
     .from('navigation_items')
     .update({
       href: input.href.trim(),

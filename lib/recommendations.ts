@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import type { LocalizedText } from '@/types/content'
 
 /**
@@ -40,10 +40,10 @@ export type RequestLinkState =
     }
 
 export async function resolveRequestToken(token: string, locale: 'en' | 'fa'): Promise<RequestLinkState> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { state: 'not-found' }
+  const db = getDbClient()
+  if (!db) return { state: 'not-found' }
 
-  const { data: requestRow, error } = await supabase
+  const { data: requestRow, error } = await db
     .from('recommendation_requests')
     .select(
       'id, expires_at, revoked_at, recommendation_id, ' +
@@ -70,7 +70,7 @@ export async function resolveRequestToken(token: string, locale: 'en' | 'fa'): P
     }
   }
 
-  const { data: recRow } = await supabase
+  const { data: recRow } = await db
     .from('recommendations')
     .select('person_name, person_title, company, relationship, statement, source_url, status, moderation_note')
     .eq('id', request.recommendation_id)

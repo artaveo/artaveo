@@ -12,11 +12,10 @@ export const EDITOR = { email: 'editor@test.artaveo.dev', password: 'Test-Passwo
 
 /** Direct REST access to the test database as the server would have it (service role). For arranging data and checking what the UI claims happened. */
 export async function db<T = unknown>(pathAndQuery: string, init: { method?: string; body?: unknown; prefer?: string } = {}): Promise<T> {
-  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/${pathAndQuery}`, {
+  const res = await fetch(`${env.NEON_DATA_API_URL}/${pathAndQuery}`, {
     method: init.method ?? 'GET',
     headers: {
-      apikey: env.SUPABASE_SERVICE_ROLE_KEY,
-      authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}`,
+      authorization: `Bearer ${env.ARTAVEO_TEST_SERVICE_KEY}`,
       'content-type': 'application/json',
       prefer: init.prefer ?? 'return=representation',
     },

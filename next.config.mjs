@@ -4,6 +4,16 @@ import { buildHeaderRules } from './lib/security/static-headers.mjs'
 
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
 
+/** `https://br-….storage….neon.tech` → a pattern for its `media` bucket; nothing when unset or not a URL. */
+function storageImagePatterns(endpoint) {
+  try {
+    const url = new URL(endpoint)
+    return [{ protocol: url.protocol.replace(':', ''), hostname: url.hostname, port: url.port, pathname: `${url.pathname.replace(/\/+$/, '')}/media/**` }]
+  } catch {
+    return []
+  }
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
@@ -29,6 +39,9 @@ const nextConfig = {
    */
   images: {
     formats: ['image/avif', 'image/webp'],
+    // Uploaded CMS media is served from the public `media` bucket of Neon Object
+    // Storage (lib/db/storage.ts) — the only remote origin `next/image` may fetch.
+    remotePatterns: storageImagePatterns(process.env.NEON_STORAGE_ENDPOINT),
   },
   /**
    * § 10.1 — `/sw.js` must never be served from a cache. Browsers already

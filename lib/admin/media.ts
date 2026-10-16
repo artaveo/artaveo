@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { requireSupabase } from '@/lib/admin/pipeline'
+import { requireDb } from '@/lib/admin/pipeline'
 import type { AdminMediaAsset, AdminProjectMediaItem } from '@/types/cms'
 import { captureError } from '@/lib/observability/store'
 
@@ -30,10 +30,10 @@ function assembleAsset(row: Record<string, any>): AdminMediaAsset {
 const ASSET_COLUMNS = 'id, url, alt, width, height, type, size_bytes, focal_x, focal_y, created_at'
 
 export async function listMediaAssets(): Promise<AdminMediaAsset[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase.from('media_assets').select(ASSET_COLUMNS).order('created_at', { ascending: false })
+  const { data, error } = await db.from('media_assets').select(ASSET_COLUMNS).order('created_at', { ascending: false })
   if (error || !data) {
     await captureError(error, { event: 'admin.list_media_assets_failed', source: 'database' })
     return []
@@ -42,19 +42,19 @@ export async function listMediaAssets(): Promise<AdminMediaAsset[] | null> {
 }
 
 export async function getMediaAsset(id: string): Promise<AdminMediaAsset | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase.from('media_assets').select(ASSET_COLUMNS).eq('id', id).maybeSingle()
+  const { data, error } = await db.from('media_assets').select(ASSET_COLUMNS).eq('id', id).maybeSingle()
   if (error || !data) return null
   return assembleAsset(data)
 }
 
 export async function listProjectMedia(projectId: string): Promise<AdminProjectMediaItem[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('project_media')
     .select(`id, media_id, kind, caption, sort_order, media_assets (${ASSET_COLUMNS})`)
     .eq('project_id', projectId)

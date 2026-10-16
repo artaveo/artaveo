@@ -2,7 +2,7 @@
 
 This is the one place that says **what is protected, from whom, by what, and what is knowingly left open.** The roadmap ranks security third (after truthfulness and data integrity); where this file and the code disagree, the code has a bug — most of what is written here is pinned by a test, named next to it.
 
-Reviewed: 20 September 2026 (Phase 23). Threat model in one line: an anonymous stranger on the internet with a browser and a script, and — separately — someone who has stolen a session or a secret. Not in scope: a compromised laptop, a hostile Supabase or Vercel employee, and nation-state adversaries.
+Reviewed: 20 September 2026 (Phase 23); updated 16 October 2026 for the move from Supabase to Neon. Threat model in one line: an anonymous stranger on the internet with a browser and a script, and — separately — someone who has stolen a session or a secret. Not in scope: a compromised laptop, a hostile Neon or Vercel employee, and nation-state adversaries.
 
 ## 1. Trust boundaries
 
@@ -10,11 +10,13 @@ Reviewed: 20 September 2026 (Phase 23). Threat model in one line: an anonymous s
 |---|---|---|---|
 | Browser → public pages and Server Actions | anyone | forms, uploads, private links | validation, rate limits, CSP, `Origin` check (below) |
 | Browser → `/admin` and admin Server Actions | the owner, an editor | session cookie | session + role checked **in every action and page**, not in a layout; MFA when enrolled |
-| Server → Supabase | our own database | service-role key | key only in server-only code; RLS on every table with **no policies** — the browser can never reach the database |
+| Server → Neon Data API | our own database | a short-lived `service_role` JWT the server signs itself (ES256) | signing key only in server-only code; the Data API trusts only that key's JWKS; a request without a token is refused and `anonymous` is granted nothing; RLS on every table with **no policies** — the browser can never reach the database |
+| Server → Neon Object Storage | uploaded files | scoped credential (`storage:read`, `storage:write`) | server-only; `media` is public_read, `inquiry-files` private (presigned links only) |
+| Server → Neon Auth | admin sign-in | the session cookie, forwarded server-side | no browser client and no `/api/auth` route: only Server Actions, pages and `proxy.ts` talk to it |
 | Server → e-mail provider | Resend | outbox messages | plain text only, idempotent, no HTML built from visitor text |
 | Vercel cron → `/api/cron/notifications` | Vercel | `Authorization: Bearer CRON_SECRET` | fails **closed**; constant-time comparison |
 
-The browser never talks to Supabase (no browser client exists, no `NEXT_PUBLIC_` key). That is why the database policies are "none": every read and write is a decision made by our server code.
+The browser never talks to Neon (no browser client exists, no `NEXT_PUBLIC_` key). That is why the database policies are "none": every read and write is a decision made by our server code.
 
 ## 2. Controls, and where each is tested
 
@@ -30,7 +32,8 @@ The browser never talks to Supabase (no browser client exists, no `NEXT_PUBLIC_`
 | Query injection: no filter built from free text | `lib/postgrest.ts` | `security-input.test.mjs`, `security.integration.test.mjs` |
 | CSV injection | `lib/csv.ts` | `security-input.test.mjs`, `security.integration.test.mjs` |
 | Uploads: bytes checked, private bucket, sweep | `lib/upload-inspection.ts`, `app/actions/inquiry-attachments.ts` | `security-input.test.mjs`, `cms.integration.test.mjs`, `security.spec.ts` |
-| Session cookie `httpOnly` | `lib/supabase/server-auth.ts`, `lib/supabase/middleware.ts` | `security.spec.ts` |
+| Session cookie `httpOnly` (Neon Auth's own cookies and the two-factor cookie) | `lib/auth/server.ts`, `lib/auth/proxy-session.ts`, `lib/admin/totp.ts` | `security.spec.ts` |
+| Two-factor codes: RFC 6238, replay refused, secret encrypted at rest | `lib/admin/totp.ts`, `app/actions/admin-auth.ts`, migration `0022` | `admin-authorization.integration.test.mjs` |
 | Configuration and secrets | `lib/security/config-check.ts`, `instrumentation.ts`, section 6 | `security-static.test.mjs` (inventory), `security-input.test.mjs` |
 | Open reporting endpoints (CSP reports, browser errors) | `app/api/observe/*`, `lib/observability/reports.ts` | `observability-static.test.mjs`, `observability-routes.integration.test.mjs`, `observability.spec.ts` |
 | Dependencies | Phase 22 gate (`scripts/audit-gate.mjs`), Dependabot, secret scan | CI |
@@ -42,7 +45,7 @@ The browser never talks to Supabase (no browser client exists, no `NEXT_PUBLIC_`
 **The policy has two variants, and that is a trade-off, not an oversight.**
 
 - **Admin** (dynamic, per request): `script-src 'self' 'nonce-…' 'sha256-<theme script>'`. **No `'unsafe-inline'`.** An injected inline script in the admin does not run — tested. The admin is where an XSS would do the most damage.
-- **Public site** (prerendered, served from the CDN): `script-src 'self' 'unsafe-inline'`. A strict nonce policy needs the HTML generated per request, because the nonce is in the markup; making every public page dynamic would give up static rendering, CDN caching and the cache-first service worker, i.e. the performance the design is built on (roadmap principle 17). Everything that does not depend on scripts is still strict on both variants: no plugins, no framing, `base-uri`/`form-action` `'self'`, images only from the site and the Storage host, connections and fonts same-origin, no `eval`.
+- **Public site** (prerendered, served from the CDN): `script-src 'self' 'unsafe-inline'`. A strict nonce policy needs the HTML generated per request, because the nonce is in the markup; making every public page dynamic would give up static rendering, CDN caching and the cache-first service worker, i.e. the performance the design is built on (roadmap principle 17). Everything that does not depend on scripts is still strict on both variants: no plugins, no framing, `base-uri`/`form-action` `'self'`, images only from the site and the Neon Object Storage host, connections and fonts same-origin, no `eval`.
 - **What protects the public side from XSS instead** is that visitor-supplied text is never rendered as HTML — one inventory of every place the code can turn a string into markup (two: the theme script and JSON-LD), enforced by a test that fails if a third appears. If you later want the strict policy there too, the options are hash-based CSP via Next's experimental SRI, or making the public pages dynamic; both cost something measurable and should be a decision.
 - `style-src` keeps `'unsafe-inline'` on both (style attributes are used throughout); script-less style injection is a much smaller risk.
 
@@ -85,24 +88,28 @@ Attempts are counted in Postgres (`rate_limit_buckets`, function `consume_rate_l
 
 ## 6. Secret inventory
 
-Nothing here is a secret **in the repository**: `.env.example` holds names and the public project URL only, `.env*` is git-ignored, and the CI secret scan (gitleaks, full history) passes. The variables the application reads, what they protect, and what a leak costs:
+Nothing here is a secret **in the repository**: `.env.example` holds names only, `.env*` is git-ignored, and the CI secret scan (gitleaks, full history) passes. The variables the application reads, what they protect, and what a leak costs:
 
 | Variable | Purpose | If it leaks | Rotate |
 |---|---|---|---|
-| `SUPABASE_SERVICE_ROLE_KEY` | The server's database access; bypasses every row-level rule | **Total**: read and write everything, including leads and private files | Supabase → Project Settings → API → generate a new JWT secret / service key; set in Vercel; redeploy. All sessions and the anon key change with a JWT secret rotation. |
-| `SUPABASE_ANON_KEY` | Cookie-bound sign-in client (server-side only) | Low on its own: tables have RLS with no policies, so it reads nothing. It could be used to attempt sign-ins (rate limits are ours, Supabase Auth has its own). | Rotates with the JWT secret |
-| `SUPABASE_URL` | Project address | Public information (it is in `.env.example`) | — |
-| `INQUIRY_IP_HASH_SECRET` | Salts stored IP hashes and rate-limit keys | Hashes could be reversed for known addresses (2^32 IPv4 space) | Set a new random value and redeploy; old hashes and buckets simply stop matching (limits reset, nothing breaks). If unset, a key derived one-way from the service-role key is used instead — set your own to make it independent. |
+| `NEON_SERVICE_JWT_PRIVATE_KEY`, `NEON_SERVICE_JWT_KID` | The ES256 key (base64 PEM) the server signs its `service_role` tokens for the Data API with — the server's database access; bypasses every row-level rule | **Total**: read and write everything, including leads | New key pair; publish the new public key in the `service-jwks` bucket's `jwks.json` next to the old one, set the new pair in Vercel, redeploy, then drop the old key — `docs/runbooks/secrets-rotation.md` |
+| `NEON_DATA_API_URL` | The branch's Data API address | Nothing on its own: every request needs a token signed by the key above | — |
+| `NEON_AUTH_BASE_URL` | The branch's Managed Better Auth address | Nothing on its own (sign-in attempts — rate limits are ours, Neon Auth has its own) | — |
+| `NEON_AUTH_COOKIE_SECRET` | Signs Neon Auth's cached session cookie (≥ 32 characters) | A forged cached session could pass `getSession()` for up to its 5-minute lifetime — an `admin_users` row is still required | New random value in Vercel, redeploy; every admin signs in again |
+| `NEON_STORAGE_ENDPOINT`, `NEON_STORAGE_REGION`, `NEON_STORAGE_ACCESS_KEY_ID`, `NEON_STORAGE_SECRET_ACCESS_KEY` | The app's scoped Object Storage credential | Read and write every file, including visitors' private attachments | Neon → Settings → Credentials → rotate (or `neon credentials rotate`); set in Vercel; redeploy |
+| `MFA_ENCRYPTION_KEY` | Encrypts admins' TOTP secrets at rest and signs the "passed the second factor" cookie (32 random bytes, base64) | With a copy of the database: working codes. Alone: forged second-factor cookies (the password is still needed) | Rotating it makes every enrolled factor unreadable — admins remove and re-enrol at `/admin/security` |
+| `DATABASE_URL` | **Scripts and operations only** (`pg_dump`, restores) — the app never reads it | **Total** | Neon → Roles → reset password |
+| `INQUIRY_IP_HASH_SECRET` | Salts stored IP hashes and rate-limit keys | Hashes could be reversed for known addresses (2^32 IPv4 space) | Set a new random value and redeploy; old hashes and buckets simply stop matching (limits reset, nothing breaks). If unset, a key derived one-way from `NEON_SERVICE_JWT_PRIVATE_KEY` is used instead — set your own to make it independent. |
 | `CRON_SECRET` | Authorises the daily run | Anyone can trigger retries, scheduled publishing and clean-up (no data is returned, but it costs sends) | New random value (≥ 16 chars) in Vercel, redeploy. The route refuses to run without it. |
 | `RESEND_API_KEY`, `EMAIL_FROM_ADDRESS`, `EMAIL_PROVIDER` | E-mail sending (still `console` until D-01) | Send as the site's domain; read nothing | New key in Resend, replace, redeploy, delete the old one |
 | `NEXT_PUBLIC_SITE_URL` | Canonical URL (public by design) | — | — |
 | `CSP_REPORT_ONLY` | Escape hatch for the policy | — (it weakens, see section 3) | Remove when not needed |
-| `PGREST_URL`, `SERVICE_JWT` | **Test stack only** (`tests/support/stack`, `scripts/`); test values, not production | — | — |
+| `ARTAVEO_TEST_*` | **Test stack only** (`tests/support/stack`); test values, not production | — | — |
 | `NODE_ENV`, `NEXT_RUNTIME`, `VERCEL`, `VERCEL_ENV`, `VERCEL_GIT_COMMIT_SHA`, `SOURCE_VERSION` | Set by the platform/framework | — | — |
 
 **Where they live:** Vercel → Project → Settings → Environment Variables (Production only for production secrets; see the Preview note in `docs/ci.md`). Nowhere else — not in chat, tickets, screenshots or the repository. **Startup check:** `instrumentation.ts` prints, once per server start, which of these is missing or weak (names only, never values); read it in the Vercel deployment logs after any change. Full rotation steps and the "I think a secret leaked" checklist: `docs/runbooks/secrets-rotation.md`.
 
-**Owner accounts** (not environment variables): the owner's Supabase Auth password and, if enrolled, the authenticator. MFA is optional by owner decision (revision 27); it is the single strongest control against a stolen password and is worth enabling — `/admin/security`.
+**Owner accounts** (not environment variables): the owner's Neon Auth password and, if enrolled, the authenticator. MFA is optional by owner decision (revision 27); it is the single strongest control against a stolen password and is worth enabling — `/admin/security`.
 
 ## 7. Findings from the Phase 23 review, and their state
 
@@ -122,7 +129,8 @@ Nothing here is a secret **in the repository**: `.env.example` holds names and t
 | 12 | Session cookie readable by page scripts | Low–medium | Fixed: `httpOnly` |
 | 13 | Recommendation submit had no length limits and trusted argument types | Low | Fixed |
 | 14 | `enforce_inquiry_stage_transition` had a mutable `search_path` (Supabase advisor) | Low | Fixed in `0020` |
-| 15 | Supabase leaked-password protection is disabled | Low | **Open, plan limit**: a Pro-plan feature. Compensating: unique strong password, MFA, sign-in limits |
+| 15 | Supabase leaked-password protection is disabled | Low | Superseded by the move to Neon (October 2026); Neon Auth has no equivalent setting today. Compensating: unique strong password, MFA, sign-in limits |
+| 16 | Every function in `public` was executable by PUBLIC — on Neon that includes the Data API's `anonymous` role | Low (no token reaches the Data API without our key) | Fixed in `0022`: EXECUTE revoked from PUBLIC, now and by default |
 
 ## 8. Residual risks and things only the owner can do
 
@@ -130,9 +138,9 @@ Nothing here is a secret **in the repository**: `.env.example` holds names and t
 2. **`/api/og` renders any text given to it** on the brand's domain (capped at 120 characters). Someone can make an image with chosen words. Fix if it matters: sign the URL with a secret and refuse unsigned ones.
 3. **Volumetric abuse** (many requests, not clever ones) is Vercel's to absorb. In the Vercel project: enable **Attack Challenge Mode** if you are ever attacked, and consider a Firewall rule rate-limiting `/api/*` and POSTs. Not verifiable from code.
 4. **MFA is optional** (owner decision, revision 27). Enrol at `/admin/security`.
-5. **Supabase Auth settings** live in the dashboard, not the repository. Check once, and after any Supabase change: **Sign-ups disabled** (Authentication → Sign In / Providers → Allow new users to sign up: off — there is no admin sign-up flow, so an open sign-up only creates useless accounts, but it is also a way to fill the auth tables); **e-mail confirmations on**; **minimum password length ≥ 12**. On 20 September 2026 the project had exactly one auth user (the owner) and no stray accounts.
+5. **Neon Auth settings** live in the Neon Console, not the repository (project `Artaveo` → Auth). Check once, and after any change: **sign-ups disabled** (there is no admin sign-up flow, so an open sign-up only creates useless accounts — nobody becomes an admin without an `admin_users` row — but it is also a way to fill the auth tables); **no OAuth providers** (the admin signs in with e-mail and password only; remove the shared Google provider Neon enables by default); **trusted domains** exactly the production domain, the Vercel URL and `http://localhost:3000`.
 6. **GitHub / Vercel settings** from `docs/ci.md` (branch protection requiring `CI passed`; separate Preview database) still stand — they are part of this model.
-7. **Backups** (Phase 25): a daily encrypted external dump, since the free Supabase plan has no platform backups — `docs/runbooks/backup-restore.md`. RPO 24 hours; a restore test runs weekly.
+7. **Backups**: Neon keeps a restore window (instant restore to any moment inside the project's history retention) and branch snapshots; the Phase 25 export (`scripts/backup/collect.mjs` + `pg_dump`) works against Neon too — `docs/runbooks/backup-restore.md`.
 8. **Anyone can post to the two reporting endpoints** (Phase 24) and so can add rows to the error list. Bounded by: per-address and overall rate limits, an 8 KB body cap, a cap of 500 distinct error groups (past it, one shared `overflow` row), and the fact that `client` / `csp` groups never raise an alert. What a stranger can do is make the *Errors* list noisier; they cannot wake you, fill the table, or read anything.
 
 ## 9. Adding to the system — the checklist

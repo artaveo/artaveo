@@ -6,7 +6,7 @@ import { log } from '@/lib/observability/logger'
 import { captureError, track } from '@/lib/observability/store'
 import { getClientIp, hashIp } from '@/lib/request-ip'
 import { checkRateLimit } from '@/lib/security/rate-limit'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import { validateAllSteps } from '@/lib/inquiry-validation'
 import { enqueueInquiryNotifications } from '@/lib/notifications/events'
 import { processAfterEnqueue } from '@/lib/notifications/outbox'
@@ -45,18 +45,18 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
  * persistence only, never e-mail delivery.
  */
 async function notifyForInquiry(
-  supabase: NonNullable<ReturnType<typeof getSupabaseServerClient>>,
+  db: NonNullable<ReturnType<typeof getDbClient>>,
   inquiryId: string,
   draft: InquiryDraft,
 ): Promise<void> {
   try {
-    const rows = await enqueueInquiryNotifications(supabase, inquiryId, draft)
+    const rows = await enqueueInquiryNotifications(db, inquiryId, draft)
     await processAfterEnqueue(
-      supabase,
+      db,
       rows.map((row) => row.id),
     )
   } catch (err) {
-    await captureError(err, { event: 'inquiry.notifications_failed', source: 'notification', fields: { inquiryId, consequence: 'the inquiry itself was saved' }, supabase })
+    await captureError(err, { event: 'inquiry.notifications_failed', source: 'notification', fields: { inquiryId, consequence: 'the inquiry itself was saved' }, db })
   }
 }
 
@@ -94,10 +94,10 @@ export async function submitInquiry(
     return { ok: false, code: 'rejected' }
   }
 
-  // 3. D-10 gate: no live Supabase project/env configured yet. Honest
+  // 3. No database configured in this environment. Honest
   //    "not configured" rather than a crash or a fabricated success.
-  const supabase = getSupabaseServerClient()
-  if (!supabase) {
+  const db = getDbClient()
+  if (!db) {
     log.error('inquiry.not_configured', { consequence: 'a visitor tried to send a brief and nothing was saved' })
     return { ok: false, code: 'not-configured' }
   }
@@ -118,7 +118,7 @@ export async function submitInquiry(
   // 4. Idempotency replay (§ 9.2: "prevent duplicates on double click or
   //    retry"): if this exact submission already persisted, that is a
   //    success, not a new insert.
-  const { data: existing } = await supabase
+  const { data: existing } = await db
     .from('inquiries')
     .select('id')
     .eq('idempotency_key', meta.idempotencyKey)
@@ -126,7 +126,7 @@ export async function submitInquiry(
 
   if (existing) {
     log.info('inquiry.replayed', { inquiryId: existing.id as string })
-    await notifyForInquiry(supabase, existing.id as string, draft)
+    await notifyForInquiry(db, existing.id as string, draft)
     return { ok: true, id: existing.id as string, replay: true }
   }
 
@@ -137,12 +137,12 @@ export async function submitInquiry(
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 
   const [ipCountResult, emailCountResult] = await Promise.all([
-    supabase
+    db
       .from('inquiries')
       .select('id', { count: 'exact', head: true })
       .eq('submitter_ip_hash', ipHash)
       .gte('created_at', oneHourAgo),
-    supabase
+    db
       .from('inquiries')
       .select('id', { count: 'exact', head: true })
       .eq('email', email)
@@ -156,7 +156,7 @@ export async function submitInquiry(
 
   // 6. Insert. The unique constraint on idempotency_key is the real guard
   //    against a race between step 4's check and this insert.
-  const { data: inserted, error } = await supabase
+  const { data: inserted, error } = await db
     .from('inquiries')
     .insert({
       idempotency_key: meta.idempotencyKey,
@@ -191,14 +191,14 @@ export async function submitInquiry(
     // Unique-violation race: another request inserted this idempotency
     // key between step 4 and here — look it up instead of erroring.
     if (error?.code === '23505') {
-      const { data: raced } = await supabase
+      const { data: raced } = await db
         .from('inquiries')
         .select('id')
         .eq('idempotency_key', meta.idempotencyKey)
         .maybeSingle()
       if (raced) {
         log.info('inquiry.replayed', { inquiryId: raced.id as string, via: 'insert-race' })
-        await notifyForInquiry(supabase, raced.id as string, draft)
+        await notifyForInquiry(db, raced.id as string, draft)
         return { ok: true, id: raced.id as string, replay: true }
       }
     }
@@ -209,7 +209,7 @@ export async function submitInquiry(
       source: 'action',
       route: '/[locale]/start',
       fields: { consequence: 'the brief was NOT saved', service: draft.serviceSlug ?? null },
-      supabase,
+      db,
     })
     return { ok: false, code: 'error' }
   }
@@ -217,7 +217,7 @@ export async function submitInquiry(
   // 7. inquiry_events: append-only audit trail — the minimal Phase 12
   //    slice § 9.2 owns. Best-effort: a failure here must never undo or
   //    mask the successful insert above (the inquiry is already safe).
-  const { error: eventError } = await supabase.from('inquiry_events').insert({
+  const { error: eventError } = await db.from('inquiry_events').insert({
     inquiry_id: inserted.id,
     type: 'created',
     actor: 'system',
@@ -225,7 +225,7 @@ export async function submitInquiry(
     request_id: requestId ?? null,
   })
   if (eventError) {
-    await captureError(eventError, { event: 'inquiry.timeline_write_failed', source: 'database', level: 'warn', fields: { inquiryId: inserted.id as string, consequence: 'the inquiry itself was saved' }, supabase })
+    await captureError(eventError, { event: 'inquiry.timeline_write_failed', source: 'database', level: 'warn', fields: { inquiryId: inserted.id as string, consequence: 'the inquiry itself was saved' }, db })
   }
 
   // 7b. § 15's Brief Builder attachments: link whatever was already uploaded
@@ -235,26 +235,26 @@ export async function submitInquiry(
   //     left to the client. Best-effort: never undoes the inquiry insert above.
   const fileIds = [...new Set(draft.attachmentMediaIds)].filter((id) => UUID.test(id)).slice(0, MAX_ATTACHMENTS_PER_INQUIRY)
   if (fileIds.length > 0) {
-    const { error: attachmentError } = await supabase
+    const { error: attachmentError } = await db
       .from('inquiry_files')
       .update({ inquiry_id: inserted.id })
       .in('id', fileIds)
       .is('inquiry_id', null)
     if (attachmentError) {
-      await captureError(attachmentError, { event: 'inquiry.attachments_link_failed', source: 'database', level: 'warn', fields: { inquiryId: inserted.id as string, consequence: 'the inquiry itself was saved' }, supabase })
+      await captureError(attachmentError, { event: 'inquiry.attachments_link_failed', source: 'database', level: 'warn', fields: { inquiryId: inserted.id as string, consequence: 'the inquiry itself was saved' }, db })
     }
   }
 
   // 8. § 9.3 / Phase 19 — Notifications: outbox pattern ("persist first,
   //    send after"). See `notifyForInquiry` above.
-  await notifyForInquiry(supabase, inserted.id as string, draft)
+  await notifyForInquiry(db, inserted.id as string, draft)
 
   // The funnel's top line: counted on the Observability page. Ids and labels only — never the
   // visitor's name, address or text.
   await track('inquiry.submitted', {
     subject: { type: 'inquiry', id: inserted.id as string },
     data: { service: draft.serviceSlug ?? null, locale: draft.preferredLocale, channel: meta.sourceChannel ?? null, attachments: fileIds.length },
-    supabase,
+    db,
   })
 
   return { ok: true, id: inserted.id as string }

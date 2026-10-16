@@ -2,7 +2,7 @@
 
 import { bindRequestId, getRequestId } from '@/lib/observability/context'
 import { checkRateLimit } from '@/lib/security/rate-limit'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import { resolveRequestToken } from '@/lib/recommendations'
 import { enqueueEvidenceSubmitted } from '@/lib/notifications/events'
 import { processAfterEnqueue } from '@/lib/notifications/outbox'
@@ -95,8 +95,8 @@ export async function submitRecommendation(
     return { ok: false, code: 'invalid' }
   }
 
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = getDbClient()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   // 3. Re-resolve the token server-side rather than trust anything the
   //    client sent about the request's state — the same "server
@@ -105,12 +105,12 @@ export async function submitRecommendation(
   if (resolved.state !== 'open') return { ok: false, code: 'closed' }
 
   // 4. The request row this token belongs to.
-  const { data: requestRow, error: requestError } = await supabase
+  const { data: requestRow, error: requestError } = await db
     .from('recommendation_requests')
     .select('id, recommendation_id, suggested_related_project_id, suggested_related_service_id')
     .eq('id', resolved.requestId)
     .maybeSingle()
-  if (requestError) await captureError(requestError, { event: 'recommendation.request_lookup_failed', source: 'action', route: '/[locale]/recommend/[token]', supabase })
+  if (requestError) await captureError(requestError, { event: 'recommendation.request_lookup_failed', source: 'action', route: '/[locale]/recommend/[token]', db })
   if (requestError || !requestRow) return { ok: false, code: 'error' }
 
   const isResubmission = Boolean(requestRow.recommendation_id)
@@ -121,7 +121,7 @@ export async function submitRecommendation(
     // only ever rewrites the visitor's own language (§ 16: "meaning is
     // never edited" applies to the admin's edits — a resubmission is the
     // recommender's own new wording, always allowed).
-    const { data: existing } = await supabase
+    const { data: existing } = await db
       .from('recommendations')
       .select('statement')
       .eq('id', requestRow.recommendation_id)
@@ -129,7 +129,7 @@ export async function submitRecommendation(
     const existingStatement = (existing?.statement as LocalizedText | undefined) ?? { en: '', fa: '' }
     const mergedStatement: LocalizedText = { ...existingStatement, [locale]: statement }
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await db
       .from('recommendations')
       .update({
         person_name: personName,
@@ -144,11 +144,11 @@ export async function submitRecommendation(
       })
       .eq('id', requestRow.recommendation_id)
     if (updateError) {
-      await captureError(updateError, { event: 'recommendation.update_failed', source: 'action', route: '/[locale]/recommend/[token]', supabase })
+      await captureError(updateError, { event: 'recommendation.update_failed', source: 'action', route: '/[locale]/recommend/[token]', db })
       return { ok: false, code: 'error' }
     }
 
-    await notifyOwner(supabase, requestRow.recommendation_id as string, {
+    await notifyOwner(db, requestRow.recommendation_id as string, {
       personName,
       relationship,
       company: company || null,
@@ -160,7 +160,7 @@ export async function submitRecommendation(
 
   const statementValue: LocalizedText = locale === 'en' ? { en: statement, fa: '' } : { en: '', fa: statement }
 
-  const { data: inserted, error: insertError } = await supabase
+  const { data: inserted, error: insertError } = await db
     .from('recommendations')
     .insert({
       person_name: personName,
@@ -181,11 +181,11 @@ export async function submitRecommendation(
     .single()
 
   if (insertError || !inserted) {
-    await captureError(insertError ?? new Error('insert returned no row'), { event: 'recommendation.persist_failed', source: 'action', route: '/[locale]/recommend/[token]', fields: { consequence: 'the statement was NOT saved' }, supabase })
+    await captureError(insertError ?? new Error('insert returned no row'), { event: 'recommendation.persist_failed', source: 'action', route: '/[locale]/recommend/[token]', fields: { consequence: 'the statement was NOT saved' }, db })
     return { ok: false, code: 'error' }
   }
 
-  const { error: touchError } = await supabase
+  const { error: touchError } = await db
     .from('recommendation_requests')
     .update({ used_at: new Date().toISOString(), recommendation_id: inserted.id })
     .eq('id', requestRow.id)
@@ -193,14 +193,14 @@ export async function submitRecommendation(
     await captureError(touchError, { event: 'recommendation.request_touch_failed', source: 'database', level: 'warn', fields: { consequence: 'the recommendation itself was saved' } })
   }
 
-  await notifyOwner(supabase, inserted.id as string, {
+  await notifyOwner(db, inserted.id as string, {
     personName,
     relationship,
     company: company || null,
     locale,
     resubmission: false,
   })
-  await track('evidence.submitted', { subject: { type: 'recommendation', id: inserted.id as string }, data: { locale, resubmission: false }, supabase })
+  await track('evidence.submitted', { subject: { type: 'recommendation', id: inserted.id as string }, data: { locale, resubmission: false }, db })
   return { ok: true }
 }
 
@@ -213,12 +213,12 @@ export async function submitRecommendation(
  * becomes public without moderation.
  */
 async function notifyOwner(
-  supabase: NonNullable<ReturnType<typeof getSupabaseServerClient>>,
+  db: NonNullable<ReturnType<typeof getDbClient>>,
   recommendationId: string,
   input: { personName: string; relationship: string; company: string | null; locale: Locale; resubmission: boolean },
 ): Promise<void> {
   try {
-    const rows = await enqueueEvidenceSubmitted(supabase, {
+    const rows = await enqueueEvidenceSubmitted(db, {
       recommendationId,
       personName: input.personName,
       relationship: input.relationship,
@@ -228,7 +228,7 @@ async function notifyOwner(
       submittedAt: new Date().toISOString(),
     })
     await processAfterEnqueue(
-      supabase,
+      db,
       rows.map((row) => row.id),
     )
   } catch (err) {

@@ -1,85 +1,66 @@
-# Backup & Recovery (Phase 25)
+# Backup & Recovery (Phase 25; Neon since October 2026)
 
-What gets backed up, how often, how to restore it — into the same project and into a brand-new one — and how to roll back a bad deploy or a bad migration. Where this file and `.github/workflows/backup.yml` disagree, the workflow has the actual behaviour; this file explains it.
+What protects the data, how to get it back — into the same project and into a brand-new one — and how to roll back a bad deploy or a bad migration.
 
-## 1. Why an external dump at all
+## 1. What exists today
 
-D-10's decision, recorded when the Supabase project was created: the **free plan has no platform backups** — no point-in-time recovery, nothing in *Database → Backups*. Revision 21 flagged this as follow-up ("the free plan has no platform backups — Phase 25's external dump (or a plan upgrade) is needed before real leads accumulate"). This phase is that dump. It does not replace upgrading the Supabase plan if that ever makes sense; it is what exists instead of that, today.
+Since the move from Supabase (October 2026) the database, the files and admin sign-in all live in one Neon project, **`Artaveo`** (`calm-breeze-36870180`, `aws-ap-southeast-1`), branch **`main`**.
 
-## 2. What is backed up, and what is not
+| Layer | What it is | Covers |
+|---|---|---|
+| **Instant restore** (Neon, built in) | Any branch can be restored to any moment inside the project's **history window** — 6 hours on the current plan (`history_retention_seconds = 21600`). | Database and Object Storage of the branch, Neon Auth's tables (they live in the same database). |
+| **Snapshots** (Neon, built in) | A named, kept copy of a branch at one moment; restorable later, independent of the history window. Take one before every risky change (Console → Branches → `main` → Snapshots, or a schedule). | Same as above. |
+| **External export** (Phase 25 code) | `pg_dump` of `public` + `scripts/backup/collect.mjs` (every stored file + a `manifest.json`: migrations, row counts, each admin's e-mail). | A copy outside Neon. |
 
-| Backed up | How |
-|---|---|
-| Every table in the `public` schema | `pg_dump --schema=public --no-owner --no-privileges --format=custom` |
-| Every object in Storage (`media`, `inquiry-files`) | downloaded with the service-role key, `scripts/backup/collect.mjs` |
-| Which migrations the dump was taken against, table row counts, and each `admin_users` row's e-mail (see § 5 for why) | `scripts/backup/collect.mjs` → `manifest.json`, inside the same archive |
+**Honest gap:** Phase 25 described a daily GitHub workflow (`.github/workflows/backup.yml`) that runs the external export, encrypts it with `age` and tests a restore. **That workflow was never committed to this repository** — only `scripts/backup/collect.mjs` and `/api/ops/backup-report` were. Until it exists, the external export is something you run by hand (§ 4), and the `backup.*` alerts on `/admin/observability` stay silent because nothing reports in.
 
-**Deliberately not backed up:**
-- **`auth.*`** (Supabase's own schema). It is platform-managed; Supabase's own docs (`supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore`) say auth/storage schema changes need separate care, and this project makes none — `admin_users.id` is the only place `auth.users` is referenced (migration `0008`). Restoring `public` into the *same* project never touches auth, so this only matters for a new-project disaster recovery (§ 5).
-- **Secrets** (`SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`, …). Rotation, not backup — `docs/runbooks/secrets-rotation.md`.
-- **Vercel's own deployment artifacts.** Covered by § 6, not this backup.
+## 2. What is not backed up
+
+- **Secrets** (`NEON_SERVICE_JWT_PRIVATE_KEY`, the storage credential, `CRON_SECRET`, …). Rotation, not backup — `docs/runbooks/secrets-rotation.md`.
+- **Admin passwords.** Neon Auth's tables are in the database (instant restore and snapshots include them); the external export dumps `public` only, so a restore into a *new* project recreates the admin accounts by hand (§ 5b).
+- **Vercel's own deployment artifacts.** Covered by § 6.
 
 ## 3. RPO / RTO
 
-- **RPO (Recovery Point Objective): 24 hours.** The workflow runs once a day (`03:17 UTC`). Anything written after the last successful run and lost before the next one is the real, disclosed exposure — there is no continuous replication on the free plan.
-- **RTO (Recovery Time Objective): under an hour for restoring into the *same* project** (§ 4) by someone with the decrypted archive and `psql`/`pg_restore` on their machine. **Several hours for disaster recovery into a *new* project** (§ 5) — most of that is Supabase provisioning a new project and the owner recreating Auth users by hand, not the restore itself.
+- **Inside the history window (6 hours):** RPO is effectively zero — restore to the second before the mistake. RTO: minutes (a branch restore).
+- **Older than that:** as fresh as the latest snapshot or external export. Take snapshots on a schedule if real leads accumulate.
+- **Disaster recovery into a new project** (§ 5b): several hours, most of it recreating admin accounts and secrets, not the restore itself.
 
-These are engineering estimates, not measured incident times — the same category as Phase 24's alert thresholds (`docs/observability.md`).
+Engineering estimates, not measured incident times.
 
-## 4. Setup (owner, once)
+## 4. Running the external export by hand
 
-**Generate a key pair** (needs [`age`](https://github.com/FiloSottile/age) — `brew install age` / `apt install age`, or download a release):
+Needs `pg_dump` (PostgreSQL 17 client), Node 22+, the repo, and the production variables in `.env.local` (`DATABASE_URL`, `NEON_DATA_API_URL`, `NEON_SERVICE_JWT_*`, `NEON_STORAGE_*`). Use the **direct** connection string (without `-pooler`) for `pg_dump`.
+
+```bash
+pg_dump --schema=public --no-owner --no-privileges --format=custom -d "$DATABASE_URL" -f .backup-work/public.dump
+node --env-file=.env.local --import ./scripts/register-ts-resolve.mjs scripts/backup/collect.mjs
 ```
-age-keygen -o artaveo-backup-key.txt
-```
-This prints a line starting `Public key: age1…`. **Keep `artaveo-backup-key.txt` somewhere durable and offline** — a password manager, an encrypted USB drive, printed and locked in a drawer. Without it, every backup this workflow ever produces is unreadable, by design. GitHub never sees it.
 
-**In the repository** (Settings → Secrets and variables → Actions):
-
-| Kind | Name | Value |
-|---|---|---|
-| Secret | `SUPABASE_DB_URL` | The **Session pooler** connection string (Supabase dashboard → Connect → *Session pooler*), with the database password filled in. Not the direct connection: the free plan's direct connection is IPv6-only and GitHub's runners are IPv4-only. |
-| Secret | `SUPABASE_SERVICE_ROLE_KEY` | Same key already in Vercel (`docs/security.md` § 6). Used here read-only: listing/downloading Storage objects and reading `admin_users` + Auth e-mails. |
-| Secret | `CRON_SECRET` | The same value already in Vercel and in this repository's Actions secrets for `uptime.yml` — reused so the workflow can report in to `/api/ops/backup-report` (no new server secret). |
-| Variable | `BACKUP_AGE_PUBLIC_KEY` | The `age1…` public key from above. Multiple recipients: one per line (e.g. add a second person's key later without re-keying anything already backed up). |
-| Variable | `SITE_URL` | Only if not already set for `uptime.yml`. |
-
-Nothing above lets GitHub Actions — or anyone reading its logs — decrypt a backup, run a mutating statement against the real database, or see a Storage file's *contents* in a log. `SUPABASE_DB_URL` and `SUPABASE_SERVICE_ROLE_KEY` are read access only; the workflow never runs an `insert`/`update`/`delete` against the real project.
+You get `.backup-work/public.dump`, `.backup-work/storage/<bucket>/…` and `.backup-work/manifest.json`. Encrypt before it leaves your machine (e.g. `age`, see Phase 25's README), and keep it out of the repository (`.backup-work` is git-ignored).
 
 ## 5. Restore
 
-**First, always:** `age -d -i artaveo-backup-key.txt -o artaveo-backup.tar.gz artaveo-backup-<stamp>.tar.gz.age`, then `tar xzf artaveo-backup.tar.gz` — you get `public.dump`, `manifest.json`, `storage/`.
+### 5a. Into the *same* project (undo a bad migration or bad data)
+1. **Inside the history window:** Neon Console → Branches → `main` → **Restore** → pick the moment just before the mistake. Neon keeps the pre-restore state as a backup branch, so the restore itself can be undone.
+2. **From a snapshot:** Console → Branches → `main` → Snapshots → restore.
+3. **From an external export:** `pg_restore --no-owner --no-privileges --clean --if-exists -d "$DATABASE_URL" public.dump` — this **overwrites** current data with the backup's (one table: add `--table=<name>`). Files under `storage/<bucket>/<path>` go back through `/admin/content/media` (the `media` bucket) or `neon buckets`; there is no bulk-restore tool, on purpose.
+4. Check `manifest.json`'s `migrations` list against `db/migrations/` before deploying onto restored data.
 
-### 5a. Into the *same*, still-existing project (the ordinary case: undo a bad migration or bad data, not a lost project)
-1. `pg_restore --no-owner --no-privileges --clean --if-exists -d "$SUPABASE_DB_URL" public.dump` — `--clean --if-exists` drops and recreates each object, so this **overwrites** current data with the backup's. Confirm you mean that first (a narrower restore — one table — is the same command with `--table=<name>`).
-2. Storage: for anything under `storage/<bucket>/<path>` you need back, re-upload it — through `/admin/content/media` (the `media` bucket) or the owner-only download/replace flow for `inquiry-files`, not by writing into Supabase Storage directly. There is no bulk-restore tool for Storage; this is a manual, per-file step, disclosed rather than automated away.
-3. Check `manifest.json`'s `migrations` list against `db/migrations/` on the branch you are restoring onto. If the backup is older than a migration that has since run, apply that migration to the restored data (or restore onto a `main` checked out at the matching commit) before deploying.
-
-### 5b. Disaster recovery into a *brand-new* Supabase project (the old one is gone or unusable)
-This is the several-hours path, and the one step pg_dump genuinely cannot do for you:
-1. Create the new project; note its URL and get its service-role key.
-2. Apply every file in `db/migrations/` in order (same as `tests/support/stack/stack.mjs up` does against the test stack, or by hand with `psql`) — this recreates the schema, RLS, triggers and functions, empty.
-3. `pg_restore --no-owner --no-privileges --data-only -d "<new SUPABASE_DB_URL>" public.dump` (`--data-only`: the schema already exists from step 2 with `db/migrations/`'s own, current constraints — restoring the dump's *schema* too would fight them).
-4. **Auth, by hand, from `manifest.json`'s `admins` list.** For each `{id, role, email}`: in the new project's dashboard, invite/create an Auth user with that exact `email`. Supabase assigns it a **new** id — it will not match the old `id` in the restored `admin_users` row. Run, per admin:
-   ```sql
-   update public.admin_users set id = '<new-auth-user-id>' where id = '<old-id>';
-   ```
-   (The foreign key means this must happen before anything else references the row, and after step 3's data is in, not before.) This is why the manifest carries e-mails at all — `admin_users` itself (migration `0008`) deliberately stores only `(id, role)`.
-5. Re-upload Storage objects from `storage/` (same manual step as § 5a.2).
-6. Point Vercel's `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_ANON_KEY` at the new project (`docs/runbooks/secrets-rotation.md` has the "copy into Vercel, redeploy" mechanics). Redeploy.
-7. Sign in at `/admin/login` with the recreated owner account; MFA (optional, `/admin/security`) needs re-enrolling — a new Auth user has no factor.
-
-### What the restore test does and does not prove
-Every Sunday, and on every manual run of the workflow, `.github/workflows/backup.yml` restores that run's own `public.dump` into a throw-away local PostgreSQL (inside the GitHub-hosted runner, gone when the job ends) and checks every table's row count against the manifest — **before** the dump is ever encrypted, so the test proves exactly what gets encrypted. This is real evidence the dump is restorable and complete, not merely present. What it does **not** exercise: decrypting an actual `.age` archive (the test runs on the plaintext dump, deliberately — see the workflow's own header comment for why), Storage re-upload (§ 5a.2 is manual by design), or the § 5b auth-remap procedure, which only a real second project can really test.
+### 5b. Disaster recovery into a *brand-new* Neon project
+1. Create the project; on its `main` branch enable the **Data API** with an external JWKS provider (the `service-jwks` bucket's `jwks.json`, no default grants) and **Managed Better Auth**; create the buckets `media` (public_read), `inquiry-files` (private) and `service-jwks` (public_read), and a storage credential with `storage:read` + `storage:write`.
+2. Apply `db/neon/prelude.sql`, then every file in `db/migrations/` in order — this recreates the schema, RLS, triggers and functions, empty.
+3. `pg_restore --no-owner --no-privileges --data-only -d "<new DATABASE_URL>" public.dump`.
+4. **Admin accounts, from `manifest.json`'s `admins` list:** for each `{id, role, email}` create a Neon Auth user with that e-mail (Console → Auth → Users), then re-point the row: `update public.admin_users set id = '<new user id>' where id = '<old id>';`. Two-factor needs re-enrolling (`/admin/security`).
+5. Re-upload stored files from `storage/` (as in § 5a.3).
+6. Set every `NEON_*` variable in Vercel to the new project's values (`docs/security.md` § 6) and redeploy.
 
 ## 6. Rollback (deployments and migrations)
 
-**A bad deployment (Vercel):** the project is on Vercel's **Hobby** plan, which allows rolling back only to the *immediately previous* production deployment (`vercel rollback`, or the dashboard's Instant Rollback) — not to an arbitrary earlier one. If the previous deployment is already the broken one (two bad deploys in a row), the only path is pushing a fixed commit, not a further rollback. Vercel does not restore old environment variables on rollback if they were since changed, and cron jobs revert to the rolled-back deployment's own `vercel.json`.
+**A bad deployment (Vercel):** the project is on Vercel's **Hobby** plan, which allows rolling back only to the *immediately previous* production deployment (`vercel rollback`, or the dashboard's Instant Rollback). Two bad deploys in a row → push a fix. Vercel does not restore old environment variables on rollback if they were since changed, and cron jobs revert to the rolled-back deployment's own `vercel.json`.
 
-**A bad migration:** every file under `db/migrations/` carries its own `ROLLBACK:` block in its header comment (a convention every migration since `0001` follows) — the exact statements to undo it, in order, written when the migration was written, not reconstructed after the fact. Run them by hand with `psql "$SUPABASE_DB_URL"` (or the Supabase SQL editor), most-recent migration first if more than one needs undoing. A migration's rollback assumes nothing later depends on what it removes — check the migrations after it before rolling one back out of order.
+**A bad migration:** every file under `db/migrations/` carries its own `ROLLBACK:` block in its header comment — the exact statements to undo it. Run them in the Neon SQL Editor (or `psql "$DATABASE_URL"`), most recent first. Simpler, if it is still inside the history window: restore the branch to just before the migration (§ 5a.1). Best of all: **apply a risky migration to a Neon branch first** (`neon branches create`, test against it, then apply to `main`).
 
-## 7. What this phase does not build, disclosed rather than silently skipped
-- **Point-in-time recovery.** This is daily snapshots, not continuous replication — the RPO in § 3 is the real gap, not a rounding error.
-- **Automated Storage restore.** § 5a.2 / § 5b.5 are manual on purpose: a bulk-write tool for Storage is real, additional surface area for a feature used only in an actual incident.
-- **A second, independent decryption key for routine testing.** The restore test (§ 5, "What the restore test does and does not prove") deliberately runs before encryption rather than adding a second `age` identity that would have to be trusted and kept in sync with the owner's real one.
-- **A live rehearsal of § 5b** (disaster recovery into a genuinely new project). Not verifiable without actually standing one up; the procedure is written from Supabase's own documented restore mechanics (§ 5b) and the schema this project's own migrations define, not run end-to-end.
+## 7. History
+
+Until October 2026 the site ran on a Supabase free-plan project, which had no platform backups at all — the reason Phase 25 designed an external dump. The data was copied to Neon on 16 October 2026 and verified table by table (identical row hashes on both sides); `docs/updates/2026-10-16-neon-migration.md` records the move.

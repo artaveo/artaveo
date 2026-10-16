@@ -15,7 +15,7 @@ import { headers } from 'next/headers'
  * The secret that salts every stored hash and every rate-limit key.
  *
  * `INQUIRY_IP_HASH_SECRET` when set. When it is not (Phase 23): a key derived,
- * one-way, from the service-role key — a server-only secret that must exist for
+ * one-way, from the server's Data API signing key (NEON_SERVICE_JWT_PRIVATE_KEY) — a server-only secret that must exist for
  * the site to work at all — instead of the constant this used to fall back to.
  * With a public constant, every stored IPv4 hash could be reversed by trying
  * all 2^32 addresses; with a derived key it cannot. Only when neither exists
@@ -23,8 +23,8 @@ import { headers } from 'next/headers'
  */
 export function hashSecret(env: NodeJS.ProcessEnv = process.env): string {
   if (env.INQUIRY_IP_HASH_SECRET) return env.INQUIRY_IP_HASH_SECRET
-  if (env.SUPABASE_SERVICE_ROLE_KEY) {
-    return crypto.createHmac('sha256', 'artaveo:hash-secret:v1').update(env.SUPABASE_SERVICE_ROLE_KEY).digest('hex')
+  if (env.NEON_SERVICE_JWT_PRIVATE_KEY) {
+    return crypto.createHmac('sha256', 'artaveo:hash-secret:v2').update(env.NEON_SERVICE_JWT_PRIVATE_KEY).digest('hex')
   }
   return 'artaveo-dev-only-unset-secret'
 }

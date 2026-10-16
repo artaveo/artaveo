@@ -200,11 +200,11 @@ describe('captureError and track (the application side)', () => {
     assert.ok(all.includes('[token]') && all.includes('[email]'))
   })
   it('never throws, even with no client, a broken value or a database that refuses', async () => {
-    await captureError(new Error('x'), { event: 'a.b', supabase: null })
+    await captureError(new Error('x'), { event: 'a.b', db: null })
     await captureError(undefined, { event: 'not a valid name' })
     const broken = { rpc: async () => { throw new Error('db down') } }
-    assert.equal(await track('a.b', { supabase: broken }), false)
-    await captureError(new Error('x'), { event: 'a.b', supabase: broken })
+    assert.equal(await track('a.b', { db: broken }), false)
+    await captureError(new Error('x'), { event: 'a.b', db: broken })
     assert.equal((await groups()).length, 0, 'a database that refuses records nothing and throws nothing')
     // An object whose own toString throws is still filed (against the real database), not lost or thrown.
     await captureError({ toString() { throw new Error('nope') } }, { event: 'a.b' })
@@ -214,7 +214,7 @@ describe('captureError and track (the application side)', () => {
     const lines = []
     setLogSink((level, line) => lines.push(JSON.parse(line)))
     const broken = { rpc: async () => ({ data: null, error: { message: 'connection refused' } }) }
-    await captureError(new Error('the real failure'), { event: 'inquiry.persist_failed', supabase: broken })
+    await captureError(new Error('the real failure'), { event: 'inquiry.persist_failed', db: broken })
     assert.equal(lines[0].event, 'inquiry.persist_failed')
     assert.equal(lines[0].err.message, 'the real failure')
     assert.equal(lines[1].event, 'observability.persist_failed', 'a failing store warns once; it does not report itself')
@@ -419,8 +419,8 @@ describe('every alert rule against real rows', () => {
     assert.deepEqual(await ids(), [])
     sql(`insert into public.ops_events (level, name, occurred_at) values ('info', 'cron.completed', now() - interval '40 hours'), ('info', 'monitor.checked', now() - interval '5 hours')`)
     assert.deepEqual(await ids(), ['cron.stale', 'monitor.silent'])
-    await track('cron.completed', { supabase: db })
-    await track('monitor.checked', { supabase: db })
+    await track('cron.completed', { db: db })
+    await track('monitor.checked', { db: db })
     assert.deepEqual(await ids(), [])
   })
   it('sign-in pressure: two limit crossings in a day', async () => {
@@ -468,8 +468,8 @@ describe('the owner’s page and the health check', () => {
   it('the overview reports the funnel, the groups and the events from the database', async () => {
     resetRequest({ 'x-request-id': uuid() })
     await submitInquiry(draft(), meta())
-    await track('content.published', { data: { via: 'manual' }, supabase: db })
-    await captureError(new Error('visible failure'), { event: 'x.failed', source: 'server', supabase: db })
+    await track('content.published', { data: { via: 'manual' }, db: db })
+    await captureError(new Error('visible failure'), { event: 'x.failed', source: 'server', db: db })
     const overview = await getObservabilityOverview()
     const row = (name) => overview.funnel.find((r) => r.name === name)
     assert.deepEqual([row('inquiry.submitted').last24h, row('content.published').last7d, row('consultation.requested').last30d], [1, 1, 0])
@@ -479,7 +479,7 @@ describe('the owner’s page and the health check', () => {
     assert.equal(overview.database.ok, true)
   })
   it('a group can be resolved by the owner only, and it is audited; resolving then recurring reopens it', async () => {
-    await captureError(new Error('flaky'), { event: 'x.failed', source: 'server', supabase: db })
+    await captureError(new Error('flaky'), { event: 'x.failed', source: 'server', db: db })
     const [group] = await groups()
 
     resetRequest()
@@ -498,7 +498,7 @@ describe('the owner’s page and the health check', () => {
     const audit = (await db.from('audit_log').select('action, entity_id').eq('action', 'observability.error_group_status')).data
     assert.equal(audit.length, 1)
 
-    await captureError(new Error('flaky'), { event: 'x.failed', source: 'server', supabase: db })
+    await captureError(new Error('flaky'), { event: 'x.failed', source: 'server', db: db })
     assert.equal((await groups())[0].status, 'open', 'a regression reopens itself')
   })
   it('the inquiry-path health check reads the database, the outbox and the limiter, and reports a broken outbox as not ok', async () => {

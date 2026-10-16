@@ -14,7 +14,7 @@ import { NoteForm } from '@/components/admin/pipeline/note-form'
 import { EventsTimeline } from '@/components/admin/pipeline/events-timeline'
 import { SlaIndicator } from '@/components/admin/pipeline/sla-indicator'
 import { canAccessLeads, getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
-import { computeSla, getInquiry, getInquiryEvents, getResponseCommitment, requireSupabase } from '@/lib/admin/pipeline'
+import { computeSla, getInquiry, getInquiryEvents, getResponseCommitment, requireDb } from '@/lib/admin/pipeline'
 import { listInquiryFiles } from '@/lib/inquiry-files'
 import { ConsultationStatusBadge, CONSULTATION_STATUS_SUFFIX } from '@/components/consultation/consultation-status'
 import { listConsultationsForInquiry } from '@/lib/consultation/queries'
@@ -50,7 +50,7 @@ export default async function LeadDetailPage({
 
   const t = await getTranslations('Admin')
 
-  const filesClient = requireSupabase()
+  const filesClient = requireDb()
   const [inquiry, events, commitment, consultations, files] = await Promise.all([
     getInquiry(id),
     getInquiryEvents(id),

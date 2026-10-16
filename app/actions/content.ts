@@ -16,7 +16,7 @@ import {
   recommendationCompleteness,
   serviceCompleteness,
 } from '@/lib/admin/content'
-import { requireSupabase } from '@/lib/admin/pipeline'
+import { requireDb } from '@/lib/admin/pipeline'
 import { normalizeCategory } from '@/lib/articles/category'
 import { collectMediaIds, parseArticleBody } from '@/lib/articles/markdown'
 import { findPlaceholders } from '@/lib/articles/placeholders'
@@ -163,10 +163,10 @@ export async function createService(input: ServiceCoreInput): Promise<ContentAct
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('services')
     .insert({ ...serviceCoreToRow(input), published: false })
     .select('id')
@@ -187,12 +187,12 @@ export async function updateService(id: string, input: ServiceCoreInput): Promis
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data: before } = await supabase.from('services').select('slug').eq('id', id).maybeSingle()
+  const { data: before } = await db.from('services').select('slug').eq('id', id).maybeSingle()
 
-  const { error } = await supabase.from('services').update(serviceCoreToRow(input)).eq('id', id)
+  const { error } = await db.from('services').update(serviceCoreToRow(input)).eq('id', id)
   if (error) {
     if (error.code === '23505') return { ok: false, code: 'duplicate-slug' }
     return { ok: false, code: 'error' }
@@ -208,8 +208,8 @@ export async function publishService(id: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   const service = await getServiceAdmin(id)
   if (!service) return { ok: false, code: 'error' }
@@ -217,12 +217,12 @@ export async function publishService(id: string): Promise<ContentActionResult> {
   const completeness = serviceCompleteness(service)
   if (!completeness.en || !completeness.fa) return { ok: false, code: 'not-complete' }
 
-  const { error } = await supabase.from('services').update({ published: true }).eq('id', id)
+  const { error } = await db.from('services').update({ published: true }).eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.service_published', entity: 'service', entityId: id })
   revalidateServiceRoutes([service.slug])
-  await notifyManualPublish(supabase, { entity: 'service', id, actorEmail: auth.email })
+  await notifyManualPublish(db, { entity: 'service', id, actorEmail: auth.email })
   return { ok: true }
 }
 
@@ -230,10 +230,10 @@ export async function unpublishService(id: string): Promise<ContentActionResult>
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data, error } = await supabase.from('services').update({ published: false }).eq('id', id).select('slug').maybeSingle()
+  const { data, error } = await db.from('services').update({ published: false }).eq('id', id).select('slug').maybeSingle()
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.service_unpublished', entity: 'service', entityId: id })
@@ -248,15 +248,15 @@ export async function unpublishService(id: string): Promise<ContentActionResult>
 export async function createProcessStep(serviceId: string, input: ProcessStepInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { count } = await supabase
+  const { count } = await db
     .from('service_process_steps')
     .select('id', { count: 'exact', head: true })
     .eq('service_id', serviceId)
 
-  const { error } = await supabase.from('service_process_steps').insert({
+  const { error } = await db.from('service_process_steps').insert({
     service_id: serviceId,
     title: toJsonbOrNull(input.title),
     description: toJsonbOrNull(input.description),
@@ -272,10 +272,10 @@ export async function createProcessStep(serviceId: string, input: ProcessStepInp
 export async function updateProcessStep(id: string, serviceId: string, input: ProcessStepInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase
+  const { error } = await db
     .from('service_process_steps')
     .update({ title: toJsonbOrNull(input.title), description: toJsonbOrNull(input.description) })
     .eq('id', id)
@@ -289,10 +289,10 @@ export async function updateProcessStep(id: string, serviceId: string, input: Pr
 export async function deleteProcessStep(id: string, serviceId: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('service_process_steps').delete().eq('id', id)
+  const { error } = await db.from('service_process_steps').delete().eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.process_step_deleted', entity: 'service', entityId: serviceId })
@@ -307,10 +307,10 @@ export async function deleteProcessStep(id: string, serviceId: string): Promise<
 export async function upsertPackage(serviceId: string, input: PackageInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('service_packages').upsert(
+  const { error } = await db.from('service_packages').upsert(
     {
       service_id: serviceId,
       tier: input.tier,
@@ -341,10 +341,10 @@ export async function upsertPackage(serviceId: string, input: PackageInput): Pro
 export async function deletePackage(rowId: string, serviceId: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('service_packages').delete().eq('id', rowId)
+  const { error } = await db.from('service_packages').delete().eq('id', rowId)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.package_deleted', entity: 'service', entityId: serviceId })
@@ -359,12 +359,12 @@ export async function deletePackage(rowId: string, serviceId: string): Promise<C
 export async function createAddon(serviceId: string, input: AddonInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { count } = await supabase.from('service_addons').select('id', { count: 'exact', head: true }).eq('service_id', serviceId)
+  const { count } = await db.from('service_addons').select('id', { count: 'exact', head: true }).eq('service_id', serviceId)
 
-  const { error } = await supabase.from('service_addons').insert({
+  const { error } = await db.from('service_addons').insert({
     service_id: serviceId,
     title: toJsonbOrNull(input.title),
     description: toJsonbOrNull(input.description),
@@ -384,10 +384,10 @@ export async function createAddon(serviceId: string, input: AddonInput): Promise
 export async function updateAddon(id: string, serviceId: string, input: AddonInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase
+  const { error } = await db
     .from('service_addons')
     .update({
       title: toJsonbOrNull(input.title),
@@ -408,10 +408,10 @@ export async function updateAddon(id: string, serviceId: string, input: AddonInp
 export async function deleteAddon(id: string, serviceId: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('service_addons').delete().eq('id', id)
+  const { error } = await db.from('service_addons').delete().eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.addon_deleted', entity: 'service', entityId: serviceId })
@@ -426,14 +426,14 @@ export async function deleteAddon(id: string, serviceId: string): Promise<Conten
 export async function createFaq(scope: 'service' | 'global', serviceId: string | null, input: FaqInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  let countQuery = supabase.from('faqs').select('id', { count: 'exact', head: true }).eq('scope', scope)
+  let countQuery = db.from('faqs').select('id', { count: 'exact', head: true }).eq('scope', scope)
   if (scope === 'service') countQuery = countQuery.eq('service_id', serviceId)
   const { count } = await countQuery
 
-  const { error } = await supabase.from('faqs').insert({
+  const { error } = await db.from('faqs').insert({
     scope,
     service_id: scope === 'service' ? serviceId : null,
     question: toJsonbOrNull(input.question),
@@ -450,10 +450,10 @@ export async function createFaq(scope: 'service' | 'global', serviceId: string |
 export async function updateFaq(id: string, serviceId: string | null, input: FaqInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase
+  const { error } = await db
     .from('faqs')
     .update({ question: toJsonbOrNull(input.question), answer: toJsonbOrNull(input.answer) })
     .eq('id', id)
@@ -467,10 +467,10 @@ export async function updateFaq(id: string, serviceId: string | null, input: Faq
 export async function deleteFaq(id: string, serviceId: string | null): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('faqs').delete().eq('id', id)
+  const { error } = await db.from('faqs').delete().eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.faq_deleted', entity: serviceId ? 'service' : 'faq', entityId: serviceId ?? id })
@@ -486,10 +486,10 @@ export async function createEngagementModel(input: EngagementModelInput): Promis
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('engagement_models')
     .insert({
       slug: input.slug.trim(),
@@ -514,10 +514,10 @@ export async function updateEngagementModel(id: string, input: EngagementModelIn
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase
+  const { error } = await db
     .from('engagement_models')
     .update({
       slug: input.slug.trim(),
@@ -539,16 +539,16 @@ export async function updateEngagementModel(id: string, input: EngagementModelIn
 export async function publishEngagementModel(id: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data: row } = await supabase.from('engagement_models').select('title, when_it_fits, billing').eq('id', id).maybeSingle()
+  const { data: row } = await db.from('engagement_models').select('title, when_it_fits, billing').eq('id', id).maybeSingle()
   if (!row) return { ok: false, code: 'error' }
 
   const completeness = engagementModelCompleteness({ title: row.title, whenItFits: row.when_it_fits, billing: row.billing })
   if (!completeness.en || !completeness.fa) return { ok: false, code: 'not-complete' }
 
-  const { error } = await supabase.from('engagement_models').update({ published: true }).eq('id', id)
+  const { error } = await db.from('engagement_models').update({ published: true }).eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.engagement_model_published', entity: 'engagement_model', entityId: id })
@@ -559,10 +559,10 @@ export async function publishEngagementModel(id: string): Promise<ContentActionR
 export async function unpublishEngagementModel(id: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('engagement_models').update({ published: false }).eq('id', id)
+  const { error } = await db.from('engagement_models').update({ published: false }).eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.engagement_model_unpublished', entity: 'engagement_model', entityId: id })
@@ -573,10 +573,10 @@ export async function unpublishEngagementModel(id: string): Promise<ContentActio
 export async function deleteEngagementModel(id: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('engagement_models').delete().eq('id', id)
+  const { error } = await db.from('engagement_models').delete().eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.engagement_model_deleted', entity: 'engagement_model', entityId: id })
@@ -607,11 +607,11 @@ function projectCoreToRow(input: ProjectCoreInput) {
 }
 
 async function replaceProjectTechnologies(projectId: string, technologyIds: string[]): Promise<void> {
-  const supabase = requireSupabase()
-  if (!supabase) return
-  await supabase.from('project_technologies').delete().eq('project_id', projectId)
+  const db = requireDb()
+  if (!db) return
+  await db.from('project_technologies').delete().eq('project_id', projectId)
   if (technologyIds.length > 0) {
-    await supabase.from('project_technologies').insert(technologyIds.map((technology_id) => ({ project_id: projectId, technology_id })))
+    await db.from('project_technologies').insert(technologyIds.map((technology_id) => ({ project_id: projectId, technology_id })))
   }
 }
 
@@ -620,10 +620,10 @@ export async function createProject(input: ProjectCoreInput): Promise<ContentAct
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('projects')
     .insert({ ...projectCoreToRow(input), published: false })
     .select('id')
@@ -645,12 +645,12 @@ export async function updateProject(id: string, input: ProjectCoreInput): Promis
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data: before } = await supabase.from('projects').select('slug').eq('id', id).maybeSingle()
+  const { data: before } = await db.from('projects').select('slug').eq('id', id).maybeSingle()
 
-  const { error } = await supabase.from('projects').update(projectCoreToRow(input)).eq('id', id)
+  const { error } = await db.from('projects').update(projectCoreToRow(input)).eq('id', id)
   if (error) {
     if (error.code === '23505') return { ok: false, code: 'duplicate-slug' }
     return { ok: false, code: 'error' }
@@ -671,10 +671,10 @@ export async function updateProject(id: string, input: ProjectCoreInput): Promis
 export async function updateProjectSections(id: string, input: ProjectSectionsInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error: deleteError } = await supabase.from('project_sections').delete().eq('project_id', id)
+  const { error: deleteError } = await db.from('project_sections').delete().eq('project_id', id)
   if (deleteError) return { ok: false, code: 'error' }
 
   const rows: { project_id: string; type: string; body: unknown; sort_order: number }[] = []
@@ -712,7 +712,7 @@ export async function updateProjectSections(id: string, input: ProjectSectionsIn
     })
 
   if (rows.length > 0) {
-    const { error: insertError } = await supabase.from('project_sections').insert(rows)
+    const { error: insertError } = await db.from('project_sections').insert(rows)
     if (insertError) return { ok: false, code: 'error' }
   }
 
@@ -724,8 +724,8 @@ export async function updateProjectSections(id: string, input: ProjectSectionsIn
 export async function publishProject(id: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   const project = await getProjectAdmin(id)
   if (!project) return { ok: false, code: 'error' }
@@ -733,22 +733,22 @@ export async function publishProject(id: string): Promise<ContentActionResult> {
   const completeness = projectCompleteness(project)
   if (!completeness.en || !completeness.fa) return { ok: false, code: 'not-complete' }
 
-  const { error } = await supabase.from('projects').update({ published: true }).eq('id', id)
+  const { error } = await db.from('projects').update({ published: true }).eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.project_published', entity: 'project', entityId: id })
   revalidateProjectRoutes([project.slug])
-  await notifyManualPublish(supabase, { entity: 'project', id, actorEmail: auth.email })
+  await notifyManualPublish(db, { entity: 'project', id, actorEmail: auth.email })
   return { ok: true }
 }
 
 export async function unpublishProject(id: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data, error } = await supabase.from('projects').update({ published: false }).eq('id', id).select('slug').maybeSingle()
+  const { data, error } = await db.from('projects').update({ published: false }).eq('id', id).select('slug').maybeSingle()
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.project_unpublished', entity: 'project', entityId: id })
@@ -797,7 +797,7 @@ function articleContentToRow(input: ArticleInput) {
 }
 
 /**
- * Replaces an article's project/service/related-article links. `supabase-js`
+ * Replaces an article's project/service/related-article links. `postgrest-js`
  * has no multi-statement transaction, so this is delete-then-insert per table
  * and **not atomic** — a failure between the two leaves that table's links
  * empty until the editor saves again. Acceptable for editor-set, non-critical
@@ -806,7 +806,7 @@ function articleContentToRow(input: ArticleInput) {
  * so an article's related set is the same from either side.
  */
 async function saveArticleRelations(
-  supabase: NonNullable<ReturnType<typeof requireSupabase>>,
+  db: NonNullable<ReturnType<typeof requireDb>>,
   id: string,
   input: Pick<ArticleInput, 'projectIds' | 'serviceIds' | 'relatedArticleIds'>,
 ): Promise<boolean> {
@@ -817,22 +817,22 @@ async function saveArticleRelations(
   // `id` is interpolated into a PostgREST filter below — callers have already
   // checked it against UUID_PATTERN, never pass an unvalidated one here.
   const cleared = await Promise.all([
-    supabase.from('article_projects').delete().eq('article_id', id),
-    supabase.from('article_services').delete().eq('article_id', id),
-    supabase.from('article_related').delete().or(`article_id.eq.${assertUuid(id)},related_article_id.eq.${assertUuid(id)}`),
+    db.from('article_projects').delete().eq('article_id', id),
+    db.from('article_services').delete().eq('article_id', id),
+    db.from('article_related').delete().or(`article_id.eq.${assertUuid(id)},related_article_id.eq.${assertUuid(id)}`),
   ])
   if (cleared.some((result) => result.error)) return false
 
   const writes = []
   if (projectIds.length) {
-    writes.push(supabase.from('article_projects').insert(projectIds.map((project_id, sort_order) => ({ article_id: id, project_id, sort_order }))))
+    writes.push(db.from('article_projects').insert(projectIds.map((project_id, sort_order) => ({ article_id: id, project_id, sort_order }))))
   }
   if (serviceIds.length) {
-    writes.push(supabase.from('article_services').insert(serviceIds.map((service_id, sort_order) => ({ article_id: id, service_id, sort_order }))))
+    writes.push(db.from('article_services').insert(serviceIds.map((service_id, sort_order) => ({ article_id: id, service_id, sort_order }))))
   }
   if (relatedIds.length) {
     writes.push(
-      supabase.from('article_related').insert(
+      db.from('article_related').insert(
         relatedIds.flatMap((relatedId) => [
           { article_id: id, related_article_id: relatedId },
           { article_id: relatedId, related_article_id: id },
@@ -852,10 +852,10 @@ export async function createArticle(input: ArticleInput): Promise<ContentActionR
   const scheduledAt = input.status === 'scheduled' ? scheduleToTimestamp(input.scheduledFor) : null
   if (input.status === 'scheduled' && !scheduledAt) return { ok: false, code: 'invalid-schedule' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('articles')
     .insert({ ...articleContentToRow(input), status: input.status, ...(scheduledAt ? { published_at: scheduledAt } : {}) })
     .select('id')
@@ -865,7 +865,7 @@ export async function createArticle(input: ArticleInput): Promise<ContentActionR
     return { ok: false, code: 'error' }
   }
 
-  const linked = await saveArticleRelations(supabase, data.id, input)
+  const linked = await saveArticleRelations(db, data.id, input)
   await writeAuditLog({ actor: auth.userId, action: 'content.article_created', entity: 'article', entityId: data.id, after: { slug: input.slug, status: input.status } })
   // The article row exists either way. A failed link write does not turn a created article into an error (a retry would only hit
   // `duplicate-slug`): the editor lands on the edit page, where the empty link lists are visible and can simply be picked again.
@@ -878,10 +878,10 @@ export async function updateArticle(id: string, input: ArticleInput): Promise<Co
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!UUID_PATTERN.test(id) || !isValidSlug(input.slug) || !ARTICLE_FORM_STATUSES.includes(input.status)) return { ok: false, code: 'error' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data: current } = await supabase.from('articles').select('slug, status, published_at').eq('id', id).maybeSingle()
+  const { data: current } = await db.from('articles').select('slug, status, published_at').eq('id', id).maybeSingle()
   if (!current) return { ok: false, code: 'error' }
 
   // A published article stays published when it is saved: only `publishArticle`,
@@ -901,13 +901,13 @@ export async function updateArticle(id: string, input: ArticleInput): Promise<Co
     }
   }
 
-  const { error } = await supabase.from('articles').update({ ...articleContentToRow(input), ...statusColumns }).eq('id', id)
+  const { error } = await db.from('articles').update({ ...articleContentToRow(input), ...statusColumns }).eq('id', id)
   if (error) {
     if (error.code === '23505') return { ok: false, code: 'duplicate-slug' }
     return { ok: false, code: 'error' }
   }
 
-  const linked = await saveArticleRelations(supabase, id, input)
+  const linked = await saveArticleRelations(db, id, input)
   await writeAuditLog({ actor: auth.userId, action: 'content.article_updated', entity: 'article', entityId: id })
   if (isPublished) revalidateArticleRoutes([current.slug, input.slug])
   if (!linked) return { ok: false, code: 'error' }
@@ -924,8 +924,8 @@ export async function publishArticle(id: string): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!UUID_PATTERN.test(id)) return { ok: false, code: 'error' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   const article = await getArticleAdmin(id)
   if (!article) return { ok: false, code: 'error' }
@@ -941,7 +941,7 @@ export async function publishArticle(id: string): Promise<ContentActionResult> {
 
   const mediaIds = new Set([...collectMediaIds(parseArticleBody(article.body.en).blocks), ...collectMediaIds(parseArticleBody(article.body.fa).blocks)])
   if (mediaIds.size > 0) {
-    const { data: found, error: mediaError } = await supabase.from('media_assets').select('id').in('id', [...mediaIds])
+    const { data: found, error: mediaError } = await db.from('media_assets').select('id').in('id', [...mediaIds])
     if (mediaError) return { ok: false, code: 'error' }
     if ((found ?? []).length < mediaIds.size) return { ok: false, code: 'missing-image' }
   }
@@ -950,7 +950,7 @@ export async function publishArticle(id: string): Promise<ContentActionResult> {
   // goes live *now*; an article that was live before keeps its original date.
   const now = new Date()
   const keepDate = article.publishedAt && new Date(article.publishedAt) <= now
-  const { error } = await supabase
+  const { error } = await db
     .from('articles')
     .update({ status: 'published', published_at: keepDate ? article.publishedAt : now.toISOString() })
     .eq('id', id)
@@ -958,7 +958,7 @@ export async function publishArticle(id: string): Promise<ContentActionResult> {
 
   await writeAuditLog({ actor: auth.userId, action: 'content.article_published', entity: 'article', entityId: id })
   revalidateArticleRoutes([article.slug], { visibilityChanged: true })
-  await notifyManualPublish(supabase, { entity: 'article', id, actorEmail: auth.email })
+  await notifyManualPublish(db, { entity: 'article', id, actorEmail: auth.email })
   return { ok: true }
 }
 
@@ -976,10 +976,10 @@ async function moveArticleOffPublic(id: string, status: 'draft' | 'archived', ac
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!UUID_PATTERN.test(id)) return { ok: false, code: 'error' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data, error } = await supabase.from('articles').update({ status }).eq('id', id).select('slug').maybeSingle()
+  const { data, error } = await db.from('articles').update({ status }).eq('id', id).select('slug').maybeSingle()
   if (error || !data) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action, entity: 'article', entityId: id })
@@ -1022,10 +1022,10 @@ export async function createRecommendation(input: RecommendationInput): Promise<
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (input.verification === 'verified-request') return { ok: false, code: 'error' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('recommendations')
     .insert({ ...recommendationInputToRow(input), status: 'pending' })
     .select('id')
@@ -1047,10 +1047,10 @@ export async function updateRecommendation(id: string, input: RecommendationInpu
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('recommendations').update(recommendationInputToRow(input)).eq('id', id)
+  const { error } = await db.from('recommendations').update(recommendationInputToRow(input)).eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.recommendation_updated', entity: 'recommendation', entityId: id })
@@ -1062,10 +1062,10 @@ export async function deleteRecommendation(id: string): Promise<ContentActionRes
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('recommendations').delete().eq('id', id)
+  const { error } = await db.from('recommendations').delete().eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.recommendation_deleted', entity: 'recommendation', entityId: id })
@@ -1099,8 +1099,8 @@ export async function moderateRecommendation(
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   const rec = await getRecommendationAdmin(id)
   if (!rec) return { ok: false, code: 'error' }
@@ -1127,7 +1127,7 @@ export async function moderateRecommendation(
     auditAction = 'content.recommendation_changes_requested'
   }
 
-  const { error } = await supabase
+  const { error } = await db
     .from('recommendations')
     .update({ status: nextStatus, moderation_note: moderationNote })
     .eq('id', id)
@@ -1141,9 +1141,9 @@ export async function moderateRecommendation(
   // rejected) ends the reason to hold the address at all.
   if (rec.requestId) {
     if (nextStatus === 'changes-requested') {
-      await sendChangeRequestEmail(supabase, rec.requestId, moderationNote ?? '')
+      await sendChangeRequestEmail(db, rec.requestId, moderationNote ?? '')
     } else if (nextStatus === 'approved' || nextStatus === 'rejected') {
-      await clearRecipientForRequest(supabase, rec.requestId)
+      await clearRecipientForRequest(db, rec.requestId)
     }
   }
   return { ok: true }
@@ -1167,8 +1167,8 @@ export async function createRecommendationRequest(input: RecommendationRequestIn
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   // D-14: the address is optional. When present it must be well-formed and
   // comes with the language the e-mails are written in.
@@ -1184,7 +1184,7 @@ export async function createRecommendationRequest(input: RecommendationRequestIn
       : null
   const token = generateRequestToken()
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('recommendation_requests')
     .insert({
       token,
@@ -1212,7 +1212,7 @@ export async function createRecommendationRequest(input: RecommendationRequestIn
   if (!recipientEmail) return { ok: true, id: data.id, email: 'none' }
 
   try {
-    const rows = await enqueueRecommendationRequest(supabase, {
+    const rows = await enqueueRecommendationRequest(db, {
       requestId: data.id,
       token,
       recipientEmail,
@@ -1221,7 +1221,7 @@ export async function createRecommendationRequest(input: RecommendationRequestIn
     })
     if (rows.length === 0) return { ok: true, id: data.id, email: 'queue-failed' }
     await processAfterEnqueue(
-      supabase,
+      db,
       rows.map((row) => row.id),
     )
     return { ok: true, id: data.id, email: 'queued' }
@@ -1233,19 +1233,19 @@ export async function createRecommendationRequest(input: RecommendationRequestIn
 
 /** Queues "please change this" for a request that has an address; a request without one is a no-op (the owner shares the link by hand, as before). */
 async function sendChangeRequestEmail(
-  supabase: NonNullable<ReturnType<typeof requireSupabase>>,
+  db: NonNullable<ReturnType<typeof requireDb>>,
   requestId: string,
   note: string,
 ): Promise<void> {
   try {
-    const { data } = await supabase
+    const { data } = await db
       .from('recommendation_requests')
       .select('token, recipient_email, recipient_locale')
       .eq('id', requestId)
       .maybeSingle()
     if (!data?.recipient_email) return
 
-    const rows = await enqueueRecommendationChanges(supabase, {
+    const rows = await enqueueRecommendationChanges(db, {
       requestId,
       token: data.token as string,
       recipientEmail: data.recipient_email as string,
@@ -1254,7 +1254,7 @@ async function sendChangeRequestEmail(
       moderatedAt: new Date().toISOString(),
     })
     await processAfterEnqueue(
-      supabase,
+      db,
       rows.map((row) => row.id),
     )
   } catch (err) {
@@ -1267,15 +1267,15 @@ export async function revokeRecommendationRequest(id: string): Promise<ContentAc
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('recommendation_requests').update({ revoked_at: new Date().toISOString() }).eq('id', id)
+  const { error } = await db.from('recommendation_requests').update({ revoked_at: new Date().toISOString() }).eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.recommendation_request_revoked', entity: 'recommendation_request', entityId: id })
   // D-14: a revoked link has no further use for the recommender's address, and a link e-mail still waiting to go out must not go out.
-  await clearRecipientForRequest(supabase, id)
+  await clearRecipientForRequest(db, id)
   return { ok: true }
 }
 

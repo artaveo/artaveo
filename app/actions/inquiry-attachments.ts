@@ -5,7 +5,7 @@ import { bindRequestId, getRequestId } from '@/lib/observability/context'
 import { getClientIp, hashIp } from '@/lib/request-ip'
 import { INQUIRY_FILES_BUCKET, MAX_MEDIA_FILE_SIZE_BYTES, VISITOR_MIME_TYPES, displayFileName, safeStoragePath } from '@/lib/media-upload'
 import { checkRateLimit } from '@/lib/security/rate-limit'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import { inspectUpload } from '@/lib/upload-inspection'
 
 /**
@@ -53,11 +53,11 @@ export async function removeInquiryAttachment(mediaId: string): Promise<{ ok: bo
   const limit = await checkRateLimit('inquiry.upload-remove')
   if (!limit.ok) return { ok: false }
 
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { ok: false }
+  const db = getDbClient()
+  if (!db) return { ok: false }
 
   // Only an UNLINKED file can be removed by the visitor — never a general-purpose public delete.
-  const { data: file } = await supabase
+  const { data: file } = await db
     .from('inquiry_files')
     .select('id, storage_path')
     .eq('id', mediaId)
@@ -65,8 +65,8 @@ export async function removeInquiryAttachment(mediaId: string): Promise<{ ok: bo
     .maybeSingle()
   if (!file) return { ok: false }
 
-  await supabase.from('inquiry_files').delete().eq('id', file.id).is('inquiry_id', null)
-  await supabase.storage.from(INQUIRY_FILES_BUCKET).remove([file.storage_path as string])
+  await db.from('inquiry_files').delete().eq('id', file.id).is('inquiry_id', null)
+  await db.storage.from(INQUIRY_FILES_BUCKET).remove([file.storage_path as string])
   return { ok: true }
 }
 
@@ -78,15 +78,15 @@ export async function uploadInquiryAttachment(formData: FormData): Promise<Inqui
   if (!(VISITOR_MIME_TYPES as readonly string[]).includes(file.type)) return { ok: false, code: 'invalid-type' }
   if (file.size > MAX_MEDIA_FILE_SIZE_BYTES) return { ok: false, code: 'too-large' }
 
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = getDbClient()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   const limit = await checkRateLimit('inquiry.upload')
   if (!limit.ok) return { ok: false, code: 'rejected' }
 
   const ipHash = hashIp(await getClientIp())
   const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-  const { count } = await supabase
+  const { count } = await db
     .from('inquiry_files')
     .select('id', { count: 'exact', head: true })
     .eq('uploaded_by_ip_hash', ipHash)
@@ -99,16 +99,16 @@ export async function uploadInquiryAttachment(formData: FormData): Promise<Inqui
   if (!inspection.ok) return { ok: false, code: 'invalid-type' }
 
   const path = safeStoragePath(file.name)
-  const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await db.storage
     .from(INQUIRY_FILES_BUCKET)
     .upload(path, bytes, { contentType: inspection.contentType, upsert: false })
   if (uploadError) {
-    await captureError(uploadError, { event: 'inquiry.upload_storage_failed', source: 'action', supabase })
+    await captureError(uploadError, { event: 'inquiry.upload_storage_failed', source: 'action', db })
     return { ok: false, code: 'error' }
   }
 
   const fileName = displayFileName(file.name)
-  const { data: inserted, error: insertError } = await supabase
+  const { data: inserted, error: insertError } = await db
     .from('inquiry_files')
     .insert({
       storage_path: path,
@@ -121,8 +121,8 @@ export async function uploadInquiryAttachment(formData: FormData): Promise<Inqui
     .single()
 
   if (insertError || !inserted) {
-    await captureError(insertError ?? new Error('insert returned no row'), { event: 'inquiry.upload_persist_failed', source: 'action', supabase })
-    await supabase.storage.from(INQUIRY_FILES_BUCKET).remove([path])
+    await captureError(insertError ?? new Error('insert returned no row'), { event: 'inquiry.upload_persist_failed', source: 'action', db })
+    await db.storage.from(INQUIRY_FILES_BUCKET).remove([path])
     return { ok: false, code: 'error' }
   }
 

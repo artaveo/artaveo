@@ -9,7 +9,7 @@ import { consultationSummary } from '@/lib/notifications/consultation-templates'
 import { checkRateLimit } from '@/lib/security/rate-limit'
 import { siteConfig } from '@/lib/site'
 import { absoluteUrl } from '@/lib/site-url'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 
 /**
  * "Add to calendar" for a confirmed call — a plain download (`METHOD:PUBLISH`,
@@ -37,8 +37,8 @@ async function handle({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
   if (!looksLikeToken(token)) return NOT_FOUND()
 
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return NOT_FOUND()
+  const db = getDbClient()
+  if (!db) return NOT_FOUND()
 
   // Phase 23: a public GET that costs a database lookup per call.
   const attempts = await checkRateLimit('token.calendar', { subject: token })
@@ -49,7 +49,7 @@ async function handle({ params }: { params: Promise<{ token: string }> }) {
     })
   }
 
-  const consultation = await loadConsultationByToken(supabase, token)
+  const consultation = await loadConsultationByToken(db, token)
   if (!consultation || linkExpired(consultation, new Date())) return NOT_FOUND()
 
   const standing =

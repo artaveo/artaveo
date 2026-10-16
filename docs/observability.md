@@ -28,7 +28,7 @@ Vercel's Hobby plan keeps runtime logs for about an hour (Vercel's documentation
 | Every e-mail the request queued | `notification_outbox.request_id` | `enqueueNotifications` |
 | The audit row | `audit_log.correlation_id` (a `uuid` since 0008, never set until now) | `writeAuditLog` |
 | Events and error groups | `ops_events.request_id`, `error_groups.last_request_id` | `track()`, `captureError()` |
-| Requests to the database | `x-request-id` header | `lib/supabase/server.ts` |
+| Requests to the database | `x-request-id` header | `lib/db/server.ts` |
 | A server render error's visitor-facing number | `error_groups.digest` | Next.js; shown on the error page as *Reference* |
 
 **To follow one request:** paste the id (or the digest from a visitor's screenshot) into `/admin/observability` → *Request reference or error number*. It lists the error, the events, the audit entries, the lead, the lead's timeline and the e-mails that carry it. A notification's detail page links to its own request the same way. To read the *log lines* of that request, search Vercel's log for the id — within the hour.
@@ -123,7 +123,7 @@ A browser that finds `report-to` next to `report-uri` uses the Reporting API ins
 
 - **`onRequestError` fed by Next.js itself**: the hook and the capture code are tested with the argument shapes Next.js documents (`captureRequestError`, real database), but no test makes the built app throw a real render error and watches the hook fire — the site has no route that fails on purpose and adding one only for a test was not worth its risk. After the first deploy, the first real unhandled error settles it (it should appear as a `request.render_error` / `request.action_error` group with a digest).
 - **A real Vercel deployment**: whether `x-request-id` from `proxy.ts` reaches Server Actions on Vercel's platform (it does on `next start`; the header travels the same way the CSP nonce does).
-- **The `x-request-id` header on database calls**: it is sent; whether **Supabase's own logs show it** is only visible in the live project (Supabase → Logs → API). Nothing depends on it — every correlation above is stored by us.
+- **The `x-request-id` header on database calls**: it is sent; whether **the Data API's own logs show it** is only visible in the live project (Neon Console → Monitoring / logs). Nothing depends on it — every correlation above is stored by us.
 - **A real scheduled GitHub run**, its e-mail, and GitHub's 60-day rule.
 - **A real Resend send**: alert e-mails are log-only until D-01; the alert *mechanism* (outbox row, dedupe, once a day) is tested against a real database.
 - **The Content Security Policy against production content**: the report endpoint exists so this can finally be seen — after the first deploy, open `/admin/observability` and look for `csp.violation` groups (the five-minute check in `PHASE-24-README.md`).

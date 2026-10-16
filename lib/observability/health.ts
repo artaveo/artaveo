@@ -1,8 +1,8 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { bucketKey } from '@/lib/security/rate-limit-policy'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 
 /**
  * Health checks (Phase 24) for the uptime check that runs outside the site.
@@ -46,18 +46,18 @@ async function timed(run: () => PromiseLike<{ error: { message: string } | null 
 }
 
 /** One cheap read. Used by the admin page and the external check. */
-export async function checkDatabase(supabase: SupabaseClient): Promise<CheckResult> {
-  return timed(() => supabase.from('inquiries').select('id').limit(1))
+export async function checkDatabase(db: DbClient): Promise<CheckResult> {
+  return timed(() => db.from('inquiries').select('id').limit(1))
 }
 
-export async function checkInquiryPathUncached(supabase: SupabaseClient | null): Promise<InquiryPathHealth> {
-  if (!supabase) return { ok: false, degraded: false, checks: { configured: { ok: false, ms: 0 } } }
+export async function checkInquiryPathUncached(db: DbClient | null): Promise<InquiryPathHealth> {
+  if (!db) return { ok: false, degraded: false, checks: { configured: { ok: false, ms: 0 } } }
 
   const [database, outbox, limiter] = await Promise.all([
-    checkDatabase(supabase),
-    timed(() => supabase.from('notification_outbox').select('id').limit(1)),
+    checkDatabase(db),
+    timed(() => db.from('notification_outbox').select('id').limit(1)),
     // The one write in the check: it bumps a single counter row (`health:global:probe`), which the daily run purges.
-    timed(() => supabase.rpc('consume_rate_limit', { p_key: bucketKey('health', 'global', 'probe'), p_limit: 100_000, p_window_seconds: 3600 })),
+    timed(() => db.rpc('consume_rate_limit', { p_key: bucketKey('health', 'global', 'probe'), p_limit: 100_000, p_window_seconds: 3600 })),
   ])
   return {
     ok: database.ok && outbox.ok,
@@ -76,7 +76,7 @@ const CACHE_TTL_MS = 15_000
 
 export async function checkInquiryPath(now: number = Date.now()): Promise<InquiryPathHealth> {
   if (cached && now - cached.at < CACHE_TTL_MS) return cached.value
-  const value = await checkInquiryPathUncached(getSupabaseServerClient())
+  const value = await checkInquiryPathUncached(getDbClient())
   cached = { at: now, value }
   return value
 }

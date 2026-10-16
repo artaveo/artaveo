@@ -1,7 +1,7 @@
 import 'server-only'
 
 import { listMediaAssets } from '@/lib/admin/media'
-import { requireSupabase } from '@/lib/admin/pipeline'
+import { requireDb } from '@/lib/admin/pipeline'
 import { normalizeCategory } from '@/lib/articles/category'
 import type { DecisionRecord, LocalizedText } from '@/types/content'
 import type {
@@ -26,12 +26,12 @@ import { captureError } from '@/lib/observability/store'
 
 /**
  * Admin read layer for the § 15.1 Services cluster. Unlike
- * `lib/supabase/content-queries.ts` (the public selector layer, which
- * `.eq('published', true)` on every query and throws when Supabase isn't
+ * `lib/db/content-queries.ts` (the public selector layer, which
+ * `.eq('published', true)` on every query and throws when the database isn't
  * configured — § 12.2's "database is mandatory infrastructure" rule),
  * these functions read every row regardless of `published` (an editor
  * must be able to open and finish a draft) and return `null` rather than
- * throwing when Supabase isn't configured, matching every other
+ * throwing when the database isn't configured, matching every other
  * `lib/admin/*` module's "not configured" convention (`lib/admin/pipeline.ts`)
  * so the admin UI can show the same honest not-configured state the leads
  * pages already use instead of a hard 500.
@@ -209,10 +209,10 @@ const SERVICE_COLUMNS =
   'payment_schedule_note, published, sort_order, updated_at'
 
 export async function listServicesAdmin(): Promise<AdminServiceListItem[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('services')
     .select(SERVICE_COLUMNS)
     .order('sort_order', { ascending: true })
@@ -249,27 +249,27 @@ export async function listServicesAdmin(): Promise<AdminServiceListItem[] | null
 }
 
 export async function getServiceAdmin(id: string): Promise<AdminService | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data: row, error } = await supabase.from('services').select(SERVICE_COLUMNS).eq('id', id).maybeSingle()
+  const { data: row, error } = await db.from('services').select(SERVICE_COLUMNS).eq('id', id).maybeSingle()
   if (error || !row) return null
 
   const [{ data: steps }, { data: packages }, { data: addons }, { data: faqs }] = await Promise.all([
-    supabase.from('service_process_steps').select('*').eq('service_id', id),
-    supabase.from('service_packages').select('*').eq('service_id', id),
-    supabase.from('service_addons').select('*').eq('service_id', id),
-    supabase.from('faqs').select('*').eq('scope', 'service').eq('service_id', id),
+    db.from('service_process_steps').select('*').eq('service_id', id),
+    db.from('service_packages').select('*').eq('service_id', id),
+    db.from('service_addons').select('*').eq('service_id', id),
+    db.from('faqs').select('*').eq('scope', 'service').eq('service_id', id),
   ])
 
   return assembleAdminService(row, steps ?? [], packages ?? [], addons ?? [], faqs ?? [])
 }
 
 export async function listGlobalFaqsAdmin(): Promise<AdminFaqItem[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('faqs')
     .select('id, question, answer, sort_order')
     .eq('scope', 'global')
@@ -283,10 +283,10 @@ export async function listGlobalFaqsAdmin(): Promise<AdminFaqItem[] | null> {
 }
 
 export async function listEngagementModelsAdmin(): Promise<AdminEngagementModel[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('engagement_models')
     .select('id, slug, title, when_it_fits, billing, published, sort_order, updated_at')
     .order('sort_order', { ascending: true })
@@ -308,10 +308,10 @@ export async function listEngagementModelsAdmin(): Promise<AdminEngagementModel[
 }
 
 export async function getEngagementModelAdmin(id: string): Promise<AdminEngagementModel | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data: row, error } = await supabase
+  const { data: row, error } = await db
     .from('engagement_models')
     .select('id, slug, title, when_it_fits, billing, published, sort_order, updated_at')
     .eq('id', id)
@@ -449,10 +449,10 @@ function assembleAdminProject(row: Record<string, any>, sections: ProjectSection
 }
 
 export async function listProjectsAdmin(): Promise<(AdminProject & { completeness: LocaleCompleteness })[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data: rows, error } = await supabase.from('projects').select(PROJECT_COLUMNS).order('sort_order', { ascending: true })
+  const { data: rows, error } = await db.from('projects').select(PROJECT_COLUMNS).order('sort_order', { ascending: true })
   if (error || !rows) {
     await captureError(error, { event: 'admin.list_projects_admin_failed', source: 'database' })
     return []
@@ -461,8 +461,8 @@ export async function listProjectsAdmin(): Promise<(AdminProject & { completenes
 
   const ids = rows.map((r: any) => r.id)
   const [{ data: sectionRows }, { data: techLinkRows }] = await Promise.all([
-    supabase.from('project_sections').select('project_id, type, body, sort_order').in('project_id', ids),
-    supabase.from('project_technologies').select('project_id, technologies(name)').in('project_id', ids),
+    db.from('project_sections').select('project_id, type, body, sort_order').in('project_id', ids),
+    db.from('project_technologies').select('project_id, technologies(name)').in('project_id', ids),
   ])
 
   const sectionsByProject = new Map<string, ProjectSectionRow[]>()
@@ -485,15 +485,15 @@ export async function listProjectsAdmin(): Promise<(AdminProject & { completenes
 }
 
 export async function getProjectAdmin(id: string): Promise<AdminProject | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data: row, error } = await supabase.from('projects').select(PROJECT_COLUMNS).eq('id', id).maybeSingle()
+  const { data: row, error } = await db.from('projects').select(PROJECT_COLUMNS).eq('id', id).maybeSingle()
   if (error || !row) return null
 
   const [{ data: sections }, { data: techLinks }] = await Promise.all([
-    supabase.from('project_sections').select('project_id, type, body, sort_order').eq('project_id', id),
-    supabase.from('project_technologies').select('project_id, technologies(name)').eq('project_id', id),
+    db.from('project_sections').select('project_id, type, body, sort_order').eq('project_id', id),
+    db.from('project_technologies').select('project_id, technologies(name)').eq('project_id', id),
   ])
 
   const technologyNames = ((techLinks ?? []) as any[]).map((row) => row.technologies?.name).filter(Boolean)
@@ -501,10 +501,10 @@ export async function getProjectAdmin(id: string): Promise<AdminProject | null> 
 }
 
 export async function listTechnologiesAdmin(): Promise<AdminTechnology[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase.from('technologies').select('id, slug, name, category').order('category', { ascending: true }).order('name', { ascending: true })
+  const { data, error } = await db.from('technologies').select('id, slug, name, category').order('category', { ascending: true }).order('name', { ascending: true })
   if (error || !data) {
     await captureError(error, { event: 'admin.list_technologies_admin_failed', source: 'database' })
     return []
@@ -514,10 +514,10 @@ export async function listTechnologiesAdmin(): Promise<AdminTechnology[] | null>
 
 /** The technology ids currently linked to a project — separate from `getProjectAdmin`'s `technologies: string[]` (names, the public shape) because the project *form* needs real ids to drive a checkbox picker against `listTechnologiesAdmin()`. */
 export async function getProjectTechnologyIds(projectId: string): Promise<string[]> {
-  const supabase = requireSupabase()
-  if (!supabase) return []
+  const db = requireDb()
+  if (!db) return []
 
-  const { data } = await supabase.from('project_technologies').select('technology_id').eq('project_id', projectId)
+  const { data } = await db.from('project_technologies').select('technology_id').eq('project_id', projectId)
   return (data ?? []).map((row: any) => row.technology_id)
 }
 
@@ -560,10 +560,10 @@ function assembleAdminArticle(
 const NO_RELATIONS = { projectIds: [], serviceIds: [], relatedArticleIds: [] }
 
 export async function listArticlesAdmin(): Promise<(AdminArticle & { completeness: LocaleCompleteness })[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase.from('articles').select(ARTICLE_COLUMNS).order('updated_at', { ascending: false })
+  const { data, error } = await db.from('articles').select(ARTICLE_COLUMNS).order('updated_at', { ascending: false })
   if (error || !data) {
     await captureError(error, { event: 'admin.list_articles_admin_failed', source: 'database' })
     return []
@@ -576,16 +576,16 @@ export async function listArticlesAdmin(): Promise<(AdminArticle & { completenes
 }
 
 export async function getArticleAdmin(id: string): Promise<AdminArticle | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data: row, error } = await supabase.from('articles').select(ARTICLE_COLUMNS).eq('id', id).maybeSingle()
+  const { data: row, error } = await db.from('articles').select(ARTICLE_COLUMNS).eq('id', id).maybeSingle()
   if (error || !row) return null
 
   const [projects, services, related] = await Promise.all([
-    supabase.from('article_projects').select('project_id').eq('article_id', id).order('sort_order'),
-    supabase.from('article_services').select('service_id').eq('article_id', id).order('sort_order'),
-    supabase.from('article_related').select('related_article_id').eq('article_id', id),
+    db.from('article_projects').select('project_id').eq('article_id', id).order('sort_order'),
+    db.from('article_services').select('service_id').eq('article_id', id).order('sort_order'),
+    db.from('article_related').select('related_article_id').eq('article_id', id),
   ])
   return assembleAdminArticle(row, {
     projectIds: (projects.data ?? []).map((r: any) => r.project_id),
@@ -596,13 +596,13 @@ export async function getArticleAdmin(id: string): Promise<AdminArticle | null> 
 
 /** Everything the article form can link to or insert — see `ArticleFormOptions`. */
 export async function getArticleFormOptions(excludeArticleId?: string): Promise<ArticleFormOptions | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
   const [projects, services, articles, media] = await Promise.all([
-    supabase.from('projects').select('id, slug, title, published').order('sort_order'),
-    supabase.from('services').select('id, slug, title, published').order('sort_order'),
-    supabase.from('articles').select('id, slug, title').order('updated_at', { ascending: false }),
+    db.from('projects').select('id, slug, title, published').order('sort_order'),
+    db.from('services').select('id, slug, title, published').order('sort_order'),
+    db.from('articles').select('id, slug, title').order('updated_at', { ascending: false }),
     listMediaAssets(),
   ])
 
@@ -668,10 +668,10 @@ function assembleAdminRecommendation(row: Record<string, any>): AdminRecommendat
 
 /** Newest first — a moderation queue is worked front-to-back on what just came in, unlike the published-content lists above which follow `sort_order` (an editor-controlled display order that has no meaning here yet). */
 export async function listRecommendationsAdmin(): Promise<(AdminRecommendation & { completeness: LocaleCompleteness })[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase.from('recommendations').select(RECOMMENDATION_COLUMNS).order('created_at', { ascending: false })
+  const { data, error } = await db.from('recommendations').select(RECOMMENDATION_COLUMNS).order('created_at', { ascending: false })
   if (error || !data) {
     await captureError(error, { event: 'admin.list_recommendations_admin_failed', source: 'database' })
     return []
@@ -683,10 +683,10 @@ export async function listRecommendationsAdmin(): Promise<(AdminRecommendation &
 }
 
 export async function getRecommendationAdmin(id: string): Promise<AdminRecommendation | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data: row, error } = await supabase.from('recommendations').select(RECOMMENDATION_COLUMNS).eq('id', id).maybeSingle()
+  const { data: row, error } = await db.from('recommendations').select(RECOMMENDATION_COLUMNS).eq('id', id).maybeSingle()
   if (error || !row) return null
   return assembleAdminRecommendation(row)
 }
@@ -747,10 +747,10 @@ function assembleAdminRequest(
 }
 
 export async function listRecommendationRequestsAdmin(): Promise<AdminRecommendationRequest[] | null> {
-  const supabase = requireSupabase()
-  if (!supabase) return null
+  const db = requireDb()
+  if (!db) return null
 
-  const { data, error } = await supabase.from('recommendation_requests').select(REQUEST_COLUMNS).order('created_at', { ascending: false })
+  const { data, error } = await db.from('recommendation_requests').select(REQUEST_COLUMNS).order('created_at', { ascending: false })
   if (error || !data) {
     await captureError(error, { event: 'admin.list_recommendation_requests_admin_failed', source: 'database' })
     return []
@@ -762,7 +762,7 @@ export async function listRecommendationRequestsAdmin(): Promise<AdminRecommenda
   const ids = data.map((row: Record<string, any>) => row.id as string)
   const latest = new Map<string, NonNullable<AdminRecommendationRequest['lastEmail']>>()
   if (ids.length > 0) {
-    const { data: emails } = await supabase
+    const { data: emails } = await db
       .from('notification_outbox')
       .select('entity_id, kind, status, last_provider, created_at')
       .eq('entity_type', 'recommendation_request')

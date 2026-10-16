@@ -1,13 +1,13 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { ilikeAnyOf } from '@/lib/postgrest'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import type { LocalizedText } from '@/types/content'
 import type { InquiryEvent, PipelineFilters, PipelineInquiry, SlaStatus } from '@/types/pipeline'
 import { captureError } from '@/lib/observability/store'
 
-/** Maps a raw `inquiries` row (snake_case, from Supabase) to `PipelineInquiry`. */
+/** Maps a raw `inquiries` row (snake_case, from the Data API) to `PipelineInquiry`. */
 function mapInquiryRow(row: Record<string, unknown>): PipelineInquiry {
   return {
     id: row.id as string,
@@ -56,16 +56,16 @@ export type PipelineListResult = {
 }
 
 /**
- * Lists inquiries for the admin pipeline view. `null` means Supabase
+ * Lists inquiries for the admin pipeline view. `null` means the database
  * isn't configured (D-10 not fully wired in this environment) — callers
  * show the same honest "not configured" state the rest of the admin
  * panel already uses rather than an empty list.
  */
 export async function listInquiries(filters: PipelineFilters): Promise<PipelineListResult | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
+  const db = getDbClient()
+  if (!db) return null
 
-  let query = supabase.from('inquiries').select('*', { count: 'exact' }).order('created_at', { ascending: false })
+  let query = db.from('inquiries').select('*', { count: 'exact' }).order('created_at', { ascending: false })
 
   if (filters.stage) {
     query = query.eq('stage', filters.stage)
@@ -102,10 +102,10 @@ export async function listInquiries(filters: PipelineFilters): Promise<PipelineL
 export async function listInquiriesForExport(
   filters: Omit<PipelineFilters, 'page' | 'pageSize'>,
 ): Promise<PipelineInquiry[] | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
+  const db = getDbClient()
+  if (!db) return null
 
-  let query = supabase.from('inquiries').select('*').order('created_at', { ascending: false })
+  let query = db.from('inquiries').select('*').order('created_at', { ascending: false })
 
   if (filters.stage) query = query.eq('stage', filters.stage)
   if (filters.priority) query = query.eq('priority', filters.priority)
@@ -124,19 +124,19 @@ export async function listInquiriesForExport(
 }
 
 export async function getInquiry(id: string): Promise<PipelineInquiry | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
+  const db = getDbClient()
+  if (!db) return null
 
-  const { data, error } = await supabase.from('inquiries').select('*').eq('id', id).maybeSingle()
+  const { data, error } = await db.from('inquiries').select('*').eq('id', id).maybeSingle()
   if (error || !data) return null
   return mapInquiryRow(data)
 }
 
 export async function getInquiryEvents(id: string): Promise<InquiryEvent[]> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return []
+  const db = getDbClient()
+  if (!db) return []
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('inquiry_events')
     .select('*')
     .eq('inquiry_id', id)
@@ -151,10 +151,10 @@ export async function getInquiryEvents(id: string): Promise<InquiryEvent[]> {
 
 /** § 14's response commitment source (D-08, `site_settings`). `null` when not configured or not seeded yet. */
 export async function getResponseCommitment(): Promise<{ text: LocalizedText; timezone: string } | null> {
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return null
+  const db = getDbClient()
+  if (!db) return null
 
-  const { data, error } = await supabase.from('site_settings').select('response_commitment, timezone').maybeSingle()
+  const { data, error } = await db.from('site_settings').select('response_commitment, timezone').maybeSingle()
   if (error || !data) return null
   return { text: data.response_commitment as LocalizedText, timezone: data.timezone as string }
 }
@@ -203,10 +203,10 @@ export function computeSlaFromFirstResponse(
 export async function getFirstResponseTimes(inquiryIds: string[]): Promise<Record<string, string>> {
   if (inquiryIds.length === 0) return {}
 
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return {}
+  const db = getDbClient()
+  if (!db) return {}
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('inquiry_events')
     .select('inquiry_id, created_at')
     .in('inquiry_id', inquiryIds)
@@ -225,7 +225,7 @@ export async function getFirstResponseTimes(inquiryIds: string[]): Promise<Recor
   return firstByInquiry
 }
 
-/** Shared client accessor so `app/actions/pipeline.ts` doesn't import `lib/supabase/server.ts` directly for every mutation. */
-export function requireSupabase(): SupabaseClient | null {
-  return getSupabaseServerClient()
+/** Shared client accessor so `app/actions/pipeline.ts` doesn't import `lib/db/server.ts` directly for every mutation. */
+export function requireDb(): DbClient | null {
+  return getDbClient()
 }

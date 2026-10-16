@@ -7,7 +7,7 @@ import { log } from '@/lib/observability/logger'
 import { newRequestId } from '@/lib/observability/request-id'
 import { track } from '@/lib/observability/store'
 import { checkCronAuth } from '@/lib/security/cron-auth'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 
 /**
  * The external check's endpoint (Phase 24): `Authorization: Bearer $CRON_SECRET`.
@@ -48,11 +48,11 @@ async function handle(request: Request): Promise<NextResponse> {
   }
   if (auth === 'unauthorized') return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 })
 
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return NextResponse.json({ ok: false, status: 'failing', error: 'not-configured' }, { status: 503 })
+  const db = getDbClient()
+  if (!db) return NextResponse.json({ ok: false, status: 'failing', error: 'not-configured' }, { status: 503 })
 
   const url = new URL(request.url)
-  const database = await checkDatabase(supabase)
+  const database = await checkDatabase(db)
   if (!database.ok) {
     log.error('ops.check_database_down', { ms: database.ms })
     return NextResponse.json({ ok: false, status: 'failing', database }, { status: 503 })
@@ -61,11 +61,11 @@ async function handle(request: Request): Promise<NextResponse> {
   // Only a caller that names itself is a monitor; a person testing the URL by hand is not.
   const probe = url.searchParams.get('probe')
   if (probe && /^[a-z][a-z0-9-]{0,30}$/.test(probe)) {
-    await track('monitor.checked', { data: { probe }, dedupeSeconds: 60, supabase })
+    await track('monitor.checked', { data: { probe }, dedupeSeconds: 60, db })
   }
 
-  const { facts, alerts } = await evaluateAlerts(supabase)
-  const raised = url.searchParams.get('raise') === '0' ? { raised: [], alreadySent: [] } : await raiseAlerts(supabase, alerts)
+  const { facts, alerts } = await evaluateAlerts(db)
+  const raised = url.searchParams.get('raise') === '0' ? { raised: [], alreadySent: [] } : await raiseAlerts(db, alerts)
 
   const status = alerts.some((alert) => alert.severity === 'error') ? 'failing' : alerts.length > 0 ? 'degraded' : 'ok'
   return NextResponse.json({

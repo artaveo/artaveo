@@ -2,7 +2,7 @@
 
 import { canAccessNotifications, getAdminSession, mfaSatisfied } from '@/lib/admin/auth'
 import { writeAuditLog } from '@/lib/admin/audit'
-import { requireSupabase } from '@/lib/admin/pipeline'
+import { requireDb } from '@/lib/admin/pipeline'
 import { ERROR_GROUP_STATUSES, type ErrorGroupStatus } from '@/lib/admin/observability'
 import { captureError } from '@/lib/observability/store'
 
@@ -29,16 +29,16 @@ export async function setErrorGroupStatus(fingerprint: string, status: ErrorGrou
     return { ok: false, code: 'invalid' }
   }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('error_groups')
     .update({ status, resolved_at: status === 'resolved' ? new Date().toISOString() : null })
     .eq('fingerprint', fingerprint)
     .select('fingerprint, event')
   if (error) {
-    await captureError(error, { event: 'admin.error_group_update_failed', source: 'action', supabase })
+    await captureError(error, { event: 'admin.error_group_update_failed', source: 'action', db })
     return { ok: false, code: 'error' }
   }
   if (!data || data.length === 0) return { ok: false, code: 'not-found' }

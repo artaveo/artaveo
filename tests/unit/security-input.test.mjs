@@ -174,12 +174,12 @@ describe('client address (pickClientIp)', () => {
 })
 
 describe('the salt for hashes', () => {
-  it('prefers the dedicated secret, derives one from the service-role key when it is missing, and never returns the key itself', () => {
+  it('prefers the dedicated secret, derives one from the Data API signing key when it is missing, and never returns the key itself', () => {
     assert.equal(hashSecret({ INQUIRY_IP_HASH_SECRET: 'dedicated' }), 'dedicated')
-    const derived = hashSecret({ SUPABASE_SERVICE_ROLE_KEY: 'service-key-value' })
+    const derived = hashSecret({ NEON_SERVICE_JWT_PRIVATE_KEY: 'service-key-value' })
     assert.match(derived, /^[0-9a-f]{64}$/)
     assert.ok(!derived.includes('service-key-value'))
-    assert.notEqual(derived, hashSecret({ SUPABASE_SERVICE_ROLE_KEY: 'another-key' }))
+    assert.notEqual(derived, hashSecret({ NEON_SERVICE_JWT_PRIVATE_KEY: 'another-key' }))
     assert.equal(hashSecret({}), 'artaveo-dev-only-unset-secret')
   })
 })
@@ -208,15 +208,23 @@ describe('rate-limit policy', () => {
 })
 
 describe('configuration check (secret inventory)', () => {
-  const prod = { VERCEL_ENV: 'production', SUPABASE_SERVICE_ROLE_KEY: 'k', SUPABASE_ANON_KEY: 'k', CRON_SECRET: 'x'.repeat(32), INQUIRY_IP_HASH_SECRET: 'y'.repeat(32) }
+  const prod = {
+    VERCEL_ENV: 'production',
+    NEON_DATA_API_URL: 'https://ep-x.apirest.example/db/rest/v1', NEON_SERVICE_JWT_PRIVATE_KEY: 'k', NEON_SERVICE_JWT_KID: 'k',
+    NEON_AUTH_BASE_URL: 'https://ep-x.neonauth.example/db/auth', NEON_AUTH_COOKIE_SECRET: 'z'.repeat(32),
+    NEON_STORAGE_ENDPOINT: 'https://br-x.storage.example', NEON_STORAGE_ACCESS_KEY_ID: 'k', NEON_STORAGE_SECRET_ACCESS_KEY: 'k',
+    MFA_ENCRYPTION_KEY: 'k', CRON_SECRET: 'x'.repeat(32), INQUIRY_IP_HASH_SECRET: 'y'.repeat(32),
+  }
   it('says nothing outside production and nothing when everything is right', () => {
     assert.deepEqual(checkSecurityConfig({}), [])
     assert.deepEqual(checkSecurityConfig(prod), [])
   })
   it('names what is missing, never a value', () => {
-    const findings = checkSecurityConfig({ VERCEL_ENV: 'production', CRON_SECRET: 'short', SUPABASE_SERVICE_ROLE_KEY: 'super-secret-value' })
+    const findings = checkSecurityConfig({ VERCEL_ENV: 'production', CRON_SECRET: 'short', NEON_SERVICE_JWT_PRIVATE_KEY: 'super-secret-value', NEON_AUTH_COOKIE_SECRET: 'too-short-secret' })
     const ids = findings.map((f) => f.id)
-    assert.ok(ids.includes('SUPABASE_ANON_KEY') && ids.includes('CRON_SECRET') && ids.includes('INQUIRY_IP_HASH_SECRET'))
+    assert.ok(ids.includes('NEON_AUTH_BASE_URL') && ids.includes('NEON_DATA_API_URL') && ids.includes('CRON_SECRET') && ids.includes('INQUIRY_IP_HASH_SECRET'))
+    assert.ok(ids.includes('NEON_AUTH_COOKIE_SECRET'), 'a cookie secret under 32 characters is flagged')
+    assert.ok(!JSON.stringify(findings).includes('too-short-secret'))
     assert.ok(!JSON.stringify(findings).includes('super-secret-value'))
     assert.equal(findings.find((f) => f.id === 'CRON_SECRET').severity, 'error')
     assert.equal(findings.find((f) => f.id === 'INQUIRY_IP_HASH_SECRET').severity, 'warning')

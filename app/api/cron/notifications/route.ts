@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { checkCronAuth } from '@/lib/security/cron-auth'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import { publishDueArticles } from '@/lib/insights-scheduler'
 import { enqueueContentPublished } from '@/lib/notifications/events'
 import { processOutboxBatch } from '@/lib/notifications/outbox'
@@ -54,7 +54,7 @@ async function settle<T>(label: string, run: () => Promise<T>): Promise<T | { er
   try {
     return await run()
   } catch (err) {
-    await captureError(err, { event: 'cron.step_failed', source: 'cron', route: '/api/cron/notifications', fields: { step: label }, supabase: getSupabaseServerClient() })
+    await captureError(err, { event: 'cron.step_failed', source: 'cron', route: '/api/cron/notifications', fields: { step: label }, db: getDbClient() })
     return { error: err instanceof Error ? err.message : String(err) }
   }
 }
@@ -81,16 +81,16 @@ async function handle(request: Request): Promise<NextResponse> {
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 })
   }
 
-  const supabase = getSupabaseServerClient()
-  if (!supabase) {
+  const db = getDbClient()
+  if (!db) {
     return NextResponse.json({ ok: false, error: 'not-configured' }, { status: 200 })
   }
 
   const notifications = await settle('notification sweep', () =>
-    processOutboxBatch(supabase, { limit: 50, deadlineMs: SWEEP_DEADLINE_MS }),
+    processOutboxBatch(db, { limit: 50, deadlineMs: SWEEP_DEADLINE_MS }),
   )
 
-  const articles = await settle('scheduled publish sweep', () => publishDueArticles(supabase))
+  const articles = await settle('scheduled publish sweep', () => publishDueArticles(db))
 
   // Tell the owner about whatever just went live — and send it now, rather
   // than leaving it for tomorrow's run.
@@ -100,7 +100,7 @@ async function handle(request: Request): Promise<NextResponse> {
     publishNotices = await settle('publish notices', async () => {
       const ids: string[] = []
       for (const item of items) {
-        const rows = await enqueueContentPublished(supabase, {
+        const rows = await enqueueContentPublished(db, {
           entity: 'article',
           id: item.id,
           slug: item.slug,
@@ -109,27 +109,27 @@ async function handle(request: Request): Promise<NextResponse> {
         })
         ids.push(...rows.map((row) => row.id))
       }
-      if (ids.length > 0) await processOutboxBatch(supabase, { ids, deadlineMs: 10_000 })
+      if (ids.length > 0) await processOutboxBatch(db, { ids, deadlineMs: 10_000 })
       return { enqueued: ids.length }
     })
   }
 
   // D-14: clear the e-mail address of every finished recommendation request and
   // redact the e-mails that carried it (`lib/recommendation-privacy.ts`).
-  const recommenderPrivacy = await settle('recommender address sweep', () => sweepRecommendationRecipients(supabase))
+  const recommenderPrivacy = await settle('recommender address sweep', () => sweepRecommendationRecipients(db))
 
   // Phase 23: housekeeping that keeps two tables the size of "recent activity" —
   // finished rate-limit windows, and visitor uploads whose brief was never sent.
-  const rateLimits = await settle('rate limit purge', () => purgeExpiredRateLimits(supabase))
-  const unlinkedFiles = await settle('unlinked file sweep', () => sweepUnlinkedInquiryFiles(supabase))
+  const rateLimits = await settle('rate limit purge', () => purgeExpiredRateLimits(db))
+  const unlinkedFiles = await settle('unlinked file sweep', () => sweepUnlinkedInquiryFiles(db))
 
   // Phase 24: housekeeping for the observability tables, then the alert check — so an
   // e-mail about a failing channel or a stuck message goes out at least once a day even
   // when nothing else checks (the external check, when it runs, does this every 15 minutes).
-  const opsPurge = await settle('ops purge', () => purgeOpsData(supabase))
+  const opsPurge = await settle('ops purge', () => purgeOpsData(db))
   const alerts = await settle('alert check', async () => {
-    const { alerts: firing } = await evaluateAlerts(supabase)
-    const raised = await raiseAlerts(supabase, firing)
+    const { alerts: firing } = await evaluateAlerts(db)
+    const raised = await raiseAlerts(db, firing)
     return { firing: firing.map((alert) => alert.id), raised: raised.raised }
   })
 
@@ -139,7 +139,7 @@ async function handle(request: Request): Promise<NextResponse> {
     .map(([name]) => name)
 
   // The heartbeat: "the daily run completed". The `cron.stale` alert is the absence of this row.
-  await track('cron.completed', { data: { durationMs: Date.now() - startedAt, failedSteps }, supabase })
+  await track('cron.completed', { data: { durationMs: Date.now() - startedAt, failedSteps }, db })
 
   return NextResponse.json({ ok: true, ...results })
 }

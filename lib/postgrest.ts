@@ -1,6 +1,6 @@
 /**
  * Building PostgREST filters from text a person typed (Phase 23 — the SQL
- * injection review). The Supabase query builder parameterises `.eq()`,
+ * injection review). The PostgREST query builder (`@supabase/postgrest-js`, against the Neon Data API) parameterises `.eq()`,
  * `.insert()` and friends, but `.or()` takes a filter *expression* as a string:
  * `name.ilike.%term%,email.ilike.%term%`. Interpolating a search term into it
  * lets the term rewrite the filter — a comma starts a new condition, a

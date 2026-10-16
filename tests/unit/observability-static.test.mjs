@@ -84,7 +84,7 @@ describe('where the request id is read', () => {
     assert.deepEqual(users.filter((f) => !allowed.has(f)), [], 'a file that may run while prerendering must not call headers() through getRequestId()')
   })
   it('the logger and the database client never call headers() — they run while prerendering', () => {
-    for (const file of ['lib/observability/logger.ts', 'lib/supabase/server.ts', 'lib/observability/store.ts', 'lib/observability/redact.ts']) {
+    for (const file of ['lib/observability/logger.ts', 'lib/db/server.ts', 'lib/observability/store.ts', 'lib/observability/redact.ts']) {
       const code = read(file).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
       assert.doesNotMatch(code, /\bheaders\(\)/, file)
     }

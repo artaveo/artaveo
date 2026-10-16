@@ -1,5 +1,5 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { REDACTED_MARKER } from '@/lib/notifications/outbox'
 import { captureError } from '@/lib/observability/store'
@@ -61,10 +61,10 @@ export function shouldClearRecipient(row: RequestRow, now: Date): boolean {
  * Deletes what has not gone out yet and redacts what has, for one request.
  * Returns how many rows were touched (for the sweep's report).
  */
-export async function redactRequestNotifications(supabase: SupabaseClient, requestId: string): Promise<number> {
+export async function redactRequestNotifications(db: DbClient, requestId: string): Promise<number> {
   let touched = 0
 
-  const { data: deleted, error: deleteError } = await supabase
+  const { data: deleted, error: deleteError } = await db
     .from('notification_outbox')
     .delete()
     .eq('entity_type', 'recommendation_request')
@@ -74,7 +74,7 @@ export async function redactRequestNotifications(supabase: SupabaseClient, reque
   if (deleteError) await captureError(deleteError, { event: 'recommendation_privacy.delete_unsent_failed', source: 'database' })
   touched += deleted?.length ?? 0
 
-  const { data: redacted, error: redactError } = await supabase
+  const { data: redacted, error: redactError } = await db
     .from('notification_outbox')
     .update({ recipient_email: REDACTED_MARKER, body_text: REDACTED_MARKER, reply_to: null })
     .eq('entity_type', 'recommendation_request')
@@ -93,14 +93,14 @@ export async function redactRequestNotifications(supabase: SupabaseClient, reque
  * e-mail rows were deleted or redacted. Best-effort: the caller's own change
  * has already happened.
  */
-export async function clearRecipientForRequest(supabase: SupabaseClient, requestId: string): Promise<number> {
+export async function clearRecipientForRequest(db: DbClient, requestId: string): Promise<number> {
   try {
-    const { error } = await supabase
+    const { error } = await db
       .from('recommendation_requests')
       .update({ recipient_email: null, recipient_locale: null })
       .eq('id', requestId)
     if (error) await captureError(error, { event: 'recommendation_privacy.clear_address_failed', source: 'database' })
-    return await redactRequestNotifications(supabase, requestId)
+    return await redactRequestNotifications(db, requestId)
   } catch (err) {
     await captureError(err, { event: 'recommendation_privacy.clear_failed', source: 'server' })
     return 0
@@ -115,13 +115,13 @@ export async function clearRecipientForRequest(supabase: SupabaseClient, request
  *     or a request row that was deleted).
  */
 export async function sweepRecommendationRecipients(
-  supabase: SupabaseClient,
+  db: DbClient,
   now: Date = new Date(),
 ): Promise<{ cleared: number; redacted: number }> {
   let cleared = 0
   let redacted = 0
 
-  const { data: candidates, error } = await supabase
+  const { data: candidates, error } = await db
     .from('recommendation_requests')
     .select(
       // Disambiguated: the two tables reference each other, so a bare
@@ -135,13 +135,13 @@ export async function sweepRecommendationRecipients(
   } else {
     for (const row of (candidates ?? []) as unknown as RequestRow[]) {
       if (!shouldClearRecipient(row, now)) continue
-      redacted += await clearRecipientForRequest(supabase, row.id)
+      redacted += await clearRecipientForRequest(db, row.id)
       cleared += 1
     }
   }
 
   // Step 2: finished messages whose request no longer holds an address.
-  const { data: leftovers } = await supabase
+  const { data: leftovers } = await db
     .from('notification_outbox')
     .select('entity_id')
     .in('kind', ['recommendation-request', 'recommendation-changes'])
@@ -151,7 +151,7 @@ export async function sweepRecommendationRecipients(
 
   const requestIds = Array.from(new Set(((leftovers ?? []) as { entity_id: string }[]).map((row) => row.entity_id)))
   if (requestIds.length > 0) {
-    const { data: stillHeld } = await supabase
+    const { data: stillHeld } = await db
       .from('recommendation_requests')
       .select('id')
       .in('id', requestIds)
@@ -159,7 +159,7 @@ export async function sweepRecommendationRecipients(
     const held = new Set(((stillHeld ?? []) as { id: string }[]).map((row) => row.id))
     for (const id of requestIds) {
       if (held.has(id)) continue
-      redacted += await redactRequestNotifications(supabase, id)
+      redacted += await redactRequestNotifications(db, id)
     }
   }
 

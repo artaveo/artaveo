@@ -12,7 +12,7 @@ import assert from 'node:assert/strict'
 import { after, before, beforeEach, describe, it } from 'node:test'
 
 import { EDITOR } from '../support/stack/accounts.mjs'
-import { anon, service, sql, stackUrl, uuid } from '../support/stack-env.mjs'
+import { anon, objectUrl, service, sql, stackUrl, uuid } from '../support/stack-env.mjs'
 import { clearRevalidated, resetRequest, revalidated } from '../support/next-runtime.mjs'
 import { createEmptyInquiryDraft } from '../../types/inquiry.ts'
 import { hashIp } from '../../lib/request-ip.ts'
@@ -22,7 +22,7 @@ const content = await import('../../app/actions/content.ts')
 const media = await import('../../app/actions/media.ts')
 const { uploadInquiryAttachment, removeInquiryAttachment } = await import('../../app/actions/inquiry-attachments.ts')
 const { submitInquiry } = await import('../../app/actions/inquiries.ts')
-const { queryProjectBySlug, queryAllProjects } = await import('../../lib/supabase/content-queries.ts')
+const { queryProjectBySlug, queryAllProjects } = await import('../../lib/db/content-queries.ts')
 const { hasPublishedArticles, getPublishedArticles } = await import('../../lib/insights.ts')
 const { publishDueArticles } = await import('../../lib/insights-scheduler.ts')
 
@@ -305,8 +305,8 @@ describe('uploads', () => {
       assert.equal(await mediaCount(), libraryBefore, 'a visitor file is not a CMS asset: editors never see it')
       assert.ok((await stored()).some((o) => o.key === `inquiry-files/${row.storage_path}`))
       assert.ok(!(await stored()).some((o) => o.key.startsWith('media/') && o.key.includes(row.storage_path.slice(0, 20))))
-      // Private: there is no public URL for it.
-      assert.equal((await fetch(`${stackUrl}/storage/v1/object/public/inquiry-files/${row.storage_path}`)).status, 404)
+      // Private: its URL answers nothing without a signature.
+      assert.equal((await fetch(objectUrl('inquiry-files', row.storage_path))).status, 403)
     })
 
     it('rejects bad types and sizes — and a file whose BYTES are not the declared image', async () => {

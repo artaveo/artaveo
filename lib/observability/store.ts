@@ -1,11 +1,11 @@
 import 'server-only'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { DbClient } from '@/lib/db/server'
 
 import { currentRequestId } from '@/lib/observability/context'
 import { log, type LogFields, type LogLevel } from '@/lib/observability/logger'
 import { EVENT_NAME, fingerprintOf, redactFields, redactPath, serializeError } from '@/lib/observability/redact'
 import { isRequestId } from '@/lib/observability/request-id'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 
 /**
  * Persistence for the two things worth finding tomorrow (Phase 24):
@@ -39,11 +39,11 @@ export type CaptureContext = {
   /** Small context. Redacted (private keys replaced, strings scrubbed) before it is logged or stored. */
   fields?: Record<string, unknown>
   /** Tests inject one; `null` means "log only". Omit to use the server client. */
-  supabase?: SupabaseClient | null
+  db?: DbClient | null
 }
 
-function clientFor(explicit: SupabaseClient | null | undefined): SupabaseClient | null {
-  return explicit === undefined ? getSupabaseServerClient() : explicit
+function clientFor(explicit: DbClient | null | undefined): DbClient | null {
+  return explicit === undefined ? getDbClient() : explicit
 }
 
 const DATA_LIMIT = 3500
@@ -62,13 +62,13 @@ export async function captureError(err: unknown, ctx: CaptureContext): Promise<v
   else log.error(ctx.event, line)
 
   if (!EVENT_NAME.test(ctx.event)) return
-  const supabase = clientFor(ctx.supabase)
-  if (!supabase) return
+  const db = clientFor(ctx.db)
+  if (!db) return
 
   try {
     const serialized = serializeError(err)
     const fingerprint = fingerprintOf({ event: ctx.event, name: serialized.name, message: serialized.message, route: route ?? null })
-    const { error } = await supabase.rpc('record_error_event', {
+    const { error } = await db.rpc('record_error_event', {
       p_fingerprint: fingerprint,
       p_source: ctx.source ?? 'server',
       p_event: ctx.event,
@@ -94,7 +94,7 @@ export type TrackOptions = {
   /** Skip the write if the same event for the same subject was recorded within this many seconds. The log line is always written. */
   dedupeSeconds?: number
   requestId?: string
-  supabase?: SupabaseClient | null
+  db?: DbClient | null
 }
 
 /** Records an event. Resolves to whether a row was written (false: not configured, de-duplicated, or the write failed). */
@@ -105,11 +105,11 @@ export async function track(name: string, options: TrackOptions = {}): Promise<b
   log[level](name, { requestId, ...(options.subject ? { subjectType: options.subject.type, subjectId: options.subject.id } : {}), ...data })
 
   if (!EVENT_NAME.test(name)) return false
-  const supabase = clientFor(options.supabase)
-  if (!supabase) return false
+  const db = clientFor(options.db)
+  if (!db) return false
 
   try {
-    const { data: written, error } = await supabase.rpc('record_ops_event', {
+    const { data: written, error } = await db.rpc('record_ops_event', {
       p_level: level,
       p_name: name,
       p_request_id: isRequestId(requestId) ? requestId : null,
@@ -130,8 +130,8 @@ export async function track(name: string, options: TrackOptions = {}): Promise<b
 }
 
 /** The daily run's housekeeping: events and error groups older than 90 days. */
-export async function purgeOpsData(supabase: SupabaseClient): Promise<{ eventsDeleted: number; groupsDeleted: number }> {
-  const { data, error } = await supabase.rpc('purge_ops_data', { p_events_days: 90, p_groups_days: 90 })
+export async function purgeOpsData(db: DbClient): Promise<{ eventsDeleted: number; groupsDeleted: number }> {
+  const { data, error } = await db.rpc('purge_ops_data', { p_events_days: 90, p_groups_days: 90 })
   if (error || !Array.isArray(data) || data.length === 0) {
     throw new Error(`ops purge failed: ${error?.message ?? 'no row returned'}`)
   }

@@ -5,7 +5,6 @@ import { redirect } from 'next/navigation'
 import { MfaEnrollmentPanel } from '@/components/admin/mfa-enrollment-panel'
 import { FormMessage } from '@/components/ui/form-controls'
 import { getAdminSession } from '@/lib/admin/auth'
-import { createAuthServerClient } from '@/lib/supabase/server-auth'
 
 export async function generateMetadata({
   params,
@@ -33,11 +32,8 @@ export default async function AdminSecurityPage({
     redirect(`/${locale}/admin/login`)
   }
 
-  const authClient = await createAuthServerClient()
-  const { data: factorsData } = authClient
-    ? await authClient.auth.mfa.listFactors()
-    : { data: null }
-  const verifiedFactor = factorsData?.totp?.[0]
+  // `aal.next` is aal2 exactly when a confirmed TOTP factor exists (lib/admin/auth.ts).
+  const hasVerifiedFactor = session.aal.next === 'aal2'
 
   const t = await getTranslations('Admin')
 
@@ -52,8 +48,8 @@ export default async function AdminSecurityPage({
 
       <MfaEnrollmentPanel
         locale={locale}
-        hasVerifiedFactor={Boolean(verifiedFactor)}
-        existingFactorId={verifiedFactor?.id}
+        hasVerifiedFactor={hasVerifiedFactor}
+        existingFactorId={hasVerifiedFactor ? 'totp' : undefined}
       />
     </div>
   )

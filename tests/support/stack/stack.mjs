@@ -11,8 +11,15 @@
  * `up` starts, in order: a throw-away PostgreSQL cluster → applies shim.sql and
  * db/migrations/*.sql (unchanged) → imports the real site content with
  * scripts/import-content-to-db.ts → adds the test admins and fixtures → PostgREST
- * → the gateway (gateway.mjs), which is the one URL the app and the tests use as
- * SUPABASE_URL. It replaces the hand-built setup Phase 20 described.
+ * → the gateway (gateway.mjs), the one origin that stands in for the Neon
+ * services: NEON_DATA_API_URL (<gateway>/rest/v1, real PostgREST),
+ * NEON_AUTH_BASE_URL (<gateway>/auth) and NEON_STORAGE_ENDPOINT (<gateway>/s3).
+ *
+ * Tokens: the app signs its own ES256 `service_role` token exactly as in
+ * production (lib/db/service-token.ts) with a key pair made per stack; PostgREST
+ * is given a JWKS holding that public key AND the HS256 test secret, so the
+ * suites' own raw clients (anon / authenticated / service_role, jwt.mjs) are
+ * accepted too.
  *
  * Needs on the machine: PostgreSQL 15+ server binaries (initdb, pg_ctl, psql) and
  * a PostgREST binary. Override discovery with PG_BIN / POSTGREST_BIN. Everything
@@ -29,11 +36,13 @@ import { fileURLToPath } from 'node:url'
 import { accounts } from './accounts.mjs'
 import { createGateway } from './gateway.mjs'
 import { roleKey } from './jwt.mjs'
+import crypto from 'node:crypto'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(HERE, '../../..')
 const STATE_DIR = path.join(ROOT, '.test-stack')
 const ENV_FILE = path.join(STATE_DIR, 'env.json')
+const KEY_FILE = path.join(STATE_DIR, 'service-key.json')
 // One directory per user: a run by another account (or by root, in a container) never collides with this one.
 const WORK_DIR = path.join(os.tmpdir(), `artaveo-test-stack-${typeof process.getuid === 'function' ? process.getuid() : 'x'}`)
 const PGDATA = path.join(WORK_DIR, 'pgdata')
@@ -131,13 +140,45 @@ function spawnDetached(name, command, args, env) {
   return child.pid
 }
 
+/** The stack's ES256 key pair for the app's service token — made once per state directory. */
+function serviceKey() {
+  if (fs.existsSync(KEY_FILE)) return JSON.parse(fs.readFileSync(KEY_FILE, 'utf8'))
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('ec', { namedCurve: 'P-256' })
+  const kid = 'artaveo-test-stack'
+  const key = {
+    kid,
+    privateKeyBase64: Buffer.from(privateKey.export({ format: 'pem', type: 'pkcs8' })).toString('base64'),
+    publicJwk: { ...publicKey.export({ format: 'jwk' }), kid, alg: 'ES256', use: 'sig' },
+  }
+  fs.mkdirSync(STATE_DIR, { recursive: true })
+  fs.writeFileSync(KEY_FILE, JSON.stringify(key, null, 2))
+  return key
+}
+
+/** What PostgREST verifies tokens against: the app's ES256 key and the suites' HS256 secret. */
+function postgrestJwks() {
+  return JSON.stringify({ keys: [serviceKey().publicJwk, { kty: 'oct', alg: 'HS256', k: Buffer.from(JWT_SECRET).toString('base64url') }] })
+}
+
 export function stackEnv() {
-  const anon = roleKey('anon', JWT_SECRET)
-  const service = roleKey('service_role', JWT_SECRET)
+  const gateway = `http://127.0.0.1:${GATEWAY_PORT}`
+  const key = serviceKey()
   return {
-    SUPABASE_URL: `http://127.0.0.1:${GATEWAY_PORT}`,
-    SUPABASE_ANON_KEY: anon,
-    SUPABASE_SERVICE_ROLE_KEY: service,
+    // The app — the same variables as production (docs/security.md).
+    NEON_DATA_API_URL: `${gateway}/rest/v1`,
+    NEON_SERVICE_JWT_PRIVATE_KEY: key.privateKeyBase64,
+    NEON_SERVICE_JWT_KID: key.kid,
+    NEON_AUTH_BASE_URL: `${gateway}/auth`,
+    NEON_AUTH_COOKIE_SECRET: 'test-only-neon-auth-cookie-secret-0123456789',
+    NEON_STORAGE_ENDPOINT: `${gateway}/s3`,
+    NEON_STORAGE_REGION: 'us-east-1',
+    NEON_STORAGE_ACCESS_KEY_ID: 'test-only-access-key',
+    NEON_STORAGE_SECRET_ACCESS_KEY: 'test-only-secret-access-key',
+    MFA_ENCRYPTION_KEY: Buffer.from('test-only-mfa-key-0123456789abcd').toString('base64'),
+    // The suites' own raw clients (tests/support/stack-env.mjs).
+    ARTAVEO_TEST_ANON_KEY: roleKey('anon', JWT_SECRET),
+    ARTAVEO_TEST_SERVICE_KEY: roleKey('service_role', JWT_SECRET),
+    ARTAVEO_TEST_JWT_SECRET: JWT_SECRET,
     INQUIRY_IP_HASH_SECRET: 'test-only-ip-hash-secret',
     EMAIL_PROVIDER: 'console',
     CRON_SECRET: 'test-only-cron-secret-0123456789',
@@ -209,7 +250,7 @@ async function up() {
   // 4. test admins and fixtures
   const authRows = accounts.map((a) => `('${a.id}', '${a.email}')`).join(', ')
   const adminRows = accounts.filter((a) => a.role).map((a) => `('${a.id}', '${a.role}')`).join(', ')
-  psql(DB_NAME, [], `insert into auth.users (id, email) values ${authRows}; insert into public.admin_users (id, role) values ${adminRows};`)
+  psql(DB_NAME, [], `insert into neon_auth."user" (id, email) values ${authRows}; insert into public.admin_users (id, role) values ${adminRows};`)
   psql(DB_NAME, ['-f', path.join(HERE, 'fixtures.sql')])
 
   // 5. PostgREST (schema cache is built at start, so after the migrations)
@@ -218,7 +259,7 @@ async function up() {
     PGRST_DB_URI: `postgres://authenticator:authenticator-test-only@127.0.0.1:${PG_PORT}/${DB_NAME}`,
     PGRST_DB_SCHEMAS: 'public',
     PGRST_DB_ANON_ROLE: 'anon',
-    PGRST_JWT_SECRET: JWT_SECRET,
+    PGRST_JWT_SECRET: postgrestJwks(),
     PGRST_SERVER_HOST: '127.0.0.1',
     PGRST_SERVER_PORT: String(PGRST_PORT),
     PGRST_DB_MAX_ROWS: '1000',
@@ -232,7 +273,7 @@ async function up() {
   await waitFor(async () => (await fetch(`http://127.0.0.1:${GATEWAY_PORT}/_test/health`)).ok, 'the gateway')
 
   fs.writeFileSync(ENV_FILE, JSON.stringify(stackEnv(), null, 2))
-  console.log(`test stack is up — SUPABASE_URL=http://127.0.0.1:${GATEWAY_PORT} (env in ${path.relative(ROOT, ENV_FILE)})`)
+  console.log(`test stack is up — gateway http://127.0.0.1:${GATEWAY_PORT} (env in ${path.relative(ROOT, ENV_FILE)})`)
 }
 
 async function down() {
@@ -245,6 +286,7 @@ async function down() {
     // nothing to stop
   }
   fs.rmSync(ENV_FILE, { force: true })
+  fs.rmSync(KEY_FILE, { force: true })
   console.log('test stack is down')
 }
 
@@ -298,7 +340,8 @@ async function build() {
 }
 
 async function gateway() {
-  const gw = createGateway({ port: GATEWAY_PORT, postgrestUrl: `http://127.0.0.1:${PGRST_PORT}`, jwtSecret: JWT_SECRET, accounts })
+  // `media` is public_read on the real branch, `inquiry-files` private (lib/db/storage.ts).
+  const gw = createGateway({ port: GATEWAY_PORT, postgrestUrl: `http://127.0.0.1:${PGRST_PORT}`, accounts, publicBuckets: ['media'] })
   await gw.listen()
 }
 

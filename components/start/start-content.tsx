@@ -13,7 +13,7 @@ import type { EngagementModel, Service } from '@/types/content'
  *
  * `services`/`engagementModels` are fetched once by the Server Component
  * page (`app/[locale]/start/page.tsx`) and threaded down through here —
- * Phase 12.2 (roadmap § 12) made those Supabase-backed and async, and
+ * Phase 12.2 (roadmap § 12) made those database-backed and async, and
  * `BriefBuilder`/its steps are Client Components that can't await during
  * render, so the data has to arrive as a prop instead.
  */

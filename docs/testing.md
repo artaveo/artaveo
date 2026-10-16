@@ -12,7 +12,7 @@ Three layers, each answering a different question. Run the cheap ones often and 
 
 ## The test stack
 
-Integration and E2E tests run against **real PostgreSQL and real PostgREST**, not mocks, so every constraint, trigger, index and RLS policy the migrations define is genuinely exercised. Around the database sits a small "fake Supabase" (`tests/support/stack/gateway.mjs`) that serves one URL — what the app calls `SUPABASE_URL` — and routes `/rest/v1` to PostgREST, `/auth/v1` to a **stand-in** for the sign-in service, and `/storage/v1` to a **stand-in** for file storage.
+Integration and E2E tests run against **real PostgreSQL and real PostgREST**, not mocks, so every constraint, trigger, index and RLS policy the migrations define is genuinely exercised. Around the database sits a small stand-in for the other Neon services (`tests/support/stack/gateway.mjs`) that serves one URL — what the app calls `SUPABASE_URL` — and routes `/rest/v1` to PostgREST, `/auth/v1` to a **stand-in** for the sign-in service, and `/storage/v1` to a **stand-in** for file storage.
 
 ```text
 npm run test:stack:up       # once per session: cluster → shim → migrations 0001…latest → real content import → test admins + fixtures → PostgREST → gateway
@@ -32,10 +32,10 @@ Ubuntu: `sudo apt install postgresql-16`, and the static PostgREST binary from i
 |---|---|
 | PostgreSQL, every migration, every constraint, trigger, index | GoTrue: password sign-in, refresh and `getUser` only — **no MFA, password policy, lockout, e-mail flows** |
 | PostgREST and the JWT roles `anon` / `authenticated` / `service_role` | Storage: upload, delete, public read in memory — **bucket size/type limits and storage policies are not exercised** |
-| Row Level Security, with Supabase's default privileges mirrored (`tests/support/stack/shim.sql`) | E-mail: the `console` provider (nothing is delivered) |
+| Row Level Security, with the Supabase-era default privileges the migrations were written against mirrored (`tests/support/stack/shim.sql`) | E-mail: the `console` provider (nothing is delivered) |
 | The app's own code: real Server Actions, selectors, the built Next app | Google Fonts: served from a local stub, so text renders in the fallback font — fine for behaviour and accessibility, **not for judging typography** |
 
-`shim.sql` is the only file that knows about Supabase's internals; nothing in it is application schema.
+`shim.sql` (with `db/neon/prelude.sql`, its production counterpart) is the only place that knows about platform internals; nothing in it is application schema.
 
 ### Accounts (test values only)
 
@@ -130,7 +130,7 @@ Every other browser test now also **fails on any Content Security Policy violati
 
 **Fixtures.** The many sign-ins and submissions a suite makes would otherwise share one rate-limit bucket: integration suites give every fresh request context its own address (`resetRequest`, `__TEST_AUTO_IP__`) and clear the admin windows; browser tests clear them in `signInAsAdmin`. The rate-limit tests themselves do not — they are the ones that need the windows. The storage stand-in now models private buckets and signed URLs (`tests/support/stack/gateway.mjs`); which buckets are private is checked against the migration by `security-static`.
 
-**Not covered:** real Supabase Storage (bucket limits, real signed-URL behaviour, the `Content-Type`/CSP headers Storage adds), Vercel's platform limits (the 4.5 MB body cap, the firewall), and Supabase Auth's own limits and MFA.
+**Not covered:** real Neon Object Storage (signature checks, bucket limits, the headers it adds), Vercel's platform limits (the 4.5 MB body cap, the firewall), and Neon Auth's own limits. Two-factor codes are the app's own and ARE covered (`admin-authorization.integration.test.mjs`).
 
 ## Observability tests (Phase 24)
 
@@ -138,7 +138,7 @@ Run with the rest — `npm run test:unit`, `npm run test:integration`, `npm run 
 
 | File | Layer | What it pins |
 |---|---|---|
-| `tests/unit/observability-redact.test.mjs` | unit | what may leave a request: addresses, JWTs, bearer credentials, `key=value` secrets, long tokens and phone-like numbers scrubbed (ids kept); private-link tokens in paths; errors from `Error`, Supabase-style objects, strings, cycles, causes; private field names; depth/width/array/cycle bounds; the fingerprint is the same for the same failure with different ids and numbers and differs by event, message and route |
+| `tests/unit/observability-redact.test.mjs` | unit | what may leave a request: addresses, JWTs, bearer credentials, `key=value` secrets, long tokens and phone-like numbers scrubbed (ids kept); private-link tokens in paths; errors from `Error`, PostgREST-style objects, strings, cycles, causes; private field names; depth/width/array/cycle bounds; the fingerprint is the same for the same failure with different ids and numbers and differs by event, message and route |
 | `tests/unit/observability-core.test.mjs` | unit | the request id (UUID only, never trusted from a header, concurrent runs do not mix, `bindRequestId` for a Server Action's own frame); the logger (shape, invalid names, truncation, a broken sink never throws); CSP report parsing in both wire formats, extension noise dropped, hostile directives; client error reports |
 | `tests/unit/observability-alerts.test.mjs` | unit | every alert rule at its threshold and one step either side, ordering, "never recorded" is not an alert, every rule has e-mail text and a title and an action in **both** languages |
 | `tests/unit/observability-static.test.mjs` | unit (reads the source) | no `console` in server code; every event name well formed; where `getRequestId()` (which calls `headers()`) may be used; the logger, the database client and the store never call `headers()`; the proxy makes its own id; the two open endpoints are rate-limited, size-capped, answer 204 and refuse GET; client/CSP groups never alarm; migration `0021` ↔ code agree (RLS, grants, search paths, sources, rollback lines) |

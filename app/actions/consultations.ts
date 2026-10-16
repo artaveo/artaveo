@@ -5,7 +5,7 @@ import { createConsultationRequest, cancelConsultationAsClient, requestConsultat
 import { looksLikeToken } from '@/lib/consultation/windows'
 import { getClientIp, hashIp } from '@/lib/request-ip'
 import { checkRateLimit } from '@/lib/security/rate-limit'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import type { Locale } from '@/types/content'
 import type {
   ClientActionResult,
@@ -37,8 +37,8 @@ export async function submitConsultationRequest(
   if (!isLocale(locale) || !input || !meta || typeof input.name !== 'string' || typeof input.email !== 'string') {
     return { ok: false, code: 'invalid' }
   }
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = getDbClient()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   // Phase 23: attempt limit before any work (the service's own per-record limits stay).
   const attempts = await checkRateLimit('consultation.request')
@@ -46,7 +46,7 @@ export async function submitConsultationRequest(
 
   const ipHash = hashIp(await getClientIp())
   return createConsultationRequest(
-    { supabase },
+    { db },
     {
       name: String(input.name),
       email: String(input.email),
@@ -69,11 +69,11 @@ export async function submitConsultationRequest(
 export async function cancelMyConsultation(token: string, reason: string): Promise<ClientActionResult> {
   bindRequestId(await getRequestId())
   if (typeof token !== 'string' || !looksLikeToken(token)) return { ok: false, code: 'not-found' }
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = getDbClient()
+  if (!db) return { ok: false, code: 'not-configured' }
   const attempts = await checkRateLimit('consultation.client-action', { subject: token })
   if (!attempts.ok) return { ok: false, code: 'rejected' }
-  return cancelConsultationAsClient({ supabase }, token, typeof reason === 'string' ? reason : '')
+  return cancelConsultationAsClient({ db }, token, typeof reason === 'string' ? reason : '')
 }
 
 export async function rescheduleMyConsultation(
@@ -83,12 +83,12 @@ export async function rescheduleMyConsultation(
 ): Promise<ClientActionResult> {
   bindRequestId(await getRequestId())
   if (typeof token !== 'string' || !looksLikeToken(token)) return { ok: false, code: 'not-found' }
-  const supabase = getSupabaseServerClient()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = getDbClient()
+  if (!db) return { ok: false, code: 'not-configured' }
   const attempts = await checkRateLimit('consultation.client-action', { subject: token })
   if (!attempts.ok) return { ok: false, code: 'rejected' }
   return requestConsultationReschedule(
-    { supabase },
+    { db },
     token,
     typeof timezone === 'string' ? timezone : '',
     Array.isArray(windows) ? windows : [],

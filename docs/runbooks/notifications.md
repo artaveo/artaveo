@@ -6,7 +6,7 @@ dashboard, or `/admin/notifications` (owner-only).
 ## 1. First deploy of Phase 19 — do these in order
 
 1. **Migrations `0017_notifications_outbox_v2.sql` and
-   `0018_recommender_email.sql`** — already applied to the live Supabase project
+   `0018_recommender_email.sql`** — already applied to the live database (Neon since October 2026)
    (`ukzovqnpqjcrwofycalc`) on 19 September 2026, before the code. Both are
    backward-compatible with the Phase 18 code, so there is no window in which the
    site is broken. If you ever rebuild the database from `db/migrations/`, apply

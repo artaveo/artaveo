@@ -118,7 +118,7 @@ export function MfaEnrollmentPanel({
       <CardContent className="flex flex-col gap-5 pt-6">
         <p className="text-sm text-muted-foreground">{t('scanInstruction')}</p>
         {/* `qrCodeSvg` (from our own `enrollMfaStart` Server Action) is
-            Supabase's own `data:image/svg+xml;utf-8,<svg>...` data URI, not
+            a `data:image/svg+xml;utf8,<svg>...` URI (`lib/admin/totp.ts`), not
             bare SVG markup — an `<img>` renders it correctly and avoids
             `dangerouslySetInnerHTML` entirely. */}
         {/* eslint-disable-next-line @next/next/no-img-element -- a data: URI, which next/image cannot optimise */}

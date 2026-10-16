@@ -5,7 +5,7 @@ import { cache } from 'react'
 import { normalizeCategory } from '@/lib/articles/category'
 import { collectMediaIds, parseArticleBody } from '@/lib/articles/markdown'
 import { estimateReadingMinutes } from '@/lib/articles/reading-time'
-import { getSupabaseServerClient } from '@/lib/supabase/server'
+import { getDbClient } from '@/lib/db/server'
 import type { Article, ArticleDetail, ArticleImage, ArticleSummary } from '@/types/content'
 import { log } from '@/lib/observability/logger'
 
@@ -21,8 +21,8 @@ import { log } from '@/lib/observability/logger'
  * own RLS policy (0005) states.
  *
  * Failure policy, deliberately split (see docs/phases/PHASE-17-README.md):
- * - Everything that renders a page **throws** when Supabase is missing or
- *   errors — the same rule `lib/supabase/content-queries.ts` follows. Under
+ * - Everything that renders a page **throws** when the database is missing or
+ *   errors — the same rule `lib/db/content-queries.ts` follows. Under
  *   ISR a thrown regeneration keeps serving the last good HTML; quietly
  *   returning `[]` would instead overwrite a good page with an empty one.
  * - `hasPublishedArticles()` alone is **tolerant** (returns `false`). It
@@ -32,10 +32,10 @@ import { log } from '@/lib/observability/logger'
  */
 
 function requireClient() {
-  const client = getSupabaseServerClient()
+  const client = getDbClient()
   if (!client) {
     throw new Error(
-      'Supabase is not configured (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY) — articles cannot be read from the database.',
+      'The database is not configured (NEON_DATA_API_URL / NEON_SERVICE_JWT_PRIVATE_KEY) — articles cannot be read from the database.',
     )
   }
   return client
@@ -93,7 +93,7 @@ export async function getLatestArticleSummaries(limit = 3): Promise<ArticleSumma
  */
 export const hasPublishedArticles = cache(async (): Promise<boolean> => {
   try {
-    const client = getSupabaseServerClient()
+    const client = getDbClient()
     if (!client) return false
     const { count, error } = await client
       .from('articles')

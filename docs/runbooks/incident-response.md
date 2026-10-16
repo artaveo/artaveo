@@ -5,7 +5,7 @@ Written 21 September 2026. Background and definitions: `docs/observability.md`. 
 ## 0. First two minutes, whatever the trigger
 
 1. Open `/en/admin/observability`. Read **Alerts** first, then **Health**.
-2. **Health → Database "Not answering"** → it is Supabase, not the site: open the Supabase dashboard for project `ukzovqnpqjcrwofycalc` (status banner, *Database → Logs*). The site fails honestly meanwhile (the Brief Builder says it could not save; nothing fake succeeds). Nothing to fix on your side unless a key was rotated — then § 6.
+2. **Health → Database "Not answering"** → it is Neon, not the site: open the Neon Console for project `Artaveo` (`calm-breeze-36870180`) — the status banner, *Monitoring*, the Data API's logs — and `neonstatus.com`. The site fails honestly meanwhile (the Brief Builder says it could not save; nothing fake succeeds). Nothing to fix on your side unless a key was rotated — then § 6.
 3. **The page itself says "could not be read"** → the database is unreachable or migration `0021` is not applied. Same first step.
 
 ## 1. An alert e-mail arrived (or the dashboard shows a banner)

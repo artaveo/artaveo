@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 
 import { getAdminSession, mfaSatisfied } from '@/lib/admin/auth'
 import { writeAuditLog } from '@/lib/admin/audit'
-import { requireSupabase } from '@/lib/admin/pipeline'
+import { requireDb } from '@/lib/admin/pipeline'
 import { routing } from '@/i18n/routing'
 import { ALLOWED_MEDIA_MIME_TYPES, MAX_MEDIA_FILE_SIZE_BYTES, MEDIA_BUCKET, clampFocal, safeStoragePath } from '@/lib/media-upload'
 import { inspectUpload } from '@/lib/upload-inspection'
@@ -49,8 +49,8 @@ export async function uploadMedia(formData: FormData): Promise<MediaUploadResult
   if (!(ALLOWED_MEDIA_MIME_TYPES as readonly string[]).includes(file.type)) return { ok: false, code: 'invalid-type' }
   if (file.size > MAX_MEDIA_FILE_SIZE_BYTES) return { ok: false, code: 'too-large' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
   // Phase 23: the bytes must be what the declared type says (lib/upload-inspection.ts).
   // SVG is allowed here — an editor is signed in — but only after its markup passes the
@@ -60,18 +60,18 @@ export async function uploadMedia(formData: FormData): Promise<MediaUploadResult
   if (!inspection.ok) return { ok: false, code: 'invalid-type' }
 
   const path = safeStoragePath(file.name)
-  const { error: uploadError } = await supabase.storage.from(MEDIA_BUCKET).upload(path, bytes, {
+  const { error: uploadError } = await db.storage.from(MEDIA_BUCKET).upload(path, bytes, {
     contentType: inspection.contentType,
     upsert: false,
   })
   if (uploadError) return { ok: false, code: 'error' }
 
-  const { data: publicUrlData } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path)
+  const { data: publicUrlData } = db.storage.from(MEDIA_BUCKET).getPublicUrl(path)
 
   const focalX = clampFocal(Number(formData.get('focalX') ?? 0.5))
   const focalY = clampFocal(Number(formData.get('focalY') ?? 0.5))
 
-  const { data: inserted, error: insertError } = await supabase
+  const { data: inserted, error: insertError } = await db
     .from('media_assets')
     .insert({
       url: publicUrlData.publicUrl,
@@ -88,7 +88,7 @@ export async function uploadMedia(formData: FormData): Promise<MediaUploadResult
 
   if (insertError || !inserted) {
     // Row insert failed after a real upload — don't leave an orphaned file with no admin-visible record of it.
-    await supabase.storage.from(MEDIA_BUCKET).remove([path])
+    await db.storage.from(MEDIA_BUCKET).remove([path])
     return { ok: false, code: 'error' }
   }
 
@@ -101,10 +101,10 @@ export async function updateMediaAlt(id: string, input: MediaAltInput): Promise<
   if ('code' in auth) return { ok: false, code: 'forbidden' }
   if (!input.alt.en.trim() || !input.alt.fa.trim()) return { ok: false, code: 'missing-alt' }
 
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase
+  const { error } = await db
     .from('media_assets')
     .update({
       alt: { en: input.alt.en.trim(), fa: input.alt.fa.trim() },
@@ -122,16 +122,16 @@ export async function updateMediaAlt(id: string, input: MediaAltInput): Promise<
 export async function deleteMedia(id: string): Promise<MediaActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { data: asset } = await supabase.from('media_assets').select('url').eq('id', id).maybeSingle()
-  const { error } = await supabase.from('media_assets').delete().eq('id', id)
+  const { data: asset } = await db.from('media_assets').select('url').eq('id', id).maybeSingle()
+  const { error } = await db.from('media_assets').delete().eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   if (asset?.url) {
     const path = asset.url.split(`/${MEDIA_BUCKET}/`).pop()
-    if (path) await supabase.storage.from(MEDIA_BUCKET).remove([path])
+    if (path) await db.storage.from(MEDIA_BUCKET).remove([path])
   }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.media_deleted', entity: 'media_asset', entityId: id })
@@ -147,12 +147,12 @@ function revalidateProjectRoutes(slug: string | null | undefined): void {
 export async function addProjectMedia(projectId: string, projectSlug: string | null, input: ProjectMediaInput): Promise<MediaActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { count } = await supabase.from('project_media').select('id', { count: 'exact', head: true }).eq('project_id', projectId)
+  const { count } = await db.from('project_media').select('id', { count: 'exact', head: true }).eq('project_id', projectId)
 
-  const { error } = await supabase.from('project_media').insert({
+  const { error } = await db.from('project_media').insert({
     project_id: projectId,
     media_id: input.mediaId,
     kind: input.kind,
@@ -169,10 +169,10 @@ export async function addProjectMedia(projectId: string, projectSlug: string | n
 export async function removeProjectMedia(rowId: string, projectId: string, projectSlug: string | null): Promise<MediaActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const supabase = requireSupabase()
-  if (!supabase) return { ok: false, code: 'not-configured' }
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await supabase.from('project_media').delete().eq('id', rowId)
+  const { error } = await db.from('project_media').delete().eq('id', rowId)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.project_media_removed', entity: 'project', entityId: projectId })

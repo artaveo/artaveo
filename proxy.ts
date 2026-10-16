@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { routing } from '@/i18n/routing'
 import { newRequestId, REQUEST_ID_HEADER } from '@/lib/observability/request-id'
 import { buildCsp, cspHeaderName, newNonce } from '@/lib/security/csp'
-import { refreshSupabaseSession } from '@/lib/supabase/middleware'
+import { applyAuthCookies, checkAdminAuthSession } from '@/lib/auth/proxy-session'
 
 const intlMiddleware = createMiddleware(routing)
 
@@ -23,7 +23,7 @@ function isAdminPath(pathname: string): boolean {
 /**
  * Roadmap § 13 — "protected `/[locale]/admin` routes … no reliance on
  * hidden routes". This is the cheap, edge-runtime half of the guard: it
- * only checks "is there *any* authenticated Supabase user" and redirects
+ * only checks "is there *any* signed-in Neon Auth user" and redirects
  * straight to `/admin/login` otherwise, for every `/admin/*` path except
  * the login page itself (`/admin/mfa-challenge` and `/admin/security`
  * both still require a session — a partially-authenticated user, not an
@@ -49,7 +49,7 @@ export default async function middleware(incoming: NextRequest) {
     mode: admin ? 'admin' : 'public',
     nonce: admin ? newNonce() : undefined,
     dev: process.env.NODE_ENV !== 'production',
-    supabaseUrl: process.env.SUPABASE_URL,
+    storageUrl: process.env.NEON_STORAGE_ENDPOINT,
     upgradeInsecure: Boolean(process.env.VERCEL),
   })
 
@@ -71,23 +71,26 @@ export default async function middleware(incoming: NextRequest) {
     return response
   }
 
-  const { configured, userId } = await refreshSupabaseSession(request, response)
   const path = stripLocale(request.nextUrl.pathname)
-
   if (path === ADMIN_LOGIN_PATH) {
     return response
   }
 
-  if (!configured || !userId) {
-    const localeMatch = request.nextUrl.pathname.match(/^\/(en|fa)(?=\/|$)/)
-    const locale = localeMatch ? localeMatch[1] : routing.defaultLocale
-    const loginUrl = new URL(`/${locale}${ADMIN_LOGIN_PATH}`, request.url)
+  const localeMatch = request.nextUrl.pathname.match(/^\/(en|fa)(?=\/|$)/)
+  const locale = localeMatch ? localeMatch[1] : routing.defaultLocale
+  const loginUrl = new URL(`/${locale}${ADMIN_LOGIN_PATH}`, request.url)
+
+  const { configured, signedIn, setCookies } = await checkAdminAuthSession(request, loginUrl)
+
+  if (!configured || !signedIn) {
     loginUrl.searchParams.set('next', request.nextUrl.pathname)
     const redirect = NextResponse.redirect(loginUrl)
+    for (const cookie of setCookies) redirect.headers.append('Set-Cookie', cookie)
     redirect.headers.set(REQUEST_ID_HEADER, requestId)
     return redirect
   }
 
+  applyAuthCookies(request, response, setCookies)
   return response
 }
 

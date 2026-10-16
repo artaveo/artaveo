@@ -3,9 +3,9 @@
  * One-way import script (roadmap § 12): reads the live content straight
  * out of `lib/home-content.ts` and `lib/services-content.ts` — by
  * importing those actual modules at runtime, not by hand-copying their
- * values — and either upserts it into Supabase directly via
- * `@supabase/supabase-js`, or (with `--sql`) prints the equivalent SQL so
- * it can be reviewed or applied by another tool. Both modes are built from
+ * values — and either upserts it into the database directly through the
+ * app's own server client (`lib/db/server.ts`, the Neon Data API), or
+ * (with `--sql`) prints the equivalent SQL so it can be reviewed or applied by another tool. Both modes are built from
  * the exact same row objects (see "buildImportModel" below) — there is no
  * separate hand-written SQL path that could drift from what the real
  * upserts do.
@@ -18,17 +18,14 @@
  * Usage:
  *   node --experimental-strip-types scripts/import-content-to-db.ts --sql > /tmp/import.sql
  *     Prints upsert SQL to stdout. Doesn't touch the database. Useful for
- *     review, or for applying through a tool that isn't this script (e.g.
- *     the Supabase CLI, dashboard SQL editor, or — as this session
- *     actually did it, since the sandbox has no network route to
- *     Supabase — the Supabase MCP's `apply_migration`/`execute_sql`; see
- *     docs/phases/PHASE-12.2-README.md, "How this session actually ran it").
+ *     review, or for applying through a tool that isn't this script (the
+ *     Neon SQL Editor, `psql`, or the test stack, which runs exactly this).
  *
- *   SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... \
- *     node --experimental-strip-types scripts/import-content-to-db.ts
- *     Upserts directly via `@supabase/supabase-js` (same env vars
- *     `lib/supabase/server.ts` already uses) — the real path for a normal
- *     dev machine or CI job with network access to the project.
+ *   node --env-file=.env.local --import ./scripts/register-ts-resolve.mjs scripts/import-content-to-db.ts
+ *     Upserts directly through the app's own server client
+ *     (`lib/db/server.ts`, same env vars the app uses: NEON_DATA_API_URL,
+ *     NEON_SERVICE_JWT_PRIVATE_KEY / _KID) — the real path for a normal dev
+ *     machine or CI job with network access to the project.
  *
  * Idempotent: `projects`, `services`, `technologies` and
  * `engagement_models` are upserted on their natural `slug` key;
@@ -332,10 +329,10 @@ function renderSql(model) {
 }
 
 // ---------------------------------------------------------------------------
-// Step 2b — live Supabase-JS renderer (real upserts, no SQL string building)
+// Step 2b — live renderer through the Data API (real upserts, no SQL string building)
 // ---------------------------------------------------------------------------
 
-async function runAgainstSupabase(model, client) {
+async function runAgainstDatabase(model, client) {
   const { error: techError } = await client.from('technologies').upsert(model.technologies, { onConflict: 'slug' })
   if (techError) throw new Error(`technologies upsert failed: ${techError.message}`)
 
@@ -432,22 +429,21 @@ async function main() {
     return
   }
 
-  const url = process.env.SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!url || !serviceRoleKey) {
+  // The app's own server client (Neon Data API + the server's signing key) — run this mode with
+  // the module hook, see the usage note at the top.
+  const { getDbClient } = await import('../lib/db/server.ts')
+  const client = getDbClient()
+  if (!client) {
     console.error(
-      'SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set. Re-run with --sql to print the SQL instead, ' +
-        'or set both env vars to upsert directly.',
+      'NEON_DATA_API_URL / NEON_SERVICE_JWT_PRIVATE_KEY / NEON_SERVICE_JWT_KID not set. Re-run with --sql to print the SQL instead, ' +
+        'or set them to upsert directly.',
     )
     process.exitCode = 1
     return
   }
 
-  const { createClient } = await import('@supabase/supabase-js')
-  const client = createClient(url, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } })
-
   try {
-    await runAgainstSupabase(model, client)
+    await runAgainstDatabase(model, client)
   } catch (err) {
     console.error('Import failed:', err.message)
     process.exitCode = 1

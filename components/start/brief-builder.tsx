@@ -391,7 +391,7 @@ export function BriefBuilder({
   }
 
   if (status === 'server-error') {
-    // 'not-configured' (D-10 still open, no live Supabase project/env yet)
+    // 'not-configured' (no database configured in this environment)
     // and 'unexpected' (a real failure against a live database) get
     // distinct, honest copy rather than one message covering both — see
     // types/inquiry.ts#InquirySubmissionResult.

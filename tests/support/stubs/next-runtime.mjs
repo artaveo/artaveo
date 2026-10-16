@@ -7,14 +7,18 @@
  *
  * Only what the app calls is implemented. In particular `redirect` throws
  * like Next's (the thrown error carries the destination), and `cookies()`
- * behaves like a real cookie jar: `@supabase/ssr` writes the session cookie
- * into it on sign-in and reads it back on the next call, exactly as it does
- * with a browser.
+ * behaves like a real cookie jar: `@neondatabase/auth` writes the session
+ * cookies into it on sign-in, and `headers()` sends the jar back as the
+ * `cookie` header (which is where that SDK reads them) on the next call,
+ * exactly as a browser would.
  */
 const state = () => (globalThis.__TEST_NEXT__ ??= { headers: {}, cookies: new Map(), revalidated: [] })
 
 export async function headers() {
-  return new Headers(state().headers)
+  const result = new Headers(state().headers)
+  const jar = state().cookies
+  if (jar.size > 0 && !result.has('cookie')) result.set('cookie', [...jar].map(([name, value]) => `${name}=${value}`).join('; '))
+  return result
 }
 
 export async function cookies() {
