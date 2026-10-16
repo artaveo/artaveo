@@ -1,9 +1,105 @@
 # ROAD-MAP — ARTAVEO
-## Independent Full-Stack Developer · Freelance Business Platform
+## Software Studio · Own Products · Portfolio · Client Projects
+
+# 0. START HERE — current position (read this before anything else)
+
+> **Revision 45 (17 October 2026) reset the plan.** In revisions 1–44 Artaveo was planned as a one-developer freelance profile. It is now a **software studio site that sells its own products, shows its work and takes client projects** (§ 1). Phases 1–25 stay exactly as they were — they are history. The work the reset requires is **new Phases 26–33 (Milestone R)**, placed **before** every phase that had not started. The phases that had not started (old 26–32) were **kept**, adapted to the new rules and **renumbered 34–40** (map in § 0.4). No completed phase was re-marked incomplete; the two partial ones (3 and 9) were closed and their open items moved to named places (§ 0.2).
+
+**خلاصه به دری:** فازهای ۱ تا ۲۵ تمام شده‌اند و دست نمی‌خورند. کارهای تازه‌ای که از بازبینی ۲۵ میزان ۱۴۰۵ بیرون آمد، فازهای ۲۶ تا ۳۳ هستند و پیش از همه‌ی فازهای باقی‌مانده انجام می‌شوند. فازهای قدیمیِ شروع‌نشده (۲۶ تا ۳۲) حذف نشده‌اند؛ با قانون‌های تازه اصلاح شده‌اند و حالا شماره‌های ۳۴ تا ۴۰ را دارند. **فاز بعدی: فاز ۲۶.**
+
+## 0.1 Where we are
+
+| | |
+|---|---|
+| Last completed phase | **Phase 25 — Backup & Recovery** (code, 22 September 2026) |
+| Out-of-sequence work since then | Backend moved Supabase → Neon (16 October 2026, § 23.2) · Roadmap reset, revision 45 (17 October 2026, § 23.3) |
+| **Next phase** | **Phase 26 — Live-site corrections** (§ 11A) |
+| After that, in order | 27 → 28 → 29 → 30 → 31 → 32 → 33 (Milestone R), then 34 → 40 |
+| Design reference | Owner-approved design sample (17 October 2026): `https://claude.ai/artifact/C9Di6ViyqL3v4uQnYFaCfi` — private to the owner. Agents without access use § 14.1, which is its written specification. |
+
+## 0.2 Status of every phase (one line each)
+
+```text
+Phase  Name                                        Status
+1      Design System Foundation                    ✅ COMPLETE   — succeeded by Phase 28 (Design System 2.0)
+2      Global Shell                                ✅ CLOSED     — its missing parts were delivered by Phase 5; nothing left (rev 45)
+3      Content Truth Pass & Home Page              ✅ CLOSED     — open 3.5 items moved to Phase 26.7; Home is rebuilt in Phase 29 (rev 45)
+4      Brand Identity & Design System              ✅ COMPLETE   — 4.1 placeholder-mark debt moved to Phase 28.6
+5      Internationalization & Shell                ✅ COMPLETE   — Dari locale formatting (fa-AF, Solar Hijri) is Phase 26.2
+6      Work & Case Study Engine                    ✅ COMPLETE   — template and content succeeded by Phases 27, 30, 32
+7      Services, Packages & Pricing                ✅ COMPLETE   — succeeded by Phases 27, 31
+8      About, Process & Working Agreement          ✅ COMPLETE   — succeeded by Phase 31 (hire-channel selector retired, D-05)
+9      Start a Project (Inquiry v1)                ✅ CLOSED     — 9.1 ✅ 9.2 ✅ 9.3 structure ✅; real e-mail sending is owner action O-6 (rev 45)
+10     Installable PWA & Offline Shell             ✅ COMPLETE   — its live-deployment exit check moved to Phase 34
+11     Launch Readiness (M1 gate)                  ✅ COMPLETE   — M1 launched 15 September 2026
+12     Data Model & Migrations                     ✅ COMPLETE   — build-verified against Neon (§ 23.2); production check is O-1
+13     Admin Auth & Authorization                  ✅ COMPLETE   — now Neon Auth + app-built TOTP (§ 23.2); admin account is O-2
+14     Lead Pipeline                               ✅ COMPLETE   — extended by Phase 27.5 (purchase and demo requests)
+15     CMS & Media                                 ✅ COMPLETE   — extended by Phase 27; public nav/settings read path is Phase 27.6
+16     Verified Evidence                           ✅ COMPLETE
+17     Insights / Engineering Journal              ✅ COMPLETE   — succeeded by Phase 33 (Articles)
+18     Search & Command Palette                    ✅ COMPLETE   — header search simplified in Phase 29
+19     Notifications & Outbox                      ✅ COMPLETE   — real sending is O-6
+20     Consultation                                ✅ COMPLETE   — copy renamed in Phase 31 («گرفتن وقت مشوره»)
+21     Testing                                     ✅ COMPLETE
+22     CI/CD & Release Gates                       ✅ COMPLETE   — GitHub settings are O-5
+23     Security Hardening                          ✅ COMPLETE
+24     Observability                               ✅ COMPLETE
+25     Backup & Recovery                           ✅ COMPLETE   — the daily workflow file was never committed: Phase 26.8; first real run is O-4
+────── Milestone R — Repositioning & Redesign (new in revision 45) ──────
+26     Live-site corrections                       ⬜ NEXT
+27     Products, sale options & flexible content   ⬜            (data model + admin)
+28     Design System 2.0                           ⬜
+29     Shell & Home rebuild                        ⬜
+30     Products & Work pages                       ⬜
+31     Services, About, Contact & Start            ⬜
+32     Content rewrite — Dari & English            ⬜
+33     Articles revamp                             ⬜
+────── Kept from the original plan, adapted and renumbered ──────
+34     Performance & Accessibility Certification   ⬜            (was 26)
+35     Proposal & Estimate Builder                 ⬜            (was 27)
+36     Client Portal — projects & licences         ⬜            (was 28)
+37     Invoicing, Payments & Licence Billing       ⬜            (was 29)
+38     Content Growth                              ⬜            (was 30)
+39     Conversion Analytics                        ⬜            (was 31)
+40     International-Grade Audit                   ⬜            (was 32) → manual release decision
+```
+
+## 0.3 Owner actions waiting (not phases — an AI agent cannot do these)
+
+- **O-1 Neon production switch** — Vercel Production env: add every `NEON_*` variable and `MFA_ENCRYPTION_KEY`, set `INQUIRY_IP_HASH_SECRET`, remove the three `SUPABASE_*` variables, redeploy (`docs/updates/2026-10-16-neon-migration.md`, owner steps).
+- **O-2 Admin account** — create it in Neon Auth and point `admin_users` at it; Neon Auth: sign-ups off, shared Google provider removed (`docs/runbooks/admin-onboarding.md`).
+- **O-3 Retire Supabase** — after the site has run on Neon for a while: pause, then delete, the old project.
+- **O-4 Backups** — after Phase 26.8 commits the workflow: create the `age` key pair (private key offline), add the GitHub secrets the workflow names, run it once by hand (`docs/runbooks/backup-restore.md`).
+- **O-5 GitHub / Vercel settings** — branch protection requiring `CI passed`, preview deployments, `CRON_SECRET` in Vercel and GitHub, optional `SITE_URL` for the uptime workflow (`docs/ci.md`, `docs/observability.md`).
+- **O-6 Domain (D-01)** — buy the domain, set SPF/DKIM/DMARC; then real e-mail sending is switched on (Phase 19's provider) as a small activation task.
+- **O-7 Decide D-19** — the `Transportation-System` repository is public; decide before that product is sold.
+- **O-8 Prices** — enter real prices per product sale option and per service in the admin once Phase 27 ships (D-04). Nothing is invented meanwhile.
+
+## 0.4 Renumbering map (revision 45, done once)
+
+```text
+old 26 Performance & a11y Certification → 34      old 30 Content Growth        → 38
+old 27 Proposal & Estimate Builder      → 35      old 31 Conversion Analytics  → 39
+old 28 Client Portal                    → 36      old 32 International Audit   → 40
+old 29 Invoicing & Payments             → 37
+```
+
+Phase documents written before revision 45 that say "next: Phase 26 (Performance & Accessibility Certification)" mean the new **Phase 34**.
+
+## 0.5 How to pick up the work
+
+1. Start only the phase marked **NEXT** in § 0.2. Read its section (§ 11A for 26–33, § 11B for 34, § 12 for 35–39, § 13 for 40), plus § 1, § 2, § 14, § 14.1, § 16 and § 17.
+2. One phase per session. At the end: update § 0.1 and § 0.2, the phase's own section and its phase document, then deliver per the delivery rule below.
+3. Customer-facing copy follows § 16 without exception; anything that explains how a system works inside does not ship.
+
+---
 
 ## Document status
 
-**Last revision:** 22 September 2026 (revision 44 — Phase 25 marked complete (code): Backup & Recovery. **No migration.** A daily GitHub Actions workflow (`.github/workflows/backup.yml`) `pg_dump`s the `public` schema (`--no-owner --no-privileges --format=custom`, via the Session pooler connection string — the free plan's direct connection is IPv6-only and GitHub's runners are not) and, because `pg_dump` never sees Storage, `scripts/backup/collect.mjs` separately downloads every object in both buckets with the service-role key and writes a `manifest.json` (applied migrations, per-table row counts, and — since `admin_users` (migration `0008`) is deliberately just `(id, role)` with `id` a foreign key into Supabase's own `auth.users`, which this backup does not dump — each admin's e-mail, resolved once via the Auth admin API while the project still exists, so a disaster-recovery restore into a brand-new project knows which Auth user to recreate). **Restore test, every Sunday and on every manual run:** the plaintext dump — before it is ever encrypted — is restored into a throw-away local PostgreSQL inside the same job and every table's row count is checked against the manifest; this is what "a backup never restored is not verified" means here, and it is real evidence, not a file-exists check. Everything is then archived and encrypted with `age` (pinned release, checksum-verified) to the owner's own public key — the private key is generated and kept by the owner, offline, and is never in GitHub — before the plaintext ever leaves the runner's disk (`shred -u`, falling back to `rm`, in the same step that encrypts). The encrypted archive is a GitHub Actions artifact (35-day retention); a new `/api/ops/backup-report` endpoint (`CRON_SECRET`-authenticated, the same pattern `/api/ops/check` already uses) records what happened as `ops_events` — no new table, Phase 24's store already fits. **Four new stateless alerts** (`backup.failing`, `backup.stale` — errors; `backup.restore_failed` — error; `backup.restore_stale` — warning), same "only if it ever ran" convention as `cron.stale`, plus two new rows on `/admin/observability` → *Health* (*Last backup*, *Last verified restore*). **RPO 24 hours, RTO under an hour restoring into the same project / several hours for disaster recovery into a new one** (`docs/runbooks/backup-restore.md`, which also writes down, for the first time as a procedure rather than a convention, that every migration since `0001` already carries its own `ROLLBACK:` block, and Vercel Hobby's one-step-back deployment rollback). **Deliberately not dumped:** Supabase's own `auth.*` schema (platform-managed; the admin-e-mail manifest is how the one place it matters — `admin_users.id` — is handled instead) and a bulk Storage-restore tool (manual steps in the runbook, disclosed rather than automated away, since it is surface area used only in an actual incident). **Genuinely run, not only typechecked:** the local test stack's fake-Supabase gateway (`tests/support/stack/gateway.mjs`) gained real Storage `list`/authenticated-download and Auth admin `getUserById` handling (not stubs) so `scripts/backup/collect.mjs` could be run for real against seeded, nested Storage objects — it correctly downloaded both files and resolved both test admins' real e-mails. Tests: **447 unit** (4 new — the four alert rules at threshold and one step either side), **226 integration** (unchanged pass count, confirming the gateway extension didn't regress the existing storage/auth paths), **32 browser** (`observability.spec.ts`, including axe on the two new health rows in both languages and both themes) — all green. Lint 0 errors under the unchanged cap; `tsc` clean; a full `next build` against the stack lists `/api/ops/backup-report` as a real route. The privacy policy discloses the encrypted daily backup and that a deletion request does not retroactively remove already-taken backups (they age out within the same month). **Not verified:** the GitHub Actions workflow's own real execution (`pg_dump`/`pg_restore`/`age`/the PGDG apt install — this sandbox has no Actions runner; every embedded bash block was syntax-checked and reviewed, not executed end-to-end) and a live rehearsal of disaster recovery into a genuinely new Supabase project. **Owner-only:** generate the `age` key pair and keep the private key offline; add the GitHub secrets `SUPABASE_DB_URL` (Session pooler string) and `SUPABASE_SERVICE_ROLE_KEY`, and the variable `BACKUP_AGE_PUBLIC_KEY`; watch the workflow's first real run. See `docs/phases/PHASE-25-README.md` and `docs/runbooks/backup-restore.md`.)
+**Last revision:** 17 October 2026 (revision 45 — **roadmap reset after the owner's product, content and design review.** Revisions 1–44 planned the site as a one-developer freelance profile benchmarked on Contra/Toptal/Fiverr, with engineering case studies, a claims ledger that pushed limitations and bugs onto public pages, and Persian copy translated from English; the review (§ 6.7) found that this is why the site read like a student report instead of a studio that sells software. Revision 45: (1) new **§ 0 Start here** — current position, every phase's status, owner-only actions, renumbering map; (2) **§ 1 rewritten** — a software studio with its own products (admin-managed ways to get them: monthly/yearly/lifetime licence, source code, custom edition, maintenance and after-sales services — D-16), a visual portfolio and client work of any kind (D-18); (3) **new Milestone R, Phases 26–33** — live-site corrections → products/sale-options/flexible-content data and admin → Design System 2.0 → shell & home → products & work → services/about/contact → Dari & English content rewrite → articles — placed before every unstarted phase; (4) **unstarted phases kept, adapted and renumbered** 26→34 … 32→40; (5) partial Phases 3 and 9 closed with their open items moved to named phases or owner actions — no completed phase re-marked incomplete; (6) § 2, § 3, § 4 (new references, decisions B-24–B-38 and re-decisions of B-03–B-23), § 6.7 (audit findings), § 7 (D-03, D-04, D-05, D-10 updated; D-15–D-21 added), § 8, § 11A, § 11B, § 12, § 13, § 14, § 14.1, § 15, § 16 (customer rule + Dari glossary), § 17, § 20, § 21, § 22 and § 23 (23.2 Neon move, 23.3 this reset) updated. Also recorded: Phase 25's daily backup workflow (`.github/workflows/backup.yml`) was never committed — already disclosed in `docs/runbooks/backup-restore.md` § 1 — now Phase 26.8; Phase 25 keeps its status per the numbering rule. **No code changed in this revision.**)
+
+**Previous revision:** 22 September 2026 (revision 44 — Phase 25 marked complete (code): Backup & Recovery. **No migration.** A daily GitHub Actions workflow (`.github/workflows/backup.yml`) `pg_dump`s the `public` schema (`--no-owner --no-privileges --format=custom`, via the Session pooler connection string — the free plan's direct connection is IPv6-only and GitHub's runners are not) and, because `pg_dump` never sees Storage, `scripts/backup/collect.mjs` separately downloads every object in both buckets with the service-role key and writes a `manifest.json` (applied migrations, per-table row counts, and — since `admin_users` (migration `0008`) is deliberately just `(id, role)` with `id` a foreign key into Supabase's own `auth.users`, which this backup does not dump — each admin's e-mail, resolved once via the Auth admin API while the project still exists, so a disaster-recovery restore into a brand-new project knows which Auth user to recreate). **Restore test, every Sunday and on every manual run:** the plaintext dump — before it is ever encrypted — is restored into a throw-away local PostgreSQL inside the same job and every table's row count is checked against the manifest; this is what "a backup never restored is not verified" means here, and it is real evidence, not a file-exists check. Everything is then archived and encrypted with `age` (pinned release, checksum-verified) to the owner's own public key — the private key is generated and kept by the owner, offline, and is never in GitHub — before the plaintext ever leaves the runner's disk (`shred -u`, falling back to `rm`, in the same step that encrypts). The encrypted archive is a GitHub Actions artifact (35-day retention); a new `/api/ops/backup-report` endpoint (`CRON_SECRET`-authenticated, the same pattern `/api/ops/check` already uses) records what happened as `ops_events` — no new table, Phase 24's store already fits. **Four new stateless alerts** (`backup.failing`, `backup.stale` — errors; `backup.restore_failed` — error; `backup.restore_stale` — warning), same "only if it ever ran" convention as `cron.stale`, plus two new rows on `/admin/observability` → *Health* (*Last backup*, *Last verified restore*). **RPO 24 hours, RTO under an hour restoring into the same project / several hours for disaster recovery into a new one** (`docs/runbooks/backup-restore.md`, which also writes down, for the first time as a procedure rather than a convention, that every migration since `0001` already carries its own `ROLLBACK:` block, and Vercel Hobby's one-step-back deployment rollback). **Deliberately not dumped:** Supabase's own `auth.*` schema (platform-managed; the admin-e-mail manifest is how the one place it matters — `admin_users.id` — is handled instead) and a bulk Storage-restore tool (manual steps in the runbook, disclosed rather than automated away, since it is surface area used only in an actual incident). **Genuinely run, not only typechecked:** the local test stack's fake-Supabase gateway (`tests/support/stack/gateway.mjs`) gained real Storage `list`/authenticated-download and Auth admin `getUserById` handling (not stubs) so `scripts/backup/collect.mjs` could be run for real against seeded, nested Storage objects — it correctly downloaded both files and resolved both test admins' real e-mails. Tests: **447 unit** (4 new — the four alert rules at threshold and one step either side), **226 integration** (unchanged pass count, confirming the gateway extension didn't regress the existing storage/auth paths), **32 browser** (`observability.spec.ts`, including axe on the two new health rows in both languages and both themes) — all green. Lint 0 errors under the unchanged cap; `tsc` clean; a full `next build` against the stack lists `/api/ops/backup-report` as a real route. The privacy policy discloses the encrypted daily backup and that a deletion request does not retroactively remove already-taken backups (they age out within the same month). **Not verified:** the GitHub Actions workflow's own real execution (`pg_dump`/`pg_restore`/`age`/the PGDG apt install — this sandbox has no Actions runner; every embedded bash block was syntax-checked and reviewed, not executed end-to-end) and a live rehearsal of disaster recovery into a genuinely new Supabase project. **Owner-only:** generate the `age` key pair and keep the private key offline; add the GitHub secrets `SUPABASE_DB_URL` (Session pooler string) and `SUPABASE_SERVICE_ROLE_KEY`, and the variable `BACKUP_AGE_PUBLIC_KEY`; watch the workflow's first real run. See `docs/phases/PHASE-25-README.md` and `docs/runbooks/backup-restore.md`.)
 
 **Previous revision:** 21 September 2026 (revision 43 — Phase 24 marked complete (code): Observability; Phase 23 recorded as **pushed and deployed** (Vercel Production deployment Ready, 20–21 September 2026, owner-confirmed). **Migration `0021_observability.sql`** (additive: `request_id uuid` on `inquiries`, `inquiry_events` and `notification_outbox`; tables `ops_events` and `error_groups`, RLS on with no policy; `record_ops_event`, `record_error_event` and `purge_ops_data`, `service_role` only, pinned search path) — **must be applied before the code is live, because a brief insert now names `request_id`**; see `docs/phases/PHASE-24-README.md` § *Database* for the live state. **Why the database and not only the log:** Vercel Hobby keeps runtime logs about an hour, and the owner is not watching a log viewer. **Correlation id:** `proxy.ts` makes a UUID per request (never accepted from the caller) and sets it as `x-request-id` on request and response; it is written to log lines, the lead, the lead's timeline, every e-mail the request queued, `audit_log.correlation_id` (a `uuid` column since 0008 that nothing ever filled), the new tables, and sent as a header on database requests — public Server Actions bind it (`bindRequestId(await getRequestId())`), route handlers use `runWithRequestId`; the logger and the database client never call `headers()` (it would make prerendered pages dynamic — pinned by a test). **Structured logs:** `lib/observability/logger.ts` is the only place server code may call `console` (a test fails otherwise); ~70 ad-hoc calls became named events or tracked errors; every stored or logged value is scrubbed twice (private field names, then value shapes: addresses, JWTs, bearer credentials, long tokens, phone-like numbers) and paths are reduced to route patterns because the private-link pages carry their token in the URL. **Error tracking without a third-party service:** `error_groups` (fingerprint = event + error name + message with ids/numbers removed + route pattern; atomic count, one-hour window count, a cap of 500 groups with a shared `overflow` row, a resolved failure that returns reopens itself), fed by `captureError` (every swallowed failure), the daily run's failed steps, Next's `onRequestError`, browser errors (`/api/observe/client-error`) and CSP reports (`/api/observe/csp`, the endpoint Phase 23 deferred; the policy reports with `report-uri` only — with `report-to` a real browser never delivered a report in the test); the error page shows a *Reference* (the digest) and `app/global-error.tsx` covers the root layout. **Business events** in `ops_events`: `inquiry.submitted`, `consultation.requested`, `evidence.submitted`, `content.published`, `notification.exhausted`, `alert.raised`, `cron.completed`, `monitor.checked`, `rate_limit.unavailable`, `audit.write_failed`; auth events stay in `audit_log` (now correlated; every entry is also one log line without its payload). **Alerts are stateless questions the data answers** (`lib/observability/alert-rules.ts`, eleven rules, thresholds as named constants): error-level ones (a brief with no e-mail queued, failing sends or a message failed for good, an error repeating ten times an hour, a lost audit entry, no completed daily run for 36 h, missing required settings) are e-mailed once a day per problem and fail the external check; warnings (stuck messages, new errors, the limiter failing open, a silent monitor, repeated sign-in limit crossings) are shown only; **browser-supplied records (`client`, `csp`) never alarm — anyone can post them.** **Uptime check:** `.github/workflows/uptime.yml`, every 15 minutes, `curl` and `jq` only (no third-party action): liveness, **"a brief would be saved"** (`/api/health/inquiry` — database, outbox and limiter; deliberately **not** a real submission, which would put fake leads in the pipeline), the start page, and `/api/ops/check` (Bearer `CRON_SECRET`: reads the database — never reports all-clear when it cannot look — records that it ran, evaluates the rules, e-mails new error alerts). GitHub's failure e-mail is the alert channel that works while the site's own e-mail is log-only (D-01). **Owner page** `/admin/observability` (owner-only): alerts with what to do, health, funnel, error groups with resolve/ignore/reopen, recent events, and a reference lookup (a request id or a digest → every record that carries it); dashboard banner; request reference on a notification's page; 92 new keys in both languages. **Found and fixed on the way:** `submitInquiry`'s failed insert returned `code: 'error'` and wrote nothing anywhere (and the same silent path in the consultation request, recommendation submit, attachment upload and consultation updates); the About page's English said "see the Decision Register" (an internal document) in public text and its Persian claimed something the claims ledger does not — both now say "UTC — no fixed city is published" (the carried-over copy fix). The privacy policy discloses the failure records, counts and report endpoints (retention 90 days). Tests: **443 unit** (71 new), **226 integration** (60 new; a database test plants an address, a name, a token and free text and searches every stored row for them; every alert rule against real rows; a simulated database outage while saving a brief), **237 browser** (32 new: the request id on every route type, the page in both languages and both themes with axe, resolve/reopen, the lookup, a real blocked script and a real uncaught error reported); lint 0 errors under the unchanged cap; `tsc` clean. **Not verified:** a real Vercel deployment, a real scheduled GitHub run and its e-mail, whether Supabase's logs show `x-request-id`, Next.js itself calling `onRequestError` for a real render error (tested with the documented argument shapes), a real Resend send. **Owner-only:** set the GitHub secret `CRON_SECRET` (and variable `SITE_URL`) so the check runs; confirm the privacy paragraph and the thresholds. See `docs/phases/PHASE-24-README.md`, `docs/observability.md`, `docs/runbooks/incident-response.md`.)
 
@@ -66,20 +162,22 @@
 
 **Previous revision:** 13 September 2026 (revision 16 — Phase 10.2 marked complete: `public/sw.js` (generated by § 10.1's `scripts/generate-sw.mjs`) now runs cache-first for static assets and stale-while-revalidate for the six named content-page types, both versioned to the same `BUILD_ID` used for update detection, with old-deploy caches deleted on activate. The network-only guarantee for mutations and future admin/CMS/client-portal routes is a structural `method !== 'GET'` check plus a closed content-page allow-list, not a maintained denylist. Two path-matching predicates unit-tested (31/31 pass); `tsc --noEmit` and `next build` clean. See `docs/phases/PHASE-10.2-README.md` for the one scope nuance (fully-offline client-side link navigation isn't guaranteed, only full loads/reloads are) and the live-deployment checks still needed. Revision 15's notes below remain for history.)
 
-**Project status:** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE** · Phase 5 **COMPLETE** · Phase 6 **COMPLETE (6.1 engine, 6.2 Transportation System, 6.3 Pezhohesh Portal)** · Phase 7 **COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/pricing signals/engagement models — all prices shown as "Ask for a quote" pending D-04)** · Phase 8 **COMPLETE (8.1 About/Process/Quality, 8.2 Working Agreement, 8.3 Hire Channel Selector at `/contact`)** · Phase 9 **PARTIAL (9.1 Brief Builder ✅ at `/start`; 9.2 server handling & persistence ✅ — live and verified end-to-end; 9.3 notifications ⏳ structure complete, real sending intentionally inactive pending D-01)** · Phase 10 **COMPLETE (10.1 manifest/install/update, 10.2 caching strategy, 10.3 offline Brief Builder behaviour — all shipped; live-deployment exit-criteria pass still open, see the three phase docs' Known Issues)** · **Phase 11 COMPLETE — M1 LAUNCH GATE APPROVED (15 September 2026)** (11.1 SEO & analytics events ✅; 11.2 legal & privacy ✅ — D-07 resolved (Afghanistan); 11.3 performance & accessibility ✅; 11.4 pre-launch content check ✅, and Zakir approved launching on the interim Vercel URL rather than waiting on a purchased domain — see D-01's updated row) · Phase 12 **COMPLETE (12.1 ADR + full core-entities schema ✅ — live on Supabase project `ukzovqnpqjcrwofycalc`, all 24 tables RLS-enabled and advisor-clean; 12.2 import script + data population + selector switch ✅ — every published Project/Service/ServicePackage/ServiceAddon/EngagementModel/Technology read now comes from Supabase, `tsc --noEmit` clean, `next build` compiles — static generation itself unverified from this sandbox, no network route to Supabase; verify on first real deploy)** · Phase 13 **COMPLETE (code) — Admin Authentication & Authorization: Supabase Auth admin sign-in, `owner`/`editor` roles checked server-side on every page and action, MFA optional for both roles (owner's own choice, revision 27 — real protection for anyone who enrolls, not forced on anyone), audit-logged auth events, `/admin` routes protected in both middleware and every page — `tsc --noEmit` clean, `next build` compiles with zero errors across every new route; one open item, by design, not a code gap: no admin account exists yet, see `docs/runbooks/admin-onboarding.md`)** · Phase 14 **COMPLETE (code) — Lead Pipeline: transitions enforced in the database via a real trigger (live-verified), `/admin/leads` list + detail pages, SLA indicator against the published response commitment (honestly scoped to what's actually computable), CSV export, owner-only per § 13's role split — `tsc --noEmit` clean, `next build` compiles every route with zero errors, 461/461 i18n parity** · Phase 15 **COMPLETE (code) — CMS & Media: real admin CRUD for every § 15 entity (services cluster, projects & articles, media library with real uploads, settings/availability, navigation structure) plus Brief Builder attachments, all `editor`-accessible per § 13's role split, `tsc --noEmit` clean and `next build` compiling every new route with zero errors — 686/686 i18n parity; the public site's nav/settings read path is real, disclosed follow-up work, not yet switched over — see `docs/phases/PHASE-15-README.md`) · Phase 16 **COMPLETE (code) — Verified Evidence: single-use request links, moderation queue (approve · request change · reject), public `/recommend/[token]` submission page, Home section 10 (hidden until ≥ 1 published), `editor`-accessible per § 13's role split, `tsc --noEmit` clean and `next build` compiling with zero errors — 782/782 i18n parity; no automated e-mail on link generation yet, disclosed pending Phase 19 — see `docs/phases/PHASE-16-README.md`) · Phase 17 **COMPLETE (code)** (Insights / Engineering Journal — public `/insights`, `/insights/[slug]` and per-locale RSS; scheduled publishing via the daily cron; admin preview, related items and image insertion; 823/823 i18n parity; migrations `0016`/`0016b` applied live — see `docs/phases/PHASE-17-README.md`) · Phase 18 **COMPLETE (code)** (Search & Command Palette — per-locale index from published content, in-browser matcher behind a `SearchProvider` seam, ranked palette with recent searches, suggestions, highlights and honest states, `search_used` wired; no migration; 842/842 i18n parity; 24/24 search tests — see `docs/phases/PHASE-18-README.md`) · Phase 19 **COMPLETE (code)** (Notifications & Outbox — one idempotent outbox for seven events, atomic claim so nothing is sent twice, delivery log, transient-vs-permanent retry policy with backoff, alert when a message fails for good, `/admin/notifications`, cron route now fails closed; migrations `0017`/`0018` applied live; recommender e-mail (D-14) and manual-publish notices built; 40/40 unit tests and 16/16 real-stack checks; real sending still off pending D-01 — see `docs/phases/PHASE-19-README.md`) — Phase 20 **COMPLETE (code)** (Consultation — request-based intro calls: a public request form and the client's private page, owner confirm/move/cancel/complete, calendar invitations with a stable UID and rising SEQUENCE, five e-mails through the outbox, a status graph enforced in the database, every request linked to a new inquiry; migration `0019` applied live; D-09 applied as its default, not yet confirmed; 33/33 unit tests and 22/22 real-stack checks; the pages are unverified in a real browser — see `docs/phases/PHASE-20-README.md`) · Phase 21 **COMPLETE (code)** (Testing — local test stack with real PostgreSQL/PostgREST; 224 unit, 134 integration and 164 browser tests including axe on both languages and both themes; five product bugs found and fixed, chiefly the Brief Builder crash at step 5; no migration; see `docs/phases/PHASE-21-README.md` and `docs/testing.md`) · Phase 22 **COMPLETE (code)** (CI/CD & release gates — GitHub Actions with four parallel jobs and one required check, ESLint at 0 errors under a warning cap, an advisory gate with reviewed and expiring exceptions, secret scan, Dependabot; dry-run as a non-root user on a clean copy; not yet run on GitHub; no migration; see `docs/phases/PHASE-22-README.md` and `docs/ci.md`) · Phase 23 **COMPLETE (code)** (Security Hardening — a review with 15 findings and their fixes: visitor attachments moved to a private bucket with an owner-only download route, byte-level upload checks, one rate-limit policy over nine public and sign-in scopes (atomic, in Postgres, fails open), baseline security headers and a two-variant CSP (nonce in the admin), CSV and filter injection fixed, forms can no longer fall back to GET, `httpOnly` sessions, a secret inventory with a start-up check and a rotation runbook; migration `0020` applied live; 372 unit, 166 integration and 205 browser tests; not yet seen on a real Vercel deployment; see `docs/phases/PHASE-23-README.md` and `docs/security.md`) · Phase 24 **COMPLETE (code)** (Observability — a correlation id from request to database to outbox, structured logs, error tracking and business events kept in the database, eleven stateless alert rules, an external 15-minute uptime workflow, the CSP report endpoint, and an owner-only `/admin/observability`; migration `0021` — apply it before the code goes live; see `docs/phases/PHASE-24-README.md` and `docs/observability.md`) · Phase 25 **COMPLETE (code)** (Backup & Recovery — a daily `pg_dump` + Storage export + restore manifest, encrypted with `age` to the owner's own key before it ever leaves the runner; a real restore test every Sunday and on manual runs, against a throw-away local PostgreSQL, before encryption; four new stateless alerts and two new `/admin/observability` health rows; no migration; not yet run for real on GitHub Actions — see `docs/phases/PHASE-25-README.md` and `docs/runbooks/backup-restore.md`)) — see `docs/phases/PHASE-9.1-README.md`, `docs/phases/PHASE-9.2-README.md`, `docs/phases/PHASE-9.3-README.md`, `docs/phases/PHASE-10.1-README.md`, `docs/phases/PHASE-10.2-README.md`, `docs/phases/PHASE-10.3-README.md`, `docs/phases/PHASE-11.1-README.md`, `docs/phases/PHASE-11.2-README.md`, `docs/phases/PHASE-11.3-README.md`, `docs/phases/PHASE-11.4-README.md`, `docs/phases/PHASE-12.1-README.md`, `docs/phases/PHASE-12.2-README.md`, `docs/phases/PHASE-13-README.md`, `docs/phases/PHASE-14-README.md`, `docs/phases/PHASE-15-README.md`, `docs/phases/PHASE-16-README.md`, `docs/phases/PHASE-17-README.md`, `docs/phases/PHASE-18-README.md`, `docs/phases/PHASE-19-README.md`, `docs/phases/PHASE-20-README.md`, `docs/phases/PHASE-21-README.md` `docs/phases/PHASE-22-README.md`, `docs/phases/PHASE-23-README.md`, `docs/phases/PHASE-24-README.md` and `docs/phases/PHASE-25-README.md`.  
-**Next step:** Phase 25 is code-complete on top of Phase 24 — **no migration.** Before it does anything live: generate an `age` key pair and keep the private key offline (`docs/runbooks/backup-restore.md` § 4), add the GitHub Actions secrets `SUPABASE_DB_URL` (the **Session pooler** connection string, not the direct one — the free plan's direct connection is IPv6-only) and `SUPABASE_SERVICE_ROLE_KEY`, and the variable `BACKUP_AGE_PUBLIC_KEY`; then run the workflow once by hand (*Actions → Backup → Run workflow*) and read its log — this has not been run for real on GitHub Actions from this session. The next phase in sequence is Phase 26 (Performance & Accessibility Certification, M3's last phase). Earlier notes, for history: Phase 24 is code-complete on top of Phase 23 — **apply migration `0021` first (the new code writes `request_id` into `inquiries`; without the column saving a brief fails)**, then push, do the five-minute check in `docs/phases/PHASE-24-README.md`, and set up the external check in GitHub (`CRON_SECRET` secret, optional `SITE_URL` variable — `docs/observability.md` § 5; until then nothing watches the site from outside); the next phase in sequence is Phase 25 (Backup & Recovery, tracked debt from D-10). Earlier notes, for history: Phase 23 is code-complete on top of Phase 22 and its migration `0020` is already live — push the code, then do the five-minute check in `docs/phases/PHASE-23-README.md` (the Content Security Policy has never been seen against production; `CSP_REPORT_ONLY=1` in Vercel is the way back that needs no code change), enable MFA at `/admin/security`, tick off the Supabase Auth settings in `docs/security.md` § 8, and answer the three questions in *Decisions needed*; the next phase in sequence is Phase 24 (Observability), which should alert on the limiter's and the start-up check's log lines. Phase 22 is code-complete on top of Phase 21 (no migration) — push Phase 21 first (or together), **then make the settings listed in `docs/ci.md` (branch protection requiring `CI passed` above all — without it nothing is blocked)**, watch the first run, and answer the three questions in `docs/phases/PHASE-22-README.md` (*Decisions needed*); the next phase in sequence is Phase 23 (Security Hardening). Phase 21 is code-complete on top of Phase 20 (no migration) — read the *Before you push* list in `docs/phases/PHASE-21-README.md` first, because this phase **fixed five product bugs** (the Brief Builder crash at step 5 and the shared `FieldError` change deserve a look in the diff), then push; the next phase in sequence is Phase 22 (CI/CD & Release Gates), which should run these suites. Phase 20 is code-complete on top of Phase 19 and its migration `0019` is already live — push the code, then run the five-minute smoke test in `docs/phases/PHASE-20-README.md` (*Before you push*), read the privacy-policy paragraph it added, and answer the three questions in its *Decisions needed* (D-09 above all); the next phase in sequence is Phase 21 (Testing, M3). Phase 19 is code-complete on top of Phase 18 and its migrations `0017` and `0018` are already live — **first add `CRON_SECRET` in the Vercel project settings (a random string of 16+ characters) and redeploy, because the daily run (notification retries and scheduled article publishing) now refuses to run without it**, then push the code and run the smoke test in `docs/runbooks/notifications.md`; the next phase in sequence is Phase 20 (Consultation). Phase 18 is code-complete on top of Phase 17 (no migration, nothing to apply) — push the code (see `docs/phases/PHASE-18-README.md`) and, after the first deploy, open the palette once in both languages on the live site. Phase 17 is code-complete and its migrations are live — push the code (see `docs/phases/PHASE-17-README.md`). One draft article exists (`concurrent-seat-booking`); the journal stays invisible on the public site until it is published — its claims are already checked against the live database — review it in `/admin/content/articles`, then publish (other topics: `docs/content/insights-topics.md`). Phase 16 is code-complete, on top of Phase 15. The owner still needs to run `docs/runbooks/admin-onboarding.md` once against the live Supabase project (create the owner's Supabase Auth user, insert their `admin_users` row, sign in; MFA enrollment is optional, revision 27, not a blocking step) before Phase 13/14/15/16's admin UI has anything to authenticate against. Also still open from Phase 12: verify a real production build's static generation (`generateStaticParams`/`generateMetadata` for `/work/[slug]` and `/services/[slug]`) against the live Supabase project on the next real deploy — this sandbox has no network route to `*.supabase.co`, which is also why Phase 16's own request-link page and moderation queue are unverified in a real browser (see `docs/phases/PHASE-16-README.md`'s Known Issues). Other open items remain follow-up, not blockers: Phase 3's closure checklist 3.5; § 9.3 (real e-mail sending, and Phase 10's live-deployment verification pass), both waiting on a real purchased domain (D-01, deliberately deferred post-launch); branch protection + preview-deployment settings in GitHub/Vercel (dashboard-only, Zakir's own action); Phase 13's own known debt (MFA recovery flow, admin password reset, audit-log delivery guarantees, and now the security trade-off of optional MFA itself — see `docs/phases/PHASE-13-README.md`); Phase 14's own known debt (no backward stage transitions yet, SLA's first-reply proxy pending Phase 19/20, no bulk pipeline actions — see `docs/phases/PHASE-14-README.md`); Phase 15's own known debt (no delete/archive for services/projects/articles, no reordering UI for nested collections, no "add new technology" affordance, and — the largest single open item — the public site's navigation/settings/Availability-Card rendering still reads the static `lib/site.ts`/`lib/home-content.ts` values rather than the now-editable database tables, a deliberately separate, larger refactor — see `docs/phases/PHASE-15-README.md`); Phase 16's own known debt (no automated e-mail when a request link is generated or a change is requested — Phase 19 built the provider abstraction, but the recommender-facing e-mail waits on D-14 because it means storing the recommender's address, see `docs/phases/PHASE-16-README.md` and `docs/phases/PHASE-19-README.md`).
+**Project status as of revision 44 (history — the current status is § 0.2):** Phase 1 complete (audit pending) · Phase 2 **PARTIAL** · Phase 3 **PARTIAL — Home mounted and pushed (`4ef6f87`), closure checklist 3.5 open** · Phase 4 **COMPLETE** · Phase 5 **COMPLETE** · Phase 6 **COMPLETE (6.1 engine, 6.2 Transportation System, 6.3 Pezhohesh Portal)** · Phase 7 **COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/pricing signals/engagement models — all prices shown as "Ask for a quote" pending D-04)** · Phase 8 **COMPLETE (8.1 About/Process/Quality, 8.2 Working Agreement, 8.3 Hire Channel Selector at `/contact`)** · Phase 9 **PARTIAL (9.1 Brief Builder ✅ at `/start`; 9.2 server handling & persistence ✅ — live and verified end-to-end; 9.3 notifications ⏳ structure complete, real sending intentionally inactive pending D-01)** · Phase 10 **COMPLETE (10.1 manifest/install/update, 10.2 caching strategy, 10.3 offline Brief Builder behaviour — all shipped; live-deployment exit-criteria pass still open, see the three phase docs' Known Issues)** · **Phase 11 COMPLETE — M1 LAUNCH GATE APPROVED (15 September 2026)** (11.1 SEO & analytics events ✅; 11.2 legal & privacy ✅ — D-07 resolved (Afghanistan); 11.3 performance & accessibility ✅; 11.4 pre-launch content check ✅, and Zakir approved launching on the interim Vercel URL rather than waiting on a purchased domain — see D-01's updated row) · Phase 12 **COMPLETE (12.1 ADR + full core-entities schema ✅ — live on Supabase project `ukzovqnpqjcrwofycalc`, all 24 tables RLS-enabled and advisor-clean; 12.2 import script + data population + selector switch ✅ — every published Project/Service/ServicePackage/ServiceAddon/EngagementModel/Technology read now comes from Supabase, `tsc --noEmit` clean, `next build` compiles — static generation itself unverified from this sandbox, no network route to Supabase; verify on first real deploy)** · Phase 13 **COMPLETE (code) — Admin Authentication & Authorization: Supabase Auth admin sign-in, `owner`/`editor` roles checked server-side on every page and action, MFA optional for both roles (owner's own choice, revision 27 — real protection for anyone who enrolls, not forced on anyone), audit-logged auth events, `/admin` routes protected in both middleware and every page — `tsc --noEmit` clean, `next build` compiles with zero errors across every new route; one open item, by design, not a code gap: no admin account exists yet, see `docs/runbooks/admin-onboarding.md`)** · Phase 14 **COMPLETE (code) — Lead Pipeline: transitions enforced in the database via a real trigger (live-verified), `/admin/leads` list + detail pages, SLA indicator against the published response commitment (honestly scoped to what's actually computable), CSV export, owner-only per § 13's role split — `tsc --noEmit` clean, `next build` compiles every route with zero errors, 461/461 i18n parity** · Phase 15 **COMPLETE (code) — CMS & Media: real admin CRUD for every § 15 entity (services cluster, projects & articles, media library with real uploads, settings/availability, navigation structure) plus Brief Builder attachments, all `editor`-accessible per § 13's role split, `tsc --noEmit` clean and `next build` compiling every new route with zero errors — 686/686 i18n parity; the public site's nav/settings read path is real, disclosed follow-up work, not yet switched over — see `docs/phases/PHASE-15-README.md`) · Phase 16 **COMPLETE (code) — Verified Evidence: single-use request links, moderation queue (approve · request change · reject), public `/recommend/[token]` submission page, Home section 10 (hidden until ≥ 1 published), `editor`-accessible per § 13's role split, `tsc --noEmit` clean and `next build` compiling with zero errors — 782/782 i18n parity; no automated e-mail on link generation yet, disclosed pending Phase 19 — see `docs/phases/PHASE-16-README.md`) · Phase 17 **COMPLETE (code)** (Insights / Engineering Journal — public `/insights`, `/insights/[slug]` and per-locale RSS; scheduled publishing via the daily cron; admin preview, related items and image insertion; 823/823 i18n parity; migrations `0016`/`0016b` applied live — see `docs/phases/PHASE-17-README.md`) · Phase 18 **COMPLETE (code)** (Search & Command Palette — per-locale index from published content, in-browser matcher behind a `SearchProvider` seam, ranked palette with recent searches, suggestions, highlights and honest states, `search_used` wired; no migration; 842/842 i18n parity; 24/24 search tests — see `docs/phases/PHASE-18-README.md`) · Phase 19 **COMPLETE (code)** (Notifications & Outbox — one idempotent outbox for seven events, atomic claim so nothing is sent twice, delivery log, transient-vs-permanent retry policy with backoff, alert when a message fails for good, `/admin/notifications`, cron route now fails closed; migrations `0017`/`0018` applied live; recommender e-mail (D-14) and manual-publish notices built; 40/40 unit tests and 16/16 real-stack checks; real sending still off pending D-01 — see `docs/phases/PHASE-19-README.md`) — Phase 20 **COMPLETE (code)** (Consultation — request-based intro calls: a public request form and the client's private page, owner confirm/move/cancel/complete, calendar invitations with a stable UID and rising SEQUENCE, five e-mails through the outbox, a status graph enforced in the database, every request linked to a new inquiry; migration `0019` applied live; D-09 applied as its default, not yet confirmed; 33/33 unit tests and 22/22 real-stack checks; the pages are unverified in a real browser — see `docs/phases/PHASE-20-README.md`) · Phase 21 **COMPLETE (code)** (Testing — local test stack with real PostgreSQL/PostgREST; 224 unit, 134 integration and 164 browser tests including axe on both languages and both themes; five product bugs found and fixed, chiefly the Brief Builder crash at step 5; no migration; see `docs/phases/PHASE-21-README.md` and `docs/testing.md`) · Phase 22 **COMPLETE (code)** (CI/CD & release gates — GitHub Actions with four parallel jobs and one required check, ESLint at 0 errors under a warning cap, an advisory gate with reviewed and expiring exceptions, secret scan, Dependabot; dry-run as a non-root user on a clean copy; not yet run on GitHub; no migration; see `docs/phases/PHASE-22-README.md` and `docs/ci.md`) · Phase 23 **COMPLETE (code)** (Security Hardening — a review with 15 findings and their fixes: visitor attachments moved to a private bucket with an owner-only download route, byte-level upload checks, one rate-limit policy over nine public and sign-in scopes (atomic, in Postgres, fails open), baseline security headers and a two-variant CSP (nonce in the admin), CSV and filter injection fixed, forms can no longer fall back to GET, `httpOnly` sessions, a secret inventory with a start-up check and a rotation runbook; migration `0020` applied live; 372 unit, 166 integration and 205 browser tests; not yet seen on a real Vercel deployment; see `docs/phases/PHASE-23-README.md` and `docs/security.md`) · Phase 24 **COMPLETE (code)** (Observability — a correlation id from request to database to outbox, structured logs, error tracking and business events kept in the database, eleven stateless alert rules, an external 15-minute uptime workflow, the CSP report endpoint, and an owner-only `/admin/observability`; migration `0021` — apply it before the code goes live; see `docs/phases/PHASE-24-README.md` and `docs/observability.md`) · Phase 25 **COMPLETE (code)** (Backup & Recovery — a daily `pg_dump` + Storage export + restore manifest, encrypted with `age` to the owner's own key before it ever leaves the runner; a real restore test every Sunday and on manual runs, against a throw-away local PostgreSQL, before encryption; four new stateless alerts and two new `/admin/observability` health rows; no migration; not yet run for real on GitHub Actions — see `docs/phases/PHASE-25-README.md` and `docs/runbooks/backup-restore.md`)) — see `docs/phases/PHASE-9.1-README.md`, `docs/phases/PHASE-9.2-README.md`, `docs/phases/PHASE-9.3-README.md`, `docs/phases/PHASE-10.1-README.md`, `docs/phases/PHASE-10.2-README.md`, `docs/phases/PHASE-10.3-README.md`, `docs/phases/PHASE-11.1-README.md`, `docs/phases/PHASE-11.2-README.md`, `docs/phases/PHASE-11.3-README.md`, `docs/phases/PHASE-11.4-README.md`, `docs/phases/PHASE-12.1-README.md`, `docs/phases/PHASE-12.2-README.md`, `docs/phases/PHASE-13-README.md`, `docs/phases/PHASE-14-README.md`, `docs/phases/PHASE-15-README.md`, `docs/phases/PHASE-16-README.md`, `docs/phases/PHASE-17-README.md`, `docs/phases/PHASE-18-README.md`, `docs/phases/PHASE-19-README.md`, `docs/phases/PHASE-20-README.md`, `docs/phases/PHASE-21-README.md` `docs/phases/PHASE-22-README.md`, `docs/phases/PHASE-23-README.md`, `docs/phases/PHASE-24-README.md` and `docs/phases/PHASE-25-README.md`.  
+**Next step as of revision 44 (history — the current next step is § 0.1; its open owner items are § 0.3):** Phase 25 is code-complete on top of Phase 24 — **no migration.** Before it does anything live: generate an `age` key pair and keep the private key offline (`docs/runbooks/backup-restore.md` § 4), add the GitHub Actions secrets `SUPABASE_DB_URL` (the **Session pooler** connection string, not the direct one — the free plan's direct connection is IPv6-only) and `SUPABASE_SERVICE_ROLE_KEY`, and the variable `BACKUP_AGE_PUBLIC_KEY`; then run the workflow once by hand (*Actions → Backup → Run workflow*) and read its log — this has not been run for real on GitHub Actions from this session. The next phase in sequence is Phase 26 (Performance & Accessibility Certification, M3's last phase). Earlier notes, for history: Phase 24 is code-complete on top of Phase 23 — **apply migration `0021` first (the new code writes `request_id` into `inquiries`; without the column saving a brief fails)**, then push, do the five-minute check in `docs/phases/PHASE-24-README.md`, and set up the external check in GitHub (`CRON_SECRET` secret, optional `SITE_URL` variable — `docs/observability.md` § 5; until then nothing watches the site from outside); the next phase in sequence is Phase 25 (Backup & Recovery, tracked debt from D-10). Earlier notes, for history: Phase 23 is code-complete on top of Phase 22 and its migration `0020` is already live — push the code, then do the five-minute check in `docs/phases/PHASE-23-README.md` (the Content Security Policy has never been seen against production; `CSP_REPORT_ONLY=1` in Vercel is the way back that needs no code change), enable MFA at `/admin/security`, tick off the Supabase Auth settings in `docs/security.md` § 8, and answer the three questions in *Decisions needed*; the next phase in sequence is Phase 24 (Observability), which should alert on the limiter's and the start-up check's log lines. Phase 22 is code-complete on top of Phase 21 (no migration) — push Phase 21 first (or together), **then make the settings listed in `docs/ci.md` (branch protection requiring `CI passed` above all — without it nothing is blocked)**, watch the first run, and answer the three questions in `docs/phases/PHASE-22-README.md` (*Decisions needed*); the next phase in sequence is Phase 23 (Security Hardening). Phase 21 is code-complete on top of Phase 20 (no migration) — read the *Before you push* list in `docs/phases/PHASE-21-README.md` first, because this phase **fixed five product bugs** (the Brief Builder crash at step 5 and the shared `FieldError` change deserve a look in the diff), then push; the next phase in sequence is Phase 22 (CI/CD & Release Gates), which should run these suites. Phase 20 is code-complete on top of Phase 19 and its migration `0019` is already live — push the code, then run the five-minute smoke test in `docs/phases/PHASE-20-README.md` (*Before you push*), read the privacy-policy paragraph it added, and answer the three questions in its *Decisions needed* (D-09 above all); the next phase in sequence is Phase 21 (Testing, M3). Phase 19 is code-complete on top of Phase 18 and its migrations `0017` and `0018` are already live — **first add `CRON_SECRET` in the Vercel project settings (a random string of 16+ characters) and redeploy, because the daily run (notification retries and scheduled article publishing) now refuses to run without it**, then push the code and run the smoke test in `docs/runbooks/notifications.md`; the next phase in sequence is Phase 20 (Consultation). Phase 18 is code-complete on top of Phase 17 (no migration, nothing to apply) — push the code (see `docs/phases/PHASE-18-README.md`) and, after the first deploy, open the palette once in both languages on the live site. Phase 17 is code-complete and its migrations are live — push the code (see `docs/phases/PHASE-17-README.md`). One draft article exists (`concurrent-seat-booking`); the journal stays invisible on the public site until it is published — its claims are already checked against the live database — review it in `/admin/content/articles`, then publish (other topics: `docs/content/insights-topics.md`). Phase 16 is code-complete, on top of Phase 15. The owner still needs to run `docs/runbooks/admin-onboarding.md` once against the live Supabase project (create the owner's Supabase Auth user, insert their `admin_users` row, sign in; MFA enrollment is optional, revision 27, not a blocking step) before Phase 13/14/15/16's admin UI has anything to authenticate against. Also still open from Phase 12: verify a real production build's static generation (`generateStaticParams`/`generateMetadata` for `/work/[slug]` and `/services/[slug]`) against the live Supabase project on the next real deploy — this sandbox has no network route to `*.supabase.co`, which is also why Phase 16's own request-link page and moderation queue are unverified in a real browser (see `docs/phases/PHASE-16-README.md`'s Known Issues). Other open items remain follow-up, not blockers: Phase 3's closure checklist 3.5; § 9.3 (real e-mail sending, and Phase 10's live-deployment verification pass), both waiting on a real purchased domain (D-01, deliberately deferred post-launch); branch protection + preview-deployment settings in GitHub/Vercel (dashboard-only, Zakir's own action); Phase 13's own known debt (MFA recovery flow, admin password reset, audit-log delivery guarantees, and now the security trade-off of optional MFA itself — see `docs/phases/PHASE-13-README.md`); Phase 14's own known debt (no backward stage transitions yet, SLA's first-reply proxy pending Phase 19/20, no bulk pipeline actions — see `docs/phases/PHASE-14-README.md`); Phase 15's own known debt (no delete/archive for services/projects/articles, no reordering UI for nested collections, no "add new technology" affordance, and — the largest single open item — the public site's navigation/settings/Availability-Card rendering still reads the static `lib/site.ts`/`lib/home-content.ts` values rather than the now-editable database tables, a deliberately separate, larger refactor — see `docs/phases/PHASE-15-README.md`); Phase 16's own known debt (no automated e-mail when a request link is generated or a change is requested — Phase 19 built the provider abstraction, but the recommender-facing e-mail waits on D-14 because it means storing the recommender's address, see `docs/phases/PHASE-16-README.md` and `docs/phases/PHASE-19-README.md`).
 **Document type:** canonical product + design + engineering roadmap **and** implementation prompt for AI agents (v0, Claude, others).  
 **Repository:** `github.com/artaveo/artaveo`  
-**Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics  
-**Languages / direction:** English (LTR) + Persian (RTL) — both first-class  
+**Stack already in repo:** Next.js 16 · React 19 · TypeScript 5.7 · Tailwind CSS v4 · Base UI + shadcn primitives · Geist / Geist Mono / Vazirmatn · Vercel Analytics · Neon (Postgres, Data API, Auth, Object Storage — since 16 October 2026)  
+**Languages / direction:** English (LTR) + Dari Persian (RTL, `fa`) — both first-class; Dari is the main market's language (D-03)  
 **Themes:** Light + Dark — both intentional  
 **Final release decision:** **MANUAL APPROVAL REQUIRED**
 
 This document records the real state of the project, the product direction, the benchmark decisions, known debt, the phased plan and the completion criteria. It is the single source of truth for planning. Detailed implementation history lives in phase documents (section 19), not here.
 
 > **Numbering rule.** Phases that have started (1, 2, 3) keep their numbers forever. No new phase is ever inserted before a phase that has started. Anything discovered later — even if it "should" have been done earlier — is recorded in section 6 (Debt) or added as a later phase with the label **Historical debt / added after audit**. Completed phases are never re-marked as incomplete because a later audit found more work.
+>
+> **Reset rule (added in revision 45).** When the product direction changes, the change becomes **new phases placed before every phase that has not started** — never edits that turn finished phases back into partial ones. Finished phases get a one-line note naming the phase that succeeds them. Unstarted phases are kept, adapted to the new rules and renumbered after the new ones, with a mapping table (§ 0.4). A partial phase is closed by moving each open item to a named phase or owner action — no phase is left half-ticked behind finished ones.
 
-> **How an AI agent must use this document.** Before writing code, read sections 1–8, the section of the phase being implemented, section 14 (components), section 16 (content rules), section 17 (Definition of Done) and section 18 (completion protocol). Implement **one phase (or sub-phase) per session**. Never implement a later milestone to make an earlier one look finished. Never replace required backend behaviour with UI simulation.
+> **How an AI agent must use this document.** Read **§ 0 first** — it says which phase is next and what is waiting on the owner. Before writing code, read sections 1–8, the section of the phase being implemented, section 14 (components), section 16 (content rules), section 17 (Definition of Done) and section 18 (completion protocol). Implement **one phase (or sub-phase) per session**. Never implement a later milestone to make an earlier one look finished. Never replace required backend behaviour with UI simulation.
 
 > **End-of-message status line.** Every message that delivers work on a phase must end with one short status line, so whoever is driving the session always knows exactly where things stand without re-reading the roadmap:
 > - which sub-phase(s) that message just completed (e.g. "4.1.2 done"),
@@ -96,66 +194,46 @@ This document records the real state of the project, the product direction, the 
 
 # 1. Product goal
 
-Artaveo is **not** a portfolio template and **not** a fake agency site. It is a **Freelance Business Platform for one independent full-stack developer**: a brand, a body of proof, a service catalogue, a qualified-lead engine and — over time — a small operating system for the business.
+> **Revision 45 (17 October 2026):** this section replaces the "Freelance Business Platform for one independent full-stack developer" definition of revisions 1–44. That definition — a named developer proving engineering skill to a technical reader — is the root cause of the problems in § 6.7. The operating layer it produced (M2/M3) is kept.
 
-It has three layers:
+Artaveo is a **software studio website**. Its main market is businesses inside Afghanistan (Dari site); foreign clients use the English site. It does four jobs:
 
-### 1.1 Public Brand & Proof — the front door
+### 1.1 Sell Artaveo's own products
+Ready-made systems for a specific kind of business — e.g. ticket sales and operations for transport companies, a website and admin panel for education centres. Each product has its own page: what it does for the customer, real screens, features by role, who it is for, and **the ways it can be obtained**. The owner decides per product, in the admin, which ways exist and at what price (D-16): monthly, yearly or lifetime licence; purchase of the source code; a custom edition built for one client; with yearly maintenance included, optional or not offered; after-sales services (training, data transfer, hosting, support) with their own prices. Whether a project is a product at all is also an admin switch — a project can become a product later without code.
 
-- identity, positioning and a truthful availability signal
-- real projects presented as engineering case studies
-- decision records, architecture diagrams and engineering highlights
-- proof-linked expertise (every skill points to evidence)
-- verified recommendations (hidden until they exist)
-- insights / engineering journal
-- external profiles (GitHub, Fiverr, LinkedIn, Contra) that tell the same story
+### 1.2 Show the work
+A visual portfolio. Every project stands on its own: its own colour, device mock-ups, a short story in the customer's language, the platforms it runs on and, when it is also a product, a link to its product page. No engineering diary, no limitations list, no "my role".
 
-### 1.2 Service Commerce — the conversion layer
+### 1.3 Take client projects
+Custom software of any kind — websites, web systems and admin panels, mobile apps (Android/iOS), desktop software, online and offline systems, maintenance and extension of existing software (D-18). What the first two projects happen to use is never presented as the limit of what Artaveo builds.
 
-- a curated service catalogue (few, clear services — not a keyword list)
-- productized packages with explicit **included / not included**
-- transparent pricing signals (starting-from and what drives cost)
-- engagement models, including a low-risk **Discovery Sprint**
-- hire channels: direct, or via a platform with buyer protection
-- a structured **Brief Builder** instead of a bare contact form
-- consultation requests
+### 1.4 Run the business behind the site (already built in M2/M3)
+Lead pipeline, consultation requests, CMS and media, notifications, observability, backups — kept, and extended so that products, sale options, prices and every public section are managed from the admin without code (§ 2.22).
 
-### 1.3 Business Operations — the operating layer
-
-- lead pipeline with an auditable state machine
-- CMS for projects, services, packages, articles, media, settings
-- evidence moderation (recommendations / testimonials)
-- notifications with an outbox and delivery log
-- analytics, audit log, backup and recovery
-- later: proposals, invoices, client portal
-
-### 1.4 The ten-second test
-
-A stranger landing on any page must understand within ten seconds:
+### 1.5 The ten-second test (revised)
 
 ```text
-WHO is this?          → one named developer behind the Artaveo brand
-WHAT is built?        → web applications, business systems, full-stack products
-WHAT is the proof?    → real projects with real technical depth
-HOW do I start?       → one obvious action: Start a Project
+WHAT is this?          → a studio that builds software and sells ready-made systems
+WHAT can I get?        → a product (with clear ways to get it) or a custom project
+DOES IT LOOK REAL?     → real, beautiful screens of real systems
+HOW DO I START?        → one obvious action: Start a Project — or Request a Demo on a product page
 ```
 
-### 1.5 Artaveo must never feel like
-
-a student CV · a generic template · a fake agency with a "team" · a startup landing page without a service model · a marketplace clone · a Dribbble concept · an over-animated developer portfolio · a logo wall of 60 technologies.
+### 1.6 Artaveo must never feel like
+a student explaining their work to a teacher · an engineering log · a one-person CV · a freelancer gig menu · a page that explains how its own backend works · a wall of text · white-on-white · a generic template · a marketplace clone · a logo wall of technologies.
 
 ---
 
 # 2. Product & architecture principles
 
 1. **Truth is a hard constraint.** No invented clients, metrics, ratings, years, awards, team members, logos or outcomes — ever.
-2. **Every public claim is traceable** to a record: a repository, a live URL, a document, a verified recommendation, or a line in the claims ledger (section 16.4).
+2. **Every factual public claim is true and traceable** to a record: a repository, a live URL, a document, a verified recommendation, or a line in the claims ledger (section 16.5). *(Revision 45:)* traceability is internal — the site never publishes the evidence trail, internal process, limitations, bugs, debt or team size. What is not true yet is hidden, not explained.
 3. **Empty means hidden.** A section with no real content is not rendered publicly. Empty states exist for admin and pre-production only.
-4. **Proof beats decoration.** Case studies demonstrate thinking, not screenshots alone.
-5. **Few clear services beat many vague ones.** Every service answers: for whom, what problem, what is included, what is not, how long, from how much.
+4. **Show, don't explain** *(revised in revision 45; was "proof beats decoration")*. Real screens and short, outcome-led text. How a system works inside is never customer copy.
+5. **Services by kind of software, not by technology** *(revised in revision 45)*. Every service answers: for whom, what they get, how it starts, from how much (only when the owner has set a price).
 6. **Reduce client uncertainty** before the first conversation: scope, process, payment, ownership and handover are published.
-7. **One primary action everywhere:** *Start a Project*. Secondary: *View Work*, *Book a Consultation*.
-8. **Direct communication** with the developer is a product feature, not a hidden detail.
+7. **One primary action everywhere:** *Start a Project*. On product pages: *Request a Demo* / *Ways to get it*. Secondary: *View Work*, *Book a Consultation* («گرفتن وقت مشوره»).
+8. **One responsible contact** from the first call to support is a product feature *(revised in revision 45; was "direct communication with the developer")*.
 9. **Typed content mirrors the future database.** Content that lives in files today must have the same shape as the tables it will move into (no rewrites at Phase 12).
 10. **i18n before pages.** Locale routing and dictionaries exist before new pages are built; nothing is retrofitted.
 11. **RTL is first-class,** not a mirrored afterthought. Latin technical terms inside Persian text are bidi-isolated; code is always LTR.
@@ -168,6 +246,10 @@ a student CV · a generic template · a fake agency with a "team" · a startup l
 18. **The design must be premium with motion disabled.** Motion is optional enhancement.
 19. **Reusable components, no giant files,** clear separation of presentation, domain logic, data access, validation and configuration.
 20. **Every phase is verified** before it is marked complete (section 17).
+21. **The customer rule is a release gate** *(revision 45)*, like accessibility: public copy says what the customer can do and get, never how it works inside (§ 16.1).
+22. **Admin-managed by default** *(revision 45)*. Products, sale options, prices, project sections, colours, covers, screenshots, navigation and contact channels are data the owner edits — never hard-coded.
+23. **Dari is first-class** *(revision 45)*: vocabulary and orthography of Afghanistan, Solar Hijri dates with Afghan month names, Afghani amounts (D-03, § 16.3).
+24. **Each project and product stands alone** *(revision 45)*: its own block, colour and clear boundary — never mixed with unrelated tiles.
 
 When requirements conflict, prioritize in this order:
 
@@ -176,9 +258,10 @@ When requirements conflict, prioritize in this order:
 2. Data integrity
 3. Security & privacy
 4. Accessibility
-5. Maintainability
-6. Performance
-7. Visual polish
+5. Customer clarity (§ 16.1)
+6. Maintainability
+7. Performance
+8. Visual quality
 ```
 
 ---
@@ -191,9 +274,9 @@ When requirements conflict, prioritize in this order:
 | Accessibility | WCAG 2.2 AA |
 | Semantics | HTML5 landmarks, correct heading hierarchy |
 | Validation | One schema per payload, shared by client and server |
-| Data | PostgreSQL (Supabase), RLS + server-side authorization |
+| Data | PostgreSQL on Neon (Data API with a server-signed JWT), RLS + server-side authorization — moved from Supabase on 16 October 2026 (§ 23.2) |
 | Privacy | Data minimization, documented retention, GDPR-grade handling if operating from the EU (see D-07) |
-| Localization | `en` + `fa`, locale routes, `Intl` formatting, bidi isolation |
+| Localization | `en` + `fa` (Dari: `fa-AF` formatting, Solar Hijri dates with Afghan month names; `en` Gregorian), locale routes, `Intl` formatting, bidi isolation |
 | Performance | Core Web Vitals on mobile: LCP < 2.5 s, CLS < 0.1, INP < 200 ms |
 | SEO | Unique metadata per page and locale, hreflang, structured data |
 | Observability | Structured logs, error tracking, correlation IDs, business events |
@@ -205,7 +288,62 @@ When requirements conflict, prioritize in this order:
 
 # 4. Benchmark
 
-## 4.1 Why these three
+## 4.0 Revision 45 benchmark — the positioning reference from now on
+
+Revisions 1–44 benchmarked freelancer platforms (Contra, Toptal, Fiverr — § 4.1–4.6, kept as history). Those references framed a hire-a-developer profile, which is not what Artaveo is any more. Revision 45 studied studios and product companies (live pages read on 17 October 2026):
+
+| Reference | What it is | What Artaveo takes |
+|---|---|---|
+| Spatie (`spatie.be`) | Small studio doing client work **and** selling its own products | Products and services as separate doors (Services · Products · Blog · About); each product with its own page and CTA; technology mentioned only as a customer benefit |
+| Metalab (`metalab.com`) | Product design studio | Case study = big title, three facts (type, stage, deliverables), one or two large sentences, full-width visuals |
+| thoughtbot (`thoughtbot.com/case-studies`) | Development studio | One line of business result per project card; technology only as a small tag |
+| ONCE by 37signals (`once.com`) | Software sold for a one-time price, code included | Product page: value line → what it is → screens with one-line captions → use cases → requirements → FAQ; a limitation appears only as a one-line FAQ answer |
+| Terra Mobility, formerly Betterez (`terramobility.com`) | Ticketing software for bus operators — the transport product's direct competitor | Features by role inside the customer's company (sales agent, operations manager, dispatcher, driver, finance); "Book a demo" repeated |
+| Sepidar (`sepidarsystem.com`) | Persian software sold by licence | «شما», benefit-first sentences, products grouped by kind of business with three benefits each, «درخواست مشاوره‌ی رایگان» / «محیط نرم‌افزار را از نزدیک ببینید» / «محاسبه قیمت», no technology names |
+| FlexiApps (`flexiapps.net`) — owner's reference | Mobile & web agency | Mega menus (Solutions by industry, Services); each project a full-width row with its own colour, phone mock-up, industry tags and platform icons; "from €…" price ranges; strong colour CTA bands; floating WhatsApp button |
+| Growin (`growin.com`) — owner's reference | IT services company | Article cards with large cover photos, tags, bold titles |
+| Linear (`linear.app`) | SaaS | Near-black ground, glass header (backdrop blur), the product's own UI as the hero image |
+| Foodics (`foodics.com/ar`) | Arabic, right-to-left SaaS selling plans | One strong brand colour, a typeface designed for Arabic script, "request a demo" in the header, Solutions / business types / Pricing in the menu |
+
+2026 trend research (agency and design-tool articles — directional, not authoritative): bento grids are the settled pattern for feature sections (≈ 6–9 tiles); glass is now functional (header, menus, floating cards) and fails on long text; dark mode keeps growing; neo-brutalism only as an accent; 3D/WebGL under-delivered. Glass needs tested contrast, a reduced-transparency fallback and few layers.
+
+| # | Pattern | Source | Decision | Artaveo implementation |
+|---|---|---|---|---|
+| B-24 | Products and services as separate doors, each product with its own page and CTA | Spatie, ONCE, Foodics | **ADOPT** | `/products` + `/products/[slug]`; services stay separate (§ 15) |
+| B-25 | Menu of solutions by kind of business | FlexiApps, Sepidar, Foodics | **ADAPT** | "Products" mega menu, one entry per published product |
+| B-26 | Services mega menu, icon + one line each | FlexiApps | **ADOPT** | Glass mega menu (§ 14.1) |
+| B-27 | One full-width row per project with its own colour, device mock-ups, tags, platform icons | FlexiApps | **ADOPT** | Portfolio rows; colour and cover are admin data (Phase 27) |
+| B-28 | Case study as few large sentences + big visuals | Metalab | **ADAPT** | Short admin-built blocks (Phase 27.2), visuals first |
+| B-29 | One-line business outcome per project | thoughtbot | **ADOPT** | `outcome_line`; true outcomes only, no invented numbers |
+| B-30 | Product page order; limitations only as a one-line FAQ answer | ONCE | **ADOPT** | Product template (Phase 30) |
+| B-31 | Features grouped by role in the customer's company | Terra Mobility | **ADOPT** | "Roles" block on product pages |
+| B-32 | Repeated "Request a demo" on products | Terra, Foodics, Sepidar | **ADOPT** | Demo request = inquiry type (Phase 27.5) |
+| B-33 | Persian/Arabic business tone: «شما», benefit-first, no technology names | Sepidar, Foodics | **ADOPT** | § 16 |
+| B-34 | "From …" price per service | FlexiApps | **ADAPT** | Owner-set in the admin; hidden when not set (D-04) |
+| B-35 | Glass header and menus on a dark ground | Linear | **ADAPT** | Limited glass roles (§ 14.1) |
+| B-36 | Floating WhatsApp button | FlexiApps | **ADOPT** | Main contact channel in Afghanistan |
+| B-37 | Article cards with large cover images and tags | Growin | **ADOPT** | Phase 33 |
+| B-38 | Bento grid for feature tiles | 2026 trend research | **ADAPT** | Features only; never mixing products with unrelated tiles (owner feedback on the design sample) |
+
+**Re-decisions of the revision 1–44 matrix (§ 4.5):**
+
+| # | Was | Now (revision 45) |
+|---|---|---|
+| B-03 | Proof-Linked Expertise Matrix | **REJECT** — technology is not customer copy |
+| B-07 | Identity header for the developer | **REPLACE** — brand header; the founder appears on About only (D-15) |
+| B-08 | "Technologies:" line on every project | **REJECT** on public pages (may stay as admin data) |
+| B-09 | Engineering Highlight block | **REJECT** |
+| B-10 | Discovery Sprint as a public offer | **REJECT** — scoping happens in the consultation |
+| B-11 | Engagement Model Selector | **REJECT** on the public site |
+| B-13 | Curated skill categories with evidence counts | **REJECT** — no skills section |
+| B-14 | Named developer as the identity | **REPLACE** — the brand «آرتاویو» is the subject (D-15) |
+| B-15 | Starter / Standard / Custom tiers | **ADAPT** — optional per service, defined in the admin |
+| B-20 | Availability Card | **ADAPT** — a single "reply the same day" line |
+| B-23 | Hire Channel Selector (platform escrow) | **REJECT** on the site (D-05) |
+
+B-01, B-02, B-04, B-05, B-16–B-19, B-21 and B-22 stand where they still apply to the new pages.
+
+## 4.1 Why these three (revisions 1–44 benchmark — history; § 4.0 is the current positioning reference)
 
 | Platform | What it represents | Why it matters for Artaveo |
 |---|---|---|
@@ -360,7 +498,7 @@ These findings do not change the historical status of phases 1–3. They are res
 - ~~`lib/home-content.ts` contains fictional projects (*Atlas Analytics*, *Meridian Pay*, *Northline Commerce*) with invented metrics~~ — **resolved in Phase 3 (`4ef6f87`)**.
 - `public/images/work-*.png` (AI-generated screenshots of those fictional products) are no longer referenced but are still in the repository — delete (3.5).
 - `lib/site.ts`: the e-mail `hello@artaveo.studio` is unverified (domain ownership not confirmed — D-01); `socialLinks` point to the root of github.com / x.com / linkedin.com; an X profile is not part of the strategy.
-- Copy uses "we / our / the studio" and implies a team (nav descriptions, site description, Home metadata, Hero "View our work"). The voice rule is in section 16.1.
+- Copy uses "we / our / the studio" and implies a team (nav descriptions, site description, Home metadata, Hero "View our work"). The voice rule is in section 16.1. *(Revision 45: that first-person rule is withdrawn — the voice is now § 16.2, with the brand as the subject.)*
 
 ## 6.2 UX / architecture debt
 
@@ -391,6 +529,33 @@ These findings do not change the historical status of phases 1–3. They are res
 - There is **no brand identity yet**: `public/icon.svg` and the favicons are v0 defaults, `placeholder-logo.*` files are unused templates, and no art direction has been chosen — the current UI is the default shadcn/v0 look.
 - Resolution: new **Phase 4 — Brand Identity & Design System Completion**, placed before i18n and before any new page, because every later page (package table, FAQ accordion, Brief Builder stepper, dialogs, admin tables) is assembled from these parts. Phase 1 keeps its status (numbering rule).
 
+## 6.7 Findings of the 17 October 2026 review (product, content, design) — fixed in Milestone R
+
+Measured on the live site (`artaveo-seven.vercel.app`) and in the code on 17 October 2026. Each item names the phase that fixes it.
+
+**Content**
+- Case studies, services, process and about pages explain the backend and list limitations: "تیم جداگانه‌ی QA یا امنیت وجود ندارد", "هنوز درگاه پرداخت زنده وصل نیست", "هنوز تست خودکار اختصاصی یا CI وجود ندارد", "به‌عنوان بدهی فنی ثبت شده", Row-Level Security / state machine / service-role / `tsc --noEmit` / migration rollback in customer copy. → hide now **26.5**, rewrite **32**
+- Internal roadmap references on the public `/process` page: «(طبق § ۱۷ معیار تکمیل کار)», «(§ روند کار — تعریف)», «(فاز ۹)». → **26.4**
+- The only published article explains a past permission gap in the transport product the site wants to sell. → unpublish **26.5**, new strategy **33**
+- "One person" framing everywhere (9× «یک نفر»; the same sentence 3× on one case study; «یک توسعه‌دهنده. کل محصول.»). → **32**
+- Translated-sounding Persian: 47× the defensive «، نه …» pattern, English terms mid-sentence (enforce, state machine, hold, async, Discovery Sprint), «تو» and «شما» mixed (12× «می‌کنی»), Iranian vocabulary (سامانه، ناوگان، اتوبوس‌رانی، دلار، مشاوره، کامپیوتر). → **32** (and the locale in **26.2**)
+- Capabilities narrowed by copy: "native mobile apps not included", "PostgreSQL is the main stack", Brief Builder project types without mobile/desktop/offline. → **27.4, 27.5, 31, 32**
+- A public GitHub link on a project that is meant to be sold. → **26.5** (and D-19)
+
+**Design**
+- Vazirmatn is never applied: `font-sans` on `<body>` (`app/[locale]/layout.tsx:179`) overrides `:where([dir='rtl']) body` (`app/globals.css:270`); Vazirmatn is not even downloaded, so Persian renders in the device's fallback font. → **26.1**
+- `/fa/work/transportation-system` overflows horizontally on a 375 px phone (405 px wide): case-study grid items lack `min-width: 0` (`components/work/case-study.tsx:207`). → **26.3**
+- `/work`: 3-column grid with 2 projects (a third of the page empty, `components/work/work-grid.tsx:94`), 383×239 px images on a 1440 px screen, browser frames showing the portfolio's own `artaveo.dev` address, filters for two projects. → **26.6**, **30**
+- Light theme white-on-white (`--background` ≈ white, cards pure white, faint borders), one 8 px radius everywhere, almost no colour; hero visual is a code snippet; whole-page fade on every navigation; Home is 8,600 px of 10 identically spaced sections. → **28, 29**
+- Header: plain links, no Products/Services menus, a Mac-only "⌘K" hint, no WhatsApp. → **29**
+
+**Structure / data**
+- `project_sections` accepts only 11 engineering section types (`db/migrations/0003_projects_and_technologies.sql:101`) — even the admin cannot write customer-style sections. → **27.2**
+- No product entity, no sale options; prices are only fixed / from / quote. → **27.3**
+- Public project status badges ("در حال توسعه") and the "my role" field. → hide **26.5**, remove **27.1**
+- Services: 7 services + 5 engagement models (Discovery Sprint, Care Plan, …) — a freelancer gig menu. → **27.4, 31**
+- Phase 25's `.github/workflows/backup.yml` was never committed (disclosed in `docs/runbooks/backup-restore.md` § 1). → **26.8**
+
 ---
 
 # 7. Decision Register (owner decisions)
@@ -401,18 +566,25 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 |---|---|---|---|
 | **D-01** | Brand spelling, production domain, sending e-mail domain | **Spelling resolved: "Artaveo"** (confirmed by the approved logo, 10 Sep 2026). Domain and e-mail still open — register the domain, use it for e-mail with SPF, DKIM and DMARC configured. **13 Sep 2026:** owner confirmed the interim domain is the Vercel URL (`https://artaveo-seven.vercel.app`) and explicitly chose to build § 9.3's notification structure now against a console/no-op provider rather than wait — see `docs/phases/PHASE-9.3-README.md`. **15 Sep 2026:** owner explicitly approved launching M1 on the interim Vercel URL rather than waiting for a purchased domain — see § 11.4's M1 LAUNCH gate below. A real domain purchase + DNS authentication + activating real e-mail sending (§ 9.3) remain open as post-launch follow-up, not pre-launch blockers. | 4.1 · 9.3 · 11.4 |
 | **D-02** | Public identity: real name, portrait, published location / timezone | **Resolved (11 Sep 2026):** name **Zakir Naseri**; portrait `public/Profile-pic.jpg` (referenced as `/Profile-pic.jpg`); timezone **UTC**, no city published | 3.3 (Hero) · 4.5 · 8.1 |
-| **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.1 |
-| **D-04** | Pricing transparency | Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.2 — still open; § 7.2's mechanics are built and live with every price as `'quote'` ("Ask for a quote") so nothing invented ships in the meantime. (§ 9.1's Brief Builder budget-range step turned out not to depend on this after all — it's a generic, self-reported client budget bucket, not a published price; see `docs/phases/PHASE-9.1-README.md`.) |
-| **D-05** | Hire channels and which external profiles are real | Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.3 · 5.2 (footer) — **default applied 12 Sep 2026** in § 8.3's Hire Channel Selector and (since § 5.2) the footer; not yet marked formally "Resolved" pending owner sign-off in `docs/decisions.md` |
+| **D-03** | Persian variant for `fa`: Dari-leaning (fa-AF), Iranian (fa-IR) or neutral; calendar and digits | **Resolved (17 Oct 2026, revision 45): Dari (Afghanistan) — every word, not a few swapped terms** (owner's examples, examples only: «پیش می‌برد» not «جلو می‌برد», «چوکی» not «صندلی»); Afghan orthography; **Solar Hijri dates with Afghan month names** for `fa` (حمل، ثور، … — `Intl` tag `fa-AF`, verified output «۲۵ میزان ۱۴۰۵»); `en` keeps Gregorian; Persian digits in prose. Glossary and research rule: § 16.3. Blocks 26.2 · 32. *Original default (history):* Neutral vocabulary; Gregorian dates with Persian month names; Persian digits in prose, Latin digits in code, IDs and technical values. If Solar Hijri is added later, note that Afghan and Iranian month names differ (e.g. *Hamal* vs *Farvardin*) | 4.1 (Persian type) · 5.1 |
+| **D-04** | Pricing transparency | **Resolved as a mechanism (revision 45):** the owner sets prices per product sale option and per service in the admin (Phase 27); anything without a price shows «قیمت بعد از یک گفتگوی کوتاه»; no price is ever invented (owner action O-8). Blocks 27 · 30 · 31. *Original default (history):* Publish **starting-from** prices for productized packages and **typical ranges** for custom work; Discovery Sprint at a fixed price | 7.2 — still open; § 7.2's mechanics are built and live with every price as `'quote'` ("Ask for a quote") so nothing invented ships in the meantime. (§ 9.1's Brief Builder budget-range step turned out not to depend on this after all — it's a generic, self-reported client budget bucket, not a published price; see `docs/phases/PHASE-9.1-README.md`.) |
+| **D-05** | Hire channels and which external profiles are real | **Revised (revision 45):** the site offers direct channels only — WhatsApp, phone, e-mail, the Start-a-Project form, consultation requests. The Hire Channel Selector (platform escrow comparison) is retired in Phase 31; real external profiles may stay as footer links. *Original default (history):* Direct + one platform profile (Fiverr) for clients who want buyer protection; list only profiles that exist | 8.3 · 5.2 (footer) — **default applied 12 Sep 2026** in § 8.3's Hire Channel Selector and (since § 5.2) the footer; not yet marked formally "Resolved" pending owner sign-off in `docs/decisions.md` |
 | **D-06** | Publication rights for case studies (Transportation System, Pezhohesh Portal): client/employer consent, what may be shown | Transportation System: resolved 12 Sep 2026 — Zakir's own project, no external client. Pezhohesh Portal: resolved 12 Sep 2026 — Zakir owns the Pezhohesh Complex institute itself and built the site for it; no separate client relationship. Both approved for publication. Screenshots with **demo data only**; no customer/student PII; confidential details generalised | 6.2 · 6.3 |
 | **D-07** | Jurisdiction of operation (privacy law, invoicing, business registration, payment rails) | **Resolved (13 Sep 2026):** owner confirmed Artaveo is operated from **Afghanistan**. Afghanistan has no comprehensive data-protection statute (verified by research before writing § 11.2's privacy policy — only narrow sectoral clauses exist in telecom/banking law, no dedicated data-protection authority). The roadmap's own "if EU-based, GDPR-grade…" instruction doesn't apply; § 11.2 instead documents this honestly and offers GDPR-style rights (access/correction/deletion on request) voluntarily, as good practice, not as a claim of legal compliance with a specific regime. No imprint page: Germany/EU's "Impressum" requirement (TMG §5) has no Afghan equivalent found in the same research pass. | 11.2 · 29 |
 | **D-08** | Availability state and response commitment | **Resolved (11 Sep 2026):** response commitment published as **"replies within a few hours, same day"** | 4.5 (Availability) · 14 (SLA) |
 | **D-09** | Consultation format: free intro call length, paid consultation, tool | Free 20–30 min intro call, request-based in v1 | 20 — **built on this default in Phase 20 (20 September 2026): free, 30 minutes, request-based, the owner types how the call happens (a link or "WhatsApp voice call"); not yet confirmed by the owner** (`docs/phases/PHASE-20-README.md`) |
-| **D-10** | Supabase plan and region | Start on the plan that includes backups before real leads are stored, or implement Phase 25's external dump first | **Resolved (13 Sep 2026):** owner created a new, dedicated Supabase account and project (`Artaveo`, project ref `ukzovqnpqjcrwofycalc`, region `ap-southeast-1`) on the **free plan** — explicitly not the recommended paid-with-backups default, to avoid cost while the site is pre-launch. `db/migrations/0001_inquiries.sql` applied 13 Sep 2026 (`inquiries`/`inquiry_events` live, RLS enabled, zero policies, confirmed via `get_advisors`), env vars configured in Vercel, and a real end-to-end submission verified by direct query the same day. **Follow-up, now built (22 Sep 2026):** the free plan's own lack of platform backups is closed by Phase 25's daily external dump — `docs/runbooks/backup-restore.md`, `docs/phases/PHASE-25-README.md`. See `docs/phases/PHASE-9.2-README.md`. |
+| **D-10** | Supabase plan and region — **superseded 16 October 2026: the backend now runs on Neon project `Artaveo` (`calm-breeze-36870180`, `aws-ap-southeast-1`), § 23.2** | Start on the plan that includes backups before real leads are stored, or implement Phase 25's external dump first | **Resolved (13 Sep 2026):** owner created a new, dedicated Supabase account and project (`Artaveo`, project ref `ukzovqnpqjcrwofycalc`, region `ap-southeast-1`) on the **free plan** — explicitly not the recommended paid-with-backups default, to avoid cost while the site is pre-launch. `db/migrations/0001_inquiries.sql` applied 13 Sep 2026 (`inquiries`/`inquiry_events` live, RLS enabled, zero policies, confirmed via `get_advisors`), env vars configured in Vercel, and a real end-to-end submission verified by direct query the same day. **Follow-up, now built (22 Sep 2026):** the free plan's own lack of platform backups is closed by Phase 25's daily external dump — `docs/runbooks/backup-restore.md`, `docs/phases/PHASE-25-README.md`. See `docs/phases/PHASE-9.2-README.md`. |
 | **D-11** | Optional early-client offer | None unless the owner explicitly wants one; if used, it is labelled clearly and time-boxed | 7.2 |
 | **D-12** | Visual direction and light-theme / small-size logo variants | **Resolved (12 Sep 2026):** owner approved the primary mark (`Artaveo_-_Logo.png`, received 10 Sep 2026) and the derived tokens/variants delivered in § 4.1 (colour tokens, all logo variants, light-theme + small-size rules per `docs/design/art-direction.md`). § 4.6 unblocked. | 4.1 · 4.6 |
 | **D-13** | Sitewide deposit percentage / warranty window length for the Working Agreement | **No single sitewide figure invented.** § 8.2 states the mechanism instead: deposit split and warranty length are agreed per engagement during Define (§ 8.1 Process, phase 02) and written into that project's own agreement — a $500 fix and a $50,000 build don't carry the same risk profile, so one blanket number would either overstate small work or understate large work. Same reasoning § 7.2 already used for D-04 (ship the honest mechanism, not an invented figure) | 8.2 |
 | **D-14** | Store the recommender's e-mail on a recommendation request, so the owner can send the link — and later a "please change this" message — from the admin instead of copying it by hand | **Resolved (19 September 2026):** owner said yes. Built as: optional per request, with the e-mail language chosen per request; deleted as soon as the request is finished (revoked, approved, rejected, expired unused, recommendation deleted), stored e-mails redacted; disclosed in the privacy policy. A link with no expiry that is never used or revoked keeps its address until revoked. | 16 follow-up — closed in Phase 19 (`docs/phases/PHASE-19-README.md`) |
+| **D-15** | Brand voice | **Resolved (17 Oct 2026):** the brand «آرتاویو» is the subject; never «من»; «ما» only where it reads naturally; the customer is always «شما». English is written separately for its own reader, to the same quality — neither language is a sentence-by-sentence translation of the other. | 29–33 |
+| **D-16** | Products and how they are sold | **Resolved (17 Oct 2026):** product-or-not is an admin switch per project; per product, any combination of monthly / yearly / lifetime licence, source-code purchase and custom edition; maintenance included, optional (priced) or not offered; after-sales services with prices; each option's price set by the owner. Ways to get a product live on its product page, not on Home. Future projects are added through the admin, without code. | 27 · 30 · 36 · 37 |
+| **D-17** | Visual direction 2.0 | **Resolved (17 Oct 2026):** dark premium ground with limited glass, brand gold plus one cool accent, a colour per project, device mock-ups of real screens. The design sample (§ 0.1) was approved ("much better") with three corrections now in § 14.1: every project/product in its own block with clear boundaries; no product grid mixed with unrelated tiles (e.g. a "licence" tile); smaller type where it was oversized. | 28–31 |
+| **D-18** | Capability scope | **Resolved (17 Oct 2026):** Artaveo builds any kind of software — web, mobile, desktop, online and offline systems — in whatever technology a job needs. Not published as a claim; it means copy, services and forms never narrow what Artaveo offers. | 27.5 · 31 · 32 |
+| **D-19** | The `Transportation-System` repository is public | **Open (owner, O-7):** make it private before that product is sold? A public repository means anyone can take the product's code for free. The site itself never links to repositories (§ 16.1). | 30 (launching that product page) |
+| **D-20** | Public names of the two products | **Open.** Default: descriptive names («سیستم فروش تکت و مدیریت ترانسپورت», «سیستم مراکز آموزشی») until the owner names them (the transport screenshots show a "Shabraw" brand — not used until confirmed). | 30 |
+| **D-21** | Currencies for prices | **Recommended default:** Afghani (AFN, shown as «افغانی») on the Dari site and USD on the English site, each price optionally given in both; the owner chooses per price in the admin. Open for confirmation. | 27.3 |
 
 Decisions and their dates are recorded in `docs/decisions.md`.
 
@@ -421,16 +593,20 @@ Decisions and their dates are recorded in `docs/decisions.md`.
 # 8. Release milestones & dependency rule
 
 ```text
-M1  CREDIBLE LAUNCH       Phases 3–11   Brand identity, complete design system, real content, real services, working inquiry, SEO, legal, live on own domain
-M2  OPERATING LAYER       Phases 12–20  Full schema, admin, lead pipeline, CMS, evidence, journal, search, notifications, consultation
-M3  PRODUCTION ASSURANCE  Phases 21–26  Tests, CI/CD gates, security, observability, backup/restore, performance & a11y certification
-M4  GROWTH & BUSINESS     Phases 27–31  Proposals, client portal, invoicing, content growth, conversion analytics
-M5  FINAL AUDIT           Phase 32      International-grade audit → manual release decision
+M1  CREDIBLE LAUNCH            Phases 3–11   ✅ launched 15 September 2026
+M2  OPERATING LAYER            Phases 12–20  ✅ (code)
+M3  PRODUCTION ASSURANCE       Phases 21–25  ✅ (code) — its last phase (certification) moved to Phase 34 (revision 45)
+R   REPOSITIONING & REDESIGN   Phases 26–33  ⬜ NEXT — added in revision 45 (§ 11A)
+M3b CERTIFICATION              Phase 34      (was 26) — certifies the redesigned site, not the old one (§ 11B)
+M4  GROWTH & BUSINESS          Phases 35–39  (were 27–31) — adapted to products and licences (§ 12)
+M5  FINAL AUDIT                Phase 40      (was 32) → manual release decision (§ 13)
 ```
 
 ## 8.1 Why content-first (and why this does not bypass architecture)
 
 A new freelance brand needs a live, credible site **early**; a CMS with no content earns nothing. So M1 ships with **typed file-based content** whose shapes are identical to the future tables (principle 9), plus **one real backend slice** — the inquiry — because a contact flow that fakes success is not acceptable. The full database, admin and CMS follow in M2 by migrating the same shapes, not by rewriting pages.
+
+*(Revision 45 note: M1–M3 delivered that sequence. Milestone R now changes what the site says and how it looks on top of the same operating layer — data and admin first (27), then the design system (28), then pages (29–31), then words (32–33).)*
 
 ## 8.2 Dependency direction
 
@@ -446,10 +622,16 @@ Decisions (D-xx)
 → Installable PWA & offline-safe shell       (10)
 → Launch readiness                           (11)  ── M1 gate
 → Full schema → Auth → Pipeline → CMS → Evidence → Journal → Search → Notifications → Consultation   ── M2
-→ Tests → CI/CD → Security → Observability → Recovery → Certification                                ── M3
-→ Growth tools                                                                                        ── M4
-→ Final audit                                                                                         ── M5
+→ Tests → CI/CD → Security → Observability → Recovery                                               ── M3
+→ Live-site corrections (26) → Products/sale options/flexible content: data + admin (27)
+  → Design System 2.0 (28) → Shell & Home (29) → Products & Work pages (30)
+  → Services, About, Contact & Start (31) → Content rewrite Dari & English (32) → Articles (33)      ── R
+→ Certification (34)                                                                                ── M3b
+→ Growth tools (35–39)                                                                              ── M4
+→ Final audit (40)                                                                                  ── M5
 ```
+
+Phase 26 is independent of the rest of R (small fixes to the live site) and may run first. 28 needs 27's data shapes only where components show admin data (colours, covers, sale options). 32 can start on pages as soon as 29–31 have rebuilt them, but closes only after all of them.
 
 Later phases may inform earlier design decisions, but they are never used as an excuse to skip an earlier phase's Definition of Done.
 
@@ -457,48 +639,60 @@ Later phases may inform earlier design decisions, but they are never used as an 
 
 ## 8.3 Phase index — one line per phase
 
-**Read this table first.** Everything below it (sections 9–13) is the detailed version of the same 30 phases, for when a phase actually starts. If a phase feels confusing in the detailed section, come back here first to see where it sits and what it depends on.
+**Read this table first** (after § 0). Everything below it (sections 9–13) is the detailed version of the same 40 phases, for when a phase actually starts. If a phase feels confusing in the detailed section, come back here first to see where it sits and what it depends on.
 
 ```text
 M1 — CREDIBLE LAUNCH (own domain, real content, no fake backend)
-  Phase 3   Content Truth Pass & Home Page   Remove fake content, publish the real Home page                    ⏳ PARTIAL
-  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ✅ COMPLETE (4.1 debt tracked separately, non-blocking)
-  Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav                    ✅ COMPLETE
-  Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects            ✅ COMPLETE (6.1 engine ✅; 6.2 Transportation System ✅; 6.3 Pezhohesh Portal ✅ — see docs/phases/PHASE-6.2-README.md, PHASE-6.3-README.md)
-  Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals    ✅ COMPLETE (7.1 catalogue & blueprint, 7.2 packages/add-ons/engagement models — all prices "Ask for a quote" pending D-04; see docs/phases/PHASE-7.1-README.md, PHASE-7.2-README.md)
-  Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms    ⏳ PARTIAL (8.1 ✅ + 8.2 ✅ complete — see docs/phases/PHASE-8.1-README.md, PHASE-8.2-README.md; 8.3 Hire channels blocked on D-05)
-  Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)    ⏳ PARTIAL (9.1 Brief Builder ✅ at /start; 9.2 persistence ✅ live & verified; 9.3 notifications ⏳ structure complete, sending inactive pending D-01 — see docs/phases/PHASE-9.1-README.md, docs/phases/PHASE-9.2-README.md, docs/phases/PHASE-9.3-README.md)
-  Phase 10  Installable PWA & Offline Shell  Site installs like an app, browsable offline; Brief Builder never fakes success offline    ✅ COMPLETE (10.1/10.2/10.3 all shipped — see docs/phases/PHASE-10.1-README.md, PHASE-10.2-README.md, PHASE-10.3-README.md; live-deployment exit-criteria check still open)
-  Phase 11  Launch Readiness (M1 gate)       SEO, legal pages, analytics, performance/a11y check, deploy    ✅ COMPLETE — M1 LAUNCH GATE APPROVED 15 Sep 2026 (11.1–11.4 all shipped — see docs/phases/PHASE-11.1-README.md through PHASE-11.4-README.md; launched on the interim Vercel URL, real domain deferred post-launch per D-01)
+  Phase 3   Content Truth Pass & Home Page   Remove fake content, publish the real Home page                    ✅ CLOSED (rev 45 — open 3.5 items → 26.7; Home rebuilt in 29)
+  Phase 4   Brand Identity & Design System   Turn the approved logo into full tokens + missing UI components    ✅ COMPLETE (4.1 debt → 28.6)
+  Phase 5   Internationalization & Shell     Real en/fa routing + translated header, footer, nav                    ✅ COMPLETE (Dari formatting → 26.2)
+  Phase 6   Work & Case Study Engine         /work page + full case studies for the two real projects            ✅ COMPLETE — succeeded by 27, 30, 32
+  Phase 7   Services, Packages & Pricing     Service catalogue, package tiers (Starter/Standard/Custom), pricing signals    ✅ COMPLETE — succeeded by 27, 31
+  Phase 8   About, Process & Agreement       About page, process page, payment/ownership/handover terms    ✅ COMPLETE (8.1, 8.2, 8.3) — succeeded by 31
+  Phase 9   Start a Project (Inquiry v1)     Multi-step brief form + first real backend (saves leads, sends e-mail)    ✅ CLOSED (rev 45 — 9.1 ✅, 9.2 ✅, 9.3 structure ✅; real sending → owner action O-6)
+  Phase 10  Installable PWA & Offline Shell  Site installs like an app, browsable offline; Brief Builder never fakes success offline    ✅ COMPLETE (live-deployment exit check → 34)
+  Phase 11  Launch Readiness (M1 gate)       SEO, legal pages, analytics, performance/a11y check, deploy    ✅ COMPLETE — M1 LAUNCH GATE APPROVED 15 Sep 2026
 
 M2 — OPERATING LAYER (database + admin panel)
-  Phase 12  Data Model & Migrations          Move file-based content into a real Postgres database          ✅ COMPLETE (12.1 ADR + schema, 12.2 import + selector switch)
-  Phase 13  Admin Auth & Authorization       Login system for the admin panel                                  ✅ COMPLETE (code) — see docs/phases/PHASE-13-README.md; owner onboarding step still open, see docs/runbooks/admin-onboarding.md
-  Phase 14  Lead Pipeline                    Track inquiries through stages (New → Won/Lost) in the admin       ✅ COMPLETE (code) — see docs/phases/PHASE-14-README.md; owner onboarding step still open, see docs/runbooks/admin-onboarding.md
-  Phase 15  CMS & Media                      Admin screens to edit projects/services/articles + image uploads    ✅ COMPLETE (code) — see docs/phases/PHASE-15-README.md
-  Phase 16  Verified Evidence                Collect and publish real client recommendations    ✅ COMPLETE (code) — see docs/phases/PHASE-16-README.md
-  Phase 17  Insights / Engineering Journal   Blog/article system                                   COMPLETE (code) — migrations 0016/0016b applied live — see docs/phases/PHASE-17-README.md
-  Phase 18  Search & Command Palette         Site search wired to real content                                     ✅ COMPLETE (code) — see docs/phases/PHASE-18-README.md
-  Phase 19  Notifications & Outbox           Reliable e-mail sending — an outage never loses a lead                    ✅ COMPLETE (code) — migration 0017 applied live; real sending off pending D-01 — see docs/phases/PHASE-19-README.md
-  Phase 20  Consultation                     Let clients request/book a call                                           ✅ COMPLETE (code) — migration 0019 applied live; D-09 applied as default, unconfirmed — see docs/phases/PHASE-20-README.md
+  Phase 12  Data Model & Migrations          Move file-based content into a real Postgres database          ✅ COMPLETE (now on Neon, § 23.2)
+  Phase 13  Admin Auth & Authorization       Login system for the admin panel                                  ✅ COMPLETE (code) — Neon Auth + app TOTP since 16 Oct; owner account O-2
+  Phase 14  Lead Pipeline                    Track inquiries through stages (New → Won/Lost) in the admin       ✅ COMPLETE (code) — extended by 27.5
+  Phase 15  CMS & Media                      Admin screens to edit projects/services/articles + image uploads    ✅ COMPLETE (code) — extended by 27
+  Phase 16  Verified Evidence                Collect and publish real client recommendations    ✅ COMPLETE (code)
+  Phase 17  Insights / Engineering Journal   Blog/article system                                   ✅ COMPLETE (code) — succeeded by 33
+  Phase 18  Search & Command Palette         Site search wired to real content                                     ✅ COMPLETE (code)
+  Phase 19  Notifications & Outbox           Reliable e-mail sending — an outage never loses a lead                    ✅ COMPLETE (code) — real sending O-6
+  Phase 20  Consultation                     Let clients request/book a call                                           ✅ COMPLETE (code)
 
 M3 — PRODUCTION ASSURANCE (make it safe to trust)
-  Phase 21  Testing                          Automated tests for the critical flows                                ✅ COMPLETE (code) — see docs/phases/PHASE-21-README.md
-  Phase 22  CI/CD & Release Gates            Automatic checks before every deploy                                  ✅ COMPLETE (code) — see docs/phases/PHASE-22-README.md
-  Phase 23  Security Hardening               Headers, rate limits, upload safety, dependency checks                ✅ COMPLETE (code) — migration 0020 applied live — see docs/phases/PHASE-23-README.md and docs/security.md
-  Phase 24  Observability                    Logging, error tracking, alerts  ✅ COMPLETE (code)
-  Phase 25  Backup & Recovery                Real, restore-tested database backups
-  Phase 26  Performance & a11y Certification Final speed and accessibility sign-off
+  Phase 21  Testing                          Automated tests for the critical flows                                ✅ COMPLETE (code)
+  Phase 22  CI/CD & Release Gates            Automatic checks before every deploy                                  ✅ COMPLETE (code) — GitHub settings O-5
+  Phase 23  Security Hardening               Headers, rate limits, upload safety, dependency checks                ✅ COMPLETE (code)
+  Phase 24  Observability                    Logging, error tracking, alerts                                        ✅ COMPLETE (code)
+  Phase 25  Backup & Recovery                Real, restore-tested database backups                                  ✅ COMPLETE (code) — workflow file → 26.8; first run O-4
 
-M4 — GROWTH & BUSINESS (only once M1–M3 are live)
-  Phase 27  Proposal & Estimate Builder      Turn a qualified lead into a formal proposal
-  Phase 28  Client Portal (minimal)          Simple client-facing project page
-  Phase 29  Invoicing & Payments             Send invoices, accept payment
-  Phase 30  Content Growth                   Newsletter, /now, /uses, public changelog
-  Phase 31  Conversion Analytics             Funnels, drop-off tracking, channel attribution
+R — REPOSITIONING & REDESIGN (added in revision 45 — do these next, in order)
+  Phase 26  Live-site corrections            Fix what hurts the live site now: Persian font, Dari dates, mobile overflow, internal refs, hide engineering copy    ⬜ NEXT
+  Phase 27  Products, sale options & content Data model + admin: products, ways to get them, prices, free content blocks, colours, covers, new inquiry types    ⬜
+  Phase 28  Design System 2.0                Dark premium + limited glass, new type scale, colours per project, new components    ⬜
+  Phase 29  Shell & Home rebuild             New header with mega menus, WhatsApp button, new Home (one block per product/project)    ⬜
+  Phase 30  Products & Work pages            /products, product page with ways to get it, purchase/demo requests, visual case studies    ⬜
+  Phase 31  Services, About, Contact & Start Services by kind of software, About without "one person", direct contact, broader Brief Builder    ⬜
+  Phase 32  Content rewrite — Dari & English Every public word: customer rule + Dari glossary; English written natively    ⬜
+  Phase 33  Articles revamp                  Insights → Articles: customer topics, cover images, hidden until there are enough    ⬜
+
+M3b — CERTIFICATION
+  Phase 34  Performance & a11y Certification Final speed and accessibility sign-off on the redesigned site    ⬜ (was 26)
+
+M4 — GROWTH & BUSINESS (only once R and M3b are live)
+  Phase 35  Proposal & Estimate Builder      Turn a qualified lead into a formal proposal (custom work and custom editions)    ⬜ (was 27)
+  Phase 36  Client Portal                    Client page for projects and purchased products/licences    ⬜ (was 28)
+  Phase 37  Invoicing, Payments & Licences   Invoices, payments, licence renewals and reminders    ⬜ (was 29)
+  Phase 38  Content Growth                   Newsletter, product updates, changelog    ⬜ (was 30)
+  Phase 39  Conversion Analytics             Funnels to demo and purchase requests, drop-off, attribution    ⬜ (was 31)
 
 M5 — FINAL AUDIT
-  Phase 32  International-Grade Audit        Full audit of everything above → manual release decision
+  Phase 40  International-Grade Audit        Full audit of everything above → manual release decision    ⬜ (was 32)
 ```
 
 **How to read the numbers inside a phase (e.g. "4.1", "4.2"…):** these are just sub-steps of that one phase, in build order — they are not separate phases and not related to any other number in this document. "4.1" only ever means "the first sub-step of Phase 4"; it has nothing to do with a section called "4" elsewhere. If a sub-step number ever looks like it's colliding with something else in the document, that's a documentation bug — flag it, don't try to make sense of it.
@@ -509,7 +703,9 @@ M5 — FINAL AUDIT
 
 Each phase below lists its goal, sub-phases and **exit criteria**. Exit criteria are in addition to the general Definition of Done (section 17).
 
-## Phase 3 — Content Truth Pass & Home Page  ⏳ PARTIAL
+## Phase 3 — Content Truth Pass & Home Page  ✅ CLOSED in revision 45 (was ⏳ PARTIAL)
+
+> **Revision 45:** closed (was ⏳ PARTIAL). The remaining 3.5 items — unused `public/images/work-*.png`, v0 placeholder assets, and a final check that the rest is done — move to **Phase 26.7**. The Home section list in 3.3 is history; the new Home is **Phase 29**.
 
 **Goal:** a truthful, finished home page mounted inside the site shell, fed by a typed content layer.
 
@@ -567,6 +763,8 @@ Compatibility note: this keeps every section of the original v0 plan; "Capabilit
 ---
 
 ## Phase 4 — Brand Identity & Design System Completion  ✅ COMPLETE (see `docs/phases/PHASE-4-README.md`, `PHASE-4.3-README.md`, `PHASE-4.4-README.md`, `PHASE-4.5-README.md`, `PHASE-4.6-README.md`, `PHASE-4.7-README.md`)
+
+> **Revision 45:** stays ✅. Succeeded by **Phase 28 (Design System 2.0)**; the 4.1 placeholder-mark swap-back debt moves to **28.6**. The old visual boundaries ("no glassmorphism") are replaced by § 14.1.
 
 > **Historical debt / added after audit (10 September 2026)** — see 6.6. Phase 1 keeps its status; this phase restores the design scope of the previous roadmap revision and adds the missing brand identity.
 
@@ -685,6 +883,8 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 
 ## Phase 5 — Internationalization & Shell Completion  ✅ COMPLETE (see `docs/phases/PHASE-5.1-README.md`, `PHASE-5.2-README.md`)
 
+> **Revision 45:** stays ✅. Dari locale formatting (`fa-AF`, Solar Hijri dates, Afghan month names) is **Phase 26.2**.
+
 **Goal:** real bilingual routing and a finished global shell **before** any new page is built.
 
 ### 5.1 Locale infrastructure (routing, dictionaries, Persian specifics — per D-03) — ✅ complete (see `docs/phases/PHASE-5.1-README.md`)
@@ -717,6 +917,8 @@ Split into sessions if needed: **4.3a** actions + forms · **4.3b** overlays · 
 ---
 
 ## Phase 6 — Work & Case Study Engine  ✅ COMPLETE (see `docs/phases/PHASE-6.1-README.md`, `PHASE-6.2-README.md`, `PHASE-6.3-README.md`)
+
+> **Revision 45:** stays ✅. The engineering case-study template and its fields are succeeded by **27.2** (free content blocks), **30** (visual case studies) and **32** (copy); the worst sections are hidden earlier in **26.5**.
 
 **Goal:** real projects become the strongest proof on the site.
 
@@ -774,6 +976,8 @@ Candidate highlights from the repository (verify each against the code before pu
 ---
 
 ## Phase 7 — Services, Packages & Pricing Signals  ✅ COMPLETE (see `docs/phases/PHASE-7.1-README.md`, `PHASE-7.2-README.md`)
+
+> **Revision 45:** stays ✅. Services by kind of software, optional admin-defined packages and the retirement of public engagement models are **27.4** and **31**.
 
 **Goal:** a visitor can understand, compare and pre-qualify an offer without a call.
 
@@ -839,6 +1043,8 @@ Start this service  → Brief Builder pre-filled with the service
 
 ## Phase 8 — About, Process & Working Agreement  ✅ COMPLETE (see `docs/phases/PHASE-8.1-README.md`, `PHASE-8.2-README.md`, `PHASE-8.3-README.md`)
 
+> **Revision 45:** stays ✅. About, Process (folded into Services), the Working Agreement and the Hire Channel Selector (retired, D-05) are reworked in **Phase 31**; the internal references on the public process page are removed in **26.4**.
+
 **Goal:** answer the questions clients are afraid to ask.
 
 ### 8.1 About, Process & Quality baseline  ✅ complete (see `docs/phases/PHASE-8.1-README.md`)
@@ -868,7 +1074,9 @@ Start this service  → Brief Builder pre-filled with the service
 
 ---
 
-## Phase 9 — Start a Project (Inquiry v1 — first real backend slice)  ⏳ PARTIAL (9.1 ✅ complete — see `docs/phases/PHASE-9.1-README.md`; 9.2 ✅ complete — live and verified end-to-end, see `docs/phases/PHASE-9.2-README.md`; 9.3 ⏳ structure complete, real sending intentionally inactive pending D-01, see `docs/phases/PHASE-9.3-README.md`)
+## Phase 9 — Start a Project (Inquiry v1 — first real backend slice)  ✅ CLOSED in revision 45 (was ⏳ PARTIAL — 9.1 ✅ complete — see `docs/phases/PHASE-9.1-README.md`; 9.2 ✅ complete — live and verified end-to-end, see `docs/phases/PHASE-9.2-README.md`; 9.3 ⏳ structure complete, real sending intentionally inactive pending D-01, see `docs/phases/PHASE-9.3-README.md`)
+
+> **Revision 45:** closed (was ⏳ PARTIAL). 9.1 and 9.2 are done and 9.3's structure is done; switching real e-mail sending on is owner action **O-6** (domain, D-01) plus a small activation task. New inquiry types (purchase, demo) and broader project types are **27.5**.
 
 **Goal:** qualified, persisted, notified inquiries — no fake success.
 
@@ -912,6 +1120,8 @@ Two configuration issues came up during setup, both fixed and worth noting for f
 ---
 
 ## Phase 10 — Installable PWA & Offline-Safe Shell  ✅ COMPLETE (10.1 — see `docs/phases/PHASE-10.1-README.md`; 10.2 — see `docs/phases/PHASE-10.2-README.md`; 10.3 — see `docs/phases/PHASE-10.3-README.md`; exit-criteria live-deployment check still open, see 10.3's Known Issues)
+
+> **Revision 45:** stays ✅. The live-deployment exit-criteria check moves to **Phase 34**.
 
 > **Historical debt / added after audit (11 September 2026)** — decided during a chat discussion, not found by an automated audit, but recorded under the same rule: it did not exist when Phases 3–9 were planned, so it is appended here rather than inserted earlier.
 
@@ -996,6 +1206,8 @@ Privacy policy (what the inquiry collects, why, retention, rights, processors) �
 
 ## Phase 12 — Data Model & Migrations  ✅ COMPLETE (12.1 schema + 12.2 import script/data population/selector switch — see `docs/phases/PHASE-12.1-README.md`, `docs/phases/PHASE-12.2-README.md`)
 
+> **Revision 45:** stays ✅. Now on Neon (§ 23.2); a production build prerendered 97 pages from the Neon Data API, which also settles this phase's "verify static generation on a real build" note at build level (the live deploy is O-1).
+
 **Goal:** the typed content model becomes the database, without changing page components.
 
 - ADR for bilingual storage (per-locale columns vs `*_translations` tables) before the first migration — ✅ done, `docs/adr/ADR-001-bilingual-storage.md` (decided `jsonb` localized-value columns)
@@ -1031,6 +1243,9 @@ Core entities and key fields:
 `*` = translatable field.
 
 ## Phase 13 — Admin Authentication & Authorization  ✅ COMPLETE (code — see `docs/phases/PHASE-13-README.md`)
+
+> **Revision 45:** stays ✅. Since 16 October 2026 admin sign-in is Neon Auth (Managed Better Auth) plus the app's own TOTP (§ 23.2); the owner's admin account is **O-2**.
+
 - Supabase Auth for admin only; MFA required for the owner role
 - roles: `owner`, `editor` (content only, no leads) — permissions checked server-side on every action
 - protected `/[locale]/admin` routes and server actions; no reliance on hidden routes
@@ -1039,6 +1254,9 @@ Core entities and key fields:
 **Shipped 16 September 2026:** `lib/supabase/server-auth.ts` (new cookie-bound Supabase client, `@supabase/ssr`, `anon` key — distinct from the existing service-role `lib/supabase/server.ts`) powers every `auth.*`/`auth.mfa.*` call. `proxy.ts` refreshes the session cookie and redirects unauthenticated visitors away from `/admin/*` (except `/admin/login`) — the cheap, session-only half of the guard. `lib/admin/auth.ts#getAdminSession()` is the authoritative check (real `admin_users` role + Authenticator Assurance Level, React `cache()`-deduped per request), called independently by every protected page and every admin Server Action in `app/actions/admin-auth.ts` (sign-in, MFA challenge, TOTP enroll/verify/unenroll, sign-out), each of which writes an `audit_log` row (`lib/admin/audit.ts`) and returns deliberately generic error codes so a failed attempt can't enumerate admin emails. MFA is enforced for `owner` only, routing an unconfirmed-this-session factor to `/admin/mfa-challenge` and a never-enrolled owner to `/admin/security`. New chrome-free pages under `app/[locale]/admin/` (`(public)`: login, MFA challenge; `(protected)`: dashboard, security), `noindex`, `/admin` disallowed in `app/robots.ts`. New `Admin` i18n namespace, 365/365 key parity. No new migration — Phase 12's `db/migrations/0008_admin_and_audit.sql` already shipped `admin_users`/`audit_log`. `tsc --noEmit` clean; `next build` compiles every route with zero errors (page-data collection fails only at the pre-existing, Phase-12, Supabase-network-dependent `/[locale]/services/[slug]` — unrelated to this phase, already-disclosed sandbox limitation). **Not verifiable in a code sandbox:** there is no admin account yet — by design, no sign-up flow exists — so real sign-in, real TOTP enrollment against a live authenticator app, and real session-refresh-past-expiry all need the owner to run `docs/runbooks/admin-onboarding.md` against the live Supabase project first.
 
 ## Phase 14 — Lead Pipeline  ✅ COMPLETE (code — see `docs/phases/PHASE-14-README.md`)
+
+> **Revision 45:** stays ✅. Extended by **27.5** (purchase and demo requests carrying the product and the chosen way to get it).
+
 ```text
 NEW → REVIEWED → QUALIFIED → CONTACTED → DISCOVERY → PROPOSAL → WON | LOST → ARCHIVED
 ```
@@ -1050,6 +1268,9 @@ NEW → REVIEWED → QUALIFIED → CONTACTED → DISCOVERY → PROPOSAL → WON 
 **Shipped 16 September 2026:** `db/migrations/0010_lead_pipeline.sql` closes `inquiries.stage` and `inquiry_events.type` to their real, closed vocabularies and adds `enforce_inquiry_stage_transition()`, a `BEFORE UPDATE OF stage` trigger that is the real "transitions enforced in the database" — rejects any move outside the diagram's forward edges, `lost` from any pre-`proposal` stage, and `won`/`lost` → `archived`; live-verified on the Supabase project (a valid `new → reviewed` update succeeded, an invalid `reviewed → won` update was rejected by the trigger, both inside one rolled-back transaction). A new `tags text[]` column (GIN-indexed) is the one field this phase's list didn't already have — `priority`/`follow_up_at` shipped in Phase 12.1's own migration, "notes" are `inquiry_events.note` (already there since § 9.2). `lib/admin/pipeline.ts` (queries, batched per-page SLA lookups) and `app/actions/pipeline.ts` (stage/priority/follow-up/tags mutations, note-adding, CSV export) power a new `/admin/leads` list page (filterable by stage/priority/tag/search, paginated, per-row inline stage control and SLA badge) and `/admin/leads/[id]` detail page (full brief, pipeline controls, notes/activity timeline, the fuller SLA indicator). Per § 13's own role split ("editor: content only, no leads"), the whole area is gated by a new `lib/admin/auth.ts#canAccessLeads()` — editors never see the nav link and are redirected if they hit the URL directly. The SLA indicator deliberately does not invent a numeric hour threshold the owner never set (`site_settings.response_commitment` is prose, not a number) — it operationalizes only the "same day" clause, against the site's configured timezone, documented as a known limitation rather than silently narrowed; "time to first reply" is approximated as time to the first non-`created` `inquiry_events` row, the closest honest proxy available before Phase 19/20 ship real outbound reply tracking. CSV export includes only real `inquiries` columns, respects the admin's active filters, and is generated server-side (owner-authorized) then downloaded client-side as a `Blob`. 88 new `Admin` i18n keys in both locales, 461/461 parity. Mid-session, fast-forward-merged the owner's own fix for a real Phase-13 production build failure (`components/home/featured-work.tsx`/`services.tsx` calling client-only `useLocale`/`useTranslations` from an async Server Component — see that commit) before finishing verification; checked this phase's own new files for the same mistake and found none. `tsc --noEmit`: 0 errors. `next build`: Turbopack compiles every route including both new leads pages with zero errors; page-data collection then fails at the same pre-existing, already-disclosed `/[locale]/services/[slug]` gap (no sandbox network route to Supabase) — both leads pages are fully dynamic/session-gated, not statically generated, so this doesn't touch them. See `docs/phases/PHASE-14-README.md`.
 
 ## Phase 15 — CMS & Media  ✅ COMPLETE (code) — see `docs/phases/PHASE-15-README.md`
+
+> **Revision 45:** stays ✅. Extended by **Phase 27** (products, sale options, free content blocks, colours and covers); its open debt "the public nav/settings still read static files" is **27.6**.
+
 - editors: projects + case-study sections, services, packages, add-ons, FAQs, engagement models, articles, settings/availability, navigation
 - draft → preview → publish → unpublish; per-locale completeness indicator; publishing a locale requires its required fields
 - media uploads: type/size validation server-side, safe names, storage policy, required alt text, focal-point cropping for responsive crops
@@ -1082,6 +1303,9 @@ Admin: `/admin/content/recommendations` (editor-accessible, per § 13 — conten
 **Deliberately not built, disclosed rather than silently incomplete:** no automated e-mail when a link is generated or a change is requested — Phase 19 (Notifications & Outbox) is the provider abstraction this would properly send through, and building a one-off e-mail path here would mean throwing it away once Phase 19 exists; the owner copies the link from the admin panel and shares it directly today. `kind` (`'recommendation'` vs `'testimonial'`) is never a stored column — always derived from whether a project/service is linked, so it can't drift out of sync with the fields that carry the real signal. `tsc --noEmit`: 0 errors. `next build`: Turbopack compiles successfully; page-data collection fails at the same pre-existing, already-disclosed Phase-12 Supabase-network gap every prior phase's build has shown (this run at `/[locale]/services/[slug]`), unrelated to this work. i18n parity: 782/782 (95 new keys — 8 `Recommendations`, 30 `RecommendPage`, 57 `Admin`, both locales). `node scripts/check-content-placeholders.mjs`: passes unchanged (no new static content file — every row here is Supabase-only). Grepped every changed file for physical CSS properties (RTL correctness): none found. `next/font/google` stub applied and reverted per the established pattern, confirmed byte-identical via `diff`; `tsconfig.tsbuildinfo` reverted with `git checkout --`. Not verifiable from this sandbox: the actual rendered request-link page and moderation queue in a browser, in both locales, and a real end-to-end submission against the live Supabase project — the same page-data-collection gap above means `next dev`/build can't reach Supabase from here either. Full detail: `docs/phases/PHASE-16-README.md`.
 
 ## Phase 17 — Insights / Engineering Journal  ✅ COMPLETE (code) — migrations `0016`/`0016b` applied live — see `docs/phases/PHASE-17-README.md`
+
+> **Revision 45:** stays ✅. Succeeded by **Phase 33 (Articles)**; the published engineering article is unpublished in **26.5**.
+
 - article model with statuses `Draft · Review · Scheduled · Published · Archived`
 - table of contents, LTR-locked code blocks with copy button, images, related projects/services/articles, RSS per locale, reading time per locale
 - seed topics from real work (e.g. server-side seat holding, RLS + server authorization, offline-first caching per data type, running bilingual RTL products)
@@ -1089,6 +1313,9 @@ Admin: `/admin/content/recommendations` (editor-accessible, per § 13 — conten
 **Shipped 18 September 2026:** see revision 36 above and `docs/phases/PHASE-17-README.md` for the full account. In short: the article model and admin CRUD already existed (0005, Phase 15); this phase adds the public journal (`/insights`, `/insights/[slug]`, per-locale RSS, sitemap, JSON-LD), the ToC and LTR copyable code blocks, media-library images, related projects/services/articles (`0016`), per-locale reading time computed at read time, real scheduled publishing (daily cron, atomic sweep), an admin preview, and the nav/home visibility rules driven by real content. **"Seed topics from real work":** the first topic (`concurrent-seat-booking`, from the Transportation System) is written as an unpublished draft, sourced only from that repository's code, schema and phase write-ups; the remaining topics are a backlog with evidence pointers — `docs/content/insights-topics.md`. Not built, disclosed: tables/nested lists in bodies, full-text RSS, cover image, redirects on slug change.
 
 ## Phase 18 — Search & Command Palette  ✅ COMPLETE (code) — see `docs/phases/PHASE-18-README.md`
+
+> **Revision 45:** stays ✅. The header search becomes an icon without the "⌘K" hint in **Phase 29**.
+
 - index built from published content per locale (pages, projects, services, articles, technologies)
 - recent searches, suggestions, keyboard navigation, highlighted matches, loading and no-result states
 - interface ready for a server-side search provider later
@@ -1145,6 +1372,9 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 **Shipped 21 September 2026:** as specified — see revision 43 above and `docs/phases/PHASE-24-README.md`. In short: a UUID per request in `x-request-id` carried into logs, the lead, its timeline, the e-mails it queued and the audit row; one logger (no `console` in server code); error tracking and business events in the database (`error_groups`, `ops_events`, 90 days) because the hosting log lasts about an hour; eleven stateless alert rules, error-level ones e-mailed once a day per problem; `.github/workflows/uptime.yml` and `/api/health/inquiry` for "a brief would be saved" (no synthetic submission); the CSP report endpoint deferred from Phase 23; `/admin/observability` with a reference lookup. **Not built, disclosed:** a synthetic end-to-end submission (would create fake leads), a second alert channel independent of the outbox, request-id binding in admin content actions, a log drain. **Open, owner-only:** the GitHub secret and variable that switch the external check on; the privacy paragraph and thresholds to confirm.
 
 ## Phase 25 — Backup & Recovery  ✅ COMPLETE (code) — no migration — see `docs/phases/PHASE-25-README.md` and `docs/runbooks/backup-restore.md`
+
+> **Revision 45:** stays ✅ (numbering rule). The daily workflow `.github/workflows/backup.yml` described here was never committed (`docs/runbooks/backup-restore.md` § 1); committing and proving it is **Phase 26.8**, its first real run is owner action **O-4**.
+
 - decision per D-10; if the database plan has no platform backups, a scheduled external `pg_dump` to separate storage is the minimum (lesson carried over from the Transportation System project, where the free plan had no restorable backups)
 - media metadata and storage objects included; content export
 - RPO/RTO written down; **a restore test is performed** — a backup never restored is not verified
@@ -1152,48 +1382,181 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 
 **Shipped 22 September 2026:** as specified — see revision 44 above and `docs/phases/PHASE-25-README.md`. In short: a daily `pg_dump` + Storage export + restore manifest, `age`-encrypted before it ever leaves the runner; a real restore test (against a throw-away local PostgreSQL, before encryption) every Sunday and on manual runs; four new stateless alerts and two new `/admin/observability` health rows; RPO 24 hours, RTO under an hour into the same project or several hours for disaster recovery into a new one (`docs/runbooks/backup-restore.md`, which also writes down the deployment/migration rollback procedure for the first time). **Deliberately not dumped:** Supabase's own `auth.*` schema (the admin-e-mail manifest handles the one place it matters) and a bulk Storage-restore tool (manual steps, disclosed). **Not verified:** the GitHub Actions workflow's own real execution, and a live rehearsal of disaster recovery into a genuinely new Supabase project. **Owner-only:** generate the `age` key pair (private key kept offline), add the `SUPABASE_DB_URL` / `SUPABASE_SERVICE_ROLE_KEY` secrets and `BACKUP_AGE_PUBLIC_KEY` variable in GitHub, and run the workflow once by hand.
 
-## Phase 26 — Performance & Accessibility Certification
-- field data review, Lighthouse CI budgets per route, image and font audit
+> **Revision 45:** M3's last phase, *Performance & Accessibility Certification*, is not done here any more. Certifying a design that is about to be replaced would be wasted work, so it moved after Milestone R as **Phase 34** (§ 11B). M3 closes with Phase 25.
+
+---
+
+# 11A. Milestone R — Repositioning & Redesign (added in revision 45)
+
+**Why this milestone exists:** § 1 changed what Artaveo is (a studio that sells its own products, shows its work and takes client projects), and § 6.7 lists what the live site does wrong today. These eight phases change the content model, the design and the words **on top of the M2/M3 operating layer**, which is kept. Do them in order (§ 8.2). Each phase still closes on § 17's Definition of Done.
+
+**Common rules for every phase in R:** customer copy follows § 16 (any text that explains how a system works inside does not ship); every public section is data the owner manages in the admin (§ 2.22); each project and product stands in its own block (§ 2.24); Dari is first-class (§ 16.3); the approved design sample and § 14.1 are the visual reference.
+
+## Phase 26 — Live-site corrections  ⬜ NEXT
+
+**Goal:** stop the live site from hurting sales while the redesign is built. Small, low-risk fixes on the current design — nothing here is redesign work.
+
+- **26.1 Persian font.** Make Vazirmatn apply on `fa`: the body's `font-sans` utility (`app/[locale]/layout.tsx:179`) overrides `:where([dir='rtl']) body` (`app/globals.css:270`). Verify with the computed `font-family` and that the Vazirmatn files actually download on `/fa` (today they do not).
+- **26.2 Dari formatting.** `lib/format.ts` maps `fa` → `fa-u-ca-gregory` (Iranian month names, «سپتامبر»). Change to `fa-AF` with the Solar Hijri calendar (verified output «۲۵ میزان ۱۴۰۵»; Afghan months حمل، ثور، جوزا، سرطان، اسد، سنبله، میزان، عقرب، قوس، جدی، دلو، حوت — strip the «سنبلهٔ» month-only form if it appears). Amounts in Afghani render as «… افغانی». `en` stays Gregorian.
+- **26.3 Mobile overflow.** Add `min-width: 0` to the case-study grid items (`components/work/case-study.tsx:207` and the media groups in `components/work/case-study-media.tsx`); then check every public route at 360, 375 and 414 px for horizontal overflow.
+- **26.4 No internal references in public copy.** Remove «(طبق § ۱۷ معیار تکمیل کار)», «(§ روند کار — تعریف)», «(فاز ۹)» and any other "§", phase number or roadmap term from public strings and database rows (source: `lib/about-content.ts`).
+- **26.5 Hide what hurts now (data and flags, no redesign):** unpublish the article `concurrent-seat-booking`; stop rendering the case-study sections *constraints, key decisions, engineering highlight, data integrity & security, quality, lessons learned, current status* and the *role* field; remove the public repository ("مخزن کد" / GitHub) links from projects; hide project status badges; hide the Insights nav item and Home preview.
+- **26.6 Work grid.** Two columns for up to four projects; no filters until there are six or more.
+- **26.7 Phase 3.5 leftovers.** Delete unused `public/images/work-*.png` and v0 placeholder assets; confirm the rest of 3.5 is done, and say so in the phase document.
+- **26.8 Backups for real.** Commit `.github/workflows/backup.yml` for Neon (the Phase 25 design: `pg_dump` + `scripts/backup/collect.mjs` + manifest, `age`-encrypted, restore test into a throw-away PostgreSQL, report to `/api/ops/backup-report`), name its secrets in `docs/runbooks/backup-restore.md`; the first real run is owner action O-4.
+
+**Exit criteria:** no horizontal overflow at 360 px on any public route; Vazirmatn loaded and computed on `/fa`; `/fa` dates in Solar Hijri with Afghan months; no "§" or phase number in any public HTML; the engineering article unpublished; the hidden sections and links absent in both locales; backup workflow present and green in a dry run; CI green.
+
+## Phase 27 — Products, sale options & flexible content (data model + admin)  ⬜
+
+**Goal:** everything the new site shows is data the owner manages without code (D-16, § 2.22). New Neon migrations with rollback notes; RLS and authorization tests extended; selectors and types updated; i18n parity kept.
+
+- **27.1 Projects.** Add `show_in_portfolio` and `is_product` (independent switches), `brand_color` (+ optional accent), `cover` (device mock-up image from the media library), `industry`, `platforms` (web, Android, iOS, Windows, Mac, offline), `outcome_line` (bilingual one line) and a customer-facing `features` list. Remove `role` and the public `status` from public types (keep only draft/published).
+- **27.2 Free content blocks** replace the closed `project_sections` vocabulary (`db/migrations/0003_projects_and_technologies.sql:101`): block types *intro, challenge, what-we-built (features), gallery, features-by-role, who-it's-for, result, FAQ, video*; bilingual, orderable, publishable one by one. Existing engineering rows are archived (kept in the database, never rendered). Admin: add, edit, reorder, hide blocks.
+- **27.3 Products and their ways to get them.** `product_sale_options` per product, ordered: kind (*licence monthly · licence yearly · licence lifetime · source code · custom edition · other*), title, price (amount + currency, or "after a short conversation"), billing period, maintenance (*included · optional with price and period · not offered*), included-items list, highlighted flag, call to action (*purchase request · demo request · contact*), published. `product_services` (after-sales: training, data transfer, hosting, yearly support…) with price and period. Currencies per D-21. Admin: a Product tab in the project editor; a project becomes a product with one switch.
+- **27.4 Services by kind of software.** Service kind, one-line promise, optional "from" price, related projects; packages become optional per service; engagement models and the Discovery Sprint leave the public model (tables kept, unused).
+- **27.5 Inquiries.** New types: *product purchase request* (product + chosen sale option + after-sales services) and *demo request*. Brief Builder project types: website · web system / admin panel · mobile app · desktop software · offline system · support of existing software · buy one of our products · something else. The lead pipeline (Phase 14) shows product and option; notifications (Phase 19) cover the new types.
+- **27.6 Shell settings from the database** (Phase 15's open debt): navigation, WhatsApp number, phone, e-mail and other contact channels read from `site_settings` / `navigation_items`, not `lib/site.ts`.
+
+**Exit criteria:** without code the owner can turn a project into a product, add/edit/remove/reorder sale options and prices, add after-sales services, build a project page from blocks, set colour and cover, and add a new project; migrations applied on Neon with rollback notes; integration tests for the new tables' RLS and server actions pass.
+
+## Phase 28 — Design System 2.0  ⬜
+
+**Goal:** the approved visual direction (D-17) as tokens and components, documented on `/design-system`. Specification: § 14.1.
+
+- **28.1 Tokens.** Ink ground family (≈ `#0A0C11`, `#11141B`, `#16181D`), brand gold from the logo and one cool accent (blue), warm light surface for content panels (≈ `#F4F2ED`), per-project colour tokens fed from data, radii (pill buttons and chips, 16–24 px small cards, 28–40 px large panels), layered soft shadows, hairline borders (white at low opacity on dark).
+- **28.2 Typography.** Vazirmatn for `fa` (fixed in 26.1) with a scale that is **not oversized** (owner feedback): h1 32–50 px, h2 24–34 px, h3 20–25 px, card titles 16–18 px, body 15–16 px, Persian line-height 1.8–2.0; English keeps Geist on the same scale.
+- **28.3 Glass**, only for: the header, mega menus, the mobile menu, floating chips over mock-ups, cards on dark bands. Text contrast ≥ 4.5:1 measured on the worst background behind the glass; `prefers-reduced-transparency` falls back to solid; at most three glass layers in a viewport.
+- **28.4 Motion.** Remove the whole-page fade (`components/site/page-transition.tsx`); per-element reveal ≤ 300 ms, hover lift on cards, slow image zoom, menu fade; everything off under `prefers-reduced-motion`.
+- **28.5 Components:** glass header with Products and Services mega menus, mobile menu, product block, portfolio row, laptop and phone mock-up frames (no fake status bars, no address bars), service card, sale-option card, after-sales chips, feature grid, process steps, CTA band, footer, floating WhatsApp button, article card.
+- **28.6** Phase 4.1's placeholder-mark swap-back debt.
+
+**Exit criteria:** every component on `/design-system` in both themes, both directions and three sizes; glass contrast and reduced-transparency/motion fallbacks verified; matches the design sample and § 14.1.
+
+## Phase 29 — Shell & Home rebuild  ⬜
+
+- **29.1 Header and navigation:** Products · Services · Work · About + *Start a Project*; Products and Services as mega menus; search as an icon (no "⌘K" text); language switch; mobile menu; floating WhatsApp button; footer per § 14.1.
+- **29.2 Home** (≈ 7 sections, each hidden when empty): hero with real product mock-ups and two actions (*Start a Project*, *See products*); platforms strip; products — **one separate block per product**; work — one row per project; services; process in four steps; CTA band. Removed: Capability Strip, Tech Stack, "one developer" Why section, About preview's technical focus, Insights preview (returns with Phase 33 if wanted).
+- **29.3 Themes:** dark bands (hero, products, CTA, footer) stay ink in both themes; content panels warm light.
+
+**Exit criteria:** Home matches the sample and § 14.1; no product/project block mixed with unrelated tiles; no overflow; en/fa, light/dark, mobile/tablet/desktop.
+
+## Phase 30 — Products & Work pages  ⬜
+
+- **30.1** `/products` (hidden from the nav until one product is published) and `/products/[slug]`: hero with mock-ups, features by role, screens with one-line captions, who it is for, **ways to get it** (the published sale options from 27.3, as cards; the highlighted one marked), after-sales services, FAQ, demo and purchase requests.
+- **30.2** `/work` (large two-column cards or rows; filters only from six projects) and `/work/[slug]` built from 27.2's blocks, visuals first; link to the product page when `is_product`.
+- **30.3** Purchase and demo requests → 27.5's inquiry types → pipeline + notifications; success only after persistence.
+- **30.4** Sitemap, metadata, structured data (`Product` / `Offer` for priced options), redirects for any changed URL.
+
+**Exit criteria:** the owner switches a project to product in the admin and its page appears with exactly the options turned on; a purchase request with a chosen option reaches the pipeline; D-19 and D-20 respected.
+
+## Phase 31 — Services, About, Contact & Start  ⬜
+
+- **31.1** `/services` by kind of software (websites, web systems & admin panels, mobile apps, desktop software, support & extension); each service page: what you get, related work, process in four steps, "from" price if set, FAQ, CTA.
+- **31.2** `/process` retired → redirect to the process part of `/services`; the Working Agreement becomes a short "how working together goes" FAQ (payment, ownership, handover, support) — details live in each contract.
+- **31.3** `/about`: the studio and its founder (name and photo allowed), no "one person" framing, no technical focus list, no languages/UTC widget.
+- **31.4** `/contact`: direct channels only (D-05); `/start`: the Brief Builder with 27.5's project types; `/consultation`: copy «گرفتن وقت مشوره».
+
+**Exit criteria:** no engagement-model, Discovery Sprint, Care Plan or hire-channel language anywhere public; every CTA leads to a working, persisted request.
+
+## Phase 32 — Content rewrite — Dari & English  ⬜
+
+- **32.1** Inventory every public string (`messages/*.json`, database content, the `lib/*-content.ts` seeds) against § 16.1's checklist.
+- **32.2** Rewrite Dari word by word with § 16.3 (research unclear words in Afghan sources — do not ask the owner); write English separately to native quality (D-15).
+- **32.3** Extend `npm run check:content` to fail on banned patterns in public copy: "§", roadmap phase numbers, the § 16.3 "avoid" list, backend vocabulary from § 16.1.
+- **32.4** The owner reads `/fa` end to end as a native reader; corrections applied.
+
+**Exit criteria:** zero § 16.1 violations; the glossary enforced by the content check; owner's read-through done.
+
+## Phase 33 — Articles revamp  ⬜
+
+- **33.1** Insights → Articles («مقاله‌ها»), `/insights` redirects to `/articles`; customer-facing topics (what online ticket sales change for a transport company, what a website costs, product updates); cover image required; tags.
+- **33.2** Footer link only until at least four customer-facing articles are published; then the nav item.
+- **33.3** Engineering articles stay unpublished.
+
+**Exit criteria:** article cards per B-37; RSS kept; no engineering-diary content public.
+
+---
+
+# 11B. Milestone M3b — Certification
+
+## Phase 34 — Performance & Accessibility Certification  ⬜ (was Phase 26 before revision 45)
+- field data review, Lighthouse CI budgets per route **on the redesigned site**, image and font audit (Vazirmatn subset and loading, mock-up image weights)
+- glass contrast audit (worst background behind every glass surface) and reduced-transparency/motion checks
 - manual assistive-technology pass on the finished product in both locales
+- Phase 10's open live-deployment exit-criteria check (install, offline, update) on production
 
 ---
 
 # 12. Milestone M4 — Growth & Business Tools
 
-Prepared for, not built early. Each phase starts only when the owner confirms the need.
+Prepared for, not built early. Each phase starts only when the owner confirms the need. *(Revision 45: renumbered from 27–31 and adapted to products and licences.)*
 
-## Phase 27 — Proposal & Estimate Builder
-Qualified inquiry → proposal (scope, milestones, price, validity, terms) → shareable link → accept → PDF; linked to the lead pipeline.
+## Phase 35 — Proposal & Estimate Builder  (was 27)
+Qualified inquiry → proposal (scope, milestones, price, validity, terms) → shareable link → accept → PDF; linked to the lead pipeline. Covers custom projects **and** custom editions of a product; a product purchase request can be answered with a quote for the chosen sale option and after-sales services.
 
-## Phase 28 — Client Portal (minimal)
-Project timeline, milestones, files, decisions log, invoices list; magic-link access; no chat product.
+## Phase 36 — Client Portal — projects & licences  (was 28)
+Magic-link access; for projects: timeline, milestones, files, decisions log, invoices; for purchased products: licence type, start and renewal dates, maintenance status, downloads (e.g. source-code delivery), support requests. No chat product.
 
-## Phase 29 — Invoicing & Payments
-Provider abstraction; payment rails chosen per D-07; platform channel remains an alternative.
+## Phase 37 — Invoicing, Payments & Licence Billing  (was 29)
+Provider abstraction; one-time payments and monthly/yearly licence renewals with reminders before renewal; Afghani and USD (D-21); manual confirmation first, an online gateway when one is available for Afghanistan (D-07); invoices linked to the pipeline and the client portal.
 
-## Phase 30 — Content Growth
-Newsletter, resources, `/now`, `/uses`, public changelog, downloadable résumé.
+## Phase 38 — Content Growth  (was 30)
+Newsletter, per-product updates and public changelog, resources. (`/now`, `/uses` and the downloadable résumé from the old plan are dropped — they belonged to the one-developer profile.)
 
-## Phase 31 — Conversion Analytics
-Funnels from landing to brief submit, drop-off per Brief Builder step, channel attribution; experiments only when traffic makes them meaningful.
+## Phase 39 — Conversion Analytics  (was 31)
+Funnels from landing → product page → demo or purchase request, and → Start-a-Project submit; drop-off per Brief Builder step; channel attribution (WhatsApp, search, social); experiments only when traffic makes them meaningful.
 
 ---
 
 # 13. Milestone M5 — Final Audit
 
-## Phase 32 — International-Grade Product Audit
-- **31.1 UX & design:** hierarchy, typography, spacing, consistency, CTA clarity, motion, empty/error/loading states, 404, dark/light, mobile, RTL
-- **31.2 Business conversion:** every question in section 21.2 answered "yes"
-- **31.3 Content truth:** every public claim traced to the claims ledger; no placeholder; no stale availability
-- **31.4 Security & production:** auth boundaries, public mutations, uploads, secrets, headers, abuse controls, dependencies
-- **31.5 Architecture:** component/domain/service boundaries, types, validation, error handling, provider abstractions, CMS extensibility, localization architecture
-- **31.6 Localization:** full `fa` walkthrough by a native reader
+## Phase 40 — International-Grade Product Audit  (was 32)
+- **40.1 UX & design:** hierarchy, typography, spacing, consistency, CTA clarity, motion, empty/error/loading states, 404, dark/light, mobile, RTL — against § 14.1
+- **40.2 Business conversion:** every question in section 21.2 answered "yes"
+- **40.3 Content truth & customer rule:** every factual claim traced to the claims ledger; § 16.1 checklist clean; no placeholder; no stale availability
+- **40.4 Security & production:** auth boundaries, public mutations, uploads, secrets, headers, abuse controls, dependencies
+- **40.5 Architecture:** component/domain/service boundaries, types, validation, error handling, provider abstractions, CMS extensibility, localization architecture
+- **40.6 Localization:** full Dari walkthrough by a native reader; English walkthrough by a fluent reader
 
 **Final release decision: MANUAL APPROVAL REQUIRED.**
 
 ---
 
 # 14. Artaveo component inventory
+
+## 14.0 Components from revision 45 (current)
+
+Built in Phase 28, used in Phases 29–33. Each supports Light/Dark, LTR/RTL, keyboard use, three sizes, and hides itself when its data is empty.
+
+| Component | Purpose | Data | Rule |
+|---|---|---|---|
+| **Glass Header + Mega Menus** | Logo; Products and Services menus (icon + one line per entry, a "Start a Project" card); Work; About; search icon; language; Start a Project | `navigation_items`, products, `services` | Glass rules § 14.1; no "⌘K" text |
+| **Mobile Menu** | Stacked links in a glass sheet | same | 44 px targets |
+| **Floating WhatsApp Button** | Main contact channel in Afghanistan | `site_settings` | Number from the admin |
+| **Hero** | Value line, two actions, laptop + phone mock-ups of real screens, two glass chips | `site_settings`, media | Real screens only; no code snippets |
+| **Platforms Strip** | Kinds of software Artaveo builds | content | No technology names |
+| **Product Block** | One product: its colour, mock-up, short line, 4 features, *Request a Demo* / *See the product* | projects (`is_product`), blocks | Stands alone (§ 2.24); hidden when no product is published |
+| **Product Page Sections** | Features by role, screens with captions, who it is for, FAQ | blocks (27.2) | Customer rule § 16.1 |
+| **Sale Option Card** | One way to get a product: kind, price, what is included, maintenance, CTA; one may be highlighted | `product_sale_options` | Only published options; never an invented price |
+| **After-sales Chips** | Training, data transfer, hosting, support — with prices | `product_services` | — |
+| **Portfolio Row** | One project: colour panel with laptop + phone mock-up; industry and platforms; title; outcome line; tags; platform icons; link (to the product page when it is a product) | projects (`show_in_portfolio`) | Stands alone; image side alternates |
+| **Device Mock-ups** | Laptop and phone frames for real screenshots | media | No fake address bars or status bars |
+| **Service Card** | Kind of software, one-line promise, "from" price | `services` | Price only when the owner set one |
+| **Process Steps** | Four steps with one line each | content | — |
+| **CTA Band** | Full-width colour band, two actions | `site_settings` | — |
+| **Feature Grid** | Product features as tiles | blocks | Features only — no unrelated tiles |
+| **FAQ Accordion** | kept | `faqs` | — |
+| **Brief Builder** | kept, project types from 27.5 | `inquiries` | Success only after persistence |
+| **Consultation Request** | kept, copy «گرفتن وقت مشوره» | `consultations` | — |
+| **Recommendation Card** | kept, hidden until real | `recommendations` | No ratings |
+| **Article Card** | Cover image, tag, title | `articles` | Cover required |
+| **Footer** | Products · Services · Artaveo · contact; legal | navigation | — |
+| **Locale Switch**, **Admin Empty State** | kept | — | — |
+
+**Retired from public pages in revision 45:** Identity Header (→ brand header), Availability Card (→ one "reply the same day" line), Proof Strip, project Status Badge, Case Study Snapshot (role, stack), Decision Record Card, public Architecture Diagram, Engineering Highlight, Proof-Linked Expertise Matrix, Tech Stack, Capability Strip, Engagement Model Selector, Discovery Sprint Offer, Hire Channel Selector, Working Agreement Block (→ FAQ), Browser Frame with an address bar.
+
+## 14.0b Components of revisions 1–44 (history — reused only where § 14.0 says "kept")
 
 Components specific to this product. The generic primitives and patterns they are built from are listed in Phase 4.3–4.4; the identity components are built in Phase 4.5. Each must support Light/Dark, LTR/RTL, keyboard use, and — where data-driven — hide itself when its data is empty.
 
@@ -1228,61 +1591,135 @@ Components specific to this product. The generic primitives and patterns they ar
 | **Locale Switch** | Equivalent-route language switch | — | routing | — |
 | **Admin Empty State** | Explains what is missing (admin/preview only) | — | — | Never rendered publicly |
 
-## 14.1 Visual direction
+## 14.1 Visual direction — Design System 2.0 (revision 45, D-17)
 
-Premium · minimal · editorial · technical · confident · human.
+This replaces the revision 1–44 direction, which banned gradients and glass and produced a flat white-on-white site. It is the written specification of the owner-approved design sample (§ 0.1), including the owner's three corrections.
 
-The concrete identity — approved logo, derived tokens and variants — is finalized in Phase 4.1 (D-12); this section sets the boundaries the derivation must respect.
+**Character:** premium · modern · clean · confident · alive with colour — dark bands for impact, warm light panels for reading.
 
-Quality comes from typography, spacing, composition, hierarchy, content clarity, image quality, interaction quality and consistent tokens — **not** from gradients, glassmorphism, endless rounded cards, 3D, random floating shapes, infinite marquees, heavy parallax or neon. Motion is restrained, respects `prefers-reduced-motion`, and the design must remain premium with motion disabled.
+**Ground and colour**
+- Dark bands (header, hero, products, CTA, footer): ink ≈ `#0A0C11`, raised surfaces ≈ `#11141B` / `#16181D`, text ≈ `#F3F1EC`, secondary text ≈ `#A9AEB8` (≥ 4.5:1 on ink).
+- Content panels (work, services, process): warm light ≈ `#F4F2ED` with white cards and stronger shadows — never a white page with white cards and faint borders.
+- Brand gold (from the logo, ≈ `#E2B65C`) for the primary action and highlights; one cool accent (blue) for secondary highlights and glows.
+- **Each project/product has its own colour** (admin data): its block or row background, its chip and its links. Example from the sample: transport = navy with amber, education = deep green with mint.
+- Glows: soft radial light behind the hero mock-ups and inside coloured panels only — no gradient washes across whole pages, no neon.
+
+**Typography** (owner: "no reason for it to be that big")
+- Vazirmatn for `fa`; Geist for `en`; one scale for both: h1 32–50 px, h2 24–34 px, h3 20–25 px, card titles 16–18 px, body 15–16 px, small 12–13 px. Persian line-height 1.8–2.0. Weight 800–900 only for h1/h2.
+
+**Layout**
+- Content width ≈ 1240 px; section padding ≈ 96 px desktop / 56 px mobile; large rounded panels (28–40 px radius) inset 12 px from the screen edge.
+- **Every project and every product is its own block, with a clear boundary and ≥ 28 px between blocks. Never put product blocks in a grid together with unrelated tiles** (the sample's first version did — a "licence" tile beside the products — and the owner rejected it).
+- Portfolio rows alternate the image side. Hero is two columns (text, mock-ups), stacked on phones.
+- Ways to get a product (licences, source code, custom edition, maintenance, after-sales) appear **on the product page only**, not on Home.
+
+**Glass** — only for the header (always), mega menus, the mobile menu, floating chips over mock-ups and cards on dark bands. Blur 14–26 px with a translucent ink fill and a 1 px white-at-10–16 % border. Never behind long text. Text on glass ≥ 4.5:1 against the worst background behind it; `prefers-reduced-transparency` → solid surface; at most three glass layers in a viewport.
+
+**Imagery** — real screens in laptop and phone mock-ups; one cover per project; captions one line; no code screenshots as decoration; no address bars showing the portfolio's own URL.
+
+**Shape and depth** — pill buttons and chips; 16–24 px radius on small cards; layered soft shadows; hairline borders.
+
+**Motion** — no whole-page fade on navigation; per-element reveal ≤ 300 ms; hover lift on cards (≈ 4 px); slow image zoom inside mock-ups; menus fade in ≈ 150 ms; all off under `prefers-reduced-motion`. The design must stay premium with motion off.
+
+**Never:** 3D hero scenes, infinite marquees, heavy parallax, random floating shapes, neon, text over busy imagery, logo walls, white-on-white.
 
 ---
 
 # 15. Page map
 
+*(Revised in revision 45. Built in Phases 29–33.)*
+
 ```text
 /[locale]                         Home
-/[locale]/work                    Work index
-/[locale]/work/[project]          Case study
-/[locale]/services                Services catalogue
-/[locale]/services/[service]      Service detail + packages
-/[locale]/process                 Process + engagement models + working agreement
-/[locale]/about                   About
-/[locale]/insights                Journal index        (hidden from nav until content exists)
-/[locale]/insights/[article]      Article
-/[locale]/start                   Brief Builder        (primary CTA target)
-/[locale]/recommend/[token]       Recommendation request link (private, reached only via an owner-issued link — Phase 16)
-/[locale]/contact                 Direct contact + hire channels
-/[locale]/consultation            Consultation request (Phase 20)
+/[locale]/products                Products                 (hidden from nav until ≥ 1 product is published)
+/[locale]/products/[product]      Product page + ways to get it
+/[locale]/work                    Work
+/[locale]/work/[project]          Project (visual case study)
+/[locale]/services                Services (incl. the four-step process)
+/[locale]/services/[service]      Service detail
+/[locale]/about                   About Artaveo
+/[locale]/articles                Articles                 (renamed from /insights in Phase 33; footer-only until ≥ 4 articles)
+/[locale]/articles/[article]      Article
+/[locale]/start                   Start a Project (Brief Builder)        — primary CTA target
+/[locale]/consultation            Consultation request («گرفتن وقت مشوره»)
+/[locale]/contact                 Contact — direct channels only (D-05)
+/[locale]/recommend/[token]       Recommendation request link (private, owner-issued — Phase 16)
 /[locale]/privacy · /terms        Legal
 /[locale]/admin/…                 Admin (Phase 13+)
 /design-system                    Internal, noindex
-Future: /now · /uses · /resume · /changelog
+
+Redirects: /insights → /articles · /process → /services (process part)
+Retired:   hire-channel selector · engagement-model table · Discovery Sprint offer · /now · /uses · /resume
 ```
 
-Admin sections: Dashboard · Inquiries · Consultations · Projects · Services · Packages · Add-ons · FAQs · Engagement models · Articles · Recommendations · Media · Navigation · Settings (availability, profiles) · Audit log.
+Admin sections: Dashboard · Inquiries (incl. purchase and demo requests) · Consultations · Projects (with **Product** tab: sale options, after-sales services; content blocks; colour and cover) · Services · Packages (optional) · FAQs · Articles · Recommendations · Media · Navigation · Settings (contact channels, WhatsApp, availability line) · Notifications · Observability · Security.
 
 ---
 
 # 16. Content & voice rules
 
-## 16.1 Voice
-- The developer speaks in the first person singular ("I"). "Artaveo" is the brand name, not a "we".
-- Calm, precise, specific. Prefer "I built a server-side seat-hold flow" over "I deliver world-class solutions".
-- Banned without evidence: *world-class, top 1 %, 10x, trusted by, industry-leading, team of experts, years of experience* claims, client logos.
+*(Rewritten in revision 45. The revision 1–44 rules — first-person "I", "prefer 'I built a server-side seat-hold flow'", "the same claims in both languages, translated" — produced the problems in § 6.7 and are withdrawn.)*
 
-## 16.2 Bilingual content
-- Persian copy is written for Persian readers, not translated word-for-word; the same facts, the same claims.
-- Technical terms may stay in Latin script inside `<bdi>`; explain them on first use where helpful.
+## 16.1 The customer rule (a release gate)
 
-## 16.3 Placeholders
-Missing data uses an explicit placeholder in drafts only — `[CLIENT_NAME]`, `[PROJECT_YEAR]`, `[PROJECT_URL]`, `[RECOMMENDATION]` — and the build fails if one appears in published content (3.1).
+Every public sentence must answer one of four customer questions — *What is this? What does it do for me? What does it look like? How do I get it or start?* — or it does not ship.
 
-## 16.4 Claims ledger
-`docs/content/claims-ledger.md` lists every factual public claim with its evidence (file, commit, URL, document) and the date it was checked. A claim without evidence is removed.
+1. **Say what the user can do, never how the system does it.** No backend, database, server, security mechanism, caching, testing, deployment or code.
+2. **Not even dressed as a benefit.** ✗ «هیچ چوکی‌ای دو بار فروخته نمی‌شود» ✓ «مسافر تکتش را آنلاین می‌گیرد و چوکی‌اش را خودش انتخاب می‌کند». ✗ "Row-Level Security with server-side checks" ✓ (say nothing, or) «دسترسی هر بخش جداست».
+3. **No technology names or jargon** in customer copy: React, Next.js, Supabase, Neon, PostgreSQL, CMS, API, MVP, PWA, RTL, SEO terms (sitemap, robots.txt), WCAG, Core Web Vitals, schema, migration, endpoint.
+4. **Capabilities are never inferred from the existing projects** (D-18). Projects are examples, not the limit.
+5. **No number that makes Artaveo look small:** «چندزبانه», not «دوزبانه (دری/انگلیسی)»; «روی موبایل، تبلت و کمپیوتر», not «پنج بازه‌ی واکنش‌گرا».
+6. **Nothing internal:** limitations, bugs, debt, missing tests or CI, team size, "in development", repositories, roadmap sections or phase numbers, claims-ledger language.
+7. **No defensive tone:** no «…، نه …» contrasts, «نه با حدس», «صادقانه», «فقط تعهدهایی که واقعاً می‌توانم».
+8. **Short and benefit-first.** One idea per sentence; headings ≤ 8 words; cards ≤ 2 lines.
+9. **Contract details live in the contract** — deposit splits, warranty windows, change-request rules and phase-by-phase process are discussed in the consultation and written into each agreement, not published as walls of text.
 
-## 16.5 Never invent
-Clients · reviews · ratings · years of experience · awards · team members · partnerships · revenue · performance metrics · customer counts · project outcomes · certifications · availability.
+## 16.2 Voice (D-15)
+- The subject is the brand: «آرتاویو طراحی می‌کند و می‌سازد». Never «من». «ما» only where a sentence reads unnaturally without it. The customer is always «شما».
+- Calm, confident, concrete. Banned without evidence: *world-class, top 1 %, 10x, trusted by, industry-leading, team of experts, years of experience*, client logos.
+- English is written separately for an English reader, to the same quality — not translated sentence by sentence from Dari, and Dari is never translated from English.
+
+## 16.3 Dari (D-03)
+
+**Every word** on the Dari site is the Dari of Afghanistan — vocabulary, spelling and dates — not a few swapped terms. When a choice is unclear, research how Afghan media and businesses write it (e.g. search `8am.media/fa`) **before** writing; do not ask the owner.
+
+| Avoid (Iranian usage) | Use (Dari) | Evidence (17 October 2026) |
+|---|---|---|
+| جلو می‌برد | پیش می‌برد | owner |
+| صندلی | چوکی | owner |
+| اتوبوس | بس (vehicles in general: موتر) | owner; 8am.media: «قیمت تکت موترها»; «اتوبوس» only in foreign news |
+| بلیت | تکت | 8am.media: «تکت» throughout, «بلیت» never |
+| دلار | دالر | 8am.media: «دالر» only |
+| مشاوره | مشوره | 8am.media: 195 result pages for «مشوره», «مشاوره» absent |
+| کامپیوتر | کمپیوتر | 8am.media: 15× «کمپیوتر», 0× «کامپیوتر» |
+| اینترنت | انترنت | 8am.media: 29× «انترنت», 0× «اینترنت» |
+| اطلاعات (information) | معلومات | 8am.media headlines use «معلومات» |
+| دانشجو · دانشگاه | محصل · پوهنتون | owner; Dari Wikipedia |
+| سامانه | سیستم | owner's own wording; «سامانه» appears in Afghan media mainly for Iranian military systems |
+| آمریکا | امریکا | Afghan media spelling |
+| رزرو | وقت گرفتن · ثبت | «رزرو» almost absent from Afghan media |
+| ایده | طرح · «آنچه در نظر دارید» | «ایده» absent where «مفکوره» is used |
+| سفارش (an order) | rephrase until verified | not found in Afghan media |
+| سادگی · وابستگی · رسیدگی | ساده‌گی · وابسته‌گی · رسیده‌گی | Afghan orthography keeps «ه» before «گی/گان» (8am.media: «آواره‌گی», «باشنده‌گان») |
+| صنف meaning "kind of business" | never — in Dari «صنف» means a school class | 8am.media: every headline uses it for school grades |
+
+**Keep** (used in Afghan media): راننده (owner's choice), کسب‌وکار (≈ 16× more frequent than «کاروبار» in 8am.media), رایگان, فروشگاه, به‌روزرسانی, موبایل, ترانسپورت / حمل‌ونقل (both fine — owner).
+
+**Dates and numbers:** `fa` uses the Solar Hijri calendar with Afghan month names — حمل، ثور، جوزا، سرطان، اسد، سنبله، میزان، عقرب، قوس، جدی، دلو، حوت (`Intl` tag `fa-AF`); Persian digits in prose; amounts as «… افغانی» or «… دالر» (D-21). `en` uses the Gregorian calendar.
+
+The table grows: every verified new word is added here with its evidence.
+
+## 16.4 English
+Native, plain, benefit-first; the same facts as the Dari page, written for its own reader. Same customer rule (§ 16.1).
+
+## 16.5 Claims ledger (revised)
+`docs/content/claims-ledger.md` still lists every **factual** public claim with its evidence and the date checked; a claim without evidence is removed. The ledger is an internal check, **never a reason to publish limitations or evidence trails** — what is not true yet is hidden, not explained (§ 2.2).
+
+## 16.6 Placeholders
+Missing data uses an explicit placeholder in drafts only — `[CLIENT_NAME]`, `[PROJECT_YEAR]`, `[PROJECT_URL]`, `[RECOMMENDATION]`, `[PRICE]` — and the build fails if one appears in published content (3.1).
+
+## 16.7 Never invent
+Clients · reviews · ratings · years of experience · awards · team members · partnerships · revenue · performance metrics · customer counts · project outcomes · certifications · availability · prices.
 
 ---
 
@@ -1302,6 +1739,10 @@ No phase is complete because code exists. Every phase closes only when the relev
 - authorization and security implications reviewed where relevant
 - performance implications reviewed
 - **content truth check:** no invented claim, no visible placeholder, claims ledger updated
+- **customer rule check (§ 16.1)** on every changed public string, and **Dari check (§ 16.3)** on every changed Dari string *(revision 45)*
+- glass surfaces: contrast measured on the worst background, `prefers-reduced-transparency` and `prefers-reduced-motion` fallbacks verified *(revision 45)*
+- every new public section is admin-manageable and hides itself when empty; each project/product block stands alone (§ 2.22, § 2.24) *(revision 45)*
+- § 0.1 and § 0.2 updated, plus any § 0.3 owner action the phase created or closed *(revision 45)*
 - migrations and rollback notes where relevant
 - documentation and phase document written
 - known issues and new debt recorded
@@ -1399,6 +1840,7 @@ The roadmap keeps status, not details; details live in phase documents.
 
 For each phase or sub-phase:
 
+0. read § 0 — start only the phase marked NEXT; owner actions (§ 0.3) are never done by an agent
 1. read this roadmap (sections listed at the top) and the latest phase document
 2. inspect the current code — never assume a previous session's work is in `main`
 3. check the Decision Register; if a needed decision is missing, stop that part and mark it BLOCKED
@@ -1414,13 +1856,15 @@ Never: silently skip a failed step · mark unfinished work complete · redesign 
 
 # 21. Final success criteria
 
+*(Revised in revision 45.)*
+
 ## 21.1 Statement
 
-> Artaveo presents a truthful, premium and internationally credible independent developer brand; real projects are the strongest proof of capability; expertise is linked to evidence; services are few, clear, comparable and priced honestly; a visitor can choose a low-risk first step and understands payment, ownership and handover before the first call; inquiries are qualified, persisted and answered within the published commitment; content is managed through a proper CMS; English and Persian work correctly in LTR and RTL; light and dark themes are intentional; accessibility and performance meet the target standards; security boundaries are real; deployment is repeatable; failures are diagnosable; backups are restore-tested; and another professional developer can understand, maintain and extend the system without reverse-engineering it.
+> Artaveo presents a truthful, premium and modern software studio: a visitor immediately sees beautiful, real systems; understands that Artaveo builds any kind of software and also sells ready-made products; can see each product's ways to get it and its prices, request a demo or a purchase, or start a custom project in minutes; reads Dari that sounds like Afghanistan and English that sounds native; never meets an explanation of how a system works inside. Behind the site, products, sale options, prices, projects and every public section are managed from the admin without code; inquiries are persisted and answered within the published commitment; English and Dari work correctly in LTR and RTL; light and dark themes are intentional; accessibility and performance meet the target standards; security boundaries are real; deployment is repeatable; failures are diagnosable; backups are restore-tested; and another professional developer can understand, maintain and extend the system without reverse-engineering it.
 
 ## 21.2 Conversion questions (all must be "yes")
 
-Can a stranger understand who Artaveo is in ten seconds? · see real proof? · understand the expertise and its evidence? · understand the services and compare packages? · estimate cost before contacting? · pick a low-risk first step? · understand process, payment, ownership and handover? · decide whether Artaveo is a fit? · start a project in under three minutes on mobile? · request a consultation? · find GitHub and the other real profiles? · use the complete site in Persian, right-to-left, without friction?
+Can a stranger understand in ten seconds what Artaveo is and what they can get? · see real, attractive work? · find a product for their kind of business and see the ways to get it with prices? · request a demo or a purchase in under two minutes on mobile? · understand the services without technical words? · start a custom project in under three minutes on mobile? · reach Artaveo on WhatsApp in one tap? · request a consultation? · use the complete site in Dari, right-to-left, without friction — and in English, left-to-right? · find nothing that explains the backend, limitations or internal process?
 
 If any answer is "no", the release is not complete.
 
@@ -1428,15 +1872,15 @@ If any answer is "no", the release is not complete.
 
 # 22. Out of scope & non-negotiables
 
-**Explicitly not built unless a later phase is approved:** marketplace features · multi-freelancer team pages · star ratings · chat widgets or AI chatbots pretending to be the developer · blog comments · 3D hero scenes · animated logo walls · fake live-activity counters.
+**Explicitly not built unless a later phase is approved:** marketplace features · multi-vendor or team pages · star ratings · chat widgets or AI chatbots pretending to be a person · blog comments · 3D hero scenes · animated logo walls · fake live-activity counters.
 
 ```text
-BUILD A FREELANCE BUSINESS PLATFORM, NOT A PRETTY PORTFOLIO.
+A SOFTWARE STUDIO THAT SELLS AND SHOWS — NOT A DEVELOPER'S DIARY.        (revision 45)
+SAY WHAT THE CUSTOMER GETS, NEVER HOW IT WORKS INSIDE.                    (revision 45)
+EVERY PRODUCT AND PROJECT STANDS ON ITS OWN.                              (revision 45)
+THE OWNER MANAGES IT IN THE ADMIN — NOTHING HARD-CODED.                   (revision 45)
+EVERY DARI WORD IS DARI.                                                  (revision 45)
 REAL WORK IS THE PROOF.
-EVERY SKILL POINTS TO EVIDENCE.
-FEW SERVICES, CLEAR SCOPE, HONEST PRICE SIGNALS.
-A LOW-RISK FIRST STEP FOR EVERY NEW CLIENT.
-OWNERSHIP AND HANDOVER ARE PUBLISHED.
 SUCCESS ONLY AFTER PERSISTENCE.
 EMPTY MEANS HIDDEN.
 RTL IS FIRST-CLASS.
@@ -1445,6 +1889,8 @@ BENCHMARKS ARE PATTERNS, NEVER VISUAL COPIES.
 EVERY PHASE IS VERIFIED AND DOCUMENTED.
 NOTHING IS INVENTED.
 ```
+
+*Withdrawn in revision 45:* "build a freelance business platform, not a pretty portfolio", "every skill points to evidence", "few services, clear scope, honest price signals" (replaced by owner-set prices per service and sale option), "a low-risk first step for every new client" (the Discovery Sprint offer), "ownership and handover are published" (now part of each agreement and a short FAQ).
 
 ---
 
@@ -1487,3 +1933,19 @@ but reused here in a different context — **Zakir confirmed it's fine
 to keep as-is.**
 
 Full detail: `docs/updates/2026-09-17-case-study-media.md`.
+
+## 23.2 Backend move — Supabase → Neon (16 October 2026)
+
+**What:** the database, admin sign-in and file storage moved from the Supabase project `Artaveo` (`ukzovqnpqjcrwofycalc`) to the Neon project `Artaveo` (`calm-breeze-36870180`, `aws-ap-southeast-1`, branch `main`). Neon Data API with a server-signed `service_role` JWT replaces PostgREST + the service-role key (the ~270 query-builder calls are unchanged); Neon Object Storage replaces Storage (`media` public, `inquiry-files` private); Managed Better Auth (server-side only) replaces Supabase Auth, and the app now has its own TOTP second factor (`lib/admin/totp.ts`, migration `0022`). Migrations `0022_neon_platform` and `0023_admin_user_emails`; all 34 tables copied and checked row by row.
+
+**Why out-of-sequence:** a platform change requested by the owner, not a feature; it replaces D-10's choice and moves no phase pointer.
+
+**Open:** owner actions O-1 (production env switch), O-2 (admin account in Neon Auth), O-3 (retire Supabase) in § 0.3. Full detail: `docs/updates/2026-10-16-neon-migration.md`.
+
+## 23.3 Roadmap reset — revision 45 (17 October 2026)
+
+**What:** the owner's review of the live site (product positioning, content, design) and the resulting plan: § 0 added; § 1, § 2, § 3, § 4.0, § 6.7, § 7, § 8, § 11A, § 11B, § 12, § 13, § 14.0, § 14.1, § 15, § 16, § 17, § 20, § 21, § 22 rewritten or extended; Milestone R (Phases 26–33) added before every unstarted phase; old 26–32 kept, adapted and renumbered 34–40; Phases 3 and 9 closed with their open items moved.
+
+**How it was decided:** a defect review measured on the live site and in the code (§ 6.7); live reading of ten reference sites (§ 4.0); Dari vocabulary checked against Afghan media (§ 16.3); an interactive design sample built with the project's real screenshots, reviewed by the owner — approved with three corrections (D-17).
+
+**Why out-of-sequence:** planning only — **no code changed**, so it moves no phase pointer beyond setting Phase 26 as next.
