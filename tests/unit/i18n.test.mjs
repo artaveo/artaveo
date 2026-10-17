@@ -6,9 +6,10 @@
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, it } from 'node:test'
 
-const ROOT = new URL('../../', import.meta.url).pathname
+const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const load = (locale) => JSON.parse(readFileSync(join(ROOT, `messages/${locale}.json`), 'utf8'))
 const en = load('en')
 const fa = load('fa')

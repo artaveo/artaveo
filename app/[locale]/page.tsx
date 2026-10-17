@@ -6,7 +6,6 @@ import { CapabilityStrip } from '@/components/home/capability-strip'
 import { FeaturedWork } from '@/components/home/featured-work'
 import { FinalCta } from '@/components/home/final-cta'
 import { Hero } from '@/components/home/hero'
-import { InsightsPreview } from '@/components/home/insights-preview'
 import { Process } from '@/components/home/process'
 import { Recommendations } from '@/components/home/recommendations'
 import { Services } from '@/components/home/services'
@@ -50,7 +49,7 @@ export default async function HomePage({
       <Process />
       <AboutPreview />
       <Recommendations />
-      <InsightsPreview />
+      {/* The Insights preview is off the Home page (Phase 26.5); Phase 33 decides whether it returns. */}
       <FinalCta />
     </SiteShell>
   )

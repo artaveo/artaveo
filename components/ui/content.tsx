@@ -31,10 +31,12 @@ function Callout({
     <div
       data-slot="callout"
       role={variant === 'danger' ? 'alert' : 'note'}
-      className={cn('flex gap-3 rounded-lg border p-4 text-sm', classes, className)}
+      // `min-w-0` + breaking long words: a token name or URL in a callout must wrap inside a
+      // narrow column, not push the page sideways (Phase 26.3).
+      className={cn('flex min-w-0 gap-3 rounded-lg border p-4 text-sm', classes, className)}
     >
       <Icon className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-      <div className="flex flex-col gap-1">
+      <div className="flex min-w-0 flex-col gap-1 wrap-break-word">
         {title ? <p className="font-medium">{title}</p> : null}
         <div className="leading-relaxed [&_p]:m-0">{children}</div>
       </div>
@@ -74,7 +76,9 @@ function CodeBlock({
     <div
       dir="ltr"
       data-slot="code-block"
-      className={cn('group/code relative overflow-hidden rounded-lg border border-border bg-elevated', className)}
+      // `min-w-0`: inside a grid or flex parent the block must shrink and let its <pre> scroll,
+      // not widen the page to the longest code line (Phase 26.3).
+      className={cn('group/code relative min-w-0 overflow-hidden rounded-lg border border-border bg-elevated', className)}
     >
       {language ? (
         <div className="flex items-center justify-between border-b border-border px-4 py-1.5">

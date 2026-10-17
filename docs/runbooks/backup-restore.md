@@ -10,9 +10,11 @@ Since the move from Supabase (October 2026) the database, the files and admin si
 |---|---|---|
 | **Instant restore** (Neon, built in) | Any branch can be restored to any moment inside the project's **history window** — 6 hours on the current plan (`history_retention_seconds = 21600`). | Database and Object Storage of the branch, Neon Auth's tables (they live in the same database). |
 | **Snapshots** (Neon, built in) | A named, kept copy of a branch at one moment; restorable later, independent of the history window. Take one before every risky change (Console → Branches → `main` → Snapshots, or a schedule). | Same as above. |
-| **External export** (Phase 25 code) | `pg_dump` of `public` + `scripts/backup/collect.mjs` (every stored file + a `manifest.json`: migrations, row counts, each admin's e-mail). | A copy outside Neon. |
+| **External export** (Phase 25 design, workflow committed in Phase 26.8) | `.github/workflows/backup.yml`, daily at 02:17 UTC: `pg_dump` of `public` + `scripts/backup/collect.mjs` (every stored file + a `manifest.json`: migrations, row counts, each admin's e-mail), a **restore test** on Sundays and on every manual run, `age`-encrypted to your public key, kept 35 days as a workflow artifact, reported to `/api/ops/backup-report`. | A copy outside Neon. |
 
-**Honest gap:** Phase 25 described a daily GitHub workflow (`.github/workflows/backup.yml`) that runs the external export, encrypts it with `age` and tests a restore. **That workflow was never committed to this repository** — only `scripts/backup/collect.mjs` and `/api/ops/backup-report` were. Until it exists, the external export is something you run by hand (§ 4), and the `backup.*` alerts on `/admin/observability` stay silent because nothing reports in.
+The workflow was described in Phase 25 but only committed in Phase 26.8 (October 2026). **It does nothing until you set it up (§ 4)** — a scheduled run without its secrets says "Backup is not set up yet" and skips the backup job; it never shows a backup that was not taken. Until then the `backup.*` alerts on `/admin/observability` stay silent because nothing reports in.
+
+**Self-test.** Every push that changes the workflow, `scripts/backup/` or a migration runs the same pipeline against a throw-away database built on the runner from the migrations, the real site content and the test fixtures — dump, restore test, encrypt and decrypt with a key made for that run — with no secrets and nothing kept. A schema change that would break restoring fails there first. You can also start it by hand: *Actions → Backup → Run workflow → self-test*.
 
 ## 2. What is not backed up
 
@@ -28,7 +30,20 @@ Since the move from Supabase (October 2026) the database, the files and admin si
 
 Engineering estimates, not measured incident times.
 
-## 4. Running the external export by hand
+## 4. Setting up the daily backup (owner action O-4)
+
+1. **Make a key pair — on your own computer, never in GitHub.** Install `age` (https://github.com/FiloSottile/age) and run `age-keygen -o artaveo-backup.key`. It prints the **public** key (`age1…`). Keep `artaveo-backup.key` offline (a password manager or an encrypted USB stick) — without it no backup can be opened, and anyone with it can open all of them.
+2. **Repository → Settings → Secrets and variables → Actions.** Secrets:
+   - `NEON_DATABASE_URL` — the **direct** connection string of branch `main` (Neon Console → Connect → *Connection pooling* **off**; the host has no `-pooler`), owner role. `pg_dump` does not work through the pooler.
+   - `NEON_DATA_API_URL`, `NEON_SERVICE_JWT_PRIVATE_KEY`, `NEON_SERVICE_JWT_KID`, `NEON_STORAGE_ENDPOINT`, `NEON_STORAGE_REGION`, `NEON_STORAGE_ACCESS_KEY_ID`, `NEON_STORAGE_SECRET_ACCESS_KEY` — the same values as in Vercel (`collect.mjs` uses the app's own clients).
+   - `CRON_SECRET` — the same value as in Vercel, so the run can report to the site.
+
+   Variables: `BACKUP_AGE_PUBLIC_KEY` = the `age1…` public key (several, space-separated, if more than one person should be able to open backups); optionally `SITE_URL`.
+3. **Run it once by hand:** *Actions → Backup → Run workflow* (mode `backup`). A manual run always includes the restore test. Read the log: the dump size, "Restore test passed", and the artifact at the bottom of the run page.
+4. **Open one backup once**, to be sure the key works before you ever need it: download the artifact, unzip it, then `age --decrypt -i artaveo-backup.key -o backup.tar artaveo-backup-….tar.age && tar -tf backup.tar`.
+5. `/admin/observability` → *Health* now shows *Last backup* and *Last verified restore*.
+
+## 4b. Running the external export by hand
 
 Needs `pg_dump` (PostgreSQL 17 client), Node 22+, the repo, and the production variables in `.env.local` (`DATABASE_URL`, `NEON_DATA_API_URL`, `NEON_SERVICE_JWT_*`, `NEON_STORAGE_*`). Use the **direct** connection string (without `-pooler`) for `pg_dump`.
 

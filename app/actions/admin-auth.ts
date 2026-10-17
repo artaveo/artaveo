@@ -19,6 +19,7 @@ import {
   verifyCode,
 } from '@/lib/admin/totp'
 import { getDbClient } from '@/lib/db/server'
+import { assertSafeInteger } from '@/lib/postgrest'
 import { checkRateLimit } from '@/lib/security/rate-limit'
 
 /**
@@ -189,7 +190,7 @@ export async function verifyMfaChallenge(formData: FormData): Promise<MfaChallen
     .from('admin_users')
     .update({ totp_last_step: step })
     .eq('id', session.userId)
-    .or(`totp_last_step.is.null,totp_last_step.lt.${step}`)
+    .or(`totp_last_step.is.null,totp_last_step.lt.${assertSafeInteger(step)}`)
     .select('id')
   if (!claimed || claimed.length === 0) {
     await writeAuditLog({ actor: session.userId, action: 'admin.mfa_challenge_failed', entity: 'admin_session' })

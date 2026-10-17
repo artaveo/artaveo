@@ -18,7 +18,8 @@ const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8')
 function walk(dir, exts, out = []) {
   for (const entry of fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
     if (['node_modules', '.next', '.test-stack', 'test-results', 'playwright-report'].includes(entry.name)) continue
-    const rel = path.join(dir, entry.name)
+    // POSIX separators on every OS, so the path patterns below also hold on Windows.
+    const rel = path.posix.join(dir, entry.name)
     if (entry.isDirectory()) walk(rel, exts, out)
     else if (exts.some((ext) => entry.name.endsWith(ext))) out.push(rel)
   }

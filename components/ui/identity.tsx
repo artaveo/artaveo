@@ -8,6 +8,7 @@ import { Link as IntlLink } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/components/ui/actions'
 import { trackEvent } from '@/lib/analytics'
+import { formatDate } from '@/lib/format'
 import { socialLinks } from '@/lib/site'
 import { t, type Availability, type DeveloperProfile, type Locale } from '@/types/content'
 import { cn } from '@/lib/utils'
@@ -138,12 +139,8 @@ const availabilityMeta: Record<
 
 function formatUpdatedAt(iso: string, locale: Locale) {
   try {
-    // Same Gregorian-calendar rule as every other date (D-03) — `fa-IR` would render Solar Hijri.
-    return new Intl.DateTimeFormat(locale === 'fa' ? 'fa-u-ca-gregory' : 'en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    }).format(new Date(iso))
+    // The site-wide date rule (D-03): Solar Hijri with Afghan month names on `fa`.
+    return formatDate(iso, locale)
   } catch {
     return iso
   }

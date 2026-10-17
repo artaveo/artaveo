@@ -24,7 +24,7 @@
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const RANK = { info: 0, low: 1, moderate: 2, high: 3, critical: 4 }
@@ -69,7 +69,8 @@ function runAudit(prodOnly) {
   const args = ['audit', '--json', ...(prodOnly ? ['--prod'] : [])]
   // `pnpm audit` exits non-zero when it finds anything; the JSON on stdout is what matters.
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    const result = spawnSync('pnpm', args, { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+    // On Windows `pnpm` is a .cmd shim, which Node only starts through a shell (the arguments are fixed literals).
+    const result = spawnSync('pnpm', args, { cwd: ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, shell: process.platform === 'win32' })
     try {
       const parsed = JSON.parse(result.stdout)
       if (parsed && typeof parsed.advisories === 'object') return parsed.advisories
@@ -110,4 +111,5 @@ function main() {
   console.log('\nGate passed.')
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) main()
+// pathToFileURL, not a hand-built `file://` string: the latter never matches on Windows, where the gate then silently did nothing.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main()

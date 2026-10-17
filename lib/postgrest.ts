@@ -54,3 +54,9 @@ export function assertUuid(value: string): string {
   if (!UUID.test(value)) throw new Error('expected a UUID')
   return value
 }
+
+/** A number interpolated into a filter expression must be a plain integer — nothing else can reach the string. */
+export function assertSafeInteger(value: number): number {
+  if (!Number.isSafeInteger(value)) throw new Error('expected a safe integer')
+  return value
+}

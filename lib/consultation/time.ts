@@ -206,7 +206,7 @@ export function slotStarts(
 
 /**
  * How a time reads to a person, in the site's language. The date part follows
- * D-03 (Gregorian; Persian digits and month names on `fa`, via `formatDate`);
+ * D-03 (Solar Hijri with Afghan month names and Persian digits on `fa`, via `formatDate`);
  * the clock part is `HH:mm` in Latin digits because it is a technical value
  * people compare against a calendar.
  */

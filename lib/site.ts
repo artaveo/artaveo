@@ -65,7 +65,11 @@ export const mainNav: NavItem[] = [
   { href: '/services', key: 'services', hasDescription: true },
   { href: '/process', key: 'process', hasDescription: true },
   { href: '/about', key: 'about', hasDescription: true },
-  { href: '/insights', key: 'insights', hasDescription: true, hasContent: false, contentFlag: 'insights' },
+  // Hidden from every nav surface for now, whether or not an article is published (Phase 26.5):
+  // the articles that exist are engineering notes, not customer reading. Phase 33 decides when
+  // articles get a link again (a footer link first) — until then this stays `hasContent: false`
+  // with no `contentFlag`, so a published article does not bring the link back by itself.
+  { href: '/insights', key: 'insights', hasDescription: true, hasContent: false },
 ]
 
 /**
@@ -84,6 +88,9 @@ export const mainNav: NavItem[] = [
  * grid renders unfiltered; raise this only alongside real published work.
  */
 export const WORK_FILTER_THRESHOLD = 6
+
+/** Up to this many projects, `/work` lays them out in two large columns, never three (Phase 26.6). */
+export const WORK_TWO_COLUMN_MAX = 4
 
 export const utilityNav: NavItem[] = [
   { href: '/design-system', key: 'designSystem' },
@@ -139,7 +146,7 @@ export const commandItems: CommandItem[] = [
   { labelKey: 'services', labelNamespace: 'Nav', href: '/services', group: 'navigate', keywords: 'offerings help services' },
   { labelKey: 'process', labelNamespace: 'Nav', href: '/process', group: 'navigate', keywords: 'method steps how process' },
   { labelKey: 'about', labelNamespace: 'Nav', href: '/about', group: 'navigate', keywords: 'developer about' },
-  { labelKey: 'insights', labelNamespace: 'Nav', href: '/insights', group: 'navigate', keywords: 'blog writing notes insights', hasContent: false, contentFlag: 'insights' },
+  { labelKey: 'insights', labelNamespace: 'Nav', href: '/insights', group: 'navigate', keywords: 'blog writing notes insights', hasContent: false },
   { labelKey: 'designSystem', labelNamespace: 'Nav', href: '/design-system', group: 'resources', keywords: 'tokens components ui design system' },
   { labelKey: 'start', labelNamespace: 'Nav', href: '/start', group: 'actions', keywords: 'start project brief builder inquiry hire' },
   { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'contact email whatsapp hire channels' },

@@ -5,23 +5,44 @@ import { Link } from '@/i18n/navigation'
 import { LatinTerm } from '@/components/site/latin-term'
 import { Badge } from '@/components/ui/badge'
 import { BrowserFrame } from '@/components/ui/frames'
-import { StatusBadge } from '@/components/ui/tag'
 import { t, type Locale, type Project } from '@/types/content'
 
 /**
  * ProjectCard — the `/work` grid tile (roadmap § 6.1). Reuses `BrowserFrame`
  * for the thumbnail so the same screenshot-chrome pattern shows up on the
  * index, the Home "Featured work" section and the case study hero.
+ * No project status badge (Phase 26.5).
  */
-export function ProjectCard({ project, priority = false }: { project: Project; priority?: boolean }) {
+
+/**
+ * The fields a card shows — and all the `/work` grid (a Client Component) sends to the
+ * browser. It used to receive whole projects, so every repository URL and engineering
+ * section rode along in the page's data even where nothing rendered them (Phase 26.5).
+ */
+export type ProjectCardData = Pick<Project, 'id' | 'slug' | 'title' | 'summary' | 'category' | 'coverImage' | 'technologies'>
+
+export function toProjectCardData(project: Project): ProjectCardData {
+  const { id, slug, title, summary, category, coverImage, technologies } = project
+  return { id, slug, title, summary, category, coverImage, technologies }
+}
+
+export function ProjectCard({
+  project,
+  priority = false,
+  sizes = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw',
+}: {
+  project: ProjectCardData
+  priority?: boolean
+  /** The image `sizes` hint — the grid knows how wide its columns are. */
+  sizes?: string
+}) {
   const locale = useLocale() as Locale
   const tWork = useTranslations('Work')
-  const tStatus = useTranslations('ProjectStatus')
   const href = `/work/${project.slug}`
   const titleId = `project-card-${project.slug}`
 
   return (
-    <article aria-labelledby={titleId} className="group flex flex-col">
+    <article aria-labelledby={titleId} className="group flex min-w-0 flex-col">
       <Link href={href} tabIndex={-1} aria-hidden className="block">
         <BrowserFrame
           url={`artaveo.dev/work/${project.slug}`}
@@ -34,7 +55,7 @@ export function ProjectCard({ project, priority = false }: { project: Project; p
                 alt={`${t(project.title, locale)} interface`}
                 fill
                 priority={priority}
-                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                sizes={sizes}
                 className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
               />
             ) : (
@@ -56,7 +77,6 @@ export function ProjectCard({ project, priority = false }: { project: Project; p
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <Badge variant="brand-soft">{t(project.category, locale)}</Badge>
-        {project.status ? <StatusBadge status={project.status} label={tStatus(project.status)} /> : null}
       </div>
 
       <h3 id={titleId} className="mt-3 text-xl font-semibold tracking-tight text-balance">

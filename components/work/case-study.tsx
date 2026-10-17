@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { BrowserFrame } from '@/components/ui/frames'
 import { Prose } from '@/components/ui/prose'
-import { StatusBadge } from '@/components/ui/tag'
 import { CaseStudyEvidenceGroup, CaseStudyHeroMedia } from '@/components/work/case-study-media'
 import { ProjectGallery } from '@/components/work/project-gallery'
 import { t, type Locale, type LocalizedText, type Project, type ProjectMediaItem } from '@/types/content'
@@ -34,6 +33,15 @@ import { t, type Locale, type LocalizedText, type Project, type ProjectMediaItem
  * by branching on `project.slug`. A project with no story group for a
  * given anchor simply renders nothing extra there. `placement: 'gallery'`
  * images are unchanged from before this pass.
+ *
+ * Phase 26.5 (revision 45) — NOT rendered any more, although the data is
+ * still loaded and kept: the role field, the project status badge, the
+ * repository link, and the engineering sections (constraints, key decisions,
+ * engineering highlight, data integrity & security, quality, current status,
+ * lessons learned). They read as an engineering log, not as something a
+ * customer needs (roadmap § 16.1); Phase 27.2 replaces them with
+ * customer-facing content blocks. Story screenshots anchored to a hidden
+ * section still render at that point in the page.
  */
 
 function LocalizedBody({ value, locale }: { value?: LocalizedText; locale: Locale }) {
@@ -62,21 +70,10 @@ export function CaseStudy({
 }) {
   const locale = useLocale() as Locale
   const t18n = useTranslations('CaseStudy')
-  const tStatus = useTranslations('ProjectStatus')
   const tNav = useTranslations('Nav')
 
-  const hasFullWriteUp =
-    project.context ||
-    project.problemAndGoals ||
-    (project.constraints && project.constraints.length > 0) ||
-    project.architecture ||
-    (project.keyDecisions && project.keyDecisions.length > 0) ||
-    project.engineeringHighlight ||
-    project.dataIntegrityAndSecurity ||
-    project.responsiveAndRtl ||
-    project.quality ||
-    project.currentStatusAndNext ||
-    project.lessonsLearned
+  // Only the sections this template still renders (see the Phase 26.5 note above).
+  const hasFullWriteUp = project.context || project.problemAndGoals || project.architecture || project.responsiveAndRtl
 
   const heroMedia = project.media?.find((m) => m.placement === 'hero')
   const storyMedia = project.media?.filter((m) => m.placement === 'story') ?? []
@@ -126,9 +123,6 @@ export function CaseStudy({
       <header>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="brand-soft">{t(project.category, locale)}</Badge>
-          {project.status ? (
-            <StatusBadge status={project.status} label={tStatus(project.status)} />
-          ) : null}
           {project.year ? (
             <span className="font-mono text-xs text-muted-foreground">{project.year}</span>
           ) : null}
@@ -142,16 +136,8 @@ export function CaseStudy({
           {t(project.summary, locale)}
         </p>
 
-        <dl className="mt-10 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2">
-          {project.role ? (
-            <div className="bg-card p-4">
-              <dt className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-                {t18n('role')}
-              </dt>
-              <dd className="mt-1 leading-relaxed">{t(project.role, locale)}</dd>
-            </div>
-          ) : null}
-          <div className="bg-card p-4">
+        <dl className="mt-10 overflow-hidden rounded-xl border border-border">
+          <div className="min-w-0 bg-card p-4">
             <dt className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
               {t18n('stack')}
             </dt>
@@ -204,8 +190,11 @@ export function CaseStudy({
         )}
       </div>
 
+      {/* `min-w-0` on both grid items: a grid item is at least as wide as its content by
+          default, so one long unbreakable word or a wide figure inside made
+          /fa/work/transportation-system 405 px wide on a 375 px phone (Phase 26.3). */}
       <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16">
-        <div className="lg:col-span-8">
+        <div className="min-w-0 lg:col-span-8">
           <Prose>
             {project.context ? (
               <section>
@@ -239,24 +228,6 @@ export function CaseStudy({
               />
             ))}
 
-            {project.constraints?.length ? (
-              <section>
-                <h2>{t18n('constraints')}</h2>
-                <ul>
-                  {project.constraints.map((item) => (
-                    <li key={item.en}>{t(item, locale)}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-
-            {project.role ? (
-              <section>
-                <h2>{t18n('myRoleAndScope')}</h2>
-                <p>{t(project.role, locale)}</p>
-              </section>
-            ) : null}
-
             {project.architecture ? (
               <section>
                 <h2>{t18n('architecture')}</h2>
@@ -273,24 +244,6 @@ export function CaseStudy({
               />
             ))}
 
-            {project.keyDecisions?.length ? (
-              <section>
-                <h2>{t18n('keyDecisions')}</h2>
-                {project.keyDecisions.map((decision, index) => (
-                  <div
-                    key={index}
-                    className="not-prose mt-4 rounded-lg border border-border bg-card p-4"
-                  >
-                    <p className="text-sm text-muted-foreground">{t(decision.context, locale)}</p>
-                    <p className="mt-2 font-medium">{t(decision.decision, locale)}</p>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {t(decision.tradeoff, locale)}
-                    </p>
-                  </div>
-                ))}
-              </section>
-            ) : null}
-
             {storyGroupsFor('keyDecisions').map((group, i) => (
               <CaseStudyEvidenceGroup
                 key={group[0]?.src ?? i}
@@ -299,20 +252,6 @@ export function CaseStudy({
                 projectSlug={project.slug}
               />
             ))}
-
-            {project.engineeringHighlight ? (
-              <section>
-                <h2>{t18n('engineeringHighlight')}</h2>
-                <LocalizedBody value={project.engineeringHighlight} locale={locale} />
-              </section>
-            ) : null}
-
-            {project.dataIntegrityAndSecurity ? (
-              <section>
-                <h2>{t18n('dataIntegrityAndSecurity')}</h2>
-                <LocalizedBody value={project.dataIntegrityAndSecurity} locale={locale} />
-              </section>
-            ) : null}
 
             {storyGroupsFor('dataIntegrityAndSecurity').map((group, i) => (
               <CaseStudyEvidenceGroup
@@ -330,26 +269,6 @@ export function CaseStudy({
               </section>
             ) : null}
 
-            {project.quality ? (
-              <section>
-                <h2>{t18n('quality')}</h2>
-                <LocalizedBody value={project.quality} locale={locale} />
-              </section>
-            ) : null}
-
-            {project.currentStatusAndNext ? (
-              <section>
-                <h2>{t18n('currentStatusAndNext')}</h2>
-                <LocalizedBody value={project.currentStatusAndNext} locale={locale} />
-              </section>
-            ) : null}
-
-            {project.lessonsLearned ? (
-              <section>
-                <h2>{t18n('lessonsLearned')}</h2>
-                <LocalizedBody value={project.lessonsLearned} locale={locale} />
-              </section>
-            ) : null}
           </Prose>
 
           {!hasFullWriteUp ? (
@@ -361,7 +280,7 @@ export function CaseStudy({
           ) : null}
         </div>
 
-        <aside className="lg:col-span-4">
+        <aside className="min-w-0 lg:col-span-4">
           <div className="rounded-xl border border-border bg-card p-6">
             <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
               {t18n('highlights')}
@@ -378,7 +297,8 @@ export function CaseStudy({
               ))}
             </ul>
 
-            {project.liveUrl || project.githubUrl ? (
+            {/* Repository links are never shown publicly (Phase 26.5, D-19). */}
+            {project.liveUrl ? (
               <div className="mt-6 flex flex-col gap-2 border-t border-border pt-6">
                 <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
                   {t18n('links')}
@@ -391,18 +311,6 @@ export function CaseStudy({
                     render={<a href={project.liveUrl} target="_blank" rel="noreferrer" />}
                   >
                     {t18n('liveDemo')}
-                    <ArrowUpRight data-icon="inline-end" className="rtl:-scale-x-100" />
-                    <span className="sr-only">{t18n('opensNewTab')}</span>
-                  </Button>
-                ) : null}
-                {project.githubUrl ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="justify-start"
-                    render={<a href={project.githubUrl} target="_blank" rel="noreferrer" />}
-                  >
-                    {t18n('repository')}
                     <ArrowUpRight data-icon="inline-end" className="rtl:-scale-x-100" />
                     <span className="sr-only">{t18n('opensNewTab')}</span>
                   </Button>

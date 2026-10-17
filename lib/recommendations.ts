@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { queryApprovedRecommendations } from '@/lib/db/content-queries'
 import { getDbClient } from '@/lib/db/server'
 import type { LocalizedText } from '@/types/content'
 
@@ -107,6 +108,11 @@ export async function resolveRequestToken(token: string, locale: 'en' | 'fa'): P
     suggestedRelatedProjectTitle: request.suggested_project?.title ?? null,
     suggestedRelatedServiceTitle: request.suggested_service?.title ?? null,
   }
+}
+
+/** Approved recommendations for the public site (Home § 3.3) — components read them here, never from `lib/db` directly. */
+export function getApprovedRecommendations() {
+  return queryApprovedRecommendations()
 }
 
 export function generateRequestToken(): string {

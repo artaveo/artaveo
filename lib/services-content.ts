@@ -153,7 +153,7 @@ const servicesData: Service[] = [
     ],
     faq: [
       faq(
-        ['Can I update the content myself after launch?', 'The content structure is built CMS-ready from day one, so moving to self-service editing later (Phase 15 on this roadmap) does not require rebuilding the site.'],
+        ['Can I update the content myself after launch?', 'The content is structured for editing from day one, so adding self-service editing later does not mean rebuilding the site.'],
         ['آیا می‌توانم بعد از راه‌اندازی خودم محتوا را ویرایش کنم؟', 'ساختار محتوا از همان روز اول آماده برای CMS ساخته می‌شود، پس انتقال به ویرایش خودکار در آینده نیازی به بازسازی سایت ندارد.'],
       ),
       faq(

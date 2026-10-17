@@ -32,7 +32,7 @@ export function ServiceAddOns({ addOns }: { addOns: ServiceAddon[] }) {
               </p>
             </div>
             <span className="shrink-0 text-sm font-medium text-brand-text">
-              {formatAddonPrice(addOn.price, tPrice)}
+              {formatAddonPrice(addOn.price, locale, tPrice)}
             </span>
           </li>
         ))}

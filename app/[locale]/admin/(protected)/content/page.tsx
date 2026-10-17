@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation'
 
 import { Link } from '@/i18n/navigation'
 import { Card, CardContent } from '@/components/ui/card'
-import { FormMessage } from '@/components/ui/form-controls'
 import { getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
 
 export async function generateMetadata({
@@ -76,8 +75,6 @@ export default async function ContentHubPage({
           </Card>
         ))}
       </div>
-
-      <FormMessage variant="info">{t('cmsHubMoreComingNotice')}</FormMessage>
     </div>
   )
 }

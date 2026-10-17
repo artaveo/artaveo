@@ -1,0 +1,390 @@
+# The daily backup (roadmap Phase 25's design, committed in Phase 26.8; Neon since October 2026).
+#
+#   1. pg_dump of the `public` schema          → public.dump
+#   2. scripts/backup/collect.mjs               → manifest.json (migrations, row counts, admin e-mails)
+#                                                 + every stored file (Neon Object Storage buckets)
+#   3. RESTORE TEST — Sundays, every manual run and every self-test: the plaintext dump, BEFORE it is
+#      encrypted, is restored into a throw-away PostgreSQL 17 on the runner and each table's row count
+#      is compared with the manifest. A backup that was never restored is not a verified backup.
+#   4. tar + `age`-encrypt to the owner's PUBLIC key; the plaintext is shredded in the same step.
+#      The private key is never in GitHub — only the owner can open a backup.
+#   5. the encrypted archive is kept as a workflow artifact for 35 days
+#   6. what happened is reported to the site (/api/ops/backup-report), which drives the Backup rows
+#      on /admin/observability and the backup.* alerts
+#
+# MODES
+#   backup     the real export of the live database. Daily (schedule) and on demand (Run workflow).
+#   self-test  the same pipeline against a throw-away source database built on the runner from
+#              db/migrations, the real site content and the test fixtures — needs NO secrets, keeps
+#              nothing, reports nothing. It runs on every push that touches this file, the backup
+#              scripts or a migration, so a change that would break restoring is caught before the
+#              next real backup needs it. (Phase 26.8's "dry run".)
+#
+# SETUP (owner action O-4 — docs/runbooks/backup-restore.md § 4). Repository → Settings → Secrets and
+# variables → Actions:
+#   secrets   NEON_DATABASE_URL                the DIRECT connection string (host WITHOUT "-pooler"),
+#                                              owner role — pg_dump does not work through the pooler
+#             NEON_DATA_API_URL, NEON_SERVICE_JWT_PRIVATE_KEY, NEON_SERVICE_JWT_KID,
+#             NEON_STORAGE_ENDPOINT, NEON_STORAGE_REGION, NEON_STORAGE_ACCESS_KEY_ID,
+#             NEON_STORAGE_SECRET_ACCESS_KEY   the same values as in Vercel (collect.mjs uses the app's
+#                                              own database and storage clients)
+#             CRON_SECRET                      the same value as in Vercel (to report in)
+#   variable  BACKUP_AGE_PUBLIC_KEY            one or more age public keys ("age1…"), space-separated
+#             SITE_URL                         optional; defaults to the interim Vercel URL
+# Until NEON_DATABASE_URL and BACKUP_AGE_PUBLIC_KEY are set, a scheduled run says so and does nothing
+# (the backup job shows as skipped) — never a green run that pretends a backup was taken. Half a setup
+# (one of them set, the other missing, or a missing storage secret) fails loudly.
+#
+# Every action is pinned to a commit SHA (the same pins as ci.yml); `age` is a pinned release checked
+# against its published SHA-256; PostgreSQL 17 comes from the PGDG apt repository (signed), matching
+# the server's major version — pg_dump must not be older than the server it dumps.
+
+name: Backup
+
+on:
+  schedule:
+    # 02:17 UTC (06:47 in Kabul) — off the hour, when GitHub's scheduler is least crowded.
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'backup = export the live database; self-test = the same pipeline on a throw-away copy (no secrets)'
+        type: choice
+        options: [backup, self-test]
+        default: backup
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/backup.yml
+      - scripts/backup/**
+      - db/migrations/**
+      - db/neon/**
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  PNPM_VERSION: '10'
+  PG_MAJOR: '17'
+  AGE_VERSION: 'v1.3.2'
+  # sha256 of age-v1.3.2-linux-amd64.tar.gz (the digest GitHub publishes for the release asset)
+  AGE_SHA256: 'cbe24006683f8eb669266162894b9a522a1af52f2665fbc63a4bb032ed26ac10'
+
+jobs:
+  plan:
+    name: Decide what to run
+    # A fork must not try to back up the owner's database (or wait for secrets it does not have).
+    if: github.repository == 'artaveo/artaveo'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+      run: ${{ steps.plan.outputs.run }}
+      restore_test: ${{ steps.plan.outputs.restore_test }}
+    steps:
+      - id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_MODE: ${{ inputs.mode }}
+          HAS_DB: ${{ secrets.NEON_DATABASE_URL != '' }}
+          HAS_KEY: ${{ vars.BACKUP_AGE_PUBLIC_KEY != '' }}
+        run: |
+          case "$EVENT" in
+            push) mode=self-test ;;
+            workflow_dispatch) mode="${INPUT_MODE:-backup}" ;;
+            *) mode=backup ;;
+          esac
+
+          run=true
+          if [ "$mode" = backup ]; then
+            if [ "$HAS_DB" != true ] && [ "$HAS_KEY" != true ]; then
+              echo "::notice title=Backup is not set up yet::No backup was taken. Owner action O-4: add the secrets and the BACKUP_AGE_PUBLIC_KEY variable listed at the top of .github/workflows/backup.yml (docs/runbooks/backup-restore.md § 4)."
+              run=false
+            elif [ "$HAS_DB" != true ] || [ "$HAS_KEY" != true ]; then
+              echo "::error::Backup is half set up: NEON_DATABASE_URL and BACKUP_AGE_PUBLIC_KEY must both be set (docs/runbooks/backup-restore.md § 4)."
+              exit 1
+            fi
+          fi
+
+          # The restore test: every self-test, every manual run, and the Sunday scheduled run.
+          restore_test=false
+          if [ "$mode" = self-test ] || [ "$EVENT" = workflow_dispatch ] || [ "$(date -u +%u)" = 7 ]; then
+            restore_test=true
+          fi
+
+          echo "mode=$mode run=$run restore_test=$restore_test"
+          {
+            echo "mode=$mode"
+            echo "run=$run"
+            echo "restore_test=$restore_test"
+          } >> "$GITHUB_OUTPUT"
+
+  backup:
+    name: ${{ needs.plan.outputs.mode == 'self-test' && 'Self-test (throw-away database)' || 'Back up the live database' }}
+    needs: plan
+    if: needs.plan.outputs.run == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      MODE: ${{ needs.plan.outputs.mode }}
+      RESTORE_TEST: ${{ needs.plan.outputs.restore_test }}
+      WORK: ${{ github.workspace }}/.backup-work
+      PG_PORT: '54329'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Start
+        run: |
+          echo "BACKUP_STARTED_MS=$(date +%s%3N)" >> "$GITHUB_ENV"
+          echo "BACKUP_STEP=dump" >> "$GITHUB_ENV"
+          mkdir -p "$WORK"
+          chmod 700 "$WORK"
+
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install (lockfile only)
+        run: pnpm install --frozen-lockfile
+
+      - name: PostgreSQL ${{ env.PG_MAJOR }} client and server (PGDG)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -qq "postgresql-$PG_MAJOR" "postgresql-client-$PG_MAJOR"
+          PG_BIN="/usr/lib/postgresql/$PG_MAJOR/bin"
+          "$PG_BIN/pg_dump" --version
+          echo "PG_BIN=$PG_BIN" >> "$GITHUB_ENV"
+
+      - name: age (pinned, checksum-verified)
+        run: |
+          curl -fsSL -o age.tar.gz "https://github.com/FiloSottile/age/releases/download/${AGE_VERSION}/age-${AGE_VERSION}-linux-amd64.tar.gz"
+          echo "${AGE_SHA256}  age.tar.gz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/bin"
+          tar -xzf age.tar.gz -C "$RUNNER_TEMP/bin" --strip-components=1 age/age age/age-keygen
+          rm age.tar.gz
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      # A local cluster for the restore test (both modes) and, in self-test, for the throw-away source.
+      - name: Local PostgreSQL for the restore test
+        if: env.RESTORE_TEST == 'true' || env.MODE == 'self-test'
+        run: |
+          PGDATA="$RUNNER_TEMP/pgdata"
+          "$PG_BIN/initdb" -D "$PGDATA" -U postgres --auth=trust -E UTF8 --locale=C.UTF-8 >/dev/null
+          "$PG_BIN/pg_ctl" -D "$PGDATA" -w -l "$RUNNER_TEMP/postgres.log" \
+            -o "-p $PG_PORT -k $RUNNER_TEMP -c listen_addresses='' -c fsync=off" start
+          echo "PGHOST=$RUNNER_TEMP" >> "$GITHUB_ENV"
+          echo "PGPORT=$PG_PORT" >> "$GITHUB_ENV"
+          echo "PGUSER=postgres" >> "$GITHUB_ENV"
+
+      # ── self-test only: the source is a throw-away database built the way the test stack builds it ──
+      - name: "Self-test: build the source database (migrations, real content, fixtures)"
+        if: env.MODE == 'self-test'
+        run: |
+          psql() { "$PG_BIN/psql" -X -q -v ON_ERROR_STOP=1 "$@"; }
+          psql -d postgres -c 'create database source'
+          psql -d source -f tests/support/stack/shim.sql
+          for file in $(ls db/migrations/*.sql | sort); do psql -d source -1 -f "$file"; done
+          node --experimental-strip-types --no-warnings scripts/import-content-to-db.ts --sql > "$RUNNER_TEMP/content.sql"
+          psql -d source -f "$RUNNER_TEMP/content.sql"
+          psql -d source -f tests/support/stack/fixtures.sql
+          echo "SOURCE_URL=postgresql:///source?host=$RUNNER_TEMP&port=$PG_PORT&user=postgres" >> "$GITHUB_ENV"
+
+      - name: 1. Dump the database
+        env:
+          NEON_DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+        run: |
+          source_url="${SOURCE_URL:-$NEON_DATABASE_URL}"
+          "$PG_BIN/pg_dump" --schema=public --no-owner --no-privileges --format=custom \
+            --file "$WORK/public.dump" "$source_url"
+          tables=$("$PG_BIN/pg_restore" -l "$WORK/public.dump" | grep -c ' TABLE public ')
+          echo "dump: $(stat -c %s "$WORK/public.dump") bytes, $tables tables"
+          echo "DUMPED_TABLES=$tables" >> "$GITHUB_ENV"
+          echo "BACKUP_STEP=storage_export" >> "$GITHUB_ENV"
+
+      - name: 2. Export the stored files and write the manifest
+        if: env.MODE == 'backup'
+        env:
+          OUT_DIR: ${{ github.workspace }}/.backup-work
+          NEON_DATA_API_URL: ${{ secrets.NEON_DATA_API_URL }}
+          NEON_SERVICE_JWT_PRIVATE_KEY: ${{ secrets.NEON_SERVICE_JWT_PRIVATE_KEY }}
+          NEON_SERVICE_JWT_KID: ${{ secrets.NEON_SERVICE_JWT_KID }}
+          NEON_STORAGE_ENDPOINT: ${{ secrets.NEON_STORAGE_ENDPOINT }}
+          NEON_STORAGE_REGION: ${{ secrets.NEON_STORAGE_REGION }}
+          NEON_STORAGE_ACCESS_KEY_ID: ${{ secrets.NEON_STORAGE_ACCESS_KEY_ID }}
+          NEON_STORAGE_SECRET_ACCESS_KEY: ${{ secrets.NEON_STORAGE_SECRET_ACCESS_KEY }}
+        run: |
+          node --import ./scripts/register-ts-resolve.mjs scripts/backup/collect.mjs
+          echo "BACKUP_STEP=encrypt" >> "$GITHUB_ENV"
+
+      - name: "2. Self-test: write the manifest from the source database"
+        if: env.MODE == 'self-test'
+        run: |
+          tables=$(node --input-type=module -e "const m = await import('./scripts/backup/tables.mjs'); console.log(m.ROW_COUNT_TABLES.join(' '))")
+          json='{}'
+          for t in $tables; do
+            n=$("$PG_BIN/psql" -X -tAq -d "$SOURCE_URL" -c "select count(*) from public.\"$t\"")
+            json=$(jq --arg t "$t" --argjson n "$n" '. + {($t): $n}' <<<"$json")
+          done
+          jq -n --argjson counts "$json" '{generatedAt: (now | todate), selfTest: true, tableRowCounts: $counts}' > "$WORK/manifest.json"
+          jq -c '.tableRowCounts' "$WORK/manifest.json"
+
+      - name: 3. Restore test (into a throw-away PostgreSQL, before encryption)
+        id: restore
+        if: env.RESTORE_TEST == 'true'
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          psql() { "$PG_BIN/psql" -X -q -v ON_ERROR_STOP=1 "$@"; }
+          # Its own step marker: a failed restore test does not stop the backup from being kept.
+          echo "RESTORE_STEP=restore" >> "$GITHUB_ENV"
+          psql -d postgres -c 'drop database if exists restore_test' -c 'create database restore_test'
+          # What the dump depends on but does not contain: the roles its policies name (Neon creates
+          # them, db/neon/prelude.sql adds the rest) and pgcrypto (installed in `public` on Neon).
+          psql -d restore_test <<'SQL'
+          do $$
+          begin
+            if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon nologin noinherit; end if;
+            if not exists (select 1 from pg_roles where rolname = 'authenticated') then create role authenticated nologin noinherit; end if;
+            if not exists (select 1 from pg_roles where rolname = 'anonymous') then create role anonymous nologin noinherit; end if;
+            if not exists (select 1 from pg_roles where rolname = 'service_role') then create role service_role nologin noinherit bypassrls; end if;
+          end
+          $$;
+          create extension if not exists pgcrypto;
+          SQL
+          # `public` already exists in a new database; restoring its CREATE SCHEMA would be an error.
+          "$PG_BIN/pg_restore" -l "$WORK/public.dump" | grep -vE '^[0-9]+; [0-9]+ [0-9]+ SCHEMA - public ' > "$RUNNER_TEMP/toc.list"
+          "$PG_BIN/pg_restore" --no-owner --no-privileges --exit-on-error -L "$RUNNER_TEMP/toc.list" \
+            -d restore_test "$WORK/public.dump"
+
+          echo "RESTORE_STEP=row_count_check" >> "$GITHUB_ENV"
+          dumped=$("$PG_BIN/pg_restore" -l "$WORK/public.dump" | grep -c ' TABLE public ')
+          restored=$("$PG_BIN/psql" -X -tAq -d restore_test -c "select count(*) from pg_tables where schemaname = 'public'")
+          echo "tables: $dumped in the dump, $restored restored"
+          echo "RESTORED_TABLES=$restored" >> "$GITHUB_ENV"
+          [ "$dumped" = "$restored" ] || { echo "::error::The dump has $dumped tables but $restored were restored."; exit 1; }
+
+          mismatches=0
+          for t in $(jq -r '.tableRowCounts | keys[]' "$WORK/manifest.json"); do
+            [[ "$t" =~ ^[a-z_]+$ ]] || { echo "::error::Unexpected table name in the manifest: $t"; exit 1; }
+            expected=$(jq -r --arg t "$t" '.tableRowCounts[$t]' "$WORK/manifest.json")
+            actual=$("$PG_BIN/psql" -X -tAq -d restore_test -c "select count(*) from public.\"$t\"")
+            if [ "$expected" = "$actual" ]; then
+              echo "  ok   $t: $actual"
+            else
+              echo "::error::$t: $actual rows restored, $expected in the manifest"
+              mismatches=$((mismatches + 1))
+            fi
+          done
+          [ "$mismatches" = 0 ] || exit 1
+          echo "Restore test passed: every table restored, every row count matches."
+
+      - name: 4. Encrypt (and shred the plaintext)
+        env:
+          BACKUP_AGE_PUBLIC_KEY: ${{ vars.BACKUP_AGE_PUBLIC_KEY }}
+        run: |
+          echo "BACKUP_STEP=encrypt" >> "$GITHUB_ENV"
+          name="artaveo-backup-$(date -u +%Y%m%dT%H%M%SZ)"
+          recipients="$RUNNER_TEMP/recipients.txt"
+          if [ "$MODE" = self-test ]; then
+            # A key made for this run only: proves the encrypt → decrypt round trip, then is thrown away.
+            age-keygen -o "$RUNNER_TEMP/selftest.key" 2>/dev/null
+            age-keygen -y "$RUNNER_TEMP/selftest.key" > "$recipients"
+          else
+            tr ' ,' '\n\n' <<<"$BACKUP_AGE_PUBLIC_KEY" | grep -E '^age1[0-9a-z]{50,}$' > "$recipients" \
+              || { echo "::error::BACKUP_AGE_PUBLIC_KEY holds no valid age public key (age1…)."; exit 1; }
+          fi
+          tar -C "$WORK" -cf "$RUNNER_TEMP/$name.tar" .
+          age --encrypt -R "$recipients" -o "$RUNNER_TEMP/$name.tar.age" "$RUNNER_TEMP/$name.tar"
+          # The plaintext never outlives this step.
+          find "$WORK" -type f -exec shred -u {} + 2>/dev/null || true
+          shred -u "$RUNNER_TEMP/$name.tar" 2>/dev/null || rm -f "$RUNNER_TEMP/$name.tar"
+          rm -rf "$WORK"
+          mkdir -p "$RUNNER_TEMP/out"
+          mv "$RUNNER_TEMP/$name.tar.age" "$RUNNER_TEMP/out/"
+          echo "BACKUP_FILE=$RUNNER_TEMP/out/$name.tar.age" >> "$GITHUB_ENV"
+          echo "BACKUP_STEP=upload" >> "$GITHUB_ENV"
+          echo "BACKUP_NAME=$name" >> "$GITHUB_ENV"
+          echo "encrypted: $(stat -c %s "$RUNNER_TEMP/out/$name.tar.age") bytes"
+
+      - name: "Self-test: decrypt and check the archive"
+        if: env.MODE == 'self-test'
+        run: |
+          age --decrypt -i "$RUNNER_TEMP/selftest.key" "$BACKUP_FILE" | tar -t > "$RUNNER_TEMP/contents.txt"
+          grep -qx './public.dump' "$RUNNER_TEMP/contents.txt"
+          grep -qx './manifest.json' "$RUNNER_TEMP/contents.txt"
+          echo "Decrypted with the run's own key: $(wc -l < "$RUNNER_TEMP/contents.txt") entries, dump and manifest present."
+          shred -u "$RUNNER_TEMP/selftest.key"
+
+      - name: 5. Keep the encrypted archive (35 days)
+        if: env.MODE == 'backup'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ env.BACKUP_NAME }}
+          path: ${{ env.BACKUP_FILE }}
+          if-no-files-found: error
+          retention-days: 35
+          compression-level: 0
+
+      - name: 6. Report to the site
+        if: env.MODE == 'backup'
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://artaveo-seven.vercel.app' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          RESTORE_OUTCOME: ${{ steps.restore.outcome }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::warning::The backup was taken, but CRON_SECRET is not set here, so the site does not know (its Backup row stays empty)."
+            exit 0
+          fi
+          case "$SITE_URL" in https://*) ;; *) echo "::error::SITE_URL must start with https://"; exit 1 ;; esac
+          report() {
+            curl --fail-with-body --silent --show-error --max-time 20 --retry 2 --retry-delay 5 --retry-all-errors \
+              -H "Authorization: Bearer $CRON_SECRET" -H 'Content-Type: application/json' \
+              -d "$1" "${SITE_URL%/}/api/ops/backup-report" && echo || echo "::warning::The site did not accept the report: $1"
+          }
+          size=$(stat -c %s "$BACKUP_FILE")
+          duration=$(( $(date +%s%3N) - BACKUP_STARTED_MS ))
+          tables="${DUMPED_TABLES:-0}"
+          report "$(jq -cn --argjson s "$size" --argjson d "$duration" --argjson t "$tables" '{event: "completed", sizeBytes: $s, durationMs: $d, tables: $t}')"
+          case "$RESTORE_OUTCOME" in
+            success) report '{"event":"restore_verified","rowCountsMatch":true}' ;;
+            failure) report "$(jq -cn --arg step "${RESTORE_STEP:-restore}" '{event: "restore_failed", step: $step, rowCountsMatch: false}')" ;;
+          esac
+          # From here on the backup counts as taken and reported; a later failure is the restore test's.
+          echo "BACKUP_DONE=true" >> "$GITHUB_ENV"
+
+      - name: The restore test failed
+        if: steps.restore.outcome == 'failure'
+        run: |
+          echo "::error::The backup was taken and kept, but it did not restore cleanly (failed at: ${RESTORE_STEP:-restore}). Read the restore step above; docs/runbooks/backup-restore.md § 5."
+          exit 1
+
+      - name: Report the failure
+        if: failure() && env.MODE == 'backup' && env.BACKUP_DONE != 'true'
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://artaveo-seven.vercel.app' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          [ -n "$CRON_SECRET" ] || exit 0
+          curl --silent --show-error --max-time 20 \
+            -H "Authorization: Bearer $CRON_SECRET" -H 'Content-Type: application/json' \
+            -d "$(jq -cn --arg step "${BACKUP_STEP:-dump}" '{event: "failed", step: $step}')" \
+            "${SITE_URL%/}/api/ops/backup-report" || true
+
+      - name: Clean up
+        if: always()
+        run: |
+          if [ -d "$WORK" ]; then find "$WORK" -type f -exec shred -u {} + 2>/dev/null || true; rm -rf "$WORK"; fi
+          rm -f "$RUNNER_TEMP"/*.tar "$RUNNER_TEMP/selftest.key" "$RUNNER_TEMP/content.sql"
+          if [ -n "${PG_BIN:-}" ] && [ -d "$RUNNER_TEMP/pgdata" ]; then "$PG_BIN/pg_ctl" -D "$RUNNER_TEMP/pgdata" -m fast stop || true; fi

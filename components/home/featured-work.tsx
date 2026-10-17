@@ -8,7 +8,6 @@ import { SectionHeader } from '@/components/home/section-header'
 import { LatinTerm } from '@/components/site/latin-term'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { StatusBadge } from '@/components/ui/tag'
 import { getFeaturedProjects } from '@/lib/home-content-projects'
 import { cn } from '@/lib/utils'
 import { t, type Locale, type Project } from '@/types/content'
@@ -21,12 +20,14 @@ import { t, type Locale, type Project } from '@/types/content'
  * `getLocale`/`getTranslations` (`next-intl/server`) are the async-safe
  * equivalents — `useTranslations` stays imported below only as a
  * `type`, for `ProjectFeature`'s prop signatures.
+ *
+ * Phase 26.5: no project status badge and no repository button here any more
+ * (the same rule as the case study and the /work cards).
  */
 export async function FeaturedWork() {
   const projects = await getFeaturedProjects()
   const locale = (await getLocale()) as Locale
   const tSection = await getTranslations('FeaturedWork')
-  const tStatus = await getTranslations('ProjectStatus')
 
   return (
     <section aria-labelledby="work-title" className="section-y">
@@ -46,7 +47,6 @@ export async function FeaturedWork() {
               project={project}
               locale={locale}
               t={tSection}
-              tStatus={tStatus}
               reversed={index % 2 === 1}
               priority={index === 0}
             />
@@ -61,14 +61,12 @@ function ProjectFeature({
   project,
   locale,
   t: tSection,
-  tStatus,
   reversed,
   priority,
 }: {
   project: Project
   locale: Locale
   t: ReturnType<typeof useTranslations<'FeaturedWork'>>
-  tStatus: ReturnType<typeof useTranslations<'ProjectStatus'>>
   reversed: boolean
   priority: boolean
 }) {
@@ -85,19 +83,16 @@ function ProjectFeature({
         tabIndex={-1}
         aria-hidden
         className={cn(
-          'group block lg:col-span-7',
+          'group block min-w-0 lg:col-span-7',
           reversed && 'lg:order-last',
         )}
       >
         <ProjectMedia project={project} locale={locale} priority={priority} screenshotPlaceholder={tSection('screenshotPlaceholder')} />
       </Link>
 
-      <div className="lg:col-span-5">
+      <div className="min-w-0 lg:col-span-5">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="brand-soft">{t(project.category, locale)}</Badge>
-          {project.status ? (
-            <StatusBadge status={project.status} label={tStatus(project.status)} />
-          ) : null}
           {project.year ? (
             <span className="font-mono text-xs text-muted-foreground">
               {project.year}
@@ -150,9 +145,6 @@ function ProjectFeature({
           </Button>
           {project.liveUrl ? (
             <ExternalButton href={project.liveUrl} label={tSection('liveDemo')} opensNewTab={tSection('opensNewTab')} />
-          ) : null}
-          {project.githubUrl ? (
-            <ExternalButton href={project.githubUrl} label={tSection('github')} opensNewTab={tSection('opensNewTab')} />
           ) : null}
         </div>
       </div>

@@ -6,3 +6,11 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - '@next/*'
   - next
+# Transitive packages whose security fixes their parents already allow, pinned up so the
+# lockfile cannot keep an advisory-affected version (Phase 26 — the dependency gate,
+# scripts/audit-gate.mjs). Drop an entry once the parent itself requires the fixed version.
+overrides:
+  'fast-uri@<3.1.8': '^3.1.8'
+  'source-map-js@<1.2.2': '^1.2.2'
+  'sharp@<0.35.5': '^0.35.5'
+  'proxy-addr@<2.0.8': '^2.0.8'

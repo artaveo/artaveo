@@ -25,10 +25,10 @@ describe('formatPackagePrice', () => {
     assert.equal(formatPackagePrice({ type: 'from', amount: 1500, currency: 'USD' }, 'en', tPrice), 'From $1,500')
     assert.equal(formatPackagePrice({ type: 'fixed', amount: 1500, currency: 'USD' }, 'en', tPrice), '$1,500')
   })
-  it('the currency defaults to USD, and fa renders Persian digits', () => {
+  it('the currency defaults to USD, and fa writes the amount in Persian digits with the currency as a word', () => {
     assert.equal(formatPackagePrice({ type: 'fixed', amount: 300 }, 'en', tPrice), '$300')
-    const fa = formatPackagePrice({ type: 'fixed', amount: 300, currency: 'USD' }, 'fa', tPrice)
-    assert.equal(fa.replace(/[^۰-۹]/g, ''), '۳۰۰')
+    assert.equal(formatPackagePrice({ type: 'fixed', amount: 300, currency: 'USD' }, 'fa', tPrice), '۳۰۰ دالر')
+    assert.equal(formatPackagePrice({ type: 'fixed', amount: 15000, currency: 'AFN' }, 'fa', tPrice), '۱۵٬۰۰۰ افغانی')
   })
   it('amounts are whole numbers (no fake precision)', () => {
     assert.equal(formatPackagePrice({ type: 'fixed', amount: 99.6, currency: 'USD' }, 'en', tPrice), '$100')
@@ -37,12 +37,13 @@ describe('formatPackagePrice', () => {
 
 describe('formatAddonPrice', () => {
   it('quote or missing amount → the honest label', () => {
-    assert.equal(formatAddonPrice({ type: 'quote' }, tPrice), 'Ask for a quote')
-    assert.equal(formatAddonPrice({ type: 'from' }, tPrice), 'Ask for a quote')
+    assert.equal(formatAddonPrice({ type: 'quote' }, 'en', tPrice), 'Ask for a quote')
+    assert.equal(formatAddonPrice({ type: 'from' }, 'fa', tPrice), 'Ask for a quote')
   })
   it('a figure is shown as an increment', () => {
-    assert.equal(formatAddonPrice({ type: 'fixed', amount: 200, currency: 'EUR' }, tPrice), '+200 EUR')
-    assert.equal(formatAddonPrice({ type: 'from', amount: 200 }, tPrice), '+200 USD')
+    assert.equal(formatAddonPrice({ type: 'fixed', amount: 200, currency: 'EUR' }, 'en', tPrice), '+€200')
+    assert.equal(formatAddonPrice({ type: 'from', amount: 200 }, 'en', tPrice), '+$200')
+    assert.equal(formatAddonPrice({ type: 'fixed', amount: 2000, currency: 'AFN' }, 'fa', tPrice), '+۲٬۰۰۰ افغانی')
   })
 })
 

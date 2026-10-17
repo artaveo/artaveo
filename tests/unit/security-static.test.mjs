@@ -21,7 +21,8 @@ const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8')
 function walk(dir, exts, out = []) {
   for (const entry of fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
     if (['node_modules', '.next', '.test-stack', 'test-results', 'playwright-report'].includes(entry.name)) continue
-    const rel = path.join(dir, entry.name)
+    // POSIX separators on every OS, so the path patterns below also hold on Windows.
+    const rel = path.posix.join(dir, entry.name)
     if (entry.isDirectory()) walk(rel, exts, out)
     else if (exts.some((ext) => entry.name.endsWith(ext))) out.push(rel)
   }
@@ -175,12 +176,12 @@ describe('places that can create markup or queries', () => {
   })
   it('the JSON-LD component still escapes "<"', () => assert.match(read('components/site/json-ld.tsx'), /replace\(\/<\/g,\s*'\\\\u003c'\)/))
 
-  it('no query filter is built by interpolating a value into .or() / .filter() except through lib/postgrest.ts or a validated UUID', () => {
+  it('no query filter is built by interpolating a value into .or() / .filter() except through lib/postgrest.ts (a validated UUID or integer)', () => {
     const offenders = []
     for (const file of sources) {
       const text = read(file)
       for (const match of text.matchAll(/\.(?:or|filter)\(\s*`[^`]*\$\{([^}]*)\}[^`]*`/g)) {
-        if (!/assertUuid\(/.test(match[1])) offenders.push(`${file}: ${match[0].slice(0, 80)}`)
+        if (!/assert(?:Uuid|SafeInteger)\(/.test(match[1])) offenders.push(`${file}: ${match[0].slice(0, 80)}`)
       }
     }
     assert.deepEqual(offenders, [])

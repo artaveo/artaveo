@@ -75,6 +75,8 @@ export async function buildSearchIndex(locale: Locale): Promise<SearchIndex> {
   for (const item of commandItems) {
     if (item.group === 'actions' || item.href === '/design-system' || item.href.startsWith('mailto:')) continue
     if (item.contentFlag === 'insights' && articles.length === 0) continue
+    // A page hidden from the nav is not offered by search either.
+    if (!item.contentFlag && item.hasContent === false) continue
 
     const title =
       item.labelNamespace === 'Nav'

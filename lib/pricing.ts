@@ -1,3 +1,4 @@
+import { formatCurrency } from '@/lib/format'
 import type { Locale, Price } from '@/types/content'
 
 /**
@@ -11,6 +12,9 @@ import type { Locale, Price } from '@/types/content'
  * no amount, which is a data error) renders as the honest "Ask for a quote"
  * label. D-04 is still open, so today every price on the site is `'quote'`.
  *
+ * Figures go through `formatCurrency` (Phase 26): on the Dari site an amount
+ * reads «۱٬۵۰۰ دالر» / «… افغانی», not `fa-IR`'s «$۱٬۵۰۰».
+ *
  * `tPrice` is the `Price` namespace translator: keys `quote` and `from`.
  */
 type PriceTranslator = (key: string) => string
@@ -18,15 +22,11 @@ type PriceTranslator = (key: string) => string
 export function formatPackagePrice(price: Price, locale: Locale, tPrice: PriceTranslator): string {
   if (price.type === 'quote') return tPrice('quote')
   if (price.amount == null) return tPrice('quote')
-  const formatted = new Intl.NumberFormat(locale === 'fa' ? 'fa-IR' : 'en-US', {
-    style: 'currency',
-    currency: price.currency ?? 'USD',
-    maximumFractionDigits: 0,
-  }).format(price.amount)
+  const formatted = formatCurrency(price.amount, locale, price.currency ?? 'USD')
   return price.type === 'from' ? `${tPrice('from')} ${formatted}` : formatted
 }
 
-export function formatAddonPrice(price: Price, tPrice: PriceTranslator): string {
+export function formatAddonPrice(price: Price, locale: Locale, tPrice: PriceTranslator): string {
   if (price.type === 'quote' || price.amount == null) return tPrice('quote')
-  return `+${price.amount} ${price.currency ?? 'USD'}`
+  return `+${formatCurrency(price.amount, locale, price.currency ?? 'USD')}`
 }

@@ -129,8 +129,7 @@ test('describing instants: zone, digits, UTC line, offset label', () => {
   assert.match(en.date, /September 24, 2026/)
   assert.equal(en.time, '14:00')
   const fa = describeInstant(start, 'Asia/Kabul', 'fa')
-  assert.match(fa.date, /۲۴/) // Persian digits in the date…
-  assert.match(fa.date, /۲۰۲۶/) // …Gregorian year (D-03)
+  assert.equal(fa.date, 'پنجشنبه ۲ میزان ۱۴۰۵') // Solar Hijri, Afghan month, Persian digits, Dari order (D-03)
   assert.equal(fa.time, '14:00') // …Latin digits in the clock time
   assert.deepEqual(describeRange({ start, end: '2026-09-24T11:30:00.000Z' }, 'Asia/Kabul', 'en').times, '14:00–16:00')
   assert.equal(describeUtcRange({ start, end: '2026-09-24T10:00:00.000Z' }), 'Thu, Sep 24, 2026, 09:30–10:00 UTC')
@@ -386,7 +385,7 @@ test('windowLines: the client\'s own zone, in both languages', () => {
   assert.match(en[0], /Thursday, September 24, 2026 — 14:00–16:00/)
   assert.match(en[1], /Friday, September 25, 2026 — 16:00–18:00/)
   const fa = windowLines([W1], 'Asia/Kabul', 'fa')
-  assert.match(fa[0], /۲۴/)
+  assert.match(fa[0], /پنجشنبه ۲ میزان ۱۴۰۵/) // the same day in the Solar Hijri calendar (D-03)
   assert.match(fa[0], /14:00 تا 16:00/)
 })
 

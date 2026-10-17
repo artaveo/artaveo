@@ -149,8 +149,10 @@ export function CaseStudyEvidenceGroup({
     sizes: string
     captionSize?: string
   }) {
+    // `min-w-0`: these figures are grid items in the two- and three-shot layouts, and a
+    // grid item never shrinks below its content by default (Phase 26.3, mobile overflow).
     return (
-      <figure>
+      <figure className="min-w-0">
         <MediaFrame
           item={item}
           locale={locale}

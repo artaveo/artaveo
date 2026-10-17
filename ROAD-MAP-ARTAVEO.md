@@ -5,16 +5,16 @@
 
 > **Revision 45 (17 October 2026) reset the plan.** In revisions 1–44 Artaveo was planned as a one-developer freelance profile. It is now a **software studio site that sells its own products, shows its work and takes client projects** (§ 1). Phases 1–25 stay exactly as they were — they are history. The work the reset requires is **new Phases 26–33 (Milestone R)**, placed **before** every phase that had not started. The phases that had not started (old 26–32) were **kept**, adapted to the new rules and **renumbered 34–40** (map in § 0.4). No completed phase was re-marked incomplete; the two partial ones (3 and 9) were closed and their open items moved to named places (§ 0.2).
 
-**خلاصه به دری:** فازهای ۱ تا ۲۵ تمام شده‌اند و دست نمی‌خورند. کارهای تازه‌ای که از بازبینی ۲۵ میزان ۱۴۰۵ بیرون آمد، فازهای ۲۶ تا ۳۳ هستند و پیش از همه‌ی فازهای باقی‌مانده انجام می‌شوند. فازهای قدیمیِ شروع‌نشده (۲۶ تا ۳۲) حذف نشده‌اند؛ با قانون‌های تازه اصلاح شده‌اند و حالا شماره‌های ۳۴ تا ۴۰ را دارند. **فاز بعدی: فاز ۲۶.**
+**خلاصه به دری:** فازهای ۱ تا ۲۵ تمام شده‌اند و دست نمی‌خورند. کارهای تازه‌ای که از بازبینی ۲۵ میزان ۱۴۰۵ بیرون آمد، فازهای ۲۶ تا ۳۳ هستند و پیش از همه‌ی فازهای باقی‌مانده انجام می‌شوند. فازهای قدیمیِ شروع‌نشده (۲۶ تا ۳۲) حذف نشده‌اند؛ با قانون‌های تازه اصلاح شده‌اند و حالا شماره‌های ۳۴ تا ۴۰ را دارند. **فاز ۲۶ تمام شد (۲۵ میزان ۱۴۰۵). فاز بعدی: فاز ۲۷.**
 
 ## 0.1 Where we are
 
 | | |
 |---|---|
-| Last completed phase | **Phase 25 — Backup & Recovery** (code, 22 September 2026) |
-| Out-of-sequence work since then | Backend moved Supabase → Neon (16 October 2026, § 23.2) · Roadmap reset, revision 45 (17 October 2026, § 23.3) |
-| **Next phase** | **Phase 26 — Live-site corrections** (§ 11A) |
-| After that, in order | 27 → 28 → 29 → 30 → 31 → 32 → 33 (Milestone R), then 34 → 40 |
+| Last completed phase | **Phase 26 — Live-site corrections** (17 October 2026, `docs/phases/PHASE-26-README.md`) |
+| Out-of-sequence work before it | Backend moved Supabase → Neon (16 October 2026, § 23.2) · Roadmap reset, revision 45 (17 October 2026, § 23.3) |
+| **Next phase** | **Phase 27 — Products, sale options & flexible content** (§ 11A) |
+| After that, in order | 28 → 29 → 30 → 31 → 32 → 33 (Milestone R), then 34 → 40 |
 | Design reference | Owner-approved design sample (17 October 2026): `https://claude.ai/artifact/C9Di6ViyqL3v4uQnYFaCfi` — private to the owner. Agents without access use § 14.1, which is its written specification. |
 
 ## 0.2 Status of every phase (one line each)
@@ -45,10 +45,10 @@ Phase  Name                                        Status
 22     CI/CD & Release Gates                       ✅ COMPLETE   — GitHub settings are O-5
 23     Security Hardening                          ✅ COMPLETE
 24     Observability                               ✅ COMPLETE
-25     Backup & Recovery                           ✅ COMPLETE   — the daily workflow file was never committed: Phase 26.8; first real run is O-4
+25     Backup & Recovery                           ✅ COMPLETE   — its daily workflow was committed in Phase 26.8; first real run is O-4
 ────── Milestone R — Repositioning & Redesign (new in revision 45) ──────
-26     Live-site corrections                       ⬜ NEXT
-27     Products, sale options & flexible content   ⬜            (data model + admin)
+26     Live-site corrections                       ✅ COMPLETE   — 17 October 2026; also turned CI green again (Next.js 16.3.8 security update)
+27     Products, sale options & flexible content   ⬜ NEXT       (data model + admin)
 28     Design System 2.0                           ⬜
 29     Shell & Home rebuild                        ⬜
 30     Products & Work pages                       ⬜
@@ -70,8 +70,8 @@ Phase  Name                                        Status
 - **O-1 Neon production switch** — Vercel Production env: add every `NEON_*` variable and `MFA_ENCRYPTION_KEY`, set `INQUIRY_IP_HASH_SECRET`, remove the three `SUPABASE_*` variables, redeploy (`docs/updates/2026-10-16-neon-migration.md`, owner steps).
 - **O-2 Admin account** — create it in Neon Auth and point `admin_users` at it; Neon Auth: sign-ups off, shared Google provider removed (`docs/runbooks/admin-onboarding.md`).
 - **O-3 Retire Supabase** — after the site has run on Neon for a while: pause, then delete, the old project.
-- **O-4 Backups** — after Phase 26.8 commits the workflow: create the `age` key pair (private key offline), add the GitHub secrets the workflow names, run it once by hand (`docs/runbooks/backup-restore.md`).
-- **O-5 GitHub / Vercel settings** — `CRON_SECRET` in Vercel and GitHub (no branch protection that blocks direct pushes — work goes straight to `main`), optional `SITE_URL` for the uptime workflow (`docs/ci.md`, `docs/observability.md`).
+- **O-4 Backups** — the workflow is committed (Phase 26.8, `.github/workflows/backup.yml`): create the `age` key pair (private key offline), add the GitHub secrets (`NEON_DATABASE_URL` — the direct connection string —, the `NEON_DATA_API_URL` / `NEON_SERVICE_JWT_*` / `NEON_STORAGE_*` values from Vercel, `CRON_SECRET`) and the variable `BACKUP_AGE_PUBLIC_KEY`, run it once by hand and open one backup with the private key (`docs/runbooks/backup-restore.md` § 4). Until then the scheduled run says "not set up yet" and takes no backup.
+- **O-5 GitHub / Vercel settings** — `CRON_SECRET` in Vercel and GitHub (no branch protection that blocks direct pushes — work goes straight to `main`), optional `SITE_URL` for the uptime workflow (`docs/ci.md`, `docs/observability.md`). Found in Phase 26: a **second Vercel project outside the `zakir-naseri` account** is still connected to the repository and posts a failing "Vercel – artaveo" status on every push — disconnect it (the live site is `zakir-naseri/artaveo`).
 - **O-6 Domain (D-01)** — buy the domain, set SPF/DKIM/DMARC; then real e-mail sending is switched on (Phase 19's provider) as a small activation task.
 - **O-7 Decide D-19** — the `Transportation-System` repository is public; decide before that product is sold.
 - **O-8 Prices** — enter real prices per product sale option and per service in the admin once Phase 27 ships (D-04). Nothing is invented meanwhile.
@@ -97,7 +97,9 @@ Phase documents written before revision 45 that say "next: Phase 26 (Performance
 
 ## Document status
 
-**Last revision:** 17 October 2026 (revision 45 — **roadmap reset after the owner's product, content and design review.** Revisions 1–44 planned the site as a one-developer freelance profile benchmarked on Contra/Toptal/Fiverr, with engineering case studies, a claims ledger that pushed limitations and bugs onto public pages, and Persian copy translated from English; the review (§ 6.7) found that this is why the site read like a student report instead of a studio that sells software. Revision 45: (1) new **§ 0 Start here** — current position, every phase's status, owner-only actions, renumbering map; (2) **§ 1 rewritten** — a software studio with its own products (admin-managed ways to get them: monthly/yearly/lifetime licence, source code, custom edition, maintenance and after-sales services — D-16), a visual portfolio and client work of any kind (D-18); (3) **new Milestone R, Phases 26–33** — live-site corrections → products/sale-options/flexible-content data and admin → Design System 2.0 → shell & home → products & work → services/about/contact → Dari & English content rewrite → articles — placed before every unstarted phase; (4) **unstarted phases kept, adapted and renumbered** 26→34 … 32→40; (5) partial Phases 3 and 9 closed with their open items moved to named phases or owner actions — no completed phase re-marked incomplete; (6) § 2, § 3, § 4 (new references, decisions B-24–B-38 and re-decisions of B-03–B-23), § 6.7 (audit findings), § 7 (D-03, D-04, D-05, D-10 updated; D-15–D-21 added), § 8, § 11A, § 11B, § 12, § 13, § 14, § 14.1, § 15, § 16 (customer rule + Dari glossary), § 17, § 20, § 21, § 22 and § 23 (23.2 Neon move, 23.3 this reset) updated. Also recorded: Phase 25's daily backup workflow (`.github/workflows/backup.yml`) was never committed — already disclosed in `docs/runbooks/backup-restore.md` § 1 — now Phase 26.8; Phase 25 keeps its status per the numbering rule. **No code changed in this revision.**)
+**Last revision:** 17 October 2026 (revision 46 — **Phase 26 marked complete: Live-site corrections.** Vazirmatn now applies and downloads on `/fa` (`font-persian` on `<body>` for RTL; mono labels fall back to Vazirmatn for Persian glyphs). Dari dates are Solar Hijri with Afghan month names in Dari word order («پنجشنبه ۲ میزان ۱۴۰۵»), amounts «… افغانی» / «… دالر» (`lib/format.ts`; `lib/pricing.ts` and the availability chip moved onto it). `min-w-0` on the case-study, featured-work and card grid items; every public route checked at 360/375/414 px. Every "§", decision id and phase number removed from public copy (`lib/about-content.ts`, one FAQ row). Hidden: the engineering article (unpublished), the case-study engineering sections and role, repository links, project status badges, the Insights nav item and Home preview. `/work` two columns up to four projects. Leftover fictional screenshots and v0 placeholders deleted. `.github/workflows/backup.yml` committed with a secret-free self-test mode (the dry run). Migration `0024_live_site_corrections` (two content rows) applied on Neon. **CI was red on `main` since 21 September and is green again:** Next.js 16.3.3 → 16.3.8 (critical RCE advisory in `next/og`), four transitive overrides, two real test findings from the Neon move, Windows-safe test paths. Also: the `/work` grid no longer ships whole project objects (repository URLs, engineering text) to the browser; `CodeBlock` and `Callout` no longer widen narrow screens. See `docs/phases/PHASE-26-README.md`.)
+
+**Previous revision:** 17 October 2026 (revision 45 — **roadmap reset after the owner's product, content and design review.** Revisions 1–44 planned the site as a one-developer freelance profile benchmarked on Contra/Toptal/Fiverr, with engineering case studies, a claims ledger that pushed limitations and bugs onto public pages, and Persian copy translated from English; the review (§ 6.7) found that this is why the site read like a student report instead of a studio that sells software. Revision 45: (1) new **§ 0 Start here** — current position, every phase's status, owner-only actions, renumbering map; (2) **§ 1 rewritten** — a software studio with its own products (admin-managed ways to get them: monthly/yearly/lifetime licence, source code, custom edition, maintenance and after-sales services — D-16), a visual portfolio and client work of any kind (D-18); (3) **new Milestone R, Phases 26–33** — live-site corrections → products/sale-options/flexible-content data and admin → Design System 2.0 → shell & home → products & work → services/about/contact → Dari & English content rewrite → articles — placed before every unstarted phase; (4) **unstarted phases kept, adapted and renumbered** 26→34 … 32→40; (5) partial Phases 3 and 9 closed with their open items moved to named phases or owner actions — no completed phase re-marked incomplete; (6) § 2, § 3, § 4 (new references, decisions B-24–B-38 and re-decisions of B-03–B-23), § 6.7 (audit findings), § 7 (D-03, D-04, D-05, D-10 updated; D-15–D-21 added), § 8, § 11A, § 11B, § 12, § 13, § 14, § 14.1, § 15, § 16 (customer rule + Dari glossary), § 17, § 20, § 21, § 22 and § 23 (23.2 Neon move, 23.3 this reset) updated. Also recorded: Phase 25's daily backup workflow (`.github/workflows/backup.yml`) was never committed — already disclosed in `docs/runbooks/backup-restore.md` § 1 — now Phase 26.8; Phase 25 keeps its status per the numbering rule. **No code changed in this revision.**)
 
 **Previous revision:** 22 September 2026 (revision 44 — Phase 25 marked complete (code): Backup & Recovery. **No migration.** A daily GitHub Actions workflow (`.github/workflows/backup.yml`) `pg_dump`s the `public` schema (`--no-owner --no-privileges --format=custom`, via the Session pooler connection string — the free plan's direct connection is IPv6-only and GitHub's runners are not) and, because `pg_dump` never sees Storage, `scripts/backup/collect.mjs` separately downloads every object in both buckets with the service-role key and writes a `manifest.json` (applied migrations, per-table row counts, and — since `admin_users` (migration `0008`) is deliberately just `(id, role)` with `id` a foreign key into Supabase's own `auth.users`, which this backup does not dump — each admin's e-mail, resolved once via the Auth admin API while the project still exists, so a disaster-recovery restore into a brand-new project knows which Auth user to recreate). **Restore test, every Sunday and on every manual run:** the plaintext dump — before it is ever encrypted — is restored into a throw-away local PostgreSQL inside the same job and every table's row count is checked against the manifest; this is what "a backup never restored is not verified" means here, and it is real evidence, not a file-exists check. Everything is then archived and encrypted with `age` (pinned release, checksum-verified) to the owner's own public key — the private key is generated and kept by the owner, offline, and is never in GitHub — before the plaintext ever leaves the runner's disk (`shred -u`, falling back to `rm`, in the same step that encrypts). The encrypted archive is a GitHub Actions artifact (35-day retention); a new `/api/ops/backup-report` endpoint (`CRON_SECRET`-authenticated, the same pattern `/api/ops/check` already uses) records what happened as `ops_events` — no new table, Phase 24's store already fits. **Four new stateless alerts** (`backup.failing`, `backup.stale` — errors; `backup.restore_failed` — error; `backup.restore_stale` — warning), same "only if it ever ran" convention as `cron.stale`, plus two new rows on `/admin/observability` → *Health* (*Last backup*, *Last verified restore*). **RPO 24 hours, RTO under an hour restoring into the same project / several hours for disaster recovery into a new one** (`docs/runbooks/backup-restore.md`, which also writes down, for the first time as a procedure rather than a convention, that every migration since `0001` already carries its own `ROLLBACK:` block, and Vercel Hobby's one-step-back deployment rollback). **Deliberately not dumped:** Supabase's own `auth.*` schema (platform-managed; the admin-e-mail manifest is how the one place it matters — `admin_users.id` — is handled instead) and a bulk Storage-restore tool (manual steps in the runbook, disclosed rather than automated away, since it is surface area used only in an actual incident). **Genuinely run, not only typechecked:** the local test stack's fake-Supabase gateway (`tests/support/stack/gateway.mjs`) gained real Storage `list`/authenticated-download and Auth admin `getUserById` handling (not stubs) so `scripts/backup/collect.mjs` could be run for real against seeded, nested Storage objects — it correctly downloaded both files and resolved both test admins' real e-mails. Tests: **447 unit** (4 new — the four alert rules at threshold and one step either side), **226 integration** (unchanged pass count, confirming the gateway extension didn't regress the existing storage/auth paths), **32 browser** (`observability.spec.ts`, including axe on the two new health rows in both languages and both themes) — all green. Lint 0 errors under the unchanged cap; `tsc` clean; a full `next build` against the stack lists `/api/ops/backup-report` as a real route. The privacy policy discloses the encrypted daily backup and that a deletion request does not retroactively remove already-taken backups (they age out within the same month). **Not verified:** the GitHub Actions workflow's own real execution (`pg_dump`/`pg_restore`/`age`/the PGDG apt install — this sandbox has no Actions runner; every embedded bash block was syntax-checked and reviewed, not executed end-to-end) and a live rehearsal of disaster recovery into a genuinely new Supabase project. **Owner-only:** generate the `age` key pair and keep the private key offline; add the GitHub secrets `SUPABASE_DB_URL` (Session pooler string) and `SUPABASE_SERVICE_ROLE_KEY`, and the variable `BACKUP_AGE_PUBLIC_KEY`; watch the workflow's first real run. See `docs/phases/PHASE-25-README.md` and `docs/runbooks/backup-restore.md`.)
 
@@ -596,7 +598,7 @@ Decisions and their dates are recorded in `docs/decisions.md`.
 M1  CREDIBLE LAUNCH            Phases 3–11   ✅ launched 15 September 2026
 M2  OPERATING LAYER            Phases 12–20  ✅ (code)
 M3  PRODUCTION ASSURANCE       Phases 21–25  ✅ (code) — its last phase (certification) moved to Phase 34 (revision 45)
-R   REPOSITIONING & REDESIGN   Phases 26–33  ⬜ NEXT — added in revision 45 (§ 11A)
+R   REPOSITIONING & REDESIGN   Phases 26–33  ⏳ IN PROGRESS — 26 ✅ (17 October 2026), 27 next (§ 11A)
 M3b CERTIFICATION              Phase 34      (was 26) — certifies the redesigned site, not the old one (§ 11B)
 M4  GROWTH & BUSINESS          Phases 35–39  (were 27–31) — adapted to products and licences (§ 12)
 M5  FINAL AUDIT                Phase 40      (was 32) → manual release decision (§ 13)
@@ -631,7 +633,7 @@ Decisions (D-xx)
 → Final audit (40)                                                                                  ── M5
 ```
 
-Phase 26 is independent of the rest of R (small fixes to the live site) and may run first. 28 needs 27's data shapes only where components show admin data (colours, covers, sale options). 32 can start on pages as soon as 29–31 have rebuilt them, but closes only after all of them.
+Phase 26 is independent of the rest of R (small fixes to the live site) and ran first (✅ 17 October 2026). 28 needs 27's data shapes only where components show admin data (colours, covers, sale options). 32 can start on pages as soon as 29–31 have rebuilt them, but closes only after all of them.
 
 Later phases may inform earlier design decisions, but they are never used as an excuse to skip an earlier phase's Definition of Done.
 
@@ -669,11 +671,11 @@ M3 — PRODUCTION ASSURANCE (make it safe to trust)
   Phase 22  CI/CD & Release Gates            Automatic checks before every deploy                                  ✅ COMPLETE (code) — GitHub settings O-5
   Phase 23  Security Hardening               Headers, rate limits, upload safety, dependency checks                ✅ COMPLETE (code)
   Phase 24  Observability                    Logging, error tracking, alerts                                        ✅ COMPLETE (code)
-  Phase 25  Backup & Recovery                Real, restore-tested database backups                                  ✅ COMPLETE (code) — workflow file → 26.8; first run O-4
+  Phase 25  Backup & Recovery                Real, restore-tested database backups                                  ✅ COMPLETE (code) — workflow committed in 26.8; first run O-4
 
 R — REPOSITIONING & REDESIGN (added in revision 45 — do these next, in order)
-  Phase 26  Live-site corrections            Fix what hurts the live site now: Persian font, Dari dates, mobile overflow, internal refs, hide engineering copy    ⬜ NEXT
-  Phase 27  Products, sale options & content Data model + admin: products, ways to get them, prices, free content blocks, colours, covers, new inquiry types    ⬜
+  Phase 26  Live-site corrections            Fix what hurts the live site now: Persian font, Dari dates, mobile overflow, internal refs, hide engineering copy    ✅ COMPLETE (17 Oct 2026)
+  Phase 27  Products, sale options & content Data model + admin: products, ways to get them, prices, free content blocks, colours, covers, new inquiry types    ⬜ NEXT
   Phase 28  Design System 2.0                Dark premium + limited glass, new type scale, colours per project, new components    ⬜
   Phase 29  Shell & Home rebuild             New header with mega menus, WhatsApp button, new Home (one block per product/project)    ⬜
   Phase 30  Products & Work pages            /products, product page with ways to get it, purchase/demo requests, visual case studies    ⬜
@@ -1392,7 +1394,10 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 
 **Common rules for every phase in R:** customer copy follows § 16 (any text that explains how a system works inside does not ship); every public section is data the owner manages in the admin (§ 2.22); each project and product stands in its own block (§ 2.24); Dari is first-class (§ 16.3); the approved design sample and § 14.1 are the visual reference.
 
-## Phase 26 — Live-site corrections  ⬜ NEXT
+## Phase 26 — Live-site corrections  ✅ COMPLETE (17 October 2026 — see `docs/phases/PHASE-26-README.md`; migration `0024` applied on Neon)
+
+> **Done (revision 46):** 26.1–26.8 as specified below; every exit criterion verified (phase document, *Verification*). On the way, CI was found red on `main` since 21 September and made green: Next.js 16.3.3 → **16.3.8** (a critical remote-code-execution advisory in `next/og`, which `/api/og` uses), four transitive packages pinned to their fixed versions, two real test findings from the Neon move fixed, and the suites made to run on Windows. Not in 26's list and still showing: the *Architecture* and *Responsive & RTL* case-study sections (→ 27.2 / 32).
+
 
 **Goal:** stop the live site from hurting sales while the redesign is built. Small, low-risk fixes on the current design — nothing here is redesign work.
 
@@ -1407,7 +1412,7 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 
 **Exit criteria:** no horizontal overflow at 360 px on any public route; Vazirmatn loaded and computed on `/fa`; `/fa` dates in Solar Hijri with Afghan months; no "§" or phase number in any public HTML; the engineering article unpublished; the hidden sections and links absent in both locales; backup workflow present and green in a dry run; CI green.
 
-## Phase 27 — Products, sale options & flexible content (data model + admin)  ⬜
+## Phase 27 — Products, sale options & flexible content (data model + admin)  ⬜ NEXT
 
 **Goal:** everything the new site shows is data the owner manages without code (D-16, § 2.22). New Neon migrations with rollback notes; RLS and authorization tests extended; selectors and types updated; i18n parity kept.
 

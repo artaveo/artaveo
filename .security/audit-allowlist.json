@@ -18,12 +18,6 @@
       "package": "browserslist",
       "reason": "Same path and same reasoning as GHSA-c83g-rgw3-j3cx: build-time only, queries come from the repository, not from a visitor.",
       "expires": "2026-12-19"
-    },
-    {
-      "id": "GHSA-rgj7-g3m4-5g8c",
-      "package": "sharp",
-      "reason": "Concerns decoding HEIF/HEIC files (libheif). The only files a visitor can upload are png, jpeg, webp, gif and svg (lib/media-upload.ts, checked against the storage bucket by tests/unit/media-upload.test.mjs), so a HEIF file never reaches the image optimiser. Goes away when Next.js takes sharp >= 0.35.4.",
-      "expires": "2026-12-19"
     }
   ]
 }

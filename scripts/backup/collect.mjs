@@ -21,10 +21,13 @@
  *   node --import ./scripts/register-ts-resolve.mjs scripts/backup/collect.mjs
  *
  * Output: OUT_DIR (default ./.backup-work), which is tarred alongside the `pg_dump` file
- * before encrypting.
+ * before encrypting. The daily workflow that runs all of this is `.github/workflows/backup.yml`
+ * (committed in Phase 26.8); which buckets and tables are covered is `./tables.mjs`.
  */
 import fs from 'node:fs'
 import path from 'node:path'
+
+import { BUCKETS, ROW_COUNT_TABLES } from './tables.mjs'
 
 const OUT_DIR = process.env.OUT_DIR ?? path.join(process.cwd(), '.backup-work')
 
@@ -34,20 +37,6 @@ if (!db) {
   console.error('collect.mjs: NEON_DATA_API_URL, NEON_SERVICE_JWT_PRIVATE_KEY and NEON_SERVICE_JWT_KID are required')
   process.exit(1)
 }
-
-// Every bucket this app writes to (configured on the Neon branch) — kept as a literal list, so a
-// bucket added or renamed is a visible diff here, not a silent gap.
-const BUCKETS = ['media', 'inquiry-files']
-
-// The tables a restore is worth checking against (every table with real content or leads —
-// admin/audit tables are counted via the manifest's own admin list instead). Kept as a literal
-// list, same reasoning as BUCKETS: a new table needs a deliberate line here, not silent coverage.
-const ROW_COUNT_TABLES = [
-  'inquiries', 'inquiry_events', 'consultations', 'recommendations', 'recommendation_requests',
-  'articles', 'projects', 'project_sections', 'project_media', 'services', 'service_packages',
-  'service_addons', 'engagement_models', 'faqs', 'technologies', 'media_assets', 'navigation_items',
-  'site_settings', 'notification_outbox', 'audit_log', 'admin_users',
-]
 
 async function downloadBucket(bucket) {
   const destRoot = path.join(OUT_DIR, 'storage', bucket)
@@ -93,7 +82,8 @@ async function adminManifest() {
 async function rowCounts() {
   const counts = {}
   for (const table of ROW_COUNT_TABLES) {
-    const { count, error } = await db.from(table).select('id', { count: 'exact', head: true })
+    // `*`, not `id`: the join tables (project_technologies, article_projects, …) have no id column.
+    const { count, error } = await db.from(table).select('*', { count: 'exact', head: true })
     if (error) throw new Error(`row count ${table}: ${error.message}`)
     counts[table] = count ?? 0
   }
@@ -103,10 +93,12 @@ async function rowCounts() {
 async function main() {
   fs.mkdirSync(OUT_DIR, { recursive: true })
 
+  // Counts first: the workflow runs this right after `pg_dump`, and the restore test compares
+  // the dump against these numbers — the shorter the gap, the less can change in between.
+  const [admins, tableRowCounts] = await Promise.all([adminManifest(), rowCounts()])
+
   const storage = []
   for (const bucket of BUCKETS) storage.push(await downloadBucket(bucket))
-
-  const [admins, tableRowCounts] = await Promise.all([adminManifest(), rowCounts()])
 
   const manifest = {
     generatedAt: new Date().toISOString(),

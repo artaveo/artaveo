@@ -4,9 +4,10 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useMemo, useState } from 'react'
 
 import { SegmentedControl, SegmentedControlItem } from '@/components/ui/segmented-control'
-import { ProjectCard } from '@/components/work/project-card'
-import { WORK_FILTER_THRESHOLD } from '@/lib/site'
-import { t, type Locale, type Project } from '@/types/content'
+import { ProjectCard, type ProjectCardData } from '@/components/work/project-card'
+import { WORK_FILTER_THRESHOLD, WORK_TWO_COLUMN_MAX } from '@/lib/site'
+import { cn } from '@/lib/utils'
+import { t, type Locale } from '@/types/content'
 
 /**
  * WorkGrid — the `/work` index (roadmap § 6.1): a responsive project grid,
@@ -14,15 +15,20 @@ import { t, type Locale, type Project } from '@/types/content'
  * there are enough projects to need them (`WORK_FILTER_THRESHOLD`). With
  * today's two projects the filters stay hidden and every project shows.
  *
+ * Up to `WORK_TWO_COLUMN_MAX` projects the grid has two columns at most — three
+ * columns for two projects left a third of the page empty and the screenshots
+ * small (Phase 26.6).
+ *
  * Filter options are derived from the projects actually on the page, so a
  * selection can never produce an empty grid — the public site doesn't have
  * an empty-results state here (see `components/ui/states.tsx`'s `EmptyState`
  * comment), it simply can't be reached.
  */
-export function WorkGrid({ projects }: { projects: Project[] }) {
+export function WorkGrid({ projects }: { projects: ProjectCardData[] }) {
   const locale = useLocale() as Locale
   const tWork = useTranslations('Work')
   const showFilters = projects.length >= WORK_FILTER_THRESHOLD
+  const twoColumns = projects.length <= WORK_TWO_COLUMN_MAX
 
   const categories = useMemo(() => {
     const labels = new Set(projects.map((project) => t(project.category, locale)))
@@ -91,9 +97,14 @@ export function WorkGrid({ projects }: { projects: Project[] }) {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+      <div className={cn('grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2', !twoColumns && 'lg:grid-cols-3')}>
         {filtered.map((project, index) => (
-          <ProjectCard key={project.id} project={project} priority={index === 0} />
+          <ProjectCard
+            key={project.id}
+            project={project}
+            priority={index === 0}
+            sizes={twoColumns ? '(min-width: 640px) 50vw, 100vw' : undefined}
+          />
         ))}
       </div>
     </div>

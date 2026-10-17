@@ -55,7 +55,7 @@ const languagesData: WorkingLanguage[] = [
   {
     name: tx('Dari / Persian', 'دری / فارسی'),
     note: tx(
-      "Artaveo's Persian content — including this sentence — is written directly, not machine-translated (§ 16.2).",
+      "Artaveo's Persian content — including this sentence — is written directly, not machine-translated.",
       'متن فارسی آرتاویو مستقیم نوشته و بازبینی می‌شود؛ ترجمه‌ی ماشینی نیست.',
     ),
   },
@@ -215,7 +215,7 @@ const processPhasesData: ProcessPhase[] = [
     ),
     activities: [
       tx('Manual verification of loading, empty, error and edge states', 'بررسی دستی حالت‌های بارگذاری، خالی، خطا و لبه‌ای'),
-      tx('Cross-device, cross-browser, both-locale and both-theme checks (§ 17 Definition of Done)', 'بررسی روی چند دستگاه، چند مرورگر، هر دو زبان و هر دو تم (طبق § ۱۷ معیار تکمیل کار)'),
+      tx('Cross-device, cross-browser, both-locale and both-theme checks', 'بررسی روی چند دستگاه، چند مرورگر، هر دو زبان و هر دو تم'),
       tx('A migration or schema change is validated against real data inside a transaction that is rolled back — never tested only in theory', 'هر تغییر migration یا schema را روی داده‌ی واقعی و داخل تراکنشی که در پایان rollback می‌شود اعتبارسنجی می‌کنم؛ فقط روی کاغذ به آن اعتماد نمی‌کنم.'),
     ],
     output: tx(
@@ -279,7 +279,7 @@ const processPhasesData: ProcessPhase[] = [
       'در صورت نیاز — با گزارش یک مشکل یا درخواست یک تغییر از سوی تو، از همان کانال مستقیمی که در طول ساخت استفاده می‌شد.',
     ),
     decisionsAndRisks: tx(
-      'The exact warranty window, response commitment and change-request pricing are published on the Working Agreement page once it ships (Phase 8.2) — nothing here is promised beyond what that page will state in writing.',
+      'The exact warranty window, response commitment and change-request pricing are set out on the Working Agreement page — nothing here is promised beyond what that page states in writing.',
       'جزئیات ضمانت، زمان پاسخ‌گویی و قیمت درخواست‌های تغییر در صفحه‌ی توافق‌نامه‌ی همکاری منتشر می‌شوند. این‌جا چیزی فراتر از آن شرایط وعده داده نمی‌شود.',
     ),
   },
@@ -367,7 +367,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
         'در طول پروژه، دست‌کم هفته‌ای یک گزارش کوتاه و نوشتاری',
       ),
       tx(
-        'A demo at the end of every milestone (§ Process — Build), not only at final delivery',
+        'A demo at the end of every milestone, not only at final delivery',
         'یک دمو در پایان هر نقطه‌ی عطف، نه فقط در تحویل نهایی',
       ),
       tx(
@@ -381,7 +381,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     icon: 'Clock',
     title: tx('Response commitment', 'تعهد پاسخ‌گویی'),
     summary: tx(
-      'Replies within a few hours, same day (D-08) — published, and tracked once the admin lead pipeline ships (Phase 14).',
+      'Replies within a few hours, same day.',
       'تعهد پاسخ‌گویی همان روز و طی چند ساعت، در توافق‌نامه‌ی همکاری مشخص شده است.',
     ),
   },
@@ -390,8 +390,8 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     icon: 'Wallet',
     title: tx('Payment, milestones & deposits', 'پرداخت، نقاط عطف و پیش‌پرداخت'),
     summary: tx(
-      'Payment follows the schedule of the engagement model you start under (§ Process — Define), not one number applied to every project alike.',
-      'پرداخت از برنامه‌ی مدل همکاری‌ای که با آن شروع می‌کنی پیروی می‌کند (§ روند کار — تعریف)، نه یک عدد یکسان برای همه‌ی پروژه‌ها.',
+      'Payment follows the schedule of the engagement model you start under, not one number applied to every project alike.',
+      'پرداخت از برنامه‌ی مدل همکاری‌ای که با آن شروع می‌کنی پیروی می‌کند، نه یک عدد یکسان برای همه‌ی پروژه‌ها.',
     ),
     points: [
       tx(
@@ -411,12 +411,12 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
         'Care Plan / همکاری پاره‌وقت بلندمدت: صورت‌حساب ماهانه، پیش از شروع ماه',
       ),
       tx(
-        'A deposit is due before work begins on any new engagement; the exact split is written into that project\u2019s own agreement during Define, sized to the project rather than fixed sitewide (D-13)',
+        'A deposit is due before work begins on any new engagement; the exact split is written into that project\u2019s own agreement during Define, sized to the project rather than fixed sitewide',
         'برای هر همکاری تازه پیش از شروع کار یک پیش‌پرداخت لازم است. نسبت دقیق آن در قرارداد همان پروژه و متناسب با دامنه‌ی کار مشخص می‌شود؛ یک عدد ثابت برای همه‌ی پروژه‌ها نیست.',
       ),
       tx(
-        'No online payment gateway is wired into this site yet (Phase 9); invoices are sent and paid through the channel agreed during Define',
-        'هنوز هیچ درگاه پرداخت آنلاینی به این سایت وصل نیست (فاز ۹)؛ فاکتورها از طریق کانالی که در فاز تعریف توافق می‌شود ارسال و پرداخت می‌شوند',
+        'Invoices are sent and paid through the channel agreed during Define',
+        'فاکتورها از طریق کانالی که در فاز تعریف توافق می‌شود ارسال و پرداخت می‌شوند',
       ),
     ],
   },
@@ -454,8 +454,8 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     points: [
       tx('The full repository, with commit history intact', 'کل ریپازیتوری، با تاریخچه‌ی کامل commitها'),
       tx(
-        'Documentation covering what was built and how it fits together (§ Quality baseline)',
-        'مستنداتی که توضیح می‌دهند چه چیزی ساخته شده و اجزای آن چطور کنار هم کار می‌کنند (§ خط پایه‌ی کیفیت)',
+        'Documentation covering what was built and how it fits together',
+        'مستنداتی که توضیح می‌دهند چه چیزی ساخته شده و اجزای آن چطور کنار هم کار می‌کنند',
       ),
       tx(
         'An environment template (`.env.example`) so the project can be set up on a clean machine without guessing which variables it needs',
@@ -466,8 +466,8 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
         'یک راهنمای کوتاه اجرایی: چطور دیپلوی کنیم، چطور rollback کنیم، در صورت مشکل با چه‌کسی تماس بگیریم',
       ),
       tx(
-        'Credentials transfer for anything still under my access, coordinated during Launch and Support (§ Process)',
-        'انتقال دسترسی‌های لازم برای هر چیزی که هنوز تحت حساب من است؛ این کار در فازهای راه‌اندازی و پشتیبانی هماهنگ می‌شود (§ روند کار)',
+        'Credentials transfer for anything still under my access, coordinated during Launch and Support',
+        'انتقال دسترسی‌های لازم برای هر چیزی که هنوز تحت حساب من است؛ این کار در فازهای راه‌اندازی و پشتیبانی هماهنگ می‌شود',
       ),
     ],
   },
@@ -481,7 +481,7 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
     ),
     points: [
       tx(
-        'A specific warranty length is written into every project\u2019s own agreement during Define — not one blanket number here, since a landing page and a payment platform carry very different risk (D-13)',
+        'A specific warranty length is written into every project\u2019s own agreement during Define — not one blanket number here, since a landing page and a payment platform carry very different risk',
         'طول دقیق ضمانت در قرارداد همان پروژه و در مرحله‌ی تعریف مشخص می‌شود؛ چون ریسک یک لندینگ‌پیج با یک پلتفرم پرداخت یکسان نیست.',
       ),
       tx(
@@ -489,8 +489,8 @@ const workingAgreementItemsData: WorkingAgreementItem[] = [
         'نقص یعنی چیزی که با محدوده‌ی توافق‌شده مطابقت ندارد. درخواست تغییر یعنی چیزی تازه یا متفاوت از توافق. این تفاوت را قبل از شروع کار روشن می‌کنیم.',
       ),
       tx(
-        'Change requests are scoped and quoted the same way the original engagement was (§ Process — Define) before they\u2019re built — never silently absorbed or invoiced as a surprise',
-        'درخواست‌های تغییر، مثل همکاری اولیه (§ روند کار — تعریف)، قبل از اجرا محدوده‌بندی و قیمت‌گذاری می‌شوند؛ این هزینه‌ها بی‌خبر به پروژه اضافه نمی‌شوند.',
+        'Change requests are scoped and quoted the same way the original engagement was before they\u2019re built — never silently absorbed or invoiced as a surprise',
+        'درخواست‌های تغییر، مثل همکاری اولیه، قبل از اجرا محدوده‌بندی و قیمت‌گذاری می‌شوند؛ این هزینه‌ها بی‌خبر به پروژه اضافه نمی‌شوند.',
       ),
     ],
   },

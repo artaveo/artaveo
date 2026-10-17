@@ -337,3 +337,13 @@
     padding-block: 5rem; /* 80px */
   }
 }
+
+/* Geist Mono has no Arabic-script glyphs, so Persian text inside a mono label (eyebrows,
+   field labels) fell back to whatever the device had. On RTL pages Vazirmatn is the
+   fallback for those glyphs; Latin characters keep Geist Mono. In the utilities layer
+   with one more attribute than `.font-mono`, so it wins over the plain utility. */
+@layer utilities {
+  [dir='rtl'] .font-mono {
+    font-family: var(--font-geist-mono), var(--font-vazirmatn), ui-monospace, monospace;
+  }
+}

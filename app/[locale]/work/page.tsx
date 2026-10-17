@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteShell } from '@/components/site/site-shell'
 import { JsonLd } from '@/components/site/json-ld'
 import { PageHeader } from '@/components/ui/patterns'
+import { toProjectCardData } from '@/components/work/project-card'
 import { WorkGrid } from '@/components/work/work-grid'
 import { getAllProjects } from '@/lib/home-content-projects'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
@@ -48,7 +49,7 @@ export default async function WorkPage({
       <div className="container-page">
         <PageHeader eyebrow={t('eyebrow')} title={t('title')} description={t('description')} />
         <div className="pb-24">
-          <WorkGrid projects={projects} />
+          <WorkGrid projects={projects.map(toProjectCardData)} />
         </div>
       </div>
     </SiteShell>

@@ -5,7 +5,7 @@ import { Link } from '@/i18n/navigation'
 import { SectionHeader } from '@/components/home/section-header'
 import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/format'
-import { queryApprovedRecommendations } from '@/lib/db/content-queries'
+import { getApprovedRecommendations } from '@/lib/recommendations'
 import { t, type Locale, type Recommendation, type RecommendationVerification } from '@/types/content'
 
 /**
@@ -17,7 +17,7 @@ import { t, type Locale, type Recommendation, type RecommendationVerification } 
  * "Recommendation Card … no ratings").
  */
 export async function Recommendations() {
-  const recommendations = await queryApprovedRecommendations()
+  const recommendations = await getApprovedRecommendations()
   const locale = (await getLocale()) as Locale
   const tSection = await getTranslations('Recommendations')
 

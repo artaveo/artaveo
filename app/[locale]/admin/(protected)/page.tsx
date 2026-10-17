@@ -152,7 +152,6 @@ export default async function AdminDashboardPage({
         </>
       ) : null}
 
-      <FormMessage variant="info">{t('comingSoonNotice')}</FormMessage>
     </div>
   )
 }

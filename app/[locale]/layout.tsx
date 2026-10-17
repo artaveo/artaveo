@@ -145,6 +145,10 @@ export default async function RootLayout({
    * by design (returns `false` on any failure, see `lib/insights.ts`) so an
    * unreachable database can't take down routes that don't need it.
    * Publishing/unpublishing calls `revalidatePath('/', 'layout')`.
+   *
+   * Phase 26.5: no nav item opts into this flag at the moment — Insights is hidden
+   * from every nav surface regardless (`lib/site.ts`). The flag stays wired so
+   * Phase 33 can bring an articles link back without re-plumbing it.
    */
   const insightsVisible = await hasPublishedArticles()
 
@@ -176,7 +180,10 @@ export default async function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="font-sans antialiased">
+      {/* The font utility follows the direction: a `font-sans` class on <body> outranks the
+          `[dir='rtl'] body` rule in globals.css, which is how Persian pages used to fall back
+          to the device font and never even download Vazirmatn. */}
+      <body className={`${dir === 'rtl' ? 'font-persian' : 'font-sans'} antialiased`}>
         <JsonLd data={buildSiteJsonLd(locale as Locale)} />
         <ThemeSync />
         <ErrorReporter />
