@@ -60,7 +60,7 @@ Rollback statements are in the file's header.
 | Console / server log | no errors except Vercel Analytics' script, which exists only on Vercel |
 | Admin screens | not clicked through here: the owner's admin account is still owner action O-2, and signing in with real credentials is not something an agent does. The admin actions behind every button are covered by the integration suite. |
 
-**CI:** see the commit's run (recorded in the roadmap's document status).
+**CI on GitHub, run 39077140486 (commit `14807a9`): all gates green** — typecheck, lint and unit tests; integration tests on real PostgreSQL + PostgREST (the new products suite and the extended RLS suite included); build with the end-to-end and accessibility suites; dependency audit and secret scan. The first run (commit `01e8614`) found two things the local checks could not: the CMS suite emptied `media_assets` with `TRUNCATE … CASCADE`, which since 0026 also emptied `projects` (`cover_media_id`) for every later suite — it now deletes only uploaded media — and two end-to-end tests still expected the old case-study sections and project-type label.
 
 ## Known issues
 
