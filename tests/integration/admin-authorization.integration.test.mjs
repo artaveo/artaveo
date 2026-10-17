@@ -208,7 +208,13 @@ describe('two-factor (TOTP, the app\'s own — lib/admin/totp.ts)', () => {
       assert.equal((await enrollMfaStart()).code, 'forbidden', 'the factor cannot be swapped before it is passed')
       assert.deepEqual(await verifyMfaChallenge(codeForm(codeAt(started.secret, enrolledStep))), { ok: false, code: 'invalid-code' }, 'the enrolment code is used up')
       const fresh = codeAt(started.secret, enrolledStep + 1)
-      assert.deepEqual(await verifyMfaChallenge(codeForm(fresh)), { ok: true })
+      const lastStep = sql(`select totp_last_step from public.admin_users where id = '${OWNER.id}'`)
+      const accepted = totp.verifyCode(started.secret, fresh, Number(lastStep))
+      assert.deepEqual(
+        await verifyMfaChallenge(codeForm(fresh)),
+        { ok: true },
+        `next code (step ${enrolledStep + 1}) refused: stored last step ${lastStep}, current step ${currentStep()}, verifyCode here → ${accepted}`,
+      )
       assert.equal(mfaSatisfied(await getAdminSession()), true)
       assert.deepEqual(await verifyMfaChallenge(codeForm(fresh)), { ok: false, code: 'invalid-code' }, 'each code works once')
 

@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
+import type { BrowserContext } from '@playwright/test'
+
 import { clearAdminRateLimits, db, EDITOR, expect, msg, OWNER, ROUTES, signInAsAdmin, test } from './support'
 
 /**
@@ -241,17 +243,24 @@ test.describe('a visitor\'s attachment is private', () => {
     }
   })
 
+  // The session cookie is `__Secure-neon-auth.session_token`. The browser sends it to http://127.0.0.1,
+  // but Playwright's API client treats only "localhost" as local and holds a Secure cookie back
+  // there — so these requests carry the browser context's cookies explicitly. Without that, the
+  // owner looked signed out (404) and the editor's 404 proved nothing.
+  const sessionCookies = async (context: BrowserContext) =>
+    (await context.cookies()).map((cookie) => `${cookie.name}=${cookie.value}`).join('; ')
+
   test('an editor (no access to leads) gets a 404, the owner a short-lived download link — and the file arrives as an attachment', async ({ page, browser }) => {
     const editorContext = await browser.newContext()
     const editorPage = await editorContext.newPage()
     await signInAsAdmin(editorPage, EDITOR)
-    const denied = await editorContext.request.get(`/api/admin/inquiry-files/${fileId}`, { maxRedirects: 0 })
+    const denied = await editorContext.request.get(`/api/admin/inquiry-files/${fileId}`, { maxRedirects: 0, headers: { cookie: await sessionCookies(editorContext) } })
     expect(denied.status()).toBe(404)
     expect(denied.headers()['location']).toBeUndefined()
     await editorContext.close()
 
     await signInAsAdmin(page, OWNER)
-    const granted = await page.request.get(`/api/admin/inquiry-files/${fileId}`, { maxRedirects: 0 })
+    const granted = await page.request.get(`/api/admin/inquiry-files/${fileId}`, { maxRedirects: 0, headers: { cookie: await sessionCookies(page.context()) } })
     expect(granted.status()).toBe(302)
     expect(granted.headers()['cache-control']).toBe('no-store')
     expect(granted.headers()['referrer-policy']).toBe('no-referrer')
