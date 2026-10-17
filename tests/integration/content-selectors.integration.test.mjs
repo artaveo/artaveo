@@ -60,17 +60,19 @@ describe('projects: database == imported source', () => {
     const flags = live.map((p) => Number(p.featured))
     assert.deepEqual(flags, [...flags].sort((a, b) => b - a), 'featured first')
   })
-  it('a project keeps its bilingual text, technology list and every case-study section', async () => {
+  it('a project keeps its bilingual text, technology list, Phase 27 fields and blocks — and never the archived sections', async () => {
     for (const src of source) {
       const live = await projects.getProjectBySlug(src.slug)
       assert.deepEqual(live.title, src.title, `${src.slug} title`)
       assert.deepEqual(live.summary, src.summary, `${src.slug} summary`)
       assert.deepEqual([...(live.technologies ?? [])].sort(), [...(src.technologies ?? [])].sort(), `${src.slug} technologies`)
-      for (const field of ['context', 'problemAndGoals', 'architecture', 'engineeringHighlight', 'dataIntegrityAndSecurity', 'responsiveAndRtl', 'quality', 'currentStatusAndNext', 'lessonsLearned']) {
-        assert.deepEqual(live[field], src[field], `${src.slug}.${field}`)
+      assert.deepEqual(live.features, src.features ?? [], `${src.slug} features`)
+      assert.deepEqual([live.brandColor, live.accentColor, live.platforms, live.industry], [src.brandColor, src.accentColor, src.platforms ?? [], src.industry], `${src.slug} look`)
+      assert.deepEqual(live.blocks.map((b) => b.type), (src.blocks ?? []).map((b) => b.type), `${src.slug} blocks`)
+      // Phase 27.2: the engineering sections are archived — imported (history), never read.
+      for (const field of ['context', 'problemAndGoals', 'architecture', 'constraints', 'keyDecisions', 'role', 'status']) {
+        assert.equal(field in live, false, `${src.slug}.${field} reached the public model`)
       }
-      assert.deepEqual(live.constraints ?? [], src.constraints ?? [], `${src.slug} constraints`)
-      assert.equal((live.keyDecisions ?? []).length, (src.keyDecisions ?? []).length, `${src.slug} key decisions`)
     }
   })
   it('featured selector returns only featured, published projects', async () => {

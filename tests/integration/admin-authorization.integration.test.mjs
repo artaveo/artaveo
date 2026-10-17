@@ -140,8 +140,8 @@ describe('authorization matrix — who may do what', () => {
   it('editor content actions: an editor may, the owner may, anonymous may not', async () => {
     const input = (slug) => ({
       slug, title: { en: 'T', fa: 'ت' }, category: { en: 'C', fa: 'د' }, summary: { en: 'S', fa: 'خ' },
-      highlights: [], status: undefined, coverImage: null, githubUrl: null, liveUrl: null, year: null, role: null,
-      relatedServiceSlug: null, featured: false, technologyIds: [],
+      highlights: [], coverMediaId: null, liveUrl: null, year: null, relatedServiceSlug: null, featured: false, technologyIds: [],
+      showInPortfolio: true, isProduct: false, brandColor: null, accentColor: null, industry: null, platforms: [], outcomeLine: null, features: [],
     })
     assert.deepEqual(await createProject(input(`authz-${uuid().slice(0, 6)}`)), { ok: false, code: 'forbidden' })
     for (const login of [asEditor, asOwner]) {

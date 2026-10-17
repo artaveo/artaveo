@@ -53,8 +53,11 @@ const publicProject = async (s) => (await visitor.from('projects').select('slug'
 
 // Runs are repeatable: rate limits are per hour and per address, so state from a
 // previous run must not leak in, and this suite's rows must not stay in the database.
-before(() => sql('truncate public.audit_log, public.notification_outbox, public.media_assets, public.inquiries cascade'))
-after(() => sql(`delete from public.projects where slug like 'it-%'; delete from public.articles where slug like 'it-%'; truncate public.media_assets, public.inquiries cascade`))
+// Uploaded media only: the seeded screenshots (/images/work/…) are the projects' covers since 0026, and a
+// TRUNCATE … CASCADE on media_assets would now empty `projects` (cover_media_id) and every suite after this one.
+const UPLOADED_MEDIA = "delete from public.media_assets where url not like '/images/%'"
+before(() => sql(`truncate public.audit_log, public.notification_outbox, public.inquiries cascade; ${UPLOADED_MEDIA}`))
+after(() => sql(`delete from public.projects where slug like 'it-%'; delete from public.articles where slug like 'it-%'; truncate public.inquiries cascade; ${UPLOADED_MEDIA}`))
 beforeEach(() => clearRevalidated())
 
 describe('projects: create → complete → publish → unpublish', () => {

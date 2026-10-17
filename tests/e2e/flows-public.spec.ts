@@ -11,8 +11,13 @@ test.describe('Home → Work → Case study', () => {
     await page.locator('main a[href="/en/work/transportation-system"]').first().click()
     await expect(page).toHaveURL(/\/en\/work\/transportation-system$/)
     await expect(page.locator('h1')).toContainText('Transportation System')
-    // The case study is real content, not a shell: several sections, each with a heading and text.
-    expect(await page.locator('main h2').count()).toBeGreaterThanOrEqual(5)
+    // The case study is real content, not a shell (Phase 27.2): built from its blocks — the features block lists what it does —
+    // and none of the archived engineering sections comes back.
+    await expect(page.getByRole('heading', { name: 'What it does', level: 2 })).toBeVisible()
+    expect(await page.locator('main section li').count()).toBeGreaterThanOrEqual(3)
+    for (const archived of ['Context', 'Problem & goals', 'Architecture', 'Responsive & RTL', 'Key decisions']) {
+      await expect(page.getByRole('heading', { name: archived, exact: true })).toHaveCount(0)
+    }
     await expect(page.getByRole('link', { name: /start a project/i }).first()).toBeVisible()
   })
 

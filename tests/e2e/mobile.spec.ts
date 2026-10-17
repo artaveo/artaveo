@@ -37,8 +37,8 @@ test.describe('@mobile navigation', () => {
 test('@mobile the Brief Builder can be started and answered with touch', async ({ page }) => {
   await page.goto('/en/start')
   await clickWhenReady(page.getByRole('button', { name: 'Next', exact: true }))
-  await page.getByText('A web application or MVP', { exact: true }).tap()
-  await expect(page.getByRole('radio', { name: 'A web application or MVP' })).toBeChecked()
+  await page.getByText('A web system or admin panel', { exact: true }).tap()
+  await expect(page.getByRole('radio', { name: 'A web system or admin panel' })).toBeChecked()
   await page.locator('#brief-goal').fill('Rebuild our booking system for intercity buses')
   await page.getByRole('button', { name: 'Next', exact: true }).tap()
   await expect(page.getByRole('heading', { name: 'What does it need to do?' })).toBeVisible()
