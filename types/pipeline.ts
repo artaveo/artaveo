@@ -1,4 +1,4 @@
-import type { InquiryLink } from '@/types/inquiry'
+import type { InquiryLink, InquiryKind, ProductSnapshot } from '@/types/inquiry'
 
 /**
  * Lead Pipeline types (roadmap § 14).
@@ -81,6 +81,10 @@ export type InquiryEvent = {
 export type PipelineInquiry = {
   id: string
   createdAt: string
+  /** Phase 27.5 — project brief, product purchase request or demo request. */
+  kind: InquiryKind
+  /** Phase 27.5 — what a product request named, as it was when sent. */
+  productSnapshot: ProductSnapshot | null
   serviceSlug: string | null
   packageId: string | null
   engagementModelId: string | null

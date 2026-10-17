@@ -7,6 +7,7 @@ import { FormMessage } from '@/components/ui/form-controls'
 import { NotFoundState } from '@/components/ui/states'
 import { getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
 import { getProjectAdmin } from '@/lib/admin/content'
+import { queryProjectPreview } from '@/lib/db/content-queries'
 
 export async function generateMetadata(): Promise<Metadata> {
   return { robots: { index: false, follow: false } }
@@ -26,9 +27,9 @@ export default async function ProjectPreviewPage({
   if (!mfaSatisfied(session)) redirect(`/${locale}/admin/${mfaDestination(session)}`)
 
   const t = await getTranslations('Admin')
-  const project = await getProjectAdmin(id)
+  const [admin, project] = await Promise.all([getProjectAdmin(id), queryProjectPreview(id)])
 
-  if (!project) {
+  if (!admin || !project) {
     return <NotFoundState size="page" title={t('cmsProjectNotFoundTitle')} />
   }
 
@@ -36,7 +37,7 @@ export default async function ProjectPreviewPage({
     <div className="flex flex-col">
       <div className="sticky top-0 z-10 border-b border-warning/25 bg-warning/10 px-4 py-2">
         <FormMessage variant="warning" className="mx-auto max-w-5xl border-0 bg-transparent p-0">
-          {project.published ? t('cmsPreviewBannerPublished') : t('cmsPreviewBannerDraft')}
+          {admin.published ? t('cmsPreviewBannerPublished') : t('cmsPreviewBannerDraft')}
         </FormMessage>
       </div>
       <CaseStudy project={project} />

@@ -4,7 +4,7 @@ import type {
   LocalizedText,
   Principle,
   ProcessStep,
-  Project,
+  ProjectSeed,
   TechCategory,
 } from '@/types/content'
 
@@ -68,7 +68,7 @@ const capabilitiesData: Capability[] = [
   },
 ]
 
-const featuredProjectsData: Project[] = [
+const featuredProjectsData: ProjectSeed[] = [
   {
     id: 'transportation-system',
     slug: 'transportation-system',
@@ -206,6 +206,22 @@ const featuredProjectsData: Project[] = [
     ),
     featured: true,
     published: true,
+    // Phase 27.1 — the same values migration 0026 wrote into the live database.
+    showInPortfolio: true,
+    isProduct: false,
+    brandColor: '#14243D',
+    accentColor: '#F2A93B',
+    industry: tx('Passenger transport', 'ترانسپورت مسافربری'),
+    platforms: ['web'],
+    features: [
+      tx('Passengers search trips and buy tickets online', 'مسافران سفر را جست‌وجو می‌کنند و تکت را آنلاین می‌خرند'),
+      tx('Each passenger picks their own seat on the bus seat map', 'هر مسافر چوکی خود را روی نقشه‌ی چوکی‌های بس انتخاب می‌کند'),
+      tx('A ticket can be checked any time with its reference code', 'تکت هر وقت با کد آن قابل پیگیری است'),
+      tx('Routes, buses, drivers and trips managed from one panel', 'مسیرها، بس‌ها، رانندگان و سفرها از یک پنل مدیریت می‌شوند'),
+      tx('Sales reports by date and route', 'گزارش فروش بر اساس تاریخ و مسیر'),
+      tx('Loyalty levels and discount coupons', 'سطح‌های وفاداری و کوپن‌های تخفیف'),
+    ],
+    blocks: [{ type: 'features', title: tx('What it does', 'کارهایی که انجام می‌دهد'), body: {} }],
   },
   {
     id: 'pazhuhesh-portal',
@@ -342,6 +358,22 @@ cache کردن همه‌چیز می‌توانست داده‌ی قدیمی را
     ),
     featured: true,
     published: true,
+    // Phase 27.1 — the same values migration 0026 wrote into the live database.
+    showInPortfolio: true,
+    isProduct: false,
+    brandColor: '#123B2C',
+    accentColor: '#7FD8B0',
+    industry: tx('Education', 'آموزش'),
+    platforms: ['web'],
+    features: [
+      tx('Study lounge page with its facilities and rules', 'صفحه‌ی سالون مطالعه با امکانات و مقررات آن'),
+      tx('Scholarships the staff publish themselves', 'بورسیه‌هایی که کارمندان خودشان نشر می‌کنند'),
+      tx('Academic services and advising requests', 'خدمات تحصیلی و درخواست مشوره'),
+      tx('A page for student achievements', 'صفحه‌ی دستاوردهای محصلان'),
+      tx('Two admin levels: full control and a department admin', 'دو سطح مدیریت: مدیر کل و مدیر بخش'),
+      tx('Light and dark appearance', 'نمای روشن و تاریک'),
+    ],
+    blocks: [{ type: 'features', title: tx('What it does', 'کارهایی که انجام می‌دهد'), body: {} }],
   },
 ]
 
@@ -527,7 +559,7 @@ export function getCapabilities(): Capability[] {
  * only. Every page/component reads the database-backed selectors in
  * `@/lib/home-content-projects`, never this.
  */
-export function getAllProjectsRaw(): Project[] {
+export function getAllProjectsRaw(): ProjectSeed[] {
   return featuredProjectsData
 }
 

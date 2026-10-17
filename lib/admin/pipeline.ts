@@ -12,6 +12,8 @@ function mapInquiryRow(row: Record<string, unknown>): PipelineInquiry {
   return {
     id: row.id as string,
     createdAt: row.created_at as string,
+    kind: ((row.inquiry_kind as string | null) ?? 'project') as PipelineInquiry['kind'],
+    productSnapshot: (row.product_snapshot as PipelineInquiry['productSnapshot']) ?? null,
     serviceSlug: (row.service_slug as string | null) ?? null,
     packageId: (row.package_id as string | null) ?? null,
     engagementModelId: (row.engagement_model_id as string | null) ?? null,

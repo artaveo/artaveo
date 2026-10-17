@@ -2,7 +2,7 @@ import 'server-only'
 import type { DbClient } from '@/lib/db/server'
 
 import type { Locale } from '@/types/content'
-import type { InquiryDraft } from '@/types/inquiry'
+import type { InquiryDraft, ProductRequestDraft } from '@/types/inquiry'
 import type { EmailAttachment, NotificationKind } from '@/types/notifications'
 import { buildConsultationIcs, consultationUid, icsAttachment } from '@/lib/consultation/ics'
 import { DEFAULT_MAX_ATTEMPTS } from '@/lib/notifications/backoff'
@@ -20,6 +20,8 @@ import {
   buildEvidenceSubmittedEmail,
   buildOpsAlertEmail,
   buildOwnerAlertEmail,
+  buildProductRequestClientEmail,
+  buildProductRequestOwnerEmail,
   buildRecommendationChangesEmail,
   buildRecommendationRequestEmail,
   buildSystemAlertEmail,
@@ -30,7 +32,8 @@ import { captureError } from '@/lib/observability/store'
 import type { Alert } from '@/lib/observability/alert-rules'
 import { siteConfig } from '@/lib/site'
 import { absoluteUrl } from '@/lib/site-url'
-import { getAllServices, getEngagementModels } from '@/lib/services-content'
+import { getAllServices } from '@/lib/services-content'
+import type { SummaryProduct } from '@/lib/inquiry-summary'
 import type { ConsultationWindow } from '@/types/consultation'
 
 /**
@@ -138,20 +141,16 @@ export async function enqueueInquiryNotifications(
   db: DbClient,
   inquiryId: string,
   draft: InquiryDraft,
+  product: SummaryProduct | null = null,
 ): Promise<{ id: string; kind: NotificationKind }[]> {
-  // Phase 12.2 (roadmap § 12): services/engagement models are database-backed
-  // — fetched here rather than threaded as parameters, since this function is
-  // already server-only and async.
-  const [services, engagementModels] = await Promise.all([getAllServices(), getEngagementModels()])
+  // Phase 12.2 (roadmap § 12): services are database-backed — fetched here
+  // rather than threaded as parameters, since this function is already
+  // server-only and async. Phase 27.5: a "buy one of our products" brief also
+  // names the product (its snapshot, passed in by the action).
+  const services = await getAllServices()
   const clientEmail = draft.email.trim().toLowerCase()
-  const owner = buildOwnerAlertEmail(
-    draft,
-    inquiryId,
-    services,
-    engagementModels,
-    absoluteUrl(`/en/admin/leads/${inquiryId}`),
-  )
-  const client = buildClientConfirmationEmail(draft, draft.preferredLocale, services, engagementModels)
+  const owner = buildOwnerAlertEmail(draft, inquiryId, services, product, absoluteUrl(`/en/admin/leads/${inquiryId}`))
+  const client = buildClientConfirmationEmail(draft, draft.preferredLocale, services, product)
 
   return enqueueNotifications(db, [
     {
@@ -174,6 +173,49 @@ export async function enqueueInquiryNotifications(
       subject: client.subject,
       bodyText: client.text,
       // The confirmation says "just reply to this email" — make that true.
+      replyTo: siteConfig.email,
+      dedupeKey: `inquiry:${inquiryId}:client-confirmation`,
+      entityType: 'inquiry',
+      entityId: inquiryId,
+      inquiryId,
+    },
+  ])
+}
+
+/**
+ * Phase 27.5 — the owner alert and the client confirmation for a product purchase
+ * or demo request. Same outbox, same per-inquiry dedupe keys as a brief, so a
+ * replayed request never queues a second pair.
+ */
+export async function enqueueProductRequestNotifications(
+  db: DbClient,
+  inquiryId: string,
+  request: ProductRequestDraft,
+  product: SummaryProduct,
+): Promise<{ id: string; kind: NotificationKind }[]> {
+  const clientEmail = request.email.trim().toLowerCase()
+  const owner = buildProductRequestOwnerEmail(request, product, inquiryId, absoluteUrl(`/en/admin/leads/${inquiryId}`))
+  const client = buildProductRequestClientEmail(request, product, request.preferredLocale)
+
+  return enqueueNotifications(db, [
+    {
+      kind: 'owner-alert',
+      recipientEmail: siteConfig.email,
+      locale: 'en',
+      subject: owner.subject,
+      bodyText: owner.text,
+      replyTo: clientEmail,
+      dedupeKey: `inquiry:${inquiryId}:owner-alert`,
+      entityType: 'inquiry',
+      entityId: inquiryId,
+      inquiryId,
+    },
+    {
+      kind: 'client-confirmation',
+      recipientEmail: clientEmail,
+      locale: request.preferredLocale,
+      subject: client.subject,
+      bodyText: client.text,
       replyTo: siteConfig.email,
       dedupeKey: `inquiry:${inquiryId}:client-confirmation`,
       entityType: 'inquiry',

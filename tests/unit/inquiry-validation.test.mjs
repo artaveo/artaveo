@@ -10,7 +10,7 @@ import { dataSteps, validateAllSteps, validateStep } from '../../lib/inquiry-val
 
 const valid = (extra = {}) => ({
   ...createEmptyInquiryDraft('en'),
-  projectType: 'web-app-or-mvp',
+  projectType: 'web-system',
   goal: 'Rebuild our booking system',
   timeline: '1-3-months',
   name: 'Ada Client',

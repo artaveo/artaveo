@@ -21,6 +21,8 @@ import { listConsultationsForInquiry } from '@/lib/consultation/queries'
 import { describeUtcRange } from '@/lib/consultation/time'
 import { formatDate } from '@/lib/format'
 import type { Locale } from '@/types/content'
+import { ProductRequestCard } from '@/components/admin/pipeline/product-request-card'
+import { projectTypeLabel } from '@/lib/inquiry-content'
 
 export async function generateMetadata({
   params,
@@ -182,18 +184,22 @@ export default async function LeadDetailPage({
         </CardContent>
       </Card>
 
+      {inquiry.kind !== 'project' || inquiry.productSnapshot ? (
+        <ProductRequestCard kind={inquiry.kind} snapshot={inquiry.productSnapshot} locale={locale as Locale} />
+      ) : null}
+
       <Card>
         <CardHeader>
           <CardTitle>{t('briefSectionTitle')}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3 text-sm">
-          <Field label={t('fieldGoal')} value={inquiry.goal} block />
+          {inquiry.goal ? <Field label={inquiry.kind === 'project' ? t('fieldGoal') : t('fieldMessage')} value={inquiry.goal} block /> : null}
           {inquiry.serviceSlug ? <Field label={t('fieldService')} value={inquiry.serviceSlug} /> : null}
           {inquiry.packageId ? <Field label={t('fieldPackage')} value={inquiry.packageId} /> : null}
           {inquiry.engagementModelId ? (
             <Field label={t('fieldEngagementModel')} value={inquiry.engagementModelId} />
           ) : null}
-          {inquiry.projectType ? <Field label={t('fieldProjectType')} value={inquiry.projectType} /> : null}
+          {inquiry.projectType ? <Field label={t('fieldProjectType')} value={projectTypeLabel(inquiry.projectType)?.en ?? inquiry.projectType} /> : null}
           {inquiry.timeline ? <Field label={t('fieldTimeline')} value={inquiry.timeline} /> : null}
           {inquiry.budgetBand ? <Field label={t('fieldBudget')} value={inquiry.budgetBand} /> : null}
           {inquiry.featureTags.length > 0 ? (

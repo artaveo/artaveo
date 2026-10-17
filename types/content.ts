@@ -24,8 +24,9 @@ export function t(field: LocalizedText, locale: Locale = 'en'): string {
 }
 
 /**
- * Honest status vocabulary (roadmap § 6.1): the only states a project may
- * be labelled with. Never invent a state outside this set.
+ * The status vocabulary of revisions 1–44 (roadmap § 6.1). Retired from the
+ * public model in Phase 27.1 — a project is draft or published — and kept only
+ * for the archived data and the design-system badge.
  */
 export type ProjectStatus = 'live' | 'in-development' | 'private' | 'archived' | 'concept'
 
@@ -82,41 +83,202 @@ export type ProjectMediaItem = {
   height?: number
 }
 
+/** Kinds of software a project runs as (`projects.platforms`, migration 0026). */
+export type ProjectPlatform = 'web' | 'android' | 'ios' | 'windows' | 'mac' | 'offline'
+
+export const PROJECT_PLATFORMS: ProjectPlatform[] = ['web', 'android', 'ios', 'windows', 'mac', 'offline']
+
+/**
+ * A price per D-21: Afghani for the Dari site, dollars for the English site,
+ * each falling back to the other. Neither amount means "price after a short
+ * conversation" (D-04 — a price is never invented). `from` marks a starting
+ * price.
+ */
+export type Money = {
+  afn?: number
+  usd?: number
+  from?: boolean
+}
+
+/** How often a price is paid. `once` = a single payment. */
+export type BillingPeriod = 'once' | 'month' | 'year'
+
+/** Phase 27.2 — the block types a project page is built from (`project_blocks.type`). */
+export type ProjectBlockType =
+  | 'intro'
+  | 'challenge'
+  | 'features'
+  | 'gallery'
+  | 'features-by-role'
+  | 'audience'
+  | 'result'
+  | 'faq'
+  | 'video'
+
+export const PROJECT_BLOCK_TYPES: ProjectBlockType[] = [
+  'intro',
+  'challenge',
+  'features',
+  'gallery',
+  'features-by-role',
+  'audience',
+  'result',
+  'faq',
+  'video',
+]
+
+/** One screenshot inside a gallery block, resolved from the media library. */
+export type BlockImage = {
+  mediaId: string
+  src: string
+  alt: LocalizedText
+  caption?: LocalizedText
+  width?: number
+  height?: number
+}
+
+/**
+ * The content of one block. The shape follows the type; the admin write
+ * boundary validates it (`lib/products/blocks.ts`).
+ * - `intro` / `challenge` / `result`: one text.
+ * - `features`: an optional lead text; the list itself is the project's `features`.
+ * - `gallery`: screenshots from the media library, each with an optional caption.
+ * - `features-by-role`: per role (passenger, operator…), a list.
+ * - `audience` ("who it's for"): an optional text and a list.
+ * - `faq`: questions and answers.
+ * - `video`: a YouTube or Vimeo video (its id only — never an arbitrary URL).
+ */
+export type ProjectBlockBody =
+  | { type: 'intro' | 'challenge' | 'result'; text: LocalizedText }
+  | { type: 'features'; text?: LocalizedText }
+  | { type: 'gallery'; images: BlockImage[] }
+  | { type: 'features-by-role'; groups: { role: LocalizedText; items: LocalizedText[] }[] }
+  | { type: 'audience'; text?: LocalizedText; items: LocalizedText[] }
+  | { type: 'faq'; items: FaqItem[] }
+  | { type: 'video'; provider: 'youtube' | 'vimeo'; videoId: string; caption?: LocalizedText }
+
+export type ProjectBlock = ProjectBlockBody & {
+  id: string
+  /** Optional heading; a block without one uses its type's default heading. */
+  title?: LocalizedText
+}
+
+/** Phase 27.3 — the ways to get a product (`product_sale_options.kind`). */
+export type SaleOptionKind =
+  | 'licence-monthly'
+  | 'licence-yearly'
+  | 'licence-lifetime'
+  | 'source-code'
+  | 'custom-edition'
+  | 'other'
+
+export const SALE_OPTION_KINDS: SaleOptionKind[] = [
+  'licence-monthly',
+  'licence-yearly',
+  'licence-lifetime',
+  'source-code',
+  'custom-edition',
+  'other',
+]
+
+export type MaintenanceMode = 'included' | 'optional' | 'not-offered'
+
+export type SaleOptionCta = 'purchase-request' | 'demo-request' | 'contact'
+
+/** One published way to get a product, as its product page shows it. */
+export type ProductSaleOption = {
+  id: string
+  kind: SaleOptionKind
+  title: LocalizedText
+  summary?: LocalizedText
+  price: Money
+  billingPeriod: BillingPeriod
+  maintenance: MaintenanceMode
+  /** Only for `maintenance: 'optional'`; no amount = price after a short conversation. */
+  maintenancePrice?: Money
+  maintenancePeriod?: 'month' | 'year'
+  included: LocalizedText[]
+  highlighted: boolean
+  cta: SaleOptionCta
+}
+
+/** One published after-sales service of a product (training, data transfer, hosting, support…). */
+export type ProductService = {
+  id: string
+  title: LocalizedText
+  description?: LocalizedText
+  price: Money
+  period: BillingPeriod
+}
+
 export type Project = {
   id: string
   slug: string
   title: LocalizedText
   category: LocalizedText
   summary: LocalizedText
-  /** Short, verifiable facts about what the project does. */
+  /** Short facts shown on cards (Phase 30 replaces them with `features`). */
   highlights: LocalizedText[]
   /** Proper nouns — not translated. */
   technologies: string[]
-  status?: ProjectStatus
-  /** Path to a real screenshot. When missing, a neutral placeholder is shown. Kept for the catalogue card/Featured Work tile; case studies read `media` instead. */
+  /** Path or URL of the cover: the library image when one is chosen, else the legacy path. When missing, a neutral placeholder is shown. */
   coverImage?: string
   /** Real, verified screenshots (roadmap § 23.1, out-of-sequence work). Absent means none have been captured yet — never filled with a placeholder. */
   media?: ProjectMediaItem[]
+  /** Kept in the data, never rendered publicly (Phase 26.5, D-19). */
   githubUrl?: string
   liveUrl?: string
   year?: string
-  /** What was done personally on this project. Omitted when not yet written up. */
-  role?: LocalizedText
   featured: boolean
   published: boolean
+  /** A related service page to link to from the case study's Links section. */
+  relatedServiceSlug?: string
 
-  /**
-   * Case study body (roadmap § 6.1 template). Every field below is
-   * optional and independently gated: a section renders only when its
-   * field is present, so the `/work/[slug]` template can be built once
-   * (this phase) and filled in per project later (§ 6.2 / § 6.3), once
-   * publication rights are resolved (D-06). Never invent a value here —
-   * an absent field means "not yet verified against the code", not "empty
-   * on purpose".
-   */
+  // Phase 27.1 — independent switches and the project's own look.
+  /** Shown on /work and in the Home portfolio. */
+  showInPortfolio: boolean
+  /** Sold as a product: it gets a product page with its ways to get it (Phase 30). */
+  isProduct: boolean
+  /** `#RRGGBB` */
+  brandColor?: string
+  /** `#RRGGBB` */
+  accentColor?: string
+  industry?: LocalizedText
+  platforms: ProjectPlatform[]
+  /** One customer-facing line about what the project changed. */
+  outcomeLine?: LocalizedText
+  /** Customer-facing features — what someone can do with it. */
+  features: LocalizedText[]
+
+  // Phase 27.2 / 27.3
+  /** Published blocks, in order. */
+  blocks: ProjectBlock[]
+  /** Published ways to get it — only when `isProduct`. */
+  saleOptions: ProductSaleOption[]
+  /** Published after-sales services — only when `isProduct`. */
+  productServices: ProductService[]
+}
+
+/**
+ * The project shape of the file-based seed (`lib/home-content.ts`): the public
+ * `Project` plus the fields revision 45 retired from the public model. They are
+ * still imported into the database (history — `project_sections` is archived
+ * since migration 0026) and never rendered.
+ */
+export type ProjectSeed = Omit<
+  Project,
+  'blocks' | 'saleOptions' | 'productServices' | 'showInPortfolio' | 'isProduct' | 'platforms' | 'features'
+> & {
+  showInPortfolio?: boolean
+  isProduct?: boolean
+  platforms?: ProjectPlatform[]
+  features?: LocalizedText[]
+  /** Seed blocks, in the shape `project_blocks` stores them. */
+  blocks?: { type: ProjectBlockType; title?: LocalizedText; body: Record<string, unknown> }[]
+  status?: ProjectStatus
+  role?: LocalizedText
   context?: LocalizedText
   problemAndGoals?: LocalizedText
-  /** Real constraints only — time, budget, infrastructure, language, connectivity… */
   constraints?: LocalizedText[]
   architecture?: LocalizedText
   keyDecisions?: DecisionRecord[]
@@ -126,8 +288,6 @@ export type Project = {
   quality?: LocalizedText
   currentStatusAndNext?: LocalizedText
   lessonsLearned?: LocalizedText
-  /** A related service page to link to from the case study's Links section. */
-  relatedServiceSlug?: string
 }
 
 /**
@@ -136,6 +296,11 @@ export type Project = {
  * only what the Phase 7 table actually assigns.
  */
 export type ServiceType = 'productized' | 'custom' | 'productized-custom' | 'monthly'
+
+/** Phase 27.4 — services by kind of software, not by technology (§ 2.5). `services.kind`, migration 0026. */
+export type ServiceKind = 'website' | 'web-system' | 'mobile-app' | 'desktop-software' | 'offline-system' | 'support' | 'other'
+
+export const SERVICE_KINDS: ServiceKind[] = ['website', 'web-system', 'mobile-app', 'desktop-software', 'offline-system', 'support', 'other']
 
 /** One entry in a service's FAQ accordion (roadmap § 7.1 blueprint). */
 export type FaqItem = {
@@ -166,6 +331,10 @@ export type Service = {
    * same "empty means hidden" rule the case-study template uses.
    */
   type?: ServiceType
+  /** Phase 27.4 — the kind of software this service builds; services are organised by it. */
+  kind?: ServiceKind
+  /** Phase 27.4 — optional "from" price set by the owner (D-21). Absent: no price is shown. */
+  fromPrice?: Money
   /** One-line promise shown under the title on the detail page. */
   tagline?: LocalizedText
   forWhom?: LocalizedText[]

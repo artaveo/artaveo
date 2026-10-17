@@ -147,7 +147,7 @@ describe('CSV export', () => {
     const all = await exportInquiriesCsv({})
     assert.equal(all.ok, true)
     const header = all.csv.split('\r\n')[0]
-    assert.equal(header, 'id,created_at,name,email,phone,stage,priority,follow_up_at,tags,service_slug,package_id,engagement_model_id,source_channel,preferred_channel,goal')
+    assert.equal(header, 'id,created_at,name,email,phone,stage,priority,follow_up_at,tags,service_slug,package_id,engagement_model_id,source_channel,preferred_channel,goal,inquiry_kind,product,sale_option')
     const line = all.csv.split('\r\n').find((l) => l.startsWith(id))
     assert.ok(line.includes('"Csv, Probe"'))
     assert.ok(line.endsWith('"He said ""hi"", then\nleft"') || all.csv.includes('"He said ""hi"", then\nleft"'))

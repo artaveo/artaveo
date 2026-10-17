@@ -133,8 +133,25 @@ function buildImportModel() {
         featured: !!project.featured,
         published: !!project.published,
         sort_order: sortOrder,
+        // Phase 27.1 (migration 0026)
+        show_in_portfolio: project.showInPortfolio !== false,
+        is_product: !!project.isProduct,
+        brand_color: project.brandColor ?? null,
+        accent_color: project.accentColor ?? null,
+        industry: project.industry ?? null,
+        platforms: project.platforms ?? [],
+        outcome_line: project.outcomeLine ?? null,
+        features: project.features ?? [],
       },
       sections,
+      // Phase 27.2: blocks, resynced per project like the (archived) sections.
+      blocks: (project.blocks ?? []).map((block, i) => ({
+        type: block.type,
+        title: block.title ?? null,
+        body: block.body ?? {},
+        published: true,
+        sort_order: i,
+      })),
       technologySlugs: (project.technologies ?? []).map(slugify),
     }
   })
@@ -162,6 +179,9 @@ function buildImportModel() {
       payment_schedule_note: service.paymentScheduleNote ?? null,
       published: true,
       sort_order: sortOrder,
+      // Phase 27.4 (migration 0026): packages show where the seed has them, as on the live site.
+      kind: service.kind ?? null,
+      show_packages: (service.packages ?? []).length > 0,
     },
     processSteps: (service.process ?? []).map((step, i) => ({
       title: step.title,
@@ -259,14 +279,20 @@ function renderSql(model) {
     out.push(
       '',
       `-- project: ${p.slug}`,
-      `insert into public.projects (slug, title, category, summary, highlights, status, cover_image, github_url, live_url, year, role, related_service_slug, featured, published, sort_order)\n` +
-        `values (${slugLit}, ${sqlJsonb(p.row.title)}, ${sqlJsonb(p.row.category)}, ${sqlJsonb(p.row.summary)}, ${sqlJsonb(p.row.highlights)}, ${sqlStr(p.row.status)}, ${sqlStr(p.row.cover_image)}, ${sqlStr(p.row.github_url)}, ${sqlStr(p.row.live_url)}, ${sqlStr(p.row.year)}, ${sqlJsonb(p.row.role)}, ${sqlStr(p.row.related_service_slug)}, ${sqlBool(p.row.featured)}, ${sqlBool(p.row.published)}, ${sqlNum(p.row.sort_order)})\n` +
-        `on conflict (slug) do update set title=excluded.title, category=excluded.category, summary=excluded.summary, highlights=excluded.highlights, status=excluded.status, cover_image=excluded.cover_image, github_url=excluded.github_url, live_url=excluded.live_url, year=excluded.year, role=excluded.role, related_service_slug=excluded.related_service_slug, featured=excluded.featured, published=excluded.published, sort_order=excluded.sort_order, updated_at=now();`,
+      `insert into public.projects (slug, title, category, summary, highlights, status, cover_image, github_url, live_url, year, role, related_service_slug, featured, published, sort_order, show_in_portfolio, is_product, brand_color, accent_color, industry, platforms, outcome_line, features)\n` +
+        `values (${slugLit}, ${sqlJsonb(p.row.title)}, ${sqlJsonb(p.row.category)}, ${sqlJsonb(p.row.summary)}, ${sqlJsonb(p.row.highlights)}, ${sqlStr(p.row.status)}, ${sqlStr(p.row.cover_image)}, ${sqlStr(p.row.github_url)}, ${sqlStr(p.row.live_url)}, ${sqlStr(p.row.year)}, ${sqlJsonb(p.row.role)}, ${sqlStr(p.row.related_service_slug)}, ${sqlBool(p.row.featured)}, ${sqlBool(p.row.published)}, ${sqlNum(p.row.sort_order)}, ${sqlBool(p.row.show_in_portfolio)}, ${sqlBool(p.row.is_product)}, ${sqlStr(p.row.brand_color)}, ${sqlStr(p.row.accent_color)}, ${sqlJsonb(p.row.industry)}, ${sqlTextArray(p.row.platforms)}, ${sqlJsonb(p.row.outcome_line)}, ${sqlJsonb(p.row.features)})\n` +
+        `on conflict (slug) do update set title=excluded.title, category=excluded.category, summary=excluded.summary, highlights=excluded.highlights, status=excluded.status, cover_image=excluded.cover_image, github_url=excluded.github_url, live_url=excluded.live_url, year=excluded.year, role=excluded.role, related_service_slug=excluded.related_service_slug, featured=excluded.featured, published=excluded.published, sort_order=excluded.sort_order, show_in_portfolio=excluded.show_in_portfolio, is_product=excluded.is_product, brand_color=excluded.brand_color, accent_color=excluded.accent_color, industry=excluded.industry, platforms=excluded.platforms, outcome_line=excluded.outcome_line, features=excluded.features, updated_at=now();`,
+      `update public.projects set cover_media_id = (select id from public.media_assets where url = projects.cover_image limit 1) where slug = ${slugLit};`,
       `delete from public.project_sections where project_id = ${idSub};`,
     )
     if (p.sections.length > 0) {
       const rows = p.sections.map((s) => `(${idSub}, ${sqlStr(s.type)}, ${sqlJsonb(s.body)}, ${sqlNum(s.sort_order)})`)
       out.push(`insert into public.project_sections (project_id, type, body, sort_order) values\n  ${rows.join(',\n  ')};`)
+    }
+    out.push(`delete from public.project_blocks where project_id = ${idSub};`)
+    if (p.blocks.length > 0) {
+      const rows = p.blocks.map((b) => `(${idSub}, ${sqlStr(b.type)}, ${sqlJsonb(b.title)}, ${sqlJsonb(b.body)}, ${sqlBool(b.published)}, ${sqlNum(b.sort_order)})`)
+      out.push(`insert into public.project_blocks (project_id, type, title, body, published, sort_order) values\n  ${rows.join(',\n  ')};`)
     }
     out.push(`delete from public.project_technologies where project_id = ${idSub};`)
     if (p.technologySlugs.length > 0) {
@@ -281,9 +307,9 @@ function renderSql(model) {
     out.push(
       '',
       `-- service: ${s.slug}`,
-      `insert into public.services (slug, icon, title, description, deliverables, type, tagline, for_whom, not_for_whom, problem, what_i_do, included, not_included, timeline, requirements, related_project_slugs, what_drives_cost, payment_schedule_note, published, sort_order)\n` +
-        `values (${slugLit}, ${sqlStr(s.row.icon)}, ${sqlJsonb(s.row.title)}, ${sqlJsonb(s.row.description)}, ${sqlJsonb(s.row.deliverables)}, ${sqlStr(s.row.type)}, ${sqlJsonb(s.row.tagline)}, ${sqlJsonb(s.row.for_whom)}, ${sqlJsonb(s.row.not_for_whom)}, ${sqlJsonb(s.row.problem)}, ${sqlJsonb(s.row.what_i_do)}, ${sqlJsonb(s.row.included)}, ${sqlJsonb(s.row.not_included)}, ${sqlJsonb(s.row.timeline)}, ${sqlJsonb(s.row.requirements)}, ${sqlTextArray(s.row.related_project_slugs)}, ${sqlJsonb(s.row.what_drives_cost)}, ${sqlJsonb(s.row.payment_schedule_note)}, ${sqlBool(s.row.published)}, ${sqlNum(s.row.sort_order)})\n` +
-        `on conflict (slug) do update set icon=excluded.icon, title=excluded.title, description=excluded.description, deliverables=excluded.deliverables, type=excluded.type, tagline=excluded.tagline, for_whom=excluded.for_whom, not_for_whom=excluded.not_for_whom, problem=excluded.problem, what_i_do=excluded.what_i_do, included=excluded.included, not_included=excluded.not_included, timeline=excluded.timeline, requirements=excluded.requirements, related_project_slugs=excluded.related_project_slugs, what_drives_cost=excluded.what_drives_cost, payment_schedule_note=excluded.payment_schedule_note, published=excluded.published, sort_order=excluded.sort_order, updated_at=now();`,
+      `insert into public.services (slug, icon, title, description, deliverables, type, tagline, for_whom, not_for_whom, problem, what_i_do, included, not_included, timeline, requirements, related_project_slugs, what_drives_cost, payment_schedule_note, published, sort_order, kind, show_packages)\n` +
+        `values (${slugLit}, ${sqlStr(s.row.icon)}, ${sqlJsonb(s.row.title)}, ${sqlJsonb(s.row.description)}, ${sqlJsonb(s.row.deliverables)}, ${sqlStr(s.row.type)}, ${sqlJsonb(s.row.tagline)}, ${sqlJsonb(s.row.for_whom)}, ${sqlJsonb(s.row.not_for_whom)}, ${sqlJsonb(s.row.problem)}, ${sqlJsonb(s.row.what_i_do)}, ${sqlJsonb(s.row.included)}, ${sqlJsonb(s.row.not_included)}, ${sqlJsonb(s.row.timeline)}, ${sqlJsonb(s.row.requirements)}, ${sqlTextArray(s.row.related_project_slugs)}, ${sqlJsonb(s.row.what_drives_cost)}, ${sqlJsonb(s.row.payment_schedule_note)}, ${sqlBool(s.row.published)}, ${sqlNum(s.row.sort_order)}, ${sqlStr(s.row.kind)}, ${sqlBool(s.row.show_packages)})\n` +
+        `on conflict (slug) do update set icon=excluded.icon, title=excluded.title, description=excluded.description, deliverables=excluded.deliverables, type=excluded.type, tagline=excluded.tagline, for_whom=excluded.for_whom, not_for_whom=excluded.not_for_whom, problem=excluded.problem, what_i_do=excluded.what_i_do, included=excluded.included, not_included=excluded.not_included, timeline=excluded.timeline, requirements=excluded.requirements, related_project_slugs=excluded.related_project_slugs, what_drives_cost=excluded.what_drives_cost, payment_schedule_note=excluded.payment_schedule_note, published=excluded.published, sort_order=excluded.sort_order, kind=excluded.kind, show_packages=excluded.show_packages, updated_at=now();`,
       `delete from public.service_process_steps where service_id = ${idSub};`,
     )
     if (s.processSteps.length > 0) {
@@ -351,6 +377,17 @@ async function runAgainstDatabase(model, client) {
         .from('project_sections')
         .insert(p.sections.map((s) => ({ ...s, project_id: projectId })))
       if (error) throw new Error(`project_sections insert failed for ${p.slug}: ${error.message}`)
+    }
+
+    const { data: coverRows } = await client.from('media_assets').select('id').eq('url', p.row.cover_image ?? '').limit(1)
+    await client.from('projects').update({ cover_media_id: coverRows?.[0]?.id ?? null }).eq('id', projectId)
+
+    await client.from('project_blocks').delete().eq('project_id', projectId)
+    if (p.blocks.length > 0) {
+      const { error } = await client
+        .from('project_blocks')
+        .insert(p.blocks.map((b) => ({ ...b, project_id: projectId })))
+      if (error) throw new Error(`project_blocks insert failed for ${p.slug}: ${error.message}`)
     }
 
     await client.from('project_technologies').delete().eq('project_id', projectId)

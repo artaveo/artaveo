@@ -1,5 +1,6 @@
 import crypto from 'node:crypto'
 
+import { VIDEO_FRAME_ORIGINS } from '@/lib/products/blocks'
 import { themeScript } from '@/lib/theme-script'
 
 /**
@@ -87,7 +88,9 @@ export function buildCsp(options: CspOptions): string {
     ['worker-src', ["'self'"]],
     ['media-src', ["'self'"]],
     ['object-src', ["'none'"]],
-    ['frame-src', ["'none'"]],
+    // Phase 27.2: a project page may embed a video block — only the privacy-friendly YouTube and
+    // Vimeo players (lib/products/blocks.ts). The admin embeds nothing.
+    ['frame-src', mode === 'public' ? VIDEO_FRAME_ORIGINS : ["'none'"]],
     ['frame-ancestors', ["'none'"]],
     ['base-uri', ["'self'"]],
     ['form-action', ["'self'"]],

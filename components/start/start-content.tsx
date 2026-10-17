@@ -2,7 +2,8 @@ import { useTranslations } from 'next-intl'
 
 import { PageHeader } from '@/components/ui/patterns'
 import { BriefBuilder } from '@/components/start/brief-builder'
-import type { EngagementModel, Service } from '@/types/content'
+import type { Service } from '@/types/content'
+import type { ProductChoice } from '@/types/inquiry'
 
 /**
  * StartContent — the `/start` page (roadmap § 9.1, page map § 15: "Brief
@@ -11,7 +12,7 @@ import type { EngagementModel, Service } from '@/types/content'
  * `/contact`, which stays the secondary "Direct contact + hire channels"
  * destination (§ 8.3) for visitors who'd rather email or message directly.
  *
- * `services`/`engagementModels` are fetched once by the Server Component
+ * `services` and the published `products` (Phase 27.5) are fetched once by the Server Component
  * page (`app/[locale]/start/page.tsx`) and threaded down through here —
  * Phase 12.2 (roadmap § 12) made those database-backed and async, and
  * `BriefBuilder`/its steps are Client Components that can't await during
@@ -19,14 +20,16 @@ import type { EngagementModel, Service } from '@/types/content'
  */
 export function StartContent({
   services,
-  engagementModels,
+  products,
   initialServiceSlug,
   initialPackageId,
+  initialProductSlug,
 }: {
   services: Service[]
-  engagementModels: EngagementModel[]
+  products: ProductChoice[]
   initialServiceSlug?: string
   initialPackageId?: string
+  initialProductSlug?: string
 }) {
   const t18n = useTranslations('StartPage')
 
@@ -35,9 +38,10 @@ export function StartContent({
       <PageHeader eyebrow={t18n('eyebrow')} title={t18n('title')} description={t18n('description')} />
       <BriefBuilder
         services={services}
-        engagementModels={engagementModels}
+        products={products}
         initialServiceSlug={initialServiceSlug}
         initialPackageId={initialPackageId}
+        initialProductSlug={initialProductSlug}
       />
     </div>
   )

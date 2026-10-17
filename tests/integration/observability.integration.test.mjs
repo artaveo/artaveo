@@ -42,7 +42,7 @@ const events = async (name) => (await db.from('ops_events').select('*').eq('name
 const meta = (extra = {}) => ({ honeypot: '', formRenderedAt: Date.now() - 60_000, idempotencyKey: uuid(), ...extra })
 const draft = (extra = {}) => ({
   ...createEmptyInquiryDraft('en'),
-  projectType: 'web-app-or-mvp',
+  projectType: 'web-system',
   goal: 'Rebuild our booking system for buses',
   timeline: '1-3-months',
   name: 'Ada Observability',

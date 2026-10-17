@@ -6,6 +6,7 @@ import type {
   ProjectTypeId,
   TimelineId,
 } from '@/types/inquiry'
+import { LEGACY_PROJECT_TYPE_IDS } from '@/types/inquiry'
 
 /**
  * Brief Builder option content (roadmap § 9.1). Every option below is a
@@ -25,48 +26,68 @@ export type OptionDef<Id extends string> = {
   description?: LocalizedText
 }
 
+/**
+ * Phase 27.5 — what the visitor wants built, by kind of software. "Buy one of
+ * our products" is offered only while at least one product is published (the
+ * Brief Builder hides it otherwise); "Something else" is always there (D-18).
+ */
 export const projectTypeOptions: OptionDef<ProjectTypeId>[] = [
   {
-    id: 'new-website',
-    label: tx('A new website', 'یک وب‌سایت تازه'),
-    description: tx(
-      'Marketing, informational or portfolio site — content-led, not a custom backend.',
-      'وب‌سایت معرفی، اطلاع‌رسانی یا نمونه‌کار — محتوامحور، نه یک بک‌اند سفارشی.',
-    ),
+    id: 'website',
+    label: tx('A website', 'وب‌سایت'),
+    description: tx('A site that presents your business, organisation or work.', 'سایتی که کسب‌وکار، اداره یا کار شما را معرفی می‌کند.'),
   },
   {
-    id: 'web-app-or-mvp',
-    label: tx('A web application or MVP', 'یک اپلیکیشن وب یا MVP'),
-    description: tx(
-      'A product with user accounts, a database or custom logic behind it.',
-      'محصولی با حساب کاربری، پایگاه داده یا منطق سفارشی در پشت آن.',
-    ),
+    id: 'web-system',
+    label: tx('A web system or admin panel', 'سیستم تحت وب یا پنل مدیریت'),
+    description: tx('Online sales, records, reports and daily work, managed in a browser.', 'فروش آنلاین، ثبت معلومات، گزارش‌ها و کارهای روزمره، همه در مرورگر.'),
   },
   {
-    id: 'existing-product',
-    label: tx('Improving an existing product', 'بهبود یک محصول موجود'),
-    description: tx(
-      'A live site or app that needs new features, a redesign or a technical fix.',
-      'یک سایت یا اپلیکیشن زنده که به ویژگی‌های تازه، بازطراحی یا اصلاح فنی نیاز دارد.',
-    ),
+    id: 'mobile-app',
+    label: tx('A mobile app', 'اپلیکیشن موبایل'),
+    description: tx('For Android, iPhone or both.', 'برای اندروید، آیفون یا هر دو.'),
   },
   {
-    id: 'ongoing-care',
-    label: tx('Ongoing care for a live product', 'مراقبت مستمر از یک محصول زنده'),
-    description: tx(
-      'Updates, monitoring and small changes on a regular cadence — see the Care Plan.',
-      'به‌روزرسانی، مانیتورینگ و تغییرات کوچک با ریتم منظم — برنامه‌ی نگهداری را ببینید.',
-    ),
+    id: 'desktop-software',
+    label: tx('Desktop software', 'نرم‌افزار کمپیوتری'),
+    description: tx('A program that runs on Windows or Mac.', 'برنامه‌ای که روی ویندوز یا مک کار می‌کند.'),
   },
   {
-    id: 'not-sure',
-    label: tx('Not sure yet', 'هنوز مطمئن نیستم'),
-    description: tx(
-      'That is fine — the Discovery Sprint exists for exactly this.',
-      'اشکالی ندارد — Discovery Sprint دقیقاً برای همین موقعیت است.',
-    ),
+    id: 'offline-system',
+    label: tx('An offline system', 'سیستم آفلاین'),
+    description: tx('Works without the internet, in your office or shop.', 'بدون انترنت، در دفتر یا دکان شما کار می‌کند.'),
+  },
+  {
+    id: 'support-existing',
+    label: tx('Support for software you already have', 'پشتیبانی نرم‌افزاری که دارید'),
+    description: tx('Fixes, new features or ongoing care.', 'رفع مشکل، امکانات تازه یا نگهداری دوامدار.'),
+  },
+  {
+    id: 'buy-product',
+    label: tx('Buy one of our products', 'خرید یکی از محصولات آرتاویو'),
+    description: tx('Ready-made software you can start using soon.', 'نرم‌افزار آماده که به‌زودی می‌توانید از آن استفاده کنید.'),
+  },
+  {
+    id: 'other',
+    label: tx('Something else', 'چیز دیگری'),
+    description: tx('Describe it in a few words.', 'در چند کلمه بنویسید.'),
   },
 ]
+
+/** Labels of the project types of revisions 1–44 — old leads in the admin still read correctly. */
+export const legacyProjectTypeLabels: Record<(typeof LEGACY_PROJECT_TYPE_IDS)[number], LocalizedText> = {
+  'new-website': tx('A new website', 'وب‌سایت تازه'),
+  'web-app-or-mvp': tx('A web application', 'اپلیکیشن وب'),
+  'existing-product': tx('Improving an existing product', 'بهبود محصول موجود'),
+  'ongoing-care': tx('Ongoing care', 'نگهداری دوامدار'),
+  'not-sure': tx('Not sure yet', 'هنوز معلوم نیست'),
+}
+
+/** Any stored project type id → its label (current or legacy), or `null` for an unknown id. */
+export function projectTypeLabel(id: string | null | undefined): LocalizedText | null {
+  if (!id) return null
+  return projectTypeOptions.find((option) => option.id === id)?.label ?? legacyProjectTypeLabels[id as keyof typeof legacyProjectTypeLabels] ?? null
+}
 
 export const featureTagOptions: OptionDef<FeatureTagId>[] = [
   { id: 'user-accounts', label: tx('User accounts / login', 'حساب کاربری / ورود') },

@@ -7,10 +7,9 @@ import { captureError } from '@/lib/observability/store'
 /**
  * Admin read layer for § 15's settings/availability and navigation
  * editors. Both tables (0007) are real, live, already-seeded singleton/
- * fixed-set data — see `docs/phases/PHASE-15-README.md` for why editing
- * them here does not yet change what the public site renders (the
- * public read path is still `lib/home-content.ts`/`lib/site.ts`'s static
- * values, a separate, larger, deliberately-not-bundled-in refactor).
+ * fixed-set data. Since Phase 27.6 the public shell reads them too
+ * (`lib/shell-settings-server.ts`): navigation, e-mail, WhatsApp, phone and
+ * external profiles. The availability card still reads `lib/home-content.ts`.
  */
 
 export async function getSiteSettings(): Promise<AdminSiteSettings | null> {
@@ -19,7 +18,7 @@ export async function getSiteSettings(): Promise<AdminSiteSettings | null> {
 
   const { data, error } = await db
     .from('site_settings')
-    .select('availability_state, next_opening, response_commitment, timezone, languages, external_profiles, updated_at')
+    .select('availability_state, next_opening, response_commitment, timezone, languages, external_profiles, updated_at, contact_email, whatsapp_number, phone_number')
     .eq('id', true)
     .maybeSingle()
   if (error || !data) {
@@ -34,6 +33,9 @@ export async function getSiteSettings(): Promise<AdminSiteSettings | null> {
     timezone: data.timezone,
     languages: data.languages ?? [],
     externalProfiles: data.external_profiles ?? [],
+    contactEmail: data.contact_email ?? null,
+    whatsappNumber: data.whatsapp_number ?? null,
+    phoneNumber: data.phone_number ?? null,
     updatedAt: data.updated_at,
   }
 }

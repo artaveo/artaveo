@@ -21,7 +21,8 @@ describe('Content Security Policy — both variants', () => {
     it(`${mode}: no plugins, no framing, no foreign base or form target, no default-open`, () => {
       assert.deepEqual(directive(csp, 'object-src'), ["'none'"])
       assert.deepEqual(directive(csp, 'frame-ancestors'), ["'none'"])
-      assert.deepEqual(directive(csp, 'frame-src'), ["'none'"])
+      // Phase 27.2: the public pages may frame the two video players and nothing else; the admin frames nothing.
+      assert.deepEqual(directive(csp, 'frame-src'), mode === 'public' ? ['https://www.youtube-nocookie.com', 'https://player.vimeo.com'] : ["'none'"])
       assert.deepEqual(directive(csp, 'base-uri'), ["'self'"])
       assert.deepEqual(directive(csp, 'form-action'), ["'self'"])
       assert.deepEqual(directive(csp, 'default-src'), ["'self'"])

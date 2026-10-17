@@ -4,8 +4,8 @@ import { Link } from '@/i18n/navigation'
 import { ArtaveoMark } from '@/components/site/artaveo-mark'
 import { Link as ActionLink } from '@/components/ui/actions'
 import { ExternalProfileLinks } from '@/components/ui/identity'
-import { useVisibleMainNav } from '@/components/site/site-flags'
-import { legalNav, siteConfig, utilityNav, type NavItem } from '@/lib/site'
+import { useFooterNav, useShellContact, useShellProfiles } from '@/components/site/site-flags'
+import { siteConfig, type NavItem } from '@/lib/site'
 
 /**
  * § 5.2 asked for "locale-aware legal links" in the footer; § 11.2 now
@@ -18,7 +18,9 @@ export function SiteFooter() {
   const t = useTranslations('Footer')
   const tCommon = useTranslations('Common')
   const tNav = useTranslations('Nav')
-  const visibleMainNav = useVisibleMainNav()
+  const { explore, more, legal } = useFooterNav()
+  const contact = useShellContact()
+  const profiles = useShellProfiles()
 
   return (
     <footer className="border-t border-border bg-elevated">
@@ -34,23 +36,21 @@ export function SiteFooter() {
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">
               {tCommon('siteDescription')}
             </p>
-            <ActionLink
-              href={`mailto:${siteConfig.email}`}
-              variant="standalone"
-              className="mt-6"
-            >
-              <span dir="ltr">{siteConfig.email}</span>
-            </ActionLink>
+            {contact.email ? (
+              <ActionLink href={`mailto:${contact.email}`} variant="standalone" className="mt-6">
+                <span dir="ltr">{contact.email}</span>
+              </ActionLink>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
-            <FooterCol title={t('explore')} items={visibleMainNav} />
-            <FooterCol title={t('more')} items={utilityNav} />
+            <FooterCol title={t('explore')} items={explore} />
+            {more.length > 0 ? <FooterCol title={t('more')} items={more} /> : null}
             <div>
               <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
                 {t('social')}
               </h3>
-              <ExternalProfileLinks className="mt-4 flex-col items-start gap-x-0 gap-y-3" />
+              <ExternalProfileLinks links={profiles} className="mt-4 flex-col items-start gap-x-0 gap-y-3" />
             </div>
           </div>
         </div>
@@ -60,7 +60,7 @@ export function SiteFooter() {
             © {year} {siteConfig.name}. {tCommon('location')}.
           </p>
           <nav aria-label={t('legal')} className="flex items-center gap-5">
-            {legalNav.map((item) => (
+            {legal.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

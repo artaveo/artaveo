@@ -8,8 +8,7 @@ import { Link, usePathname } from '@/i18n/navigation'
 import { LanguageSwitcher } from '@/components/site/language-switcher'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
-import { useVisibleMainNav } from '@/components/site/site-flags'
-import { siteConfig, utilityNav } from '@/lib/site'
+import { useMobileNav, useShellContact } from '@/components/site/site-flags'
 import { useFocusTrap } from '@/lib/use-focus-trap'
 import { cn } from '@/lib/utils'
 
@@ -31,7 +30,8 @@ export function MobileNav({
 }) {
   const pathname = usePathname()
   const tNav = useTranslations('Nav')
-  const visibleMainNav = useVisibleMainNav()
+  const { main: visibleMainNav, extra: utilityNav } = useMobileNav()
+  const contact = useShellContact()
   const tCommon = useTranslations('Common')
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -132,13 +132,15 @@ export function MobileNav({
             <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
           </Button>
         </div>
-        <a
-          href={`mailto:${siteConfig.email}`}
-          dir="ltr"
-          className="px-4 pb-4 text-end text-xs text-muted-foreground transition-colors hover:text-foreground"
-        >
-          {siteConfig.email}
-        </a>
+        {contact.email ? (
+          <a
+            href={`mailto:${contact.email}`}
+            dir="ltr"
+            className="px-4 pb-4 text-end text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {contact.email}
+          </a>
+        ) : null}
       </div>
     </div>
   )

@@ -9,6 +9,7 @@ import { HireChannelSelector } from '@/components/contact/hire-channel-selector'
 import { LatinTerm } from '@/components/site/latin-term'
 import { getDirectContactChannels, getHireChannels } from '@/lib/contact-content'
 import { getDeveloperProfile } from '@/lib/home-content'
+import type { ShellData } from '@/lib/shell-settings'
 import { t, type Locale } from '@/types/content'
 
 /**
@@ -26,11 +27,11 @@ import { t, type Locale } from '@/types/content'
  * who'd rather just email or message directly without the guided form,
  * with a small cross-link to the Brief Builder for the other direction.
  */
-export function ContactContent() {
+export function ContactContent({ shell }: { shell: ShellData }) {
   const locale = useLocale() as Locale
   const t18n = useTranslations('ContactPage')
   const developer = getDeveloperProfile()
-  const directChannels = getDirectContactChannels()
+  const directChannels = getDirectContactChannels(shell.contact)
   const hireChannels = getHireChannels()
 
   return (
@@ -95,7 +96,7 @@ export function ContactContent() {
                 ) : null}
 
                 <div className="mt-5 border-t border-border pt-5">
-                  <ExternalProfileLinks className="flex-col items-start gap-2.5" />
+                  <ExternalProfileLinks links={shell.profiles} className="flex-col items-start gap-2.5" />
                 </div>
 
                 <div className="mt-5 border-t border-border pt-5">

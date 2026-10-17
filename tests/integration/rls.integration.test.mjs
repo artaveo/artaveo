@@ -24,8 +24,12 @@ const PUBLIC_READ = {
   engagement_models: 'published engagement models are publicly readable',
   faqs: 'faqs are publicly readable',
   navigation_items: 'navigation items are publicly readable',
+  // Phase 27 (0026): the page blocks and a product's ways to get it — published rows of a published (product) project.
+  product_sale_options: 'published sale options of published products are public',
+  product_services: 'published after-sales services of published products are public',
+  project_blocks: 'published blocks of published projects are publicly readable',
   project_media: 'media of published projects are publicly readable',
-  project_sections: 'sections of published projects are publicly readable',
+  // project_sections: archived in 0026 — no public policy any more.
   project_technologies: 'technology links of published projects are publicly readable',
   projects: 'published projects are publicly readable',
   recommendations: 'approved recommendations are publicly readable',
@@ -70,7 +74,7 @@ describe('structure', () => {
     assert.equal(sql(`select count(*) from pg_policy p join pg_namespace n on n.oid = (select relnamespace from pg_class where oid = p.polrelid) where n.nspname = 'public' and (p.polcmd <> 'r' or p.polroles <> array[(select oid from pg_roles where rolname = 'anon'), (select oid from pg_roles where rolname = 'authenticated')]::oid[] and p.polroles <> array[(select oid from pg_roles where rolname = 'authenticated'), (select oid from pg_roles where rolname = 'anon')]::oid[])`), '0')
   })
   it('private tables are the ones that hold leads, credentials-adjacent and operational data', () => {
-    for (const must of ['inquiries', 'inquiry_events', 'inquiry_attachments', 'consultations', 'notification_outbox', 'notification_attempts', 'admin_users', 'audit_log', 'recommendation_requests', 'media_assets', 'redirects']) {
+    for (const must of ['inquiries', 'inquiry_events', 'inquiry_attachments', 'consultations', 'notification_outbox', 'admin_users', 'audit_log', 'recommendation_requests', 'media_assets', 'redirects', 'project_sections']) {
       assert.ok(PRIVATE.includes(must), `${must} must be private`)
     }
   })
@@ -145,15 +149,69 @@ describe('public content: only what is published', () => {
     restore.push(async () => void (await admin.from(table).update(back).match(match)))
   }
 
-  it('an unpublished project disappears — with its sections and technology links', async () => {
+  it('the archived engineering sections are not public, even for a published project (0026)', async () => {
     const { data: project } = await admin.from('projects').select('id').eq('slug', 'pazhuhesh-portal').single()
-    assert.ok((await visitor.from('project_sections').select('id').eq('project_id', project.id)).data.length > 0, 'precondition: visible while published')
+    assert.ok((await admin.from('project_sections').select('id').eq('project_id', project.id)).data.length > 0, 'precondition: the archive holds rows')
+    assert.deepEqual((await visitor.from('project_sections').select('id').eq('project_id', project.id)).data ?? [], [])
+  })
+
+  it('an unpublished project disappears — with its blocks and technology links', async () => {
+    const { data: project } = await admin.from('projects').select('id').eq('slug', 'pazhuhesh-portal').single()
+    assert.ok((await visitor.from('project_blocks').select('id').eq('project_id', project.id)).data.length > 0, 'precondition: its published block is visible while the project is published')
     await flip('projects', { slug: 'pazhuhesh-portal' }, { published: false }, { published: true })
     assert.deepEqual((await visitor.from('projects').select('slug').eq('slug', 'pazhuhesh-portal')).data, [])
-    assert.deepEqual((await visitor.from('project_sections').select('id').eq('project_id', project.id)).data, [])
+    assert.deepEqual((await visitor.from('project_blocks').select('id').eq('project_id', project.id)).data, [])
     assert.deepEqual((await visitor.from('project_technologies').select('project_id').eq('project_id', project.id)).data, [])
     // …and the other, still-published project is unaffected
     assert.equal((await visitor.from('projects').select('slug').eq('slug', 'transportation-system')).data.length, 1)
+  })
+
+  it('a block is public only while it AND its project are published', async () => {
+    const { data: project } = await admin.from('projects').select('id').eq('slug', 'transportation-system').single()
+    const block = await admin.from('project_blocks').insert({ project_id: project.id, type: 'intro', body: { text: { en: 'x', fa: 'ی' } }, published: false }).select('id').single()
+    assert.ifError(block.error)
+    restore.push(async () => void (await admin.from('project_blocks').delete().eq('id', block.data.id)))
+    assert.deepEqual((await visitor.from('project_blocks').select('id').eq('id', block.data.id)).data, [], 'a hidden block is public')
+    await admin.from('project_blocks').update({ published: true }).eq('id', block.data.id)
+    assert.equal((await visitor.from('project_blocks').select('id').eq('id', block.data.id)).data.length, 1)
+  })
+
+  it('a sale option and an after-sales service are public only when published, and only for a published project that IS a product', async () => {
+    const { data: project } = await admin.from('projects').select('id').eq('slug', 'transportation-system').single()
+    const option = await admin.from('product_sale_options').insert({ project_id: project.id, kind: 'licence-yearly', title: { en: 'Yearly', fa: 'سالانه' }, billing_period: 'year', published: true }).select('id').single()
+    const service = await admin.from('product_services').insert({ project_id: project.id, title: { en: 'Training', fa: 'آموزش' }, published: true }).select('id').single()
+    assert.ifError(option.error)
+    assert.ifError(service.error)
+    restore.push(async () => {
+      await admin.from('product_sale_options').delete().eq('id', option.data.id)
+      await admin.from('product_services').delete().eq('id', service.data.id)
+    })
+    const seen = async () => [
+      (await visitor.from('product_sale_options').select('id').eq('id', option.data.id)).data.length,
+      (await visitor.from('product_services').select('id').eq('id', service.data.id)).data.length,
+    ]
+    assert.deepEqual(await seen(), [0, 0], 'not a product yet: nothing public')
+    await flip('projects', { id: project.id }, { is_product: true }, { is_product: false })
+    assert.deepEqual(await seen(), [1, 1])
+    await admin.from('product_sale_options').update({ published: false }).eq('id', option.data.id)
+    await admin.from('product_services').update({ published: false }).eq('id', service.data.id)
+    assert.deepEqual(await seen(), [0, 0], 'hidden rows are not public')
+    await admin.from('product_sale_options').update({ published: true }).eq('id', option.data.id)
+    await flip('projects', { id: project.id }, { published: false }, { published: true })
+    assert.deepEqual(await seen(), [0, 0], 'an unpublished product shows nothing')
+  })
+
+  it('the database itself keeps prices sane: no negative price, a maintenance price only with optional maintenance, one highlighted option', async () => {
+    const { data: project } = await admin.from('projects').select('id').eq('slug', 'pazhuhesh-portal').single()
+    const base = { project_id: project.id, kind: 'source-code', title: { en: 'Code', fa: 'کد' } }
+    assert.ok((await admin.from('product_sale_options').insert({ ...base, price_afn: -1 })).error, 'a negative price was stored')
+    assert.ok((await admin.from('product_sale_options').insert({ ...base, maintenance: 'included', maintenance_price_usd: 10, maintenance_period: 'year' })).error, 'a maintenance price without optional maintenance')
+    assert.ok((await admin.from('product_sale_options').insert({ ...base, maintenance: 'optional', maintenance_price_usd: 10 })).error, 'a maintenance price without its period')
+    const one = await admin.from('product_sale_options').insert({ ...base, highlighted: true }).select('id').single()
+    restore.push(async () => void (await admin.from('product_sale_options').delete().eq('project_id', project.id)))
+    assert.ifError(one.error)
+    assert.ok((await admin.from('product_sale_options').insert({ ...base, highlighted: true })).error, 'two highlighted options')
+    assert.ok((await admin.from('inquiries').insert({ idempotency_key: uuid(), goal: 'x', name: 'x', email: 'x@example.com', preferred_locale: 'en', preferred_channel: 'email', inquiry_kind: 'product-purchase' })).error, 'a product request without its snapshot')
   })
 
   it('an unpublished service disappears — with its packages, add-ons, steps and FAQs', async () => {

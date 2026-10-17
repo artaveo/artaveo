@@ -23,8 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { t, type Locale, type EngagementModel, type Service } from '@/types/content'
-import type { InquiryDraft } from '@/types/inquiry'
+import { t, type Locale, type Service } from '@/types/content'
+import type { InquiryDraft, ProductChoice } from '@/types/inquiry'
+import { formatMoney } from '@/lib/products/money'
 import {
   budgetBandOptions,
   featureTagOptions,
@@ -57,7 +58,7 @@ function useFieldError() {
 }
 
 /* -------------------------------------------------------------------------
- * Step 1 — Service & engagement model
+ * Step 1 — Service (Phase 27.4: engagement models left the public model)
  * ---------------------------------------------------------------------- */
 
 export function ServiceStep({
@@ -65,8 +66,7 @@ export function ServiceStep({
   locale,
   onChange,
   services,
-  engagementModels,
-}: StepProps & { services: Service[]; engagementModels: EngagementModel[] }) {
+}: StepProps & { services: Service[] }) {
   const t18n = useTranslations('BriefBuilder')
 
   return (
@@ -116,35 +116,6 @@ export function ServiceStep({
         ) : null}
       </Field>
 
-      <Field>
-        <FieldLabel htmlFor="brief-engagement">{t18n('engagementModelLabel')}</FieldLabel>
-        <Select
-          value={draft.engagementModelId ?? '__none__'}
-          onValueChange={(value) =>
-            onChange({ engagementModelId: value === '__none__' ? undefined : (value as string) })
-          }
-        >
-          <SelectTrigger id="brief-engagement">
-            <SelectValue placeholder={t18n('engagementModelPlaceholder')}>
-              {(value: string | null) => {
-                if (!value || value === '__none__') return t18n('noEngagementOption')
-                const model = engagementModels.find((m) => m.id === value)
-                return model ? t(model.name, locale) : t18n('engagementModelPlaceholder')
-              }}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="__none__">{t18n('noEngagementOption')}</SelectItem>
-              {engagementModels.map((model) => (
-                <SelectItem key={model.id} value={model.id}>
-                  {t(model.name, locale)}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </Field>
     </div>
   )
 }
@@ -153,9 +124,12 @@ export function ServiceStep({
  * Step 2 — Project type & goal
  * ---------------------------------------------------------------------- */
 
-export function ProjectStep({ draft, errors, locale, onChange }: StepProps) {
+export function ProjectStep({ draft, errors, locale, onChange, products }: StepProps & { products: ProductChoice[] }) {
   const t18n = useTranslations('BriefBuilder')
   const fieldError = useFieldError()
+  // "Buy one of our products" only while there is a published product to buy (Phase 27.5).
+  const typeOptions = products.length > 0 ? projectTypeOptions : projectTypeOptions.filter((option) => option.id !== 'buy-product')
+  const product = products.find((p) => p.slug === draft.productSlug)
 
   return (
     <div className="flex flex-col gap-6">
@@ -167,10 +141,16 @@ export function ProjectStep({ draft, errors, locale, onChange }: StepProps) {
         <FieldLabel>{t18n('projectTypeLabel')}</FieldLabel>
         <RadioGroup
           value={draft.projectType}
-          onValueChange={(value) => onChange({ projectType: value as InquiryDraft['projectType'] })}
+          onValueChange={(value) =>
+            onChange(
+              value === 'buy-product'
+                ? { projectType: 'buy-product', productSlug: draft.productSlug ?? (products.length === 1 ? products[0].slug : undefined) }
+                : { projectType: value as InquiryDraft['projectType'], productSlug: undefined, saleOptionId: undefined },
+            )
+          }
           className="gap-3"
         >
-          {projectTypeOptions.map((option) => (
+          {typeOptions.map((option) => (
             <FieldItem key={option.id} className="flex items-start gap-2.5">
               <Radio value={option.id} className="mt-0.5" />
               <div className="flex flex-col gap-0.5">
@@ -186,6 +166,60 @@ export function ProjectStep({ draft, errors, locale, onChange }: StepProps) {
         </RadioGroup>
         {errors.projectType ? <FieldError>{fieldError(errors.projectType)}</FieldError> : null}
       </Field>
+
+      {draft.projectType === 'buy-product' && products.length > 0 ? (
+        <div className="flex flex-col gap-4 rounded-xl border border-border bg-muted/40 p-4">
+          <Field invalid={Boolean(errors.productSlug)}>
+            <FieldLabel htmlFor="brief-product">{t18n('productLabel')}</FieldLabel>
+            <Select value={draft.productSlug ?? ''} onValueChange={(value) => onChange({ productSlug: (value as string) || undefined, saleOptionId: undefined })}>
+              <SelectTrigger id="brief-product">
+                <SelectValue placeholder={t18n('productPlaceholder')}>
+                  {(value: string | null) => {
+                    const chosen = products.find((p) => p.slug === value)
+                    return chosen ? t(chosen.title, locale) : t18n('productPlaceholder')
+                  }}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {products.map((p) => (
+                    <SelectItem key={p.slug} value={p.slug}>
+                      {t(p.title, locale)}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            {errors.productSlug ? <FieldError>{fieldError(errors.productSlug)}</FieldError> : null}
+          </Field>
+
+          {product && product.saleOptions.length > 0 ? (
+            <Field>
+              <FieldLabel htmlFor="brief-sale-option">{t18n('saleOptionLabel')}</FieldLabel>
+              <Select value={draft.saleOptionId ?? '__none__'} onValueChange={(value) => onChange({ saleOptionId: value === '__none__' ? undefined : (value as string) })}>
+                <SelectTrigger id="brief-sale-option">
+                  <SelectValue>
+                    {(value: string | null) => {
+                      const option = product.saleOptions.find((o) => o.id === value)
+                      return option ? `${t(option.title, locale)} — ${formatMoney(option.price, option.billingPeriod, locale)}` : t18n('saleOptionUndecided')
+                    }}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="__none__">{t18n('saleOptionUndecided')}</SelectItem>
+                    {product.saleOptions.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        {t(option.title, locale)} — {formatMoney(option.price, option.billingPeriod, locale)}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+          ) : null}
+        </div>
+      ) : null}
 
       <Field invalid={Boolean(errors.goal)}>
         <FieldLabel htmlFor="brief-goal">{t18n('goalLabel')}</FieldLabel>

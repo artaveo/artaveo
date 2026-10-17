@@ -1,7 +1,8 @@
-import type { EngagementModel, Locale, Service } from '@/types/content'
-import type { InquiryDraft } from '@/types/inquiry'
+import type { Locale, Service } from '@/types/content'
+import type { InquiryDraft, ProductRequestDraft } from '@/types/inquiry'
 import type { NotificationKind } from '@/types/notifications'
-import { buildInquirySummaryText } from '@/lib/inquiry-summary'
+import { buildInquirySummaryText, buildProductRequestSummaryText, type SummaryProduct } from '@/lib/inquiry-summary'
+import { t } from '@/types/content'
 import { siteConfig } from '@/lib/site'
 
 /**
@@ -41,14 +42,19 @@ export function buildOwnerAlertEmail(
   draft: InquiryDraft,
   inquiryId: string,
   services: Service[],
-  engagementModels: EngagementModel[],
+  product: SummaryProduct | null,
   leadUrl?: string,
 ): { subject: string; text: string } {
-  const subject = `New inquiry — ${singleLine(draft.name) || 'unnamed'}`
+  const buying = draft.projectType === 'buy-product' && product
+  const subject = buying
+    ? `New purchase request — ${singleLine(t(product.title, 'en'), 40)} — ${singleLine(draft.name) || 'unnamed'}`
+    : `New inquiry — ${singleLine(draft.name) || 'unnamed'}`
   const text = [
-    `A new project brief was submitted via ${siteConfig.name}'s Start a Project flow.`,
+    buying
+      ? `A purchase request was submitted via ${siteConfig.name}'s Start a Project flow.`
+      : `A new project brief was submitted via ${siteConfig.name}'s Start a Project flow.`,
     '',
-    buildInquirySummaryText(draft, 'en', services, engagementModels),
+    buildInquirySummaryText(draft, 'en', services, product),
     '',
     `Inquiry ID: ${inquiryId}`,
     ...(leadUrl ? [`Open it in the admin: ${leadUrl}`] : []),
@@ -67,7 +73,7 @@ export function buildClientConfirmationEmail(
   draft: InquiryDraft,
   locale: Locale,
   services: Service[],
-  engagementModels: EngagementModel[],
+  product: SummaryProduct | null = null,
 ): { subject: string; text: string } {
   const subject =
     locale === 'fa' ? 'بریف پروژه‌ی شما دریافت شد — آرتاویو' : 'Your project brief was received — Artaveo'
@@ -82,8 +88,49 @@ export function buildClientConfirmationEmail(
       ? 'اگر نیاز به اصلاح یا افزودن چیزی دارید، کافی‌ست به همین ایمیل پاسخ دهید.'
       : 'If you need to correct or add anything, just reply to this email.'
 
-  const text = [intro, '', buildInquirySummaryText(draft, locale, services, engagementModels), '', outro].join('\n')
+  const text = [intro, '', buildInquirySummaryText(draft, locale, services, product), '', outro].join('\n')
   return { subject, text }
+}
+
+/** Phase 27.5 — the owner's alert for a product purchase or demo request. */
+export function buildProductRequestOwnerEmail(
+  request: ProductRequestDraft,
+  product: SummaryProduct,
+  inquiryId: string,
+  leadUrl?: string,
+): { subject: string; text: string } {
+  const what = request.kind === 'product-demo' ? 'demo request' : 'purchase request'
+  const subject = `New ${what} — ${singleLine(t(product.title, 'en'), 40)} — ${singleLine(request.name) || 'unnamed'}`
+  const text = [
+    `A ${what} for a product was submitted on ${siteConfig.name}.`,
+    '',
+    buildProductRequestSummaryText(request, 'en', product),
+    '',
+    `Inquiry ID: ${inquiryId}`,
+    ...(leadUrl ? [`Open it in the admin: ${leadUrl}`] : []),
+    '',
+    'Replying to this e-mail replies straight to the client.',
+  ].join('\n')
+  return { subject, text }
+}
+
+/** Phase 27.5 — the client's confirmation of a product request, in their language. */
+export function buildProductRequestClientEmail(request: ProductRequestDraft, product: SummaryProduct, locale: Locale): { subject: string; text: string } {
+  const demo = request.kind === 'product-demo'
+  const name = t(product.title, locale)
+  const subject =
+    locale === 'fa'
+      ? `${demo ? 'درخواست دمو' : 'درخواست خرید'} شما دریافت شد — آرتاویو`
+      : `Your ${demo ? 'demo' : 'purchase'} request was received — Artaveo`
+  const intro =
+    locale === 'fa'
+      ? `از درخواست شما برای «${name}» سپاسگزاریم. طبق تعهد پاسخ‌گویی آرتاویو، ${responseCommitment(locale)} پاسخ خواهید گرفت. خلاصه‌ی درخواست شما:`
+      : `Thank you for your request about ${name}. Per Artaveo's response commitment, you'll get ${responseCommitment(locale)}. Here's a copy of what you sent:`
+  const outro =
+    locale === 'fa'
+      ? 'اگر نیاز به اصلاح یا افزودن چیزی دارید، کافی‌ست به همین ایمیل پاسخ دهید.'
+      : 'If you need to correct or add anything, just reply to this email.'
+  return { subject, text: [intro, '', buildProductRequestSummaryText(request, locale, product), '', outro].join('\n') }
 }
 
 export function buildEvidenceSubmittedEmail(input: {

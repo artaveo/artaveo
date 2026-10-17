@@ -8,59 +8,27 @@ import { LatinTerm } from '@/components/site/latin-term'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { BrowserFrame } from '@/components/ui/frames'
-import { Prose } from '@/components/ui/prose'
 import { CaseStudyEvidenceGroup, CaseStudyHeroMedia } from '@/components/work/case-study-media'
+import { ProjectBlocks } from '@/components/work/project-blocks'
 import { ProjectGallery } from '@/components/work/project-gallery'
-import { t, type Locale, type LocalizedText, type Project, type ProjectMediaItem } from '@/types/content'
+import { t, type Locale, type Project, type ProjectMediaItem } from '@/types/content'
 
 /**
- * CaseStudy — the shared `/work/[slug]` template (roadmap § 6.1). Every
- * body section (Context, Problem & Goals, Constraints, Architecture, Key
- * Decisions, Engineering Highlight, Data Integrity & Security, Responsive &
- * RTL, Quality, Current Status & Next, Lessons Learned) reads from an
- * optional field on `Project` and renders only when that field is present —
- * "metadata that is unknown or not true is omitted, never guessed" (§ 6.1).
+ * CaseStudy — the shared `/work/[slug]` template (roadmap § 6.1).
  *
- * Media/narrative structure (out-of-sequence work, roadmap § 23.1, not a
- * phase — the 0014 media-narrative refinement pass): the page follows
- * `Story → Evidence → Story → Evidence → Gallery`, not the old
- * `header → every hero screenshot stacked → prose` layout. Exactly one
- * `placement: 'hero'` image renders once, right under the header
- * (`CaseStudyHeroMedia`). `placement: 'story'` images render inline,
- * grouped by `storyKey`, immediately after the specific prose section
- * named by the `storyAnchor` each group's rows carry — declaratively,
- * from the data each project's `project_media` rows actually carry, never
- * by branching on `project.slug`. A project with no story group for a
- * given anchor simply renders nothing extra there. `placement: 'gallery'`
- * images are unchanged from before this pass.
+ * Phase 27.2: the body is the project's published content blocks, in the owner's
+ * order (`ProjectBlocks`) — the owner builds the page in the admin without code.
+ * The engineering sections of revisions 1–44 are archived (`project_sections`,
+ * migration 0026) and never read; nor are the role, the status or the repository
+ * link (Phase 26.5 / 27.1).
  *
- * Phase 26.5 (revision 45) — NOT rendered any more, although the data is
- * still loaded and kept: the role field, the project status badge, the
- * repository link, and the engineering sections (constraints, key decisions,
- * engineering highlight, data integrity & security, quality, current status,
- * lessons learned). They read as an engineering log, not as something a
- * customer needs (roadmap § 16.1); Phase 27.2 replaces them with
- * customer-facing content blocks. Story screenshots anchored to a hidden
- * section still render at that point in the page.
+ * Media: exactly one `placement: 'hero'` image under the header; the `'story'`
+ * screenshot groups (0014) follow the blocks, each group together; the
+ * `'gallery'` grid closes the page. Gallery blocks bring their own images.
+ *
+ * The project's own accent colour (`accentColor`, 27.1) colours the small marks
+ * in its blocks; Phase 30 takes the colour further with Design System 2.0.
  */
-
-function LocalizedBody({ value, locale }: { value?: LocalizedText; locale: Locale }) {
-  if (!value) return null
-
-  const paragraphs = t(value, locale)
-    .split(/\n\s*\n/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean)
-
-  return (
-    <>
-      {paragraphs.map((paragraph, index) => (
-        <p key={index}>{paragraph}</p>
-      ))}
-    </>
-  )
-}
-
 export function CaseStudy({
   project,
   nextProject,
@@ -71,45 +39,31 @@ export function CaseStudy({
   const locale = useLocale() as Locale
   const t18n = useTranslations('CaseStudy')
   const tNav = useTranslations('Nav')
-
-  // Only the sections this template still renders (see the Phase 26.5 note above).
-  const hasFullWriteUp = project.context || project.problemAndGoals || project.architecture || project.responsiveAndRtl
+  const tPlatform = useTranslations('Platforms')
 
   const heroMedia = project.media?.find((m) => m.placement === 'hero')
-  const storyMedia = project.media?.filter((m) => m.placement === 'story') ?? []
   const galleryMedia = project.media?.filter((m) => m.placement === 'gallery') ?? []
 
-  /** Groups this project's `'story'` items by `storyKey` (preserving
-   *  `sort_order`, already sorted by `content-queries.ts`), then buckets
-   *  each group under the `storyAnchor` its rows carry — declarative,
-   *  built once from whatever `project.media` actually contains, never
-   *  branching on `project.slug`. A project with no story rows for a
-   *  given anchor yields an empty array there, same "absent means not
-   *  yet true" rule the rest of this template follows. */
-  const storyGroupsByAnchor = new Map<string, ProjectMediaItem[][]>()
+  /** Story screenshots grouped by `storyKey`, in `sort_order` (already sorted by the selector). */
+  const storyGroups: ProjectMediaItem[][] = []
   {
     const byKey = new Map<string, ProjectMediaItem[]>()
-    for (const item of storyMedia) {
-      if (!item.storyKey) continue
-      const list = byKey.get(item.storyKey) ?? []
-      list.push(item)
-      byKey.set(item.storyKey, list)
-    }
-    for (const group of byKey.values()) {
-      const anchor = group[0]?.storyAnchor
-      if (!anchor) continue
-      const list = storyGroupsByAnchor.get(anchor) ?? []
-      list.push(group)
-      storyGroupsByAnchor.set(anchor, list)
+    for (const item of project.media ?? []) {
+      if (item.placement !== 'story' || !item.storyKey) continue
+      const list = byKey.get(item.storyKey)
+      if (list) list.push(item)
+      else {
+        const group = [item]
+        byKey.set(item.storyKey, group)
+        storyGroups.push(group)
+      }
     }
   }
 
-  function storyGroupsFor(anchor: keyof Project): ProjectMediaItem[][] {
-    return storyGroupsByAnchor.get(anchor) ?? []
-  }
+  const accentStyle = project.accentColor ? ({ '--project-accent': project.accentColor } as React.CSSProperties) : undefined
 
   return (
-    <article className="container-page py-16 md:py-24">
+    <article className="container-page py-16 md:py-24" style={accentStyle}>
       <Breadcrumb
         items={[
           { label: tNav('home'), href: '/' },
@@ -119,13 +73,11 @@ export function CaseStudy({
         className="mb-10"
       />
 
-      {/* Hero + Snapshot */}
       <header>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="brand-soft">{t(project.category, locale)}</Badge>
-          {project.year ? (
-            <span className="font-mono text-xs text-muted-foreground">{project.year}</span>
-          ) : null}
+          {project.industry ? <Badge variant="muted">{t(project.industry, locale)}</Badge> : null}
+          {project.year ? <span className="font-mono text-xs text-muted-foreground">{project.year}</span> : null}
         </div>
 
         <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-balance md:text-6xl">
@@ -136,31 +88,52 @@ export function CaseStudy({
           {t(project.summary, locale)}
         </p>
 
-        <dl className="mt-10 overflow-hidden rounded-xl border border-border">
-          <div className="min-w-0 bg-card p-4">
-            <dt className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-              {t18n('stack')}
-            </dt>
-            <dd className="mt-1 flex flex-wrap gap-1.5">
-              {project.technologies.map((tech) => (
-                <Badge key={tech} variant="muted">
-                  <LatinTerm>{tech}</LatinTerm>
-                </Badge>
-              ))}
-            </dd>
-          </div>
-        </dl>
+        {project.outcomeLine ? (
+          <p className="mt-4 max-w-2xl text-base font-medium leading-relaxed text-foreground text-pretty">
+            {t(project.outcomeLine, locale)}
+          </p>
+        ) : null}
+
+        <div className="mt-8 flex flex-wrap items-start gap-x-10 gap-y-5">
+          {project.platforms.length > 0 ? (
+            <div className="min-w-0">
+              <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">{t18n('platforms')}</p>
+              <ul className="mt-2 flex flex-wrap gap-1.5">
+                {project.platforms.map((platform) => (
+                  <li key={platform}>
+                    <Badge variant="outline">{tPlatform(platform)}</Badge>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {project.technologies.length > 0 ? (
+            <div className="min-w-0">
+              <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">{t18n('stack')}</p>
+              <ul className="mt-2 flex flex-wrap gap-1.5">
+                {project.technologies.map((tech) => (
+                  <li key={tech}>
+                    <Badge variant="muted">
+                      <LatinTerm>{tech}</LatinTerm>
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {/* Repository links are never shown publicly (Phase 26.5, D-19). */}
+          {project.liveUrl ? (
+            <Button size="sm" variant="outline" render={<a href={project.liveUrl} target="_blank" rel="noreferrer" />}>
+              {t18n('liveDemo')}
+              <ArrowUpRight data-icon="inline-end" className="rtl:-scale-x-100" />
+              <span className="sr-only">{t18n('opensNewTab')}</span>
+            </Button>
+          ) : null}
+        </div>
       </header>
 
-      {/* Hero media — roadmap § 6.1 "Media" names the BrowserFrame/
-          DeviceFrame pattern; exactly one `placement: 'hero'` image
-          (0014 media-narrative refinement pass, § 23.1, not a phase),
-          controlled and centered rather than stacked with the rest —
-          the rest of a project's screenshots render as story evidence
-          further down, next to the section they support. Projects with
-          no `media` yet fall back to the single `coverImage` this
-          template originally rendered, so a not-yet-photographed
-          project still shows something rather than nothing. */}
+      {/* Hero media: the one `placement: 'hero'` image; a project with no media yet
+          falls back to its cover, so it still shows something rather than nothing. */}
       <div className="mt-12 md:mt-16">
         {heroMedia ? (
           <CaseStudyHeroMedia item={heroMedia} locale={locale} projectSlug={project.slug} />
@@ -179,9 +152,7 @@ export function CaseStudy({
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
-                    <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-                      {project.slug}
-                    </span>
+                    <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">{project.slug}</span>
                   </div>
                 )}
               </div>
@@ -190,146 +161,22 @@ export function CaseStudy({
         )}
       </div>
 
-      {/* `min-w-0` on both grid items: a grid item is at least as wide as its content by
-          default, so one long unbreakable word or a wide figure inside made
-          /fa/work/transportation-system 405 px wide on a 375 px phone (Phase 26.3). */}
-      <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16">
-        <div className="min-w-0 lg:col-span-8">
-          <Prose>
-            {project.context ? (
-              <section>
-                <h2>{t18n('context')}</h2>
-                <LocalizedBody value={project.context} locale={locale} />
-              </section>
-            ) : null}
+      {/* `min-w-0`: a flex/grid child is as wide as its content by default (Phase 26.3). */}
+      <div className="mx-auto mt-14 min-w-0 max-w-4xl md:mt-20">
+        <ProjectBlocks project={project} />
 
-            {storyGroupsFor('context').map((group, i) => (
-              <CaseStudyEvidenceGroup
-                key={group[0]?.src ?? i}
-                items={group}
-                locale={locale}
-                projectSlug={project.slug}
-              />
+        {storyGroups.length > 0 ? (
+          <div className="mt-14 flex flex-col gap-10">
+            {storyGroups.map((group, i) => (
+              <CaseStudyEvidenceGroup key={group[0]?.src ?? i} items={group} locale={locale} projectSlug={project.slug} />
             ))}
-
-            {project.problemAndGoals ? (
-              <section>
-                <h2>{t18n('problemAndGoals')}</h2>
-                <LocalizedBody value={project.problemAndGoals} locale={locale} />
-              </section>
-            ) : null}
-
-            {storyGroupsFor('problemAndGoals').map((group, i) => (
-              <CaseStudyEvidenceGroup
-                key={group[0]?.src ?? i}
-                items={group}
-                locale={locale}
-                projectSlug={project.slug}
-              />
-            ))}
-
-            {project.architecture ? (
-              <section>
-                <h2>{t18n('architecture')}</h2>
-                <LocalizedBody value={project.architecture} locale={locale} />
-              </section>
-            ) : null}
-
-            {storyGroupsFor('architecture').map((group, i) => (
-              <CaseStudyEvidenceGroup
-                key={group[0]?.src ?? i}
-                items={group}
-                locale={locale}
-                projectSlug={project.slug}
-              />
-            ))}
-
-            {storyGroupsFor('keyDecisions').map((group, i) => (
-              <CaseStudyEvidenceGroup
-                key={group[0]?.src ?? i}
-                items={group}
-                locale={locale}
-                projectSlug={project.slug}
-              />
-            ))}
-
-            {storyGroupsFor('dataIntegrityAndSecurity').map((group, i) => (
-              <CaseStudyEvidenceGroup
-                key={group[0]?.src ?? i}
-                items={group}
-                locale={locale}
-                projectSlug={project.slug}
-              />
-            ))}
-
-            {project.responsiveAndRtl ? (
-              <section>
-                <h2>{t18n('responsiveAndRtl')}</h2>
-                <LocalizedBody value={project.responsiveAndRtl} locale={locale} />
-              </section>
-            ) : null}
-
-          </Prose>
-
-          {!hasFullWriteUp ? (
-            <div className="mt-10 rounded-xl border border-dashed border-border bg-muted/40 p-6">
-              <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
-                {t18n('pendingNotice')}
-              </p>
-            </div>
-          ) : null}
-        </div>
-
-        <aside className="min-w-0 lg:col-span-4">
-          <div className="rounded-xl border border-border bg-card p-6">
-            <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-              {t18n('highlights')}
-            </h2>
-            <ul className="mt-4 space-y-2.5">
-              {project.highlights.map((item) => (
-                <li key={item.en} className="flex gap-3 text-sm leading-relaxed">
-                  <span
-                    aria-hidden
-                    className="mt-[0.55rem] size-1.5 shrink-0 rounded-[2px] bg-brand"
-                  />
-                  <span className="text-pretty">{t(item, locale)}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* Repository links are never shown publicly (Phase 26.5, D-19). */}
-            {project.liveUrl ? (
-              <div className="mt-6 flex flex-col gap-2 border-t border-border pt-6">
-                <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-                  {t18n('links')}
-                </h3>
-                {project.liveUrl ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="justify-start"
-                    render={<a href={project.liveUrl} target="_blank" rel="noreferrer" />}
-                  >
-                    {t18n('liveDemo')}
-                    <ArrowUpRight data-icon="inline-end" className="rtl:-scale-x-100" />
-                    <span className="sr-only">{t18n('opensNewTab')}</span>
-                  </Button>
-                ) : null}
-              </div>
-            ) : null}
           </div>
-        </aside>
+        ) : null}
       </div>
 
-      {/* Gallery — the supporting `placement: 'gallery'` screenshots
-          (out-of-sequence work, roadmap § 23.1, not a phase). Hidden
-          entirely when a project has none yet, same
-          "empty means hidden" rule the rest of this template follows. */}
       {galleryMedia.length > 0 ? (
         <div className="mt-16 border-t border-border pt-10 md:mt-20">
-          <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-            {t18n('gallery')}
-          </h2>
+          <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">{t18n('gallery')}</h2>
           <div className="mt-6">
             <ProjectGallery items={galleryMedia} />
           </div>
@@ -338,9 +185,7 @@ export function CaseStudy({
 
       {nextProject ? (
         <div className="mt-20 border-t border-border pt-10 md:mt-28">
-          <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-            {t18n('nextProject')}
-          </span>
+          <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">{t18n('nextProject')}</span>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight text-balance md:text-3xl">
             <Link
               href={`/work/${nextProject.slug}`}

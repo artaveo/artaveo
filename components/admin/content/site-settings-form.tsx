@@ -18,11 +18,10 @@ import type { AvailabilityState } from '@/types/content'
 const STATES: AvailabilityState[] = ['available', 'limited', 'unavailable']
 
 /**
- * § 15's settings/availability editor — writes the real, live
- * `site_settings` singleton row. The public Availability Card doesn't
- * read from this table yet (still `lib/home-content.ts`'s static
- * values) — see `docs/phases/PHASE-15-README.md` for why that public
- * read-path switch is deliberately not bundled into this same change.
+ * § 15's settings/availability editor — writes the `site_settings` singleton
+ * row. Since Phase 27.6 the contact channels and external profiles here are what
+ * the public header, menu, footer and contact page show; the availability card
+ * still reads `lib/home-content.ts`.
  */
 export function SiteSettingsForm({ settings }: { settings: AdminSiteSettings }) {
   const t = useTranslations('Admin')
@@ -35,19 +34,22 @@ export function SiteSettingsForm({ settings }: { settings: AdminSiteSettings }) 
     timezone: settings.timezone,
     languages: settings.languages,
     externalProfiles: settings.externalProfiles,
+    contactEmail: settings.contactEmail,
+    whatsappNumber: settings.whatsappNumber,
+    phoneNumber: settings.phoneNumber,
   })
   const [pending, setPending] = useState(false)
-  const [error, setError] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setPending(true)
-    setError(false)
+    setError(null)
     setSaved(false)
     const result = await updateSiteSettings(form)
     if (!result.ok) {
-      setError(true)
+      setError(result.code === 'invalid' ? t('cmsErrorInvalid') : t('errorForbidden'))
       setPending(false)
       return
     }
@@ -107,6 +109,29 @@ export function SiteSettingsForm({ settings }: { settings: AdminSiteSettings }) 
 
       <Card>
         <CardContent className="flex flex-col gap-4 pt-6">
+          <div>
+            <p className="text-sm font-medium text-foreground">{t('cmsContactChannelsTitle')}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t('cmsContactChannelsHint')}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Field>
+              <FieldLabel htmlFor="settings-email">{t('cmsFieldContactEmail')}</FieldLabel>
+              <Input id="settings-email" type="email" dir="ltr" value={form.contactEmail ?? ''} disabled={pending} onChange={(e) => setForm({ ...form, contactEmail: e.target.value || null })} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="settings-whatsapp">{t('cmsFieldWhatsappNumber')}</FieldLabel>
+              <Input id="settings-whatsapp" type="tel" dir="ltr" value={form.whatsappNumber ?? ''} placeholder="+93…" disabled={pending} onChange={(e) => setForm({ ...form, whatsappNumber: e.target.value || null })} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="settings-phone">{t('cmsFieldPhoneNumber')}</FieldLabel>
+              <Input id="settings-phone" type="tel" dir="ltr" value={form.phoneNumber ?? ''} placeholder="+93…" disabled={pending} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value || null })} />
+            </Field>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="flex flex-col gap-4 pt-6">
           <p className="text-sm font-medium text-foreground">{t('cmsFieldLanguages')}</p>
           {form.languages.map((lang, index) => (
             <div key={index} className="flex flex-col gap-3 rounded-lg border border-border p-3">
@@ -144,7 +169,7 @@ export function SiteSettingsForm({ settings }: { settings: AdminSiteSettings }) 
         </CardContent>
       </Card>
 
-      {error ? <FormMessage variant="destructive">{t('errorForbidden')}</FormMessage> : null}
+      {error ? <FormMessage variant="destructive">{error}</FormMessage> : null}
       {saved && !error ? <FormMessage variant="success">{t('cmsSettingsSaved')}</FormMessage> : null}
 
       <Button type="submit" disabled={pending} className="self-start">

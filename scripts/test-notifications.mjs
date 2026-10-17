@@ -395,7 +395,7 @@ test('singleLine collapses whitespace and newlines and caps length', () => {
 })
 
 test('owner alert: a newline in the name cannot reach the subject; links to the lead; says replies go to the client', () => {
-  const mail = buildOwnerAlertEmail(draft({ name: 'Sara\nBcc: x@evil.test' }), 'inq-1', [], [], 'https://site.test/en/admin/leads/inq-1')
+  const mail = buildOwnerAlertEmail(draft({ name: 'Sara\nBcc: x@evil.test' }), 'inq-1', [], null, 'https://site.test/en/admin/leads/inq-1')
   assert.equal(mail.subject.includes('\n'), false)
   assert.match(mail.subject, /^New inquiry — Sara Bcc: x@evil\.test$/)
   assert.match(mail.text, /Inquiry ID: inq-1/)
@@ -404,12 +404,12 @@ test('owner alert: a newline in the name cannot reach the subject; links to the 
 })
 
 test('client confirmation: English and Persian, D-08 wording, reply invitation', () => {
-  const en = buildClientConfirmationEmail(draft({ preferredLocale: 'en' }), 'en', [], [])
+  const en = buildClientConfirmationEmail(draft({ preferredLocale: 'en' }), 'en', [], null)
   assert.match(en.subject, /received/)
   assert.match(en.text, /a reply within a few hours, same day/)
   assert.match(en.text, /just reply to this email/)
 
-  const fa = buildClientConfirmationEmail(draft(), 'fa', [], [])
+  const fa = buildClientConfirmationEmail(draft(), 'fa', [], null)
   assert.match(fa.subject, /آرتاویو/)
   assert.match(fa.text, /پاسخ‌گویی در همان روز، طی چند ساعت/)
   assert.match(fa.text, /به همین ایمیل پاسخ دهید/)

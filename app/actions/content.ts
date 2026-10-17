@@ -36,13 +36,14 @@ import type {
   PackageInput,
   ProcessStepInput,
   ProjectCoreInput,
-  ProjectSectionsInput,
   RecommendationInput,
   RecommendationRequestInput,
   RecommendationStatus,
   ServiceCoreInput,
 } from '@/types/cms'
 import { captureError } from '@/lib/observability/store'
+import { cleanAmount } from '@/lib/products/money'
+import { PROJECT_PLATFORMS, SERVICE_KINDS } from '@/types/content'
 
 /**
  * § 15.1 Server Actions for the Services cluster (services, packages,
@@ -103,8 +104,14 @@ function revalidateProjectRoutes(slugs: (string | null | undefined)[]): void {
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/work`)
     revalidatePath(`/${locale}`)
+    // Phase 27: products (Phase 30's pages) and the Brief Builder's product list.
+    revalidatePath(`/${locale}/products`)
+    revalidatePath(`/${locale}/start`)
     for (const slug of slugs) {
-      if (slug) revalidatePath(`/${locale}/work/${slug}`)
+      if (slug) {
+        revalidatePath(`/${locale}/work/${slug}`)
+        revalidatePath(`/${locale}/products/${slug}`)
+      }
     }
   }
 }
@@ -151,7 +158,23 @@ function serviceCoreToRow(input: ServiceCoreInput) {
     related_project_slugs: input.relatedProjectSlugs.map((s) => s.trim()).filter(Boolean),
     what_drives_cost: cleanList(input.whatDrivesCost),
     payment_schedule_note: toJsonbOrNull(input.paymentScheduleNote),
+    // Phase 27.4
+    kind: input.kind && (SERVICE_KINDS as string[]).includes(input.kind) ? input.kind : null,
+    from_price_afn: amountOrNull(input.fromPrice?.afn),
+    from_price_usd: amountOrNull(input.fromPrice?.usd),
+    show_packages: Boolean(input.showPackages),
   }
+}
+
+/** A typed amount, or `null`. Invalid amounts are refused before this is reached (`serviceInputValid`). */
+function amountOrNull(value: unknown): number | null {
+  const cleaned = cleanAmount(value)
+  return cleaned === 'invalid' ? null : cleaned
+}
+
+function serviceInputValid(input: ServiceCoreInput): boolean {
+  if (input.kind && !(SERVICE_KINDS as string[]).includes(input.kind)) return false
+  return cleanAmount(input.fromPrice?.afn) !== 'invalid' && cleanAmount(input.fromPrice?.usd) !== 'invalid'
 }
 
 // ---------------------------------------------------------------------------
@@ -161,7 +184,7 @@ function serviceCoreToRow(input: ServiceCoreInput) {
 export async function createService(input: ServiceCoreInput): Promise<ContentActionResultWithId> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
+  if (!isValidSlug(input.slug) || !serviceInputValid(input)) return { ok: false, code: 'error' }
 
   const db = requireDb()
   if (!db) return { ok: false, code: 'not-configured' }
@@ -185,7 +208,7 @@ export async function createService(input: ServiceCoreInput): Promise<ContentAct
 export async function updateService(id: string, input: ServiceCoreInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
+  if (!isValidSlug(input.slug) || !serviceInputValid(input)) return { ok: false, code: 'error' }
 
   const db = requireDb()
   if (!db) return { ok: false, code: 'not-configured' }
@@ -588,6 +611,29 @@ export async function deleteEngagementModel(id: string): Promise<ContentActionRe
 // projects (§ 15.2)
 // ---------------------------------------------------------------------------
 
+const COLOR = /^#[0-9A-Fa-f]{6}$/
+
+/**
+ * Phase 27.1 — what a project form may set. `status`, `role`, the repository URL
+ * and the legacy cover path are no longer written (they stay in the table as
+ * history); the cover is a media-library image.
+ */
+function projectInputValid(input: ProjectCoreInput): boolean {
+  if (!isValidSlug(input.slug)) return false
+  if (input.brandColor && !COLOR.test(input.brandColor)) return false
+  if (input.accentColor && !COLOR.test(input.accentColor)) return false
+  if (!Array.isArray(input.platforms) || input.platforms.some((p) => !(PROJECT_PLATFORMS as string[]).includes(p))) return false
+  if (input.coverMediaId !== null && input.coverMediaId !== undefined && !UUID_PATTERN.test(input.coverMediaId)) return false
+  if (input.liveUrl) {
+    try {
+      if (!['https:', 'http:'].includes(new URL(input.liveUrl).protocol)) return false
+    } catch {
+      return false
+    }
+  }
+  return true
+}
+
 function projectCoreToRow(input: ProjectCoreInput) {
   return {
     slug: input.slug.trim(),
@@ -595,14 +641,19 @@ function projectCoreToRow(input: ProjectCoreInput) {
     category: { en: input.category.en.trim(), fa: input.category.fa.trim() },
     summary: { en: input.summary.en.trim(), fa: input.summary.fa.trim() },
     highlights: cleanList(input.highlights),
-    status: input.status ?? null,
-    cover_image: input.coverImage?.trim() || null,
-    github_url: input.githubUrl?.trim() || null,
+    cover_media_id: input.coverMediaId || null,
     live_url: input.liveUrl?.trim() || null,
     year: input.year?.trim() || null,
-    role: toJsonbOrNull(input.role),
     related_service_slug: input.relatedServiceSlug?.trim() || null,
-    featured: input.featured,
+    featured: Boolean(input.featured),
+    show_in_portfolio: Boolean(input.showInPortfolio),
+    is_product: Boolean(input.isProduct),
+    brand_color: input.brandColor || null,
+    accent_color: input.accentColor || null,
+    industry: toJsonbOrNull(input.industry),
+    platforms: [...new Set(input.platforms)],
+    outcome_line: toJsonbOrNull(input.outcomeLine),
+    features: cleanList(input.features),
   }
 }
 
@@ -618,7 +669,7 @@ async function replaceProjectTechnologies(projectId: string, technologyIds: stri
 export async function createProject(input: ProjectCoreInput): Promise<ContentActionResultWithId> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
+  if (!projectInputValid(input)) return { ok: false, code: 'error' }
 
   const db = requireDb()
   if (!db) return { ok: false, code: 'not-configured' }
@@ -643,7 +694,7 @@ export async function createProject(input: ProjectCoreInput): Promise<ContentAct
 export async function updateProject(id: string, input: ProjectCoreInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  if (!isValidSlug(input.slug)) return { ok: false, code: 'error' }
+  if (!projectInputValid(input)) return { ok: false, code: 'error' }
 
   const db = requireDb()
   if (!db) return { ok: false, code: 'not-configured' }
@@ -659,65 +710,6 @@ export async function updateProject(id: string, input: ProjectCoreInput): Promis
   await replaceProjectTechnologies(id, input.technologyIds)
   await writeAuditLog({ actor: auth.userId, action: 'content.project_updated', entity: 'project', entityId: id, after: { slug: input.slug } })
   revalidateProjectRoutes([before?.slug, input.slug])
-  return { ok: true }
-}
-
-/**
- * Replaces every `project_sections` row for this project in one pass —
- * the form always submits the complete case study, so a delete-then-
- * insert is simpler and safer than diffing against what's already there
- * (no risk of an orphaned row from a section the editor cleared).
- */
-export async function updateProjectSections(id: string, input: ProjectSectionsInput): Promise<ContentActionResult> {
-  const auth = await requireEditorSession()
-  if ('code' in auth) return { ok: false, code: 'forbidden' }
-  const db = requireDb()
-  if (!db) return { ok: false, code: 'not-configured' }
-
-  const { error: deleteError } = await db.from('project_sections').delete().eq('project_id', id)
-  if (deleteError) return { ok: false, code: 'error' }
-
-  const rows: { project_id: string; type: string; body: unknown; sort_order: number }[] = []
-  const singleSections: [string, { en: string; fa: string } | null][] = [
-    ['context', input.context],
-    ['problem-and-goals', input.problemAndGoals],
-    ['architecture', input.architecture],
-    ['engineering-highlight', input.engineeringHighlight],
-    ['data-integrity-and-security', input.dataIntegrityAndSecurity],
-    ['responsive-and-rtl', input.responsiveAndRtl],
-    ['quality', input.quality],
-    ['current-status-and-next', input.currentStatusAndNext],
-    ['lessons-learned', input.lessonsLearned],
-  ]
-  for (const [type, value] of singleSections) {
-    const jsonb = toJsonbOrNull(value)
-    if (jsonb) rows.push({ project_id: id, type, body: jsonb, sort_order: 0 })
-  }
-  cleanList(input.constraints).forEach((constraint, index) => {
-    rows.push({ project_id: id, type: 'constraint', body: constraint, sort_order: index })
-  })
-  input.keyDecisions
-    .filter((d) => d.context.en || d.context.fa || d.decision.en || d.decision.fa || d.tradeoff.en || d.tradeoff.fa)
-    .forEach((decision, index) => {
-      rows.push({
-        project_id: id,
-        type: 'key-decision',
-        body: {
-          context: { en: decision.context.en.trim(), fa: decision.context.fa.trim() },
-          decision: { en: decision.decision.en.trim(), fa: decision.decision.fa.trim() },
-          tradeoff: { en: decision.tradeoff.en.trim(), fa: decision.tradeoff.fa.trim() },
-        },
-        sort_order: index,
-      })
-    })
-
-  if (rows.length > 0) {
-    const { error: insertError } = await db.from('project_sections').insert(rows)
-    if (insertError) return { ok: false, code: 'error' }
-  }
-
-  await writeAuditLog({ actor: auth.userId, action: 'content.project_sections_updated', entity: 'project', entityId: id })
-  revalidateProjectRoutes([])
   return { ok: true }
 }
 

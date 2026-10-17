@@ -28,20 +28,28 @@ import type { Project } from '@/types/content'
  * `getAllProjectsRaw()`, not read by these functions at all.
  */
 
+/** Featured portfolio projects (Phase 27.1: only those with `showInPortfolio`). */
 export async function getFeaturedProjects(): Promise<Project[]> {
   const { queryFeaturedProjects } = await import('@/lib/db/content-queries')
-  return queryFeaturedProjects()
+  return (await queryFeaturedProjects()).filter((project) => project.showInPortfolio)
 }
 
-/** Every published project, featured-first — backs `/work` (§ 6.1). */
+/** Every published portfolio project, featured-first — backs `/work` (§ 6.1). Phase 27.1: a product that is switched out of the portfolio is not here. */
 export async function getAllProjects(): Promise<Project[]> {
   const { queryAllProjects } = await import('@/lib/db/content-queries')
-  const projects = await queryAllProjects()
+  const projects = (await queryAllProjects()).filter((project) => project.showInPortfolio)
   return [...projects].sort((a, b) => Number(b.featured) - Number(a.featured))
 }
 
-/** A single published project by slug, or `undefined` — backs `/work/[slug]` (§ 6.1). */
+/** A single published portfolio project by slug, or `undefined` — backs `/work/[slug]` (§ 6.1). */
 export async function getProjectBySlug(slug: string): Promise<Project | undefined> {
   const { queryProjectBySlug } = await import('@/lib/db/content-queries')
-  return queryProjectBySlug(slug)
+  const project = await queryProjectBySlug(slug)
+  return project?.showInPortfolio ? project : undefined
+}
+
+/** Phase 27.3 — every published product with its published ways to get it and after-sales services. */
+export async function getProducts(): Promise<Project[]> {
+  const { queryProducts } = await import('@/lib/db/content-queries')
+  return queryProducts()
 }

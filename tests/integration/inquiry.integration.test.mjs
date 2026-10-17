@@ -18,7 +18,7 @@ const OLD = () => Date.now() - 60_000 // the form was "rendered a minute ago"
 const meta = (extra = {}) => ({ honeypot: '', formRenderedAt: OLD(), idempotencyKey: uuid(), ...extra })
 const draft = (extra = {}) => ({
   ...createEmptyInquiryDraft('en'),
-  projectType: 'web-app-or-mvp',
+  projectType: 'web-system',
   goal: 'Rebuild our booking system for buses',
   timeline: '1-3-months',
   name: '  Integration Client  ',

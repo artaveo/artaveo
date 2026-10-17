@@ -192,3 +192,23 @@ select proname, proacl from pg_proc where proname in ('hold_seats','release_seat
 |---|---|---|
 | Privacy policy: a technical record of a failure is kept for up to 90 days (what went wrong, the kind of page with private-link addresses replaced, a random request number, the browser's error text), with e-mail addresses, phone-like numbers and long random strings removed automatically; no name, e-mail, IP or form content is put there on purpose; simple counts of what the site did; reports from the browser when the security policy blocks something | `lib/observability/redact.ts` + `observability-redact.test.mjs` (hostile-input cases); `observability.integration.test.mjs` "stores nothing private" (plants an address, a name, a token and free text and searches every stored row); `db/migrations/0021_observability.sql` + `purge_ops_data` (90 days) called by the daily run (`app/api/cron/notifications/route.ts`); no IP column exists in either table. The policy's own caveat — a browser-written message could in principle contain a fragment of a page — is stated in the policy | 2026-09-21 |
 | About page: "UTC — no fixed city is published" (English) / "شهر مشخصی منتشر نشده است" (Persian) — the previous English text pointed at the internal Decision Register; the previous Persian text added a claim the ledger does not have ("the time zone is independent of where I work") | D-02 resolution (11 Sep 2026): timezone UTC, no city published — the existing row of this ledger | 2026-09-21 |
+
+## Phase 27 (18 October 2026) — customer-facing features of the two projects
+
+Each line is something a customer can do or see, checked against the project's real screenshots (`project_media` / `media_assets`, migration 0013) — nothing that explains how it is built (§ 16.1). Stored in `projects.features` (migration 0026) and editable in the admin.
+
+| Claim | Evidence | Verified |
+|---|---|---|
+| Transport: passengers search trips and buy tickets online | screenshots `01-home-overview`, `02-trip-search-results`, `04-booking-confirmation` | 2026-10-18 |
+| Transport: each passenger picks their own seat on the bus seat map | screenshot `03-seat-selection` | 2026-10-18 |
+| Transport: a ticket can be checked any time with its reference code | screenshot `12-booking-tracking` | 2026-10-18 |
+| Transport: routes, buses, drivers and trips managed from one panel | screenshots `08-admin-trips`, `09-admin-routes`, `10-admin-buses`, `11-admin-drivers` | 2026-10-18 |
+| Transport: sales reports by date and route | screenshot `06-admin-reports` (date and route filter applied) | 2026-10-18 |
+| Transport: loyalty levels and discount coupons | screenshot `13-loyalty-coupons` | 2026-10-18 |
+| Education: study lounge page with its facilities and rules | screenshot `02-study-lounge` | 2026-10-18 |
+| Education: scholarships the staff publish themselves | screenshots `06-active-scholarships`, `04-super-admin-dashboard` | 2026-10-18 |
+| Education: academic services and advising requests | screenshot `03-academic-services`; the published case-study text (`lib/home-content.ts`, Phase 6.3: staff "review membership/advising requests") | 2026-10-18 |
+| Education: a page for student achievements | screenshot `08-achievements` | 2026-10-18 |
+| Education: two admin levels — full control and a department admin | screenshots `04-super-admin-dashboard`, `05-department-admin` | 2026-10-18 |
+| Education: light and dark appearance | screenshot `11-theme-or-bilingual` (dark mode) | 2026-10-18 |
+| Industry (passenger transport, education), platform (web) and project colours | the projects themselves; the colours are design choices (§ 14.1 examples), not claims | 2026-10-18 |

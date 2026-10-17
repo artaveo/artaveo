@@ -6,6 +6,7 @@ import { ProjectForm } from '@/components/admin/content/project-form'
 import { FormMessage } from '@/components/ui/form-controls'
 import { getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
 import { listTechnologiesAdmin } from '@/lib/admin/content'
+import { listMediaAssets } from '@/lib/admin/media'
 
 export async function generateMetadata({
   params,
@@ -30,7 +31,7 @@ export default async function NewProjectPage({
   if (!mfaSatisfied(session)) redirect(`/${locale}/admin/${mfaDestination(session)}`)
 
   const t = await getTranslations('Admin')
-  const technologies = await listTechnologiesAdmin()
+  const [technologies, media] = await Promise.all([listTechnologiesAdmin(), listMediaAssets()])
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -42,7 +43,7 @@ export default async function NewProjectPage({
       {technologies === null ? (
         <FormMessage variant="warning">{t('leadsNotConfigured')}</FormMessage>
       ) : (
-        <ProjectForm mode="create" technologies={technologies} initialTechnologyIds={[]} />
+        <ProjectForm mode="create" technologies={technologies} initialTechnologyIds={[]} media={media ?? []} />
       )}
     </div>
   )

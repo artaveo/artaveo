@@ -3,13 +3,23 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 
 import { publishProject, unpublishProject } from '@/app/actions/content'
+import { ProductEditor } from '@/components/admin/content/product-editor'
+import { ProjectBlocksEditor } from '@/components/admin/content/project-blocks-editor'
+import { ProjectEditorTabs } from '@/components/admin/content/project-editor-tabs'
 import { ProjectForm } from '@/components/admin/content/project-form'
 import { ProjectMediaEditor } from '@/components/admin/content/project-media-editor'
-import { ProjectSectionsForm } from '@/components/admin/content/project-sections-form'
 import { PublishControl } from '@/components/admin/content/publish-control'
 import { NotFoundState } from '@/components/ui/states'
 import { getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
-import { getProjectAdmin, getProjectTechnologyIds, listTechnologiesAdmin, projectCompleteness } from '@/lib/admin/content'
+import {
+  getProjectAdmin,
+  getProjectTechnologyIds,
+  listProductServicesAdmin,
+  listProjectBlocksAdmin,
+  listSaleOptionsAdmin,
+  listTechnologiesAdmin,
+  projectCompleteness,
+} from '@/lib/admin/content'
 import { listMediaAssets, listProjectMedia } from '@/lib/admin/media'
 
 export async function generateMetadata({
@@ -23,12 +33,21 @@ export async function generateMetadata({
   return { title: project ? project.title.en || project.slug : t('cmsProjectsTitle'), robots: { index: false, follow: false } }
 }
 
+/**
+ * The project editor (§ 15.2, reworked in Phase 27): three tabs —
+ * Project (core fields, colour, cover, switches), Page (the blocks the public page
+ * is built from, plus the screenshots the case study shows) and Product (its ways
+ * to get it and after-sales services, Phase 27.3).
+ */
 export default async function EditProjectPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string; id: string }>
+  searchParams: Promise<{ tab?: string }>
 }) {
   const { locale, id } = await params
+  const { tab } = await searchParams
   setRequestLocale(locale)
 
   const session = await getAdminSession()
@@ -46,11 +65,18 @@ export default async function EditProjectPage({
     return <NotFoundState size="page" title={t('cmsProjectNotFoundTitle')} />
   }
 
-  const [projectMedia, mediaLibrary] = await Promise.all([listProjectMedia(id), listMediaAssets()])
+  const [projectMedia, mediaLibrary, blocks, saleOptions, productServices] = await Promise.all([
+    listProjectMedia(id),
+    listMediaAssets(),
+    listProjectBlocksAdmin(id),
+    listSaleOptionsAdmin(id),
+    listProductServicesAdmin(id),
+  ])
 
   const completeness = projectCompleteness(project)
   const publishProjectForId = publishProject.bind(null, id)
   const unpublishProjectForId = unpublishProject.bind(null, id)
+  const activeTab = tab === 'page' || tab === 'product' ? tab : 'project'
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-8">
@@ -67,20 +93,35 @@ export default async function EditProjectPage({
         onUnpublish={unpublishProjectForId}
       />
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-sm font-semibold tracking-wide text-foreground uppercase">{t('cmsSectionCoreFields')}</h2>
-        <ProjectForm mode="edit" project={project} technologies={technologies ?? []} initialTechnologyIds={technologyIds} />
-      </section>
+      <ProjectEditorTabs active={activeTab} projectId={id} isProduct={project.isProduct} />
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-sm font-semibold tracking-wide text-foreground uppercase">{t('cmsSectionCaseStudy')}</h2>
-        <ProjectSectionsForm projectId={id} project={project} />
-      </section>
+      {activeTab === 'project' ? (
+        <section className="flex flex-col gap-4" aria-labelledby="tab-project">
+          <ProjectForm mode="edit" project={project} technologies={technologies ?? []} initialTechnologyIds={technologyIds} media={mediaLibrary ?? []} />
+        </section>
+      ) : null}
 
-      <section className="flex flex-col gap-4">
-        <h2 className="text-sm font-semibold tracking-wide text-foreground uppercase">{t('cmsSectionMedia')}</h2>
-        <ProjectMediaEditor projectId={id} projectSlug={project.slug} items={projectMedia ?? []} library={mediaLibrary ?? []} />
-      </section>
+      {activeTab === 'page' ? (
+        <>
+          <section className="flex flex-col gap-4">
+            <div>
+              <h2 className="text-sm font-semibold tracking-wide text-foreground uppercase">{t('cmsSectionBlocks')}</h2>
+              <p className="mt-1 text-xs text-muted-foreground">{t('cmsSectionBlocksHint')}</p>
+            </div>
+            <ProjectBlocksEditor projectId={id} blocks={blocks ?? []} media={mediaLibrary ?? []} />
+          </section>
+          <section className="flex flex-col gap-4">
+            <h2 className="text-sm font-semibold tracking-wide text-foreground uppercase">{t('cmsSectionMedia')}</h2>
+            <ProjectMediaEditor projectId={id} projectSlug={project.slug} items={projectMedia ?? []} library={mediaLibrary ?? []} />
+          </section>
+        </>
+      ) : null}
+
+      {activeTab === 'product' ? (
+        <section className="flex flex-col gap-4">
+          <ProductEditor projectId={id} isProduct={project.isProduct} saleOptions={saleOptions ?? []} productServices={productServices ?? []} />
+        </section>
+      ) : null}
     </div>
   )
 }

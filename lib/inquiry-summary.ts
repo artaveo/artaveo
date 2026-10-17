@@ -1,39 +1,102 @@
-import { t, type Locale, type EngagementModel, type Service } from '@/types/content'
-import type { InquiryDraft } from '@/types/inquiry'
+import { t, type Locale, type LocalizedText, type Service } from '@/types/content'
+import type { InquiryDraft, ProductRequestDraft, ProductSnapshot } from '@/types/inquiry'
 import {
   budgetBandOptions,
   featureTagOptions,
   preferredChannelOptions,
-  projectTypeOptions,
+  projectTypeLabel,
   timelineOptions,
 } from '@/lib/inquiry-content'
+import { formatMoney } from '@/lib/products/money'
 import { siteConfig } from '@/lib/site'
+
+/**
+ * Phase 27.5 — the product part of a summary: a snapshot on the server, or what
+ * the Brief Builder's product list says in the browser. Same lines either way.
+ */
+export type SummaryProduct = {
+  title: LocalizedText
+  option: ProductSnapshot['option']
+  services: ProductSnapshot['services']
+}
+
+export function snapshotToSummaryProduct(snapshot: ProductSnapshot | null | undefined): SummaryProduct | null {
+  return snapshot ? { title: snapshot.product.title, option: snapshot.option, services: snapshot.services } : null
+}
+
+function productLines(product: SummaryProduct, locale: Locale): { label: string; value: string }[] {
+  const lines = [{ label: locale === 'fa' ? 'محصول' : 'Product', value: t(product.title, locale) }]
+  if (product.option) {
+    lines.push({
+      label: locale === 'fa' ? 'روش خرید' : 'Way to get it',
+      value: `${t(product.option.title, locale)} — ${formatMoney(product.option.price, product.option.billingPeriod, locale)}`,
+    })
+  }
+  if (product.services.length > 0) {
+    lines.push({
+      label: locale === 'fa' ? 'خدمات بعد از فروش' : 'After-sales services',
+      value: product.services.map((service) => `${t(service.title, locale)} (${formatMoney(service.price, service.period, locale)})`).join(locale === 'fa' ? '، ' : ', '),
+    })
+  }
+  return lines
+}
+
+function contactLines(draft: { name: string; email: string; phone: string; preferredChannel: string }, locale: Locale): { label: string; value: string }[] {
+  const lines = [
+    { label: locale === 'fa' ? 'نام' : 'Name', value: draft.name.trim() },
+    { label: locale === 'fa' ? 'ایمیل' : 'Email', value: draft.email.trim() },
+  ]
+  if (draft.phone.trim()) {
+    lines.push({ label: locale === 'fa' ? 'تلفن / واتس‌اپ' : 'Phone / WhatsApp', value: draft.phone.trim() })
+  }
+  const channel = preferredChannelOptions.find((o) => o.id === draft.preferredChannel)
+  if (channel) {
+    lines.push({ label: locale === 'fa' ? 'روش ارتباط ترجیحی' : 'Preferred contact channel', value: t(channel.label, locale) })
+  }
+  return lines
+}
+
+/** Phase 27.5 — the summary of a product purchase or demo request (e-mails, the pipeline). */
+export function buildProductRequestSummaryLines(request: ProductRequestDraft, locale: Locale, product: SummaryProduct): { label: string; value: string }[] {
+  const lines = [
+    {
+      label: locale === 'fa' ? 'درخواست' : 'Request',
+      value: request.kind === 'product-demo' ? (locale === 'fa' ? 'دیدن نمونه‌ی کار (دمو)' : 'A demo') : locale === 'fa' ? 'خرید' : 'A purchase',
+    },
+    ...productLines(product, locale),
+  ]
+  if (request.message.trim()) lines.push({ label: locale === 'fa' ? 'پیام' : 'Message', value: request.message.trim() })
+  return [...lines, ...contactLines(request, locale)]
+}
+
+export function buildProductRequestSummaryText(request: ProductRequestDraft, locale: Locale, product: SummaryProduct): string {
+  return buildProductRequestSummaryLines(request, locale, product)
+    .map((line) => `${line.label}: ${line.value}`)
+    .join('\n')
+}
 
 /**
  * Turns the draft into the same plain-text summary the Brief Summary step
  * shows and the honest mailto fallback sends (`brief-builder.tsx`) — one
  * function, one source of truth, so the two never drift apart.
  *
- * `services`/`engagementModels` are passed in rather than fetched here
+ * `services` (and, for "buy one of our products", the chosen product) are passed in rather than fetched here
  * (Phase 12.2, roadmap § 12): this function is called both from a Client
  * Component during render (`review.tsx`, which can't await the database) and
  * from server-side email-template code (`lib/notifications/templates.ts`,
  * already async) — a plain, synchronous function taking the data as
- * parameters works for both, where importing the now-async
- * `getAllServices()`/`getEngagementModels()` selectors here would not.
+ * parameters works for both, where importing the async selectors here would not.
+ * Phase 27.4: engagement models left the public model — a brief no longer names one.
  */
 export function buildInquirySummaryLines(
   draft: InquiryDraft,
   locale: Locale,
   services: Service[],
-  engagementModels: EngagementModel[],
+  product: SummaryProduct | null = null,
 ): { label: string; value: string }[] {
   const lines: { label: string; value: string }[] = []
 
   const service = draft.serviceSlug ? services.find((s) => s.slug === draft.serviceSlug) : undefined
-  const engagementModel = draft.engagementModelId
-    ? engagementModels.find((m) => m.id === draft.engagementModelId)
-    : undefined
 
   if (service) {
     lines.push({
@@ -41,17 +104,11 @@ export function buildInquirySummaryLines(
       value: t(service.title, locale) + (draft.packageId ? ` (${draft.packageId})` : ''),
     })
   }
-  if (engagementModel) {
-    lines.push({
-      label: locale === 'fa' ? 'الگوی همکاری' : 'Engagement model',
-      value: t(engagementModel.name, locale),
-    })
-  }
-
-  const projectType = projectTypeOptions.find((o) => o.id === draft.projectType)
+  const projectType = projectTypeLabel(draft.projectType)
   if (projectType) {
-    lines.push({ label: locale === 'fa' ? 'نوع پروژه' : 'Project type', value: t(projectType.label, locale) })
+    lines.push({ label: locale === 'fa' ? 'نوع پروژه' : 'Project type', value: t(projectType, locale) })
   }
+  if (draft.projectType === 'buy-product' && product) lines.push(...productLines(product, locale))
 
   if (draft.goal.trim()) {
     lines.push({ label: locale === 'fa' ? 'هدف' : 'Goal', value: draft.goal.trim() })
@@ -85,19 +142,7 @@ export function buildInquirySummaryLines(
     }
   }
 
-  lines.push({ label: locale === 'fa' ? 'نام' : 'Name', value: draft.name.trim() })
-  lines.push({ label: locale === 'fa' ? 'ایمیل' : 'Email', value: draft.email.trim() })
-  if (draft.phone.trim()) {
-    lines.push({ label: locale === 'fa' ? 'تلفن / واتس‌اپ' : 'Phone / WhatsApp', value: draft.phone.trim() })
-  }
-
-  const channel = preferredChannelOptions.find((o) => o.id === draft.preferredChannel)
-  if (channel) {
-    lines.push({
-      label: locale === 'fa' ? 'روش ارتباط ترجیحی' : 'Preferred contact channel',
-      value: t(channel.label, locale),
-    })
-  }
+  lines.push(...contactLines(draft, locale))
 
   return lines
 }
@@ -106,9 +151,9 @@ export function buildInquirySummaryText(
   draft: InquiryDraft,
   locale: Locale,
   services: Service[],
-  engagementModels: EngagementModel[],
+  product: SummaryProduct | null = null,
 ): string {
-  return buildInquirySummaryLines(draft, locale, services, engagementModels)
+  return buildInquirySummaryLines(draft, locale, services, product)
     .map((line) => `${line.label}: ${line.value}`)
     .join('\n')
 }
@@ -123,9 +168,10 @@ export function buildInquiryMailtoHref(
   draft: InquiryDraft,
   locale: Locale,
   services: Service[],
-  engagementModels: EngagementModel[],
+  product: SummaryProduct | null = null,
+  email: string = siteConfig.email,
 ): string {
   const subject = locale === 'fa' ? 'بریف پروژه از طریق آرتاویو' : 'Project brief from Artaveo'
-  const body = buildInquirySummaryText(draft, locale, services, engagementModels)
-  return `mailto:${siteConfig.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+  const body = buildInquirySummaryText(draft, locale, services, product)
+  return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }

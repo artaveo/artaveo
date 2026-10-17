@@ -15,6 +15,7 @@ import { ErrorReporter } from '@/components/site/error-reporter'
 import { ThemeSync } from '@/components/theme-sync'
 import { PwaManager } from '@/components/site/pwa-manager'
 import { SiteFlagsProvider } from '@/components/site/site-flags'
+import { getShellData } from '@/lib/shell-settings-server'
 import { JsonLd } from '@/components/site/json-ld'
 import type { Locale } from '@/types/content'
 import '../globals.css'
@@ -152,6 +153,9 @@ export default async function RootLayout({
    */
   const insightsVisible = await hasPublishedArticles()
 
+  // Phase 27.6 — navigation and contact channels as the owner set them in the admin.
+  const shell = await getShellData()
+
   /**
    * § 11.3 — fonts subset and preloaded carefully. `--font-vazirmatn` only
    * ever gets read inside a `[dir='rtl']` rule (`app/globals.css`), so on
@@ -188,7 +192,7 @@ export default async function RootLayout({
         <ThemeSync />
         <ErrorReporter />
         <NextIntlClientProvider>
-          <SiteFlagsProvider flags={{ insights: insightsVisible }}>
+          <SiteFlagsProvider flags={{ insights: insightsVisible }} shell={shell}>
             {children}
             <PwaManager />
           </SiteFlagsProvider>

@@ -1,5 +1,6 @@
 import type { HireChannel, LocalizedText } from '@/types/content'
 import { siteConfig, socialLinks } from '@/lib/site'
+import { formatPhoneNumber, telHref, whatsappHref as whatsappLink, type ShellContact } from '@/lib/shell-settings'
 
 /**
  * Contact & hire-channel content (roadmap § 8.3, page map § 15 —
@@ -49,26 +50,32 @@ export type DirectContactChannel = {
   href: string
 }
 
-export function getDirectContactChannels(): DirectContactChannel[] {
+/**
+ * Phase 27.6: the channels come from `site_settings` (the admin's Settings page) —
+ * e-mail, WhatsApp and phone, each shown only when the owner has set it.
+ */
+export function getDirectContactChannels(contact: ShellContact): DirectContactChannel[] {
   const channels: DirectContactChannel[] = []
 
-  if (siteConfig.email) {
-    channels.push({
-      id: 'email',
-      icon: 'Send',
-      label: tx('Email', 'ایمیل'),
-      value: siteConfig.email,
-      href: emailHref,
-    })
+  if (contact.email) {
+    channels.push({ id: 'email', icon: 'Send', label: tx('Email', 'ایمیل'), value: contact.email, href: `mailto:${contact.email}` })
   }
-
-  if (whatsappHref) {
+  if (contact.whatsappNumber) {
     channels.push({
       id: 'whatsapp',
       icon: 'MessagesSquare',
       label: tx('WhatsApp', 'واتس‌اپ'),
-      value: '+93 79 068 5832',
-      href: whatsappHref,
+      value: formatPhoneNumber(contact.whatsappNumber),
+      href: whatsappLink(contact.whatsappNumber),
+    })
+  }
+  if (contact.phoneNumber) {
+    channels.push({
+      id: 'phone',
+      icon: 'Phone',
+      label: tx('Phone', 'تلفن'),
+      value: formatPhoneNumber(contact.phoneNumber),
+      href: telHref(contact.phoneNumber),
     })
   }
 

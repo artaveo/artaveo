@@ -153,7 +153,7 @@ describe('the limiter inside the real Server Actions', () => {
     sql(`insert into public.rate_limit_buckets (bucket_key, hits, expires_at) values ('${name}:${dimension}:${value}', ${hits}, now() + interval '1 hour') on conflict (bucket_key) do update set hits = ${hits}`)
   }
   const draft = () => ({
-    ...createEmptyInquiryDraft('en'), projectType: 'web-app-or-mvp', goal: 'A goal that is long enough to pass', timeline: 'asap',
+    ...createEmptyInquiryDraft('en'), projectType: 'web-system', goal: 'A goal that is long enough to pass', timeline: 'asap',
     name: 'Limit Probe', email: `limit-${uuid().slice(0, 8)}@example.com`, consent: true,
   })
   const meta = () => ({ honeypot: '', formRenderedAt: Date.now() - 60000, idempotencyKey: uuid() })

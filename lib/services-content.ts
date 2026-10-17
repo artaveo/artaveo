@@ -82,6 +82,7 @@ const servicesData: Service[] = [
     slug: 'business-website',
     icon: 'Globe',
     type: 'productized',
+    kind: 'website',
     title: tx('Business Website', 'وب‌سایت تجاری'),
     tagline: tx(
       'A fast, credible website that structures content the way a CMS eventually will.',
@@ -288,6 +289,7 @@ const servicesData: Service[] = [
     slug: 'web-application-mvp',
     icon: 'AppWindow',
     type: 'custom',
+    kind: 'web-system',
     title: tx('Web Application / MVP', 'اپلیکیشن وب / MVP'),
     tagline: tx(
       'A full-stack product build, scoped through a Discovery Sprint before any commitment to a fixed price.',
@@ -373,6 +375,7 @@ const servicesData: Service[] = [
     slug: 'admin-dashboards',
     icon: 'PanelsTopLeft',
     type: 'productized-custom',
+    kind: 'web-system',
     title: tx('Admin Dashboards & Internal Tools', 'داشبورد مدیریت و ابزارهای داخلی'),
     tagline: tx(
       'Role-based admin panels that make the data your team already has usable and safe to act on.',
@@ -558,6 +561,7 @@ const servicesData: Service[] = [
     slug: 'backend-api-database',
     icon: 'Database',
     type: 'custom',
+    kind: 'web-system',
     title: tx('Backend, API & Database', 'بک‌اند، API و پایگاه داده'),
     tagline: tx(
       'The server-side layer your product actually trusts: schema, authorization and integrations.',
@@ -635,6 +639,7 @@ const servicesData: Service[] = [
     slug: 'performance-accessibility-seo',
     icon: 'Gauge',
     type: 'productized',
+    kind: 'support',
     title: tx('Performance, Accessibility & SEO Fix', 'بهبود کارایی، دسترس‌پذیری و سئو'),
     tagline: tx(
       'An audit with real fixes behind it, and a before/after report that shows the difference.',
@@ -799,6 +804,7 @@ const servicesData: Service[] = [
     slug: 'bug-fix-rescue',
     icon: 'Wrench',
     type: 'productized',
+    kind: 'support',
     title: tx('Bug Fix & Rescue', 'رفع باگ و نجات کدبیس'),
     tagline: tx(
       'Diagnose a real problem in a codebase that isn\u2019t mine, and fix it without breaking what already works.',
@@ -939,6 +945,7 @@ const servicesData: Service[] = [
     slug: 'care-plan',
     icon: 'ShieldCheck',
     type: 'monthly',
+    kind: 'support',
     title: tx('Care Plan (Maintenance)', 'برنامه‌ی نگهداری'),
     tagline: tx(
       'Ongoing updates, monitoring and small changes for a product that is already live.',

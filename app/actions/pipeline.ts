@@ -202,6 +202,10 @@ const CSV_COLUMNS = [
   'source_channel',
   'preferred_channel',
   'goal',
+  // Phase 27.5
+  'inquiry_kind',
+  'product',
+  'sale_option',
 ] as const
 
 export type CsvExportResult = { ok: false; code: 'forbidden' | 'not-configured' } | { ok: true; csv: string }
@@ -235,6 +239,9 @@ export async function exportInquiriesCsv(filters: Omit<PipelineFilters, 'page' |
       row.sourceChannel ?? '',
       row.preferredChannel,
       row.goal,
+      row.kind,
+      row.productSnapshot?.product.slug ?? '',
+      row.productSnapshot?.option?.title.en ?? '',
     ]),
   )
   return { ok: true, csv }

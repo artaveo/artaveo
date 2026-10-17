@@ -1,4 +1,4 @@
-import type { InquiryDraft, StepId } from '@/types/inquiry'
+import { PROJECT_TYPE_IDS, type InquiryDraft, type ProductRequestDraft, type StepId } from '@/types/inquiry'
 
 /**
  * Brief Builder validation (roadmap § 9.1, "per-step validation"). Plain
@@ -39,6 +39,11 @@ export function validateStep(step: StepId, draft: InquiryDraft): StepErrors {
     case 'project':
       if (!draft.projectType) {
         errors.projectType = 'required'
+      } else if (!PROJECT_TYPE_IDS.includes(draft.projectType)) {
+        // Phase 27.5: a closed set — the server sees whatever a client sends.
+        errors.projectType = 'required'
+      } else if (draft.projectType === 'buy-product' && !draft.productSlug) {
+        errors.productSlug = 'required'
       }
       if (!draft.goal.trim()) {
         errors.goal = 'required'
@@ -100,4 +105,34 @@ export const dataSteps: StepId[] = ['service', 'project', 'scope', 'timeline', '
 
 export function validateAllSteps(draft: InquiryDraft): boolean {
   return dataSteps.every((step) => Object.keys(validateStep(step, draft)).length === 0)
+}
+
+const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/**
+ * Phase 27.5 — a product purchase or demo request. Same contact rules as the
+ * Brief Builder's contact step; the product must be named; the message is
+ * optional but capped. Whether the product, option and services exist and are
+ * published is checked against the database by the action, not here.
+ */
+export function validateProductRequest(draft: ProductRequestDraft): StepErrors {
+  const errors: StepErrors = {}
+  if (!draft || typeof draft !== 'object') return { form: 'required' }
+  if (draft.kind !== 'product-purchase' && draft.kind !== 'product-demo') errors.kind = 'required'
+  if (typeof draft.productSlug !== 'string' || !SLUG.test(draft.productSlug)) errors.productSlug = 'required'
+  if (draft.saleOptionId !== undefined && (typeof draft.saleOptionId !== 'string' || !UUID.test(draft.saleOptionId))) errors.saleOptionId = 'invalid'
+  if (!Array.isArray(draft.productServiceIds) || draft.productServiceIds.length > 20 || draft.productServiceIds.some((id) => typeof id !== 'string' || !UUID.test(id))) {
+    errors.productServiceIds = 'invalid'
+  }
+  if (typeof draft.message !== 'string' || draft.message.length > 4000) errors.message = 'tooLong'
+  if (typeof draft.name !== 'string' || !draft.name.trim()) errors.name = 'required'
+  if (typeof draft.email !== 'string' || !draft.email.trim()) errors.email = 'required'
+  else if (!EMAIL_PATTERN.test(draft.email.trim())) errors.email = 'invalidEmail'
+  if (typeof draft.phone !== 'string') errors.phone = 'required'
+  else if (draft.preferredChannel === 'whatsapp' && !draft.phone.trim()) errors.phone = 'required'
+  if (draft.preferredChannel !== 'email' && draft.preferredChannel !== 'whatsapp') errors.preferredChannel = 'required'
+  if (draft.preferredLocale !== 'en' && draft.preferredLocale !== 'fa') errors.preferredLocale = 'required'
+  if (draft.consent !== true) errors.consent = 'required'
+  return errors
 }

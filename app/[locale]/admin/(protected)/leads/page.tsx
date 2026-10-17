@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 
 import { Link } from '@/i18n/navigation'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmptyState } from '@/components/ui/states'
@@ -16,6 +17,7 @@ import { canAccessLeads, getAdminSession, mfaDestination, mfaSatisfied } from '@
 import { computeSlaFromFirstResponse, getFirstResponseTimes, getResponseCommitment, listInquiries } from '@/lib/admin/pipeline'
 import { formatDate } from '@/lib/format'
 import type { Locale } from '@/types/content'
+import { INQUIRY_KIND_LABEL } from '@/components/admin/pipeline/product-request-card'
 import type { InquiryPriority, InquiryStage } from '@/types/pipeline'
 
 export async function generateMetadata({
@@ -132,7 +134,16 @@ export default async function LeadsPage({
                       </Link>
                       <p className="text-xs text-muted-foreground">{inquiry.email}</p>
                     </TableCell>
-                    <TableCell label={t('tableColumnService')}>{inquiry.serviceSlug ?? '—'}</TableCell>
+                    <TableCell label={t('tableColumnService')}>
+                      {inquiry.kind === 'project' ? (
+                        (inquiry.serviceSlug ?? '—')
+                      ) : (
+                        <span className="flex flex-col items-start gap-1">
+                          <Badge variant="brand-soft">{t(INQUIRY_KIND_LABEL[inquiry.kind])}</Badge>
+                          {inquiry.productSnapshot ? <span className="text-xs">{inquiry.productSnapshot.product.title.en || inquiry.productSnapshot.product.slug}</span> : null}
+                        </span>
+                      )}
+                    </TableCell>
                     <TableCell label={t('tableColumnStage')}>
                       <StageTransitionControl inquiryId={inquiry.id} stage={inquiry.stage} />
                     </TableCell>

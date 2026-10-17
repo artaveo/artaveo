@@ -4,7 +4,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteShell } from '@/components/site/site-shell'
 import { JsonLd } from '@/components/site/json-ld'
 import { StartContent } from '@/components/start/start-content'
-import { getAllServices, getEngagementModels } from '@/lib/services-content'
+import { getAllServices } from '@/lib/services-content'
+import { getProducts } from '@/lib/home-content-projects'
+import { toProductChoices } from '@/lib/products/resolve'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
 import { buildBreadcrumbJsonLd } from '@/lib/structured-data'
 import type { Locale } from '@/types/content'
@@ -44,8 +46,10 @@ export default async function StartPage({
   const query = await searchParams
   const serviceSlug = firstValue(query.service)
   const packageId = firstValue(query.package)
+  const productSlug = firstValue(query.product)
 
-  const [services, engagementModels] = await Promise.all([getAllServices(), getEngagementModels()])
+  // Phase 27.5: the published products, for "Buy one of our products".
+  const [services, products] = await Promise.all([getAllServices(), getProducts().then(toProductChoices)])
 
   // Only prefill from a real, existing service — an unrecognised
   // `?service=` value (typo, stale link) is silently ignored rather than
@@ -53,6 +57,8 @@ export default async function StartPage({
   // the rest of the site follows for unknown/missing data).
   const initialServiceSlug = serviceSlug && services.some((s) => s.slug === serviceSlug) ? serviceSlug : undefined
   const initialPackageId = initialServiceSlug ? packageId : undefined
+  // `?product=` (Phase 30's product pages) prefills "buy one of our products" — only for a real, published product.
+  const initialProductSlug = productSlug && products.some((p) => p.slug === productSlug) ? productSlug : undefined
 
   const t = await getTranslations('StartPage')
   const tNav = await getTranslations('Nav')
@@ -67,9 +73,10 @@ export default async function StartPage({
       />
       <StartContent
         services={services}
-        engagementModels={engagementModels}
+        products={products}
         initialServiceSlug={initialServiceSlug}
         initialPackageId={initialPackageId}
+        initialProductSlug={initialProductSlug}
       />
     </SiteShell>
   )

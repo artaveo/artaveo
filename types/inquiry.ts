@@ -1,4 +1,4 @@
-import type { Locale } from '@/types/content'
+import type { BillingPeriod, Locale, LocalizedText, Money, SaleOptionKind } from '@/types/content'
 
 /**
  * Brief Builder / Inquiry types (roadmap § 9.1, "Start a Project").
@@ -17,13 +17,81 @@ import type { Locale } from '@/types/content'
  * honestly in the meantime.
  */
 
-/** Honest, closed vocabulary — never invent a value outside this set (§ 16.5). */
+/**
+ * Phase 27.5 — what the visitor wants built, by kind of software (D-18: the list
+ * never narrows what Artaveo builds — "something else" is always there). Closed
+ * vocabulary, checked on the server. Inquiries sent before Phase 27 carry the old
+ * ids (`LEGACY_PROJECT_TYPE_IDS`); the admin still shows them.
+ */
 export type ProjectTypeId =
-  | 'new-website'
-  | 'web-app-or-mvp'
-  | 'existing-product'
-  | 'ongoing-care'
-  | 'not-sure'
+  | 'website'
+  | 'web-system'
+  | 'mobile-app'
+  | 'desktop-software'
+  | 'offline-system'
+  | 'support-existing'
+  | 'buy-product'
+  | 'other'
+
+export const PROJECT_TYPE_IDS: ProjectTypeId[] = [
+  'website',
+  'web-system',
+  'mobile-app',
+  'desktop-software',
+  'offline-system',
+  'support-existing',
+  'buy-product',
+  'other',
+]
+
+/** The Brief Builder's project types of revisions 1–44, kept so old leads still read correctly. */
+export const LEGACY_PROJECT_TYPE_IDS = ['new-website', 'web-app-or-mvp', 'existing-product', 'ongoing-care', 'not-sure'] as const
+
+/**
+ * Phase 27.5 — what kind of request an inquiry is (`inquiries.inquiry_kind`):
+ * a project brief (the Brief Builder), a product purchase request (a product, the
+ * chosen way to get it, after-sales services) or a demo request.
+ */
+export type InquiryKind = 'project' | 'product-purchase' | 'product-demo'
+
+/**
+ * What a product request is about, as it was at the moment it was sent
+ * (`inquiries.product_snapshot`): editing or deleting an option later never
+ * rewrites what the client asked for.
+ */
+export type ProductSnapshot = {
+  product: { id: string; slug: string; title: LocalizedText }
+  option: { id: string; kind: SaleOptionKind; title: LocalizedText; price: Money; billingPeriod: BillingPeriod } | null
+  services: { id: string; title: LocalizedText; price: Money; period: BillingPeriod }[]
+}
+
+/** The products the Brief Builder and the product request form may offer — published products only. */
+export type ProductChoice = {
+  slug: string
+  title: LocalizedText
+  saleOptions: { id: string; kind: SaleOptionKind; title: LocalizedText; price: Money; billingPeriod: BillingPeriod }[]
+  services: { id: string; title: LocalizedText; price: Money; period: BillingPeriod }[]
+}
+
+/**
+ * Phase 27.5 — a product purchase or demo request. Lighter than a brief: the
+ * product says what it is about; the message is optional. Phase 30's product
+ * pages send it (`submitProductRequest`).
+ */
+export type ProductRequestDraft = {
+  kind: 'product-purchase' | 'product-demo'
+  productSlug: string
+  /** Purchase requests may name the chosen way to get it. */
+  saleOptionId?: string
+  productServiceIds: string[]
+  message: string
+  name: string
+  email: string
+  phone: string
+  preferredLocale: Locale
+  preferredChannel: PreferredChannelId
+  consent: boolean
+}
 
 export type TimelineId = 'asap' | '1-3-months' | '3-6-months' | 'flexible' | 'not-sure'
 
@@ -61,8 +129,10 @@ export type InquiryDraft = {
   /** Prefilled from `?service=` / `?package=` (roadmap § 9.1). */
   serviceSlug?: string
   packageId?: string
-  engagementModelId?: string
   projectType?: ProjectTypeId
+  /** Phase 27.5 — with `projectType: 'buy-product'`: which product, and optionally which way to get it. Prefilled from `?product=`. */
+  productSlug?: string
+  saleOptionId?: string
   goal: string
   featureTags: FeatureTagId[]
   /** Required only when `featureTags` includes `'other'`. */
@@ -85,8 +155,9 @@ export function createEmptyInquiryDraft(locale: Locale): InquiryDraft {
   return {
     serviceSlug: undefined,
     packageId: undefined,
-    engagementModelId: undefined,
     projectType: undefined,
+    productSlug: undefined,
+    saleOptionId: undefined,
     goal: '',
     featureTags: [],
     featureOtherNote: '',

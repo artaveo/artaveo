@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { ContactContent } from '@/components/contact/contact-content'
+import { getShellData } from '@/lib/shell-settings-server'
 import { SiteShell } from '@/components/site/site-shell'
 import { JsonLd } from '@/components/site/json-ld'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
@@ -42,7 +43,7 @@ export default async function ContactPage({
           { name: t('metaTitle'), path: '/contact' },
         ])}
       />
-      <ContactContent />
+      <ContactContent shell={await getShellData()} />
     </SiteShell>
   )
 }

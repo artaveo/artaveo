@@ -1,12 +1,20 @@
 import type {
   AvailabilityState,
-  DecisionRecord,
+  BillingPeriod,
   FaqItem,
   LocalizedText,
+  MaintenanceMode,
+  Money,
   Price,
+  ProductSaleOption,
+  ProductService,
   Project,
-  ProjectStatus,
+  ProjectBlockType,
+  ProjectPlatform,
   RecommendationVerification,
+  SaleOptionCta,
+  SaleOptionKind,
+  ServiceKind,
   Service,
   ServiceAddon,
   ServicePackage,
@@ -35,6 +43,8 @@ import type {
 export type AdminService = Omit<Service, 'process' | 'packages' | 'addOns' | 'faq'> & {
   /** Public `Service` has no `published` field (public queries already filter `published = true`, so no component needs to check it) — the admin editor does. */
   published: boolean
+  /** Phase 27.4 — whether the public page shows the packages (the editor always sees them). */
+  showPackages: boolean
   process: AdminProcessStep[]
   packages: AdminServicePackage[]
   addOns: AdminServiceAddon[]
@@ -69,6 +79,7 @@ export type AdminServiceListItem = {
   slug: string
   title: LocalizedText
   type: Service['type']
+  kind: Service['kind']
   published: boolean
   sortOrder: number
   updatedAt: string
@@ -98,6 +109,12 @@ export type ServiceCoreInput = {
   description: LocalizedText
   deliverables: LocalizedText[]
   type: Service['type']
+  /** Phase 27.4 */
+  kind: ServiceKind | null
+  /** Phase 27.4 — optional "from" price; no amount = none shown. */
+  fromPrice: Money
+  /** Phase 27.4 — packages are optional per service. */
+  showPackages: boolean
   tagline: LocalizedText | null
   forWhom: LocalizedText[]
   notForWhom: LocalizedText[]
@@ -152,23 +169,21 @@ export type EngagementModelInput = {
 }
 
 /**
- * Admin project type (roadmap § 15.2). Unlike the services cluster,
- * `project_sections` (0003) has no independent lifecycle worth its own
- * nested-row CRUD — every case-study section is authored as part of
- * writing up the one project, not added/removed on its own schedule the
- * way a package or FAQ is — so the admin editor treats it the same way
- * the public `Project` type already does: flat optional fields, directly
- * on the same object. `updateProjectSections` replaces the full set in
- * one transaction rather than diffing rows, since the form always
- * submits the complete case study, not a single section.
+ * Admin project type (roadmap § 15.2, reworked in Phase 27). The public
+ * `Project` minus the published-only collections, plus what the editor needs:
+ * the library cover id and every block, sale option and after-sales service —
+ * published or not — with its own id and order.
  *
- * `technologies` stays the public shape (proper-noun `string[]`, per
- * `types/content.ts#Project`'s own doc comment) — picked from the
- * existing `technologies` table, not freely typed; see
- * `docs/phases/PHASE-15-README.md` for why adding a *new* technology
- * isn't part of this admin surface yet.
+ * `status` and `role` left the model in Phase 27.1 (a project is draft or
+ * published); the case-study sections are archived (`project_sections`,
+ * migration 0026) and no longer edited.
  */
-export type AdminProject = Project & { updatedAt: string }
+export type AdminProject = Omit<Project, 'blocks' | 'saleOptions' | 'productServices'> & {
+  updatedAt: string
+  coverMediaId: string | null
+  /** The legacy cover path, kept as the fallback when no library image is chosen. */
+  legacyCoverImage: string | null
+}
 
 export type ProjectCoreInput = {
   slug: string
@@ -176,29 +191,65 @@ export type ProjectCoreInput = {
   category: LocalizedText
   summary: LocalizedText
   highlights: LocalizedText[]
-  status: ProjectStatus | undefined
-  coverImage: string | null
-  githubUrl: string | null
+  coverMediaId: string | null
   liveUrl: string | null
   year: string | null
-  role: LocalizedText | null
   relatedServiceSlug: string | null
   featured: boolean
   technologyIds: string[]
+  // Phase 27.1
+  showInPortfolio: boolean
+  isProduct: boolean
+  brandColor: string | null
+  accentColor: string | null
+  industry: LocalizedText | null
+  platforms: ProjectPlatform[]
+  outcomeLine: LocalizedText | null
+  features: LocalizedText[]
 }
 
-export type ProjectSectionsInput = {
-  context: LocalizedText | null
-  problemAndGoals: LocalizedText | null
-  constraints: LocalizedText[]
-  architecture: LocalizedText | null
-  keyDecisions: DecisionRecord[]
-  engineeringHighlight: LocalizedText | null
-  dataIntegrityAndSecurity: LocalizedText | null
-  responsiveAndRtl: LocalizedText | null
-  quality: LocalizedText | null
-  currentStatusAndNext: LocalizedText | null
-  lessonsLearned: LocalizedText | null
+/** Phase 27.2 — one block as the editor sees it: the stored body, unresolved. */
+export type AdminProjectBlock = {
+  id: string
+  type: ProjectBlockType
+  title: LocalizedText | null
+  body: Record<string, unknown>
+  published: boolean
+  sortOrder: number
+  completeness: LocaleCompleteness
+}
+
+/** What the editor sends for a block. A video is sent as `{ url, caption }`. */
+export type BlockInput = {
+  type: ProjectBlockType
+  title: LocalizedText | null
+  body: Record<string, unknown>
+}
+
+/** Phase 27.3 — a sale option as the editor sees it. */
+export type AdminSaleOption = ProductSaleOption & { published: boolean; sortOrder: number; completeness: LocaleCompleteness }
+
+export type SaleOptionInput = {
+  kind: SaleOptionKind
+  title: LocalizedText
+  summary: LocalizedText | null
+  price: Money
+  billingPeriod: BillingPeriod
+  maintenance: MaintenanceMode
+  maintenancePrice: Money | null
+  maintenancePeriod: 'month' | 'year' | null
+  included: LocalizedText[]
+  highlighted: boolean
+  cta: SaleOptionCta
+}
+
+export type AdminProductService = ProductService & { published: boolean; sortOrder: number; completeness: LocaleCompleteness }
+
+export type ProductServiceInput = {
+  title: LocalizedText
+  description: LocalizedText | null
+  price: Money
+  period: BillingPeriod
 }
 
 export type AdminTechnology = { id: string; slug: string; name: string; category: string }
@@ -404,6 +455,10 @@ export type AdminSiteSettings = {
   timezone: string
   languages: WorkingLanguage[]
   externalProfiles: { href: string; label: string }[]
+  /** Phase 27.6 — the shell's contact channels (`site_settings`, migration 0026). */
+  contactEmail: string | null
+  whatsappNumber: string | null
+  phoneNumber: string | null
   updatedAt: string
 }
 
@@ -414,6 +469,10 @@ export type SiteSettingsInput = {
   timezone: string
   languages: WorkingLanguage[]
   externalProfiles: { href: string; label: string }[]
+  contactEmail: string | null
+  /** International form, e.g. `+93790685832`. */
+  whatsappNumber: string | null
+  phoneNumber: string | null
 }
 
 /** `navigation_items` (0007) — `key` is a fixed, closed set (the DB `check` constraint); only the structural fields below are editable, never the key set itself or its translated label (still `Nav.<key>` in messages/*.json). */

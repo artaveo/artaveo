@@ -39,8 +39,10 @@ const tx = (en, fa = `${en}-fa`) => ({ en, fa })
 const slug = () => `it-${uuid().slice(0, 8)}`
 const project = (extra = {}) => ({
   slug: slug(), title: tx('Probe project'), category: tx('Web app'), summary: tx('A probe project for the suite'),
-  highlights: [], status: undefined, coverImage: null, githubUrl: null, liveUrl: null, year: null, role: null,
-  relatedServiceSlug: null, featured: false, technologyIds: [], ...extra,
+  highlights: [], coverMediaId: null, liveUrl: null, year: null, relatedServiceSlug: null, featured: false, technologyIds: [],
+  // Phase 27.1
+  showInPortfolio: true, isProduct: false, brandColor: null, accentColor: null, industry: null, platforms: [], outcomeLine: null, features: [],
+  ...extra,
 })
 const article = (extra = {}) => ({
   slug: slug(), title: tx('Probe article'), excerpt: tx('Excerpt'), body: tx('## Heading\n\nSome real text.'), category: null,
@@ -123,25 +125,18 @@ describe('projects: create → complete → publish → unpublish', () => {
     }
   })
 
-  it('case-study sections are replaced as a whole and reach the public selector', async () => {
+  it('Phase 27.1: the new fields round-trip; a bad colour or platform is refused', async () => {
     await login(EDITOR)
-    const input = project()
+    const input = project({ brandColor: '#14243D', accentColor: '#F2A93B', industry: tx('Transport'), platforms: ['web', 'android'], features: [tx('Buy tickets online')], outcomeLine: tx('Tickets sold online') })
     const { id } = await content.createProject(input)
-    const sections = (extra = {}) => ({
-      context: tx('Context text'), problemAndGoals: null, constraints: [tx('Constraint one'), tx('Constraint two')], architecture: null,
-      keyDecisions: [{ context: tx('c'), decision: tx('d'), tradeoff: tx('t') }], engineeringHighlight: null, dataIntegrityAndSecurity: null,
-      responsiveAndRtl: null, quality: null, currentStatusAndNext: null, lessonsLearned: null, ...extra,
-    })
-    assert.deepEqual(await content.updateProjectSections(id, sections()), { ok: true })
     await content.publishProject(id)
-    let live = await queryProjectBySlug(input.slug)
-    assert.equal(live.constraints.length, 2)
-    assert.equal(live.keyDecisions.length, 1)
-    // second save with fewer sections: nothing left over from the first
-    assert.deepEqual(await content.updateProjectSections(id, sections({ constraints: [tx('Only one')], keyDecisions: [] })), { ok: true })
-    live = await queryProjectBySlug(input.slug)
-    assert.deepEqual([live.constraints.length, (live.keyDecisions ?? []).length], [1, 0], 'nothing left over from the first save')
-    assert.equal((await db.from('project_sections').select('id', { count: 'exact', head: true }).eq('project_id', id)).count, 2)
+    const live = await queryProjectBySlug(input.slug)
+    assert.deepEqual([live.brandColor, live.accentColor, live.platforms, live.features[0].en, live.industry.en], ['#14243D', '#F2A93B', ['web', 'android'], 'Buy tickets online', 'Transport'])
+    assert.equal(live.showInPortfolio, true)
+    assert.equal('status' in live || 'role' in live, false, 'status and role are not part of the public model any more')
+    assert.deepEqual(await content.updateProject(id, { ...input, brandColor: 'red' }), { ok: false, code: 'error' })
+    assert.deepEqual(await content.updateProject(id, { ...input, platforms: ['web', 'linux'] }), { ok: false, code: 'error' })
+    assert.deepEqual(await content.updateProject(id, { ...input, coverMediaId: 'not-a-uuid' }), { ok: false, code: 'error' })
   })
 
   it('an anonymous caller can neither create nor publish, and leaves no trace', async () => {
@@ -355,7 +350,7 @@ describe('uploads', () => {
       const uploaded = []
       for (let i = 0; i < 4; i += 1) uploaded.push((await attach({ name: `a${i}.png` })).mediaId)
       const submit = (attachmentMediaIds) => submitInquiry(
-        { ...createEmptyInquiryDraft('en'), projectType: 'web-app-or-mvp', goal: 'Attachment probe goal text', timeline: 'asap',
+        { ...createEmptyInquiryDraft('en'), projectType: 'web-system', goal: 'Attachment probe goal text', timeline: 'asap',
           name: 'Attach Probe', email: `att-${uuid().slice(0, 6)}@example.com`, consent: true, attachmentMediaIds },
         { honeypot: '', formRenderedAt: Date.now() - 60000, idempotencyKey: uuid() },
       )

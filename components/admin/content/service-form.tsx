@@ -18,12 +18,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { LocalizedListField, LocalizedTextField, LocalizedTextareaField, StringListField } from '@/components/admin/content/localized-fields'
-import type { Service, ServiceType } from '@/types/content'
+import { NativeSelect } from '@/components/ui/native-select'
+import { MoneyFields } from '@/components/admin/content/product-editor'
+import { SERVICE_KINDS, type Service, type ServiceKind, type ServiceType } from '@/types/content'
 import type { ServiceCoreInput } from '@/types/cms'
 
 const SERVICE_TYPES: ServiceType[] = ['productized', 'custom', 'productized-custom', 'monthly']
 
-function toInput(service?: Service): ServiceCoreInput {
+function toInput(service?: Service & { showPackages?: boolean }): ServiceCoreInput {
   return {
     slug: service?.slug ?? '',
     icon: service?.icon ?? '',
@@ -31,6 +33,9 @@ function toInput(service?: Service): ServiceCoreInput {
     description: service?.description ?? { en: '', fa: '' },
     deliverables: service?.deliverables ?? [],
     type: service?.type,
+    kind: service?.kind ?? null,
+    fromPrice: service?.fromPrice ?? {},
+    showPackages: service?.showPackages ?? false,
     tagline: service?.tagline ?? null,
     forWhom: service?.forWhom ?? [],
     notForWhom: service?.notForWhom ?? [],
@@ -53,9 +58,10 @@ function toInput(service?: Service): ServiceCoreInput {
  * detail page — each is its own table with its own db-row ids, not part
  * of this single-row submission.
  */
-export function ServiceForm({ mode, service }: { mode: 'create' | 'edit'; service?: Service }) {
+export function ServiceForm({ mode, service }: { mode: 'create' | 'edit'; service?: Service & { showPackages?: boolean } }) {
   const t = useTranslations('Admin')
   const tType = useTranslations('ServiceType')
+  const tKind = useTranslations('ServiceKinds')
   const router = useRouter()
   const [form, setForm] = useState<ServiceCoreInput>(() => toInput(service))
   const [pending, setPending] = useState(false)
@@ -74,7 +80,7 @@ export function ServiceForm({ mode, service }: { mode: 'create' | 'edit'; servic
       mode === 'create' ? await createService(form) : await updateService(service!.id, form)
 
     if (!result.ok) {
-      setError(result.code === 'duplicate-slug' ? t('cmsErrorDuplicateSlug') : t('errorForbidden'))
+      setError(result.code === 'duplicate-slug' ? t('cmsErrorDuplicateSlug') : result.code === 'error' ? t('cmsErrorInvalid') : t('errorForbidden'))
       setPending(false)
       return
     }
@@ -149,6 +155,18 @@ export function ServiceForm({ mode, service }: { mode: 'create' | 'edit'; servic
             </Select>
           </Field>
 
+          <Field>
+            <FieldLabel htmlFor="service-kind">{t('cmsFieldServiceKind')}</FieldLabel>
+            <NativeSelect id="service-kind" value={form.kind ?? ''} disabled={pending} className="max-w-64" onChange={(event) => setField('kind', (event.target.value || null) as ServiceKind | null)}>
+              <option value="">{t('cmsFieldServiceTypeNone')}</option>
+              {SERVICE_KINDS.map((kind) => (
+                <option key={kind} value={kind}>
+                  {tKind(kind)}
+                </option>
+              ))}
+            </NativeSelect>
+          </Field>
+
           <LocalizedTextField id="service-tagline" label={t('cmsFieldTagline')} value={form.tagline ?? { en: '', fa: '' }} onChange={(v) => setField('tagline', v)} disabled={pending} />
           <LocalizedTextareaField id="service-problem" label={t('cmsFieldProblem')} value={form.problem ?? { en: '', fa: '' }} onChange={(v) => setField('problem', v)} disabled={pending} rows={2} />
         </CardContent>
@@ -172,6 +190,17 @@ export function ServiceForm({ mode, service }: { mode: 'create' | 'edit'; servic
       <Card>
         <CardContent className="flex flex-col gap-4 pt-6">
           <p className="text-sm font-medium text-foreground">{t('cmsSectionPricingSignals')}</p>
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium">{t('cmsFieldFromPrice')}</p>
+            <MoneyFields idPrefix="service-from-price" value={form.fromPrice} allowFrom={false} disabled={pending} onChange={(v) => setField('fromPrice', { ...v, from: true })} />
+          </div>
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" className="mt-1" checked={form.showPackages} disabled={pending} onChange={(event) => setField('showPackages', event.target.checked)} />
+            <span>
+              <span className="font-medium">{t('cmsFieldShowPackages')}</span>
+              <span className="block text-xs text-muted-foreground">{t('cmsFieldShowPackagesHint')}</span>
+            </span>
+          </label>
           <LocalizedListField id="service-what-drives-cost" label={t('cmsFieldWhatDrivesCost')} items={form.whatDrivesCost} onChange={(v) => setField('whatDrivesCost', v)} disabled={pending} addLabel={t('cmsAddItem')} />
           <LocalizedTextareaField id="service-payment-note" label={t('cmsFieldPaymentScheduleNote')} value={form.paymentScheduleNote ?? { en: '', fa: '' }} onChange={(v) => setField('paymentScheduleNote', v)} disabled={pending} rows={2} />
         </CardContent>

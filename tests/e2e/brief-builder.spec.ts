@@ -8,7 +8,7 @@ import { clickWhenReady, db, expect, msg, test } from './support'
  */
 
 type Labels = { next: string; back: string; send: string; project: string; timeline: string; goalError: string }
-const EN: Labels = { next: 'Next', back: 'Back', send: 'Send brief', project: 'A web application or MVP', timeline: '1–3 months', goalError: 'This field is required.' }
+const EN: Labels = { next: 'Next', back: 'Back', send: 'Send brief', project: 'A web system or admin panel', timeline: '1–3 months', goalError: 'This field is required.' }
 
 const unique = () => `e2e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}@example.com`
 
@@ -59,7 +59,8 @@ test('validation: an empty project step shows a specific error per field and doe
 test('every option can be chosen by clicking its label, not only the small circle', async ({ page }) => {
   await page.goto('/en/start')
   await forward(page)
-  for (const label of ['A new website', 'A web application or MVP', 'Improving an existing product', 'Ongoing care for a live product', 'Not sure yet']) {
+  // Phase 27.5: by kind of software. 'Buy one of our products' is offered only while a product is published (none on the test stack).
+  for (const label of ['A website', 'A web system or admin panel', 'A mobile app', 'Desktop software', 'An offline system', 'Support for software you already have', 'Something else']) {
     await page.getByText(label, { exact: true }).click()
     await expect(page.getByRole('radio', { name: label })).toBeChecked()
   }

@@ -2,8 +2,8 @@
 
 import { useTranslations } from 'next-intl'
 
-import { buildInquirySummaryLines } from '@/lib/inquiry-summary'
-import type { EngagementModel, Locale, Service } from '@/types/content'
+import { buildInquirySummaryLines, type SummaryProduct } from '@/lib/inquiry-summary'
+import type { Locale, Service } from '@/types/content'
 import type { InquiryDraft } from '@/types/inquiry'
 
 /**
@@ -16,15 +16,15 @@ export function ReviewStep({
   draft,
   locale,
   services,
-  engagementModels,
+  product,
 }: {
   draft: InquiryDraft
   locale: Locale
   services: Service[]
-  engagementModels: EngagementModel[]
+  product: SummaryProduct | null
 }) {
   const t18n = useTranslations('BriefBuilder')
-  const lines = buildInquirySummaryLines(draft, locale, services, engagementModels)
+  const lines = buildInquirySummaryLines(draft, locale, services, product)
 
   return (
     <div className="flex flex-col gap-6">

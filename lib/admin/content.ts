@@ -3,13 +3,19 @@ import 'server-only'
 import { listMediaAssets } from '@/lib/admin/media'
 import { requireDb } from '@/lib/admin/pipeline'
 import { normalizeCategory } from '@/lib/articles/category'
-import type { DecisionRecord, LocalizedText } from '@/types/content'
+import { toProductService, toSaleOption, type ProductServiceRow, type ProjectRow, type SaleOptionRow } from '@/lib/db/content-queries'
+import { blockCompleteness } from '@/lib/products/blocks'
+import { moneyFromRow } from '@/lib/products/money'
+import type { LocalizedText } from '@/types/content'
 import type {
   AdminArticle,
   AdminEngagementModel,
   AdminFaqItem,
   AdminProcessStep,
+  AdminProductService,
   AdminProject,
+  AdminProjectBlock,
+  AdminSaleOption,
   AdminRecommendation,
   AdminRecommendationRequest,
   AdminService,
@@ -145,6 +151,9 @@ function assembleAdminService(
     description: row.description,
     deliverables: row.deliverables ?? [],
     type: row.type ?? undefined,
+    kind: row.kind ?? undefined,
+    fromPrice: moneyFromRow(row.from_price_afn, row.from_price_usd, true),
+    showPackages: !!row.show_packages,
     tagline: row.tagline ?? undefined,
     forWhom: row.for_whom ?? [],
     notForWhom: row.not_for_whom ?? [],
@@ -206,7 +215,7 @@ function assembleAdminService(
 const SERVICE_COLUMNS =
   'id, slug, icon, title, description, deliverables, type, tagline, for_whom, not_for_whom, problem, ' +
   'what_i_do, included, not_included, timeline, requirements, related_project_slugs, what_drives_cost, ' +
-  'payment_schedule_note, published, sort_order, updated_at'
+  'payment_schedule_note, published, sort_order, updated_at, kind, from_price_afn, from_price_usd, show_packages'
 
 export async function listServicesAdmin(): Promise<AdminServiceListItem[] | null> {
   const db = requireDb()
@@ -226,6 +235,7 @@ export async function listServicesAdmin(): Promise<AdminServiceListItem[] | null
     slug: row.slug,
     title: row.title,
     type: row.type ?? undefined,
+    kind: row.kind ?? undefined,
     published: !!row.published,
     sortOrder: row.sort_order,
     updatedAt: row.updated_at,
@@ -331,73 +341,46 @@ export async function getEngagementModelAdmin(id: string): Promise<AdminEngageme
 }
 
 // ---------------------------------------------------------------------------
-// projects (§ 15.2)
+// projects (§ 15.2, reworked in Phase 27)
 // ---------------------------------------------------------------------------
 
-const SINGLE_SECTION_FIELDS = [
-  'context',
-  'problemAndGoals',
-  'architecture',
-  'engineeringHighlight',
-  'dataIntegrityAndSecurity',
-  'responsiveAndRtl',
-  'quality',
-  'currentStatusAndNext',
-  'lessonsLearned',
-] as const
-
 /**
- * § 15's "required fields" for a project: `title`, `category`, `summary`
- * (the three `not null` columns on `projects`, 0003). The whole
- * case-study body is optional content — § 6.1's own "omitted, never
- * guessed" rule — so an entirely unwritten case study never blocks
- * publishing; a *partially* written one is checked per-locale like
- * every other entity, so a half-translated section can't silently ship.
+ * § 15's "required fields" for a project: `title`, `category`, `summary` (the
+ * `not null` columns, 0003). Everything else is optional; whatever the editor
+ * did write — industry, outcome line, features, highlights — must exist in both
+ * languages before the project can be published.
  */
 export function projectCompleteness(project: {
   title: LocalizedText
   category: LocalizedText
   summary: LocalizedText
   highlights?: LocalizedText[]
-  role?: LocalizedText | null
-  context?: LocalizedText | null
-  problemAndGoals?: LocalizedText | null
-  constraints?: LocalizedText[]
-  architecture?: LocalizedText | null
-  keyDecisions?: DecisionRecord[]
-  engineeringHighlight?: LocalizedText | null
-  dataIntegrityAndSecurity?: LocalizedText | null
-  responsiveAndRtl?: LocalizedText | null
-  quality?: LocalizedText | null
-  currentStatusAndNext?: LocalizedText | null
-  lessonsLearned?: LocalizedText | null
+  industry?: LocalizedText | null
+  outcomeLine?: LocalizedText | null
+  features?: LocalizedText[]
 }): LocaleCompleteness {
   const checks: LocaleCompleteness[] = [
     textComplete(project.title),
     textComplete(project.category),
     textComplete(project.summary),
   ]
-  for (const field of SINGLE_SECTION_FIELDS) {
-    const value = (project as unknown as Record<string, LocalizedText | null | undefined>)[field]
-    if (value) checks.push(textComplete(value))
-  }
-  if (project.role) checks.push(textComplete(project.role))
+  if (project.industry) checks.push(textComplete(project.industry))
+  if (project.outcomeLine) checks.push(textComplete(project.outcomeLine))
   for (const item of project.highlights ?? []) checks.push(textComplete(item))
-  for (const item of project.constraints ?? []) checks.push(textComplete(item))
-  for (const decision of project.keyDecisions ?? []) {
-    checks.push(textComplete(decision.context), textComplete(decision.decision), textComplete(decision.tradeoff))
-  }
+  for (const item of project.features ?? []) checks.push(textComplete(item))
   return mergeCompleteness(checks)
 }
 
-type ProjectSectionRow = { type: string; body: any; sort_order: number }
-
 const PROJECT_COLUMNS =
-  'id, slug, title, category, summary, highlights, status, cover_image, github_url, live_url, year, role, ' +
-  'related_service_slug, featured, published, sort_order, updated_at'
+  'id, slug, title, category, summary, highlights, cover_image, cover_media_id, github_url, live_url, year, ' +
+  'related_service_slug, featured, published, sort_order, updated_at, show_in_portfolio, is_product, brand_color, ' +
+  'accent_color, industry, platforms, outcome_line, features'
 
-function assembleAdminProject(row: Record<string, any>, sections: ProjectSectionRow[], technologyNames: string[]): AdminProject {
-  const project: AdminProject = {
+type AdminProjectRow = ProjectRow & { updated_at: string }
+type TechLinkRow = { project_id: string; technologies: { name: string } | null }
+
+function assembleAdminProject(row: AdminProjectRow, technologyNames: string[], coverUrl: string | null): AdminProject {
+  return {
     id: row.id,
     slug: row.slug,
     title: row.title,
@@ -405,81 +388,62 @@ function assembleAdminProject(row: Record<string, any>, sections: ProjectSection
     summary: row.summary,
     highlights: row.highlights ?? [],
     technologies: technologyNames,
-    status: row.status ?? undefined,
-    coverImage: row.cover_image ?? undefined,
+    coverImage: coverUrl ?? row.cover_image ?? undefined,
     githubUrl: row.github_url ?? undefined,
     liveUrl: row.live_url ?? undefined,
     year: row.year ?? undefined,
-    role: row.role ?? undefined,
     featured: !!row.featured,
     published: !!row.published,
     relatedServiceSlug: row.related_service_slug ?? undefined,
+    showInPortfolio: row.show_in_portfolio !== false,
+    isProduct: !!row.is_product,
+    brandColor: row.brand_color ?? undefined,
+    accentColor: row.accent_color ?? undefined,
+    industry: row.industry ?? undefined,
+    platforms: row.platforms ?? [],
+    outcomeLine: row.outcome_line ?? undefined,
+    features: row.features ?? [],
     updatedAt: row.updated_at,
+    coverMediaId: row.cover_media_id ?? null,
+    legacyCoverImage: row.cover_image ?? null,
   }
+}
 
-  const constraints: LocalizedText[] = []
-  const keyDecisions: DecisionRecord[] = []
-  const SINGLE_SECTION_TYPES: Record<string, string> = {
-    context: 'context',
-    'problem-and-goals': 'problemAndGoals',
-    architecture: 'architecture',
-    'engineering-highlight': 'engineeringHighlight',
-    'data-integrity-and-security': 'dataIntegrityAndSecurity',
-    'responsive-and-rtl': 'responsiveAndRtl',
-    quality: 'quality',
-    'current-status-and-next': 'currentStatusAndNext',
-    'lessons-learned': 'lessonsLearned',
-  }
-
-  for (const section of [...sections].sort((a, b) => a.sort_order - b.sort_order)) {
-    if (section.type === 'constraint') {
-      constraints.push(section.body as LocalizedText)
-    } else if (section.type === 'key-decision') {
-      keyDecisions.push(section.body as DecisionRecord)
-    } else {
-      const field = SINGLE_SECTION_TYPES[section.type]
-      if (field) (project as any)[field] = section.body
-    }
-  }
-
-  if (constraints.length > 0) project.constraints = constraints
-  if (keyDecisions.length > 0) project.keyDecisions = keyDecisions
-
-  return project
+async function coverUrls(db: NonNullable<ReturnType<typeof requireDb>>, rows: ProjectRow[]): Promise<Map<string, string>> {
+  const ids = [...new Set(rows.map((row) => row.cover_media_id).filter((id): id is string => Boolean(id)))]
+  const map = new Map<string, string>()
+  if (ids.length === 0) return map
+  const { data } = await db.from('media_assets').select('id, url').in('id', ids)
+  for (const asset of (data ?? []) as { id: string; url: string }[]) map.set(asset.id, asset.url)
+  return map
 }
 
 export async function listProjectsAdmin(): Promise<(AdminProject & { completeness: LocaleCompleteness })[] | null> {
   const db = requireDb()
   if (!db) return null
 
-  const { data: rows, error } = await db.from('projects').select(PROJECT_COLUMNS).order('sort_order', { ascending: true })
-  if (error || !rows) {
+  const { data, error } = await db.from('projects').select(PROJECT_COLUMNS).order('sort_order', { ascending: true })
+  if (error || !data) {
     await captureError(error, { event: 'admin.list_projects_admin_failed', source: 'database' })
     return []
   }
+  const rows = data as unknown as AdminProjectRow[]
   if (rows.length === 0) return []
 
-  const ids = rows.map((r: any) => r.id)
-  const [{ data: sectionRows }, { data: techLinkRows }] = await Promise.all([
-    db.from('project_sections').select('project_id, type, body, sort_order').in('project_id', ids),
+  const ids = rows.map((r) => r.id)
+  const [{ data: techLinkRows }, covers] = await Promise.all([
     db.from('project_technologies').select('project_id, technologies(name)').in('project_id', ids),
+    coverUrls(db, rows),
   ])
-
-  const sectionsByProject = new Map<string, ProjectSectionRow[]>()
-  for (const row of sectionRows ?? []) {
-    const list = sectionsByProject.get((row as any).project_id) ?? []
-    list.push(row as ProjectSectionRow)
-    sectionsByProject.set((row as any).project_id, list)
-  }
   const techNamesByProject = new Map<string, string[]>()
-  for (const row of (techLinkRows ?? []) as any[]) {
+  for (const row of (techLinkRows ?? []) as unknown as TechLinkRow[]) {
     const list = techNamesByProject.get(row.project_id) ?? []
     if (row.technologies?.name) list.push(row.technologies.name)
     techNamesByProject.set(row.project_id, list)
   }
 
-  return rows.map((row: any) => {
-    const project = assembleAdminProject(row, sectionsByProject.get(row.id) ?? [], techNamesByProject.get(row.id) ?? [])
+  return rows.map((row) => {
+    const project = assembleAdminProject(row, techNamesByProject.get(row.id) ?? [], (row.cover_media_id && covers.get(row.cover_media_id)) || null)
     return { ...project, completeness: projectCompleteness(project) }
   })
 }
@@ -488,16 +452,84 @@ export async function getProjectAdmin(id: string): Promise<AdminProject | null> 
   const db = requireDb()
   if (!db) return null
 
-  const { data: row, error } = await db.from('projects').select(PROJECT_COLUMNS).eq('id', id).maybeSingle()
-  if (error || !row) return null
+  const { data, error } = await db.from('projects').select(PROJECT_COLUMNS).eq('id', id).maybeSingle()
+  if (error || !data) return null
+  const row = data as unknown as AdminProjectRow
 
-  const [{ data: sections }, { data: techLinks }] = await Promise.all([
-    db.from('project_sections').select('project_id, type, body, sort_order').eq('project_id', id),
+  const [{ data: techLinks }, covers] = await Promise.all([
     db.from('project_technologies').select('project_id, technologies(name)').eq('project_id', id),
+    coverUrls(db, [row]),
   ])
+  const technologyNames = ((techLinks ?? []) as unknown as TechLinkRow[]).map((link) => link.technologies?.name).filter((name): name is string => Boolean(name))
+  return assembleAdminProject(row, technologyNames, (row.cover_media_id && covers.get(row.cover_media_id)) || null)
+}
 
-  const technologyNames = ((techLinks ?? []) as any[]).map((row) => row.technologies?.name).filter(Boolean)
-  return assembleAdminProject(row, (sections ?? []) as ProjectSectionRow[], technologyNames)
+/** Phase 27.2 — every block of a project, published or not, in order. */
+export async function listProjectBlocksAdmin(projectId: string): Promise<AdminProjectBlock[] | null> {
+  const db = requireDb()
+  if (!db) return null
+  const { data, error } = await db
+    .from('project_blocks')
+    .select('id, type, title, body, published, sort_order')
+    .eq('project_id', projectId)
+    .order('sort_order', { ascending: true })
+  if (error || !data) {
+    await captureError(error, { event: 'admin.list_project_blocks_failed', source: 'database' })
+    return []
+  }
+  type BlockRow = { id: string; type: AdminProjectBlock['type']; title: LocalizedText | null; body: Record<string, unknown> | null; published: boolean; sort_order: number }
+  return (data as unknown as BlockRow[]).map((row) => ({
+    id: row.id,
+    type: row.type,
+    title: row.title ?? null,
+    body: row.body ?? {},
+    published: !!row.published,
+    sortOrder: row.sort_order,
+    completeness: blockCompleteness(row.type, row.title, row.body ?? {}),
+  }))
+}
+
+export function saleOptionCompleteness(option: { title: LocalizedText; summary?: LocalizedText | null; included: LocalizedText[] }): LocaleCompleteness {
+  const checks = [textComplete(option.title)]
+  if (option.summary) checks.push(textComplete(option.summary))
+  for (const item of option.included) checks.push(textComplete(item))
+  return mergeCompleteness(checks)
+}
+
+export function productServiceCompleteness(service: { title: LocalizedText; description?: LocalizedText | null }): LocaleCompleteness {
+  const checks = [textComplete(service.title)]
+  if (service.description) checks.push(textComplete(service.description))
+  return mergeCompleteness(checks)
+}
+
+/** Phase 27.3 — every sale option of a product, published or not. */
+export async function listSaleOptionsAdmin(projectId: string): Promise<AdminSaleOption[] | null> {
+  const db = requireDb()
+  if (!db) return null
+  const { data, error } = await db.from('product_sale_options').select('*').eq('project_id', projectId).order('sort_order', { ascending: true })
+  if (error || !data) {
+    await captureError(error, { event: 'admin.list_sale_options_failed', source: 'database' })
+    return []
+  }
+  return (data as unknown as SaleOptionRow[]).map((row) => {
+    const option = toSaleOption(row)
+    return { ...option, published: !!row.published, sortOrder: row.sort_order, completeness: saleOptionCompleteness(option) }
+  })
+}
+
+/** Phase 27.3 — every after-sales service of a product, published or not. */
+export async function listProductServicesAdmin(projectId: string): Promise<AdminProductService[] | null> {
+  const db = requireDb()
+  if (!db) return null
+  const { data, error } = await db.from('product_services').select('*').eq('project_id', projectId).order('sort_order', { ascending: true })
+  if (error || !data) {
+    await captureError(error, { event: 'admin.list_product_services_failed', source: 'database' })
+    return []
+  }
+  return (data as unknown as ProductServiceRow[]).map((row) => {
+    const service = toProductService(row)
+    return { ...service, published: !!row.published, sortOrder: row.sort_order, completeness: productServiceCompleteness(service) }
+  })
 }
 
 export async function listTechnologiesAdmin(): Promise<AdminTechnology[] | null> {

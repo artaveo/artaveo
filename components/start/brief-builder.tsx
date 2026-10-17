@@ -13,18 +13,28 @@ import {
   type BriefBuilderStatus,
   type InquiryDraft,
   type InquirySubmissionMeta,
+  type ProductChoice,
   type StepId,
 } from '@/types/inquiry'
 import { dataSteps, validateStep, type StepErrors } from '@/lib/inquiry-validation'
-import { buildInquiryMailtoHref } from '@/lib/inquiry-summary'
+import { buildInquiryMailtoHref, type SummaryProduct } from '@/lib/inquiry-summary'
+import { useShellContact } from '@/components/site/site-flags'
 import { clearQueuedInquiry, readQueuedInquiry, writeQueuedInquiry } from '@/lib/inquiry-offline-queue'
 import { trackEvent } from '@/lib/analytics'
-import { type Locale, type EngagementModel, type Service } from '@/types/content'
+import { type Locale, type Service } from '@/types/content'
 import { ContactStep, LinksStep, ProjectStep, ScopeStep, ServiceStep, TimelineStep } from '@/components/start/steps'
 import { ReviewStep } from '@/components/start/review'
 import { submitInquiry } from '@/app/actions/inquiries'
 
 const steps: StepId[] = [...dataSteps, 'review']
+
+/** Phase 27.5 — the chosen product and way to get it, as the summary shows them. */
+function summaryProduct(draft: InquiryDraft, products: ProductChoice[]): SummaryProduct | null {
+  if (draft.projectType !== 'buy-product') return null
+  const product = products.find((p) => p.slug === draft.productSlug)
+  if (!product) return null
+  return { title: product.title, option: product.saleOptions.find((o) => o.id === draft.saleOptionId) ?? null, services: [] }
+}
 
 /**
  * A client-side submit guard only — separate from § 9.2's server-side
@@ -47,21 +57,29 @@ function randomId(): string {
 
 export function BriefBuilder({
   services,
-  engagementModels,
+  products,
   initialServiceSlug,
   initialPackageId,
+  initialProductSlug,
 }: {
   services: Service[]
-  engagementModels: EngagementModel[]
+  products: ProductChoice[]
   initialServiceSlug?: string
   initialPackageId?: string
+  initialProductSlug?: string
 }) {
   const t18n = useTranslations('BriefBuilder')
   const locale = useLocale() as Locale
+  const contact = useShellContact()
 
   const [draft, setDraft] = useState<InquiryDraft>(() => {
     const base = createEmptyInquiryDraft(locale)
-    return { ...base, serviceSlug: initialServiceSlug, packageId: initialPackageId }
+    return {
+      ...base,
+      serviceSlug: initialServiceSlug,
+      packageId: initialPackageId,
+      ...(initialProductSlug ? { projectType: 'buy-product' as const, productSlug: initialProductSlug } : {}),
+    }
   })
   const [stepIndex, setStepIndex] = useState(0)
   const [status, setStatus] = useState<BriefBuilderStatus>('idle')
@@ -403,7 +421,7 @@ export function BriefBuilder({
           description={isNotConfigured ? t18n('notLiveDescription') : t18n('genericErrorDescription')}
           action={{
             label: t18n('emailInstead'),
-            href: buildInquiryMailtoHref(draft, locale, services, engagementModels),
+            href: buildInquiryMailtoHref(draft, locale, services, summaryProduct(draft, products), contact.email ?? undefined),
           }}
         />
         <div className="mt-4 flex justify-center">
@@ -477,14 +495,14 @@ export function BriefBuilder({
           {stepLabels[currentStep]}
         </h2>
 
-        {currentStep === 'service' ? <ServiceStep {...stepProps} services={services} engagementModels={engagementModels} /> : null}
-        {currentStep === 'project' ? <ProjectStep {...stepProps} /> : null}
+        {currentStep === 'service' ? <ServiceStep {...stepProps} services={services} /> : null}
+        {currentStep === 'project' ? <ProjectStep {...stepProps} products={products} /> : null}
         {currentStep === 'scope' ? <ScopeStep {...stepProps} /> : null}
         {currentStep === 'timeline' ? <TimelineStep {...stepProps} /> : null}
         {currentStep === 'links' ? <LinksStep {...stepProps} /> : null}
         {currentStep === 'contact' ? <ContactStep {...stepProps} /> : null}
         {isReview ? (
-          <ReviewStep draft={draft} locale={locale} services={services} engagementModels={engagementModels} />
+          <ReviewStep draft={draft} locale={locale} services={services} product={summaryProduct(draft, products)} />
         ) : null}
 
         {isSubmitting ? (

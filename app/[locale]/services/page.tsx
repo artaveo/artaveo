@@ -4,9 +4,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteShell } from '@/components/site/site-shell'
 import { JsonLd } from '@/components/site/json-ld'
 import { ServiceGrid } from '@/components/services/service-grid'
-import { EngagementModelsTable } from '@/components/services/engagement-models-table'
 import { PageHeader } from '@/components/ui/patterns'
-import { getAllServices, getEngagementModels } from '@/lib/services-content'
+import { getAllServices } from '@/lib/services-content'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
 import { buildBreadcrumbJsonLd } from '@/lib/structured-data'
 import type { Locale } from '@/types/content'
@@ -37,7 +36,6 @@ export default async function ServicesPage({
   const t = await getTranslations('ServicesIndex')
   const tNav = await getTranslations('Nav')
   const services = await getAllServices()
-  const engagementModels = await getEngagementModels()
 
   return (
     <SiteShell>
@@ -49,11 +47,9 @@ export default async function ServicesPage({
       />
       <div className="container-page">
         <PageHeader eyebrow={t('eyebrow')} title={t('title')} description={t('description')} />
-        <div className="pb-16">
+        {/* Phase 27.4: engagement models and the Discovery Sprint left the public model (the table and its admin stay). */}
+        <div className="pb-24">
           <ServiceGrid services={services} />
-        </div>
-        <div className="border-t border-border pb-24 pt-16">
-          <EngagementModelsTable models={engagementModels} />
         </div>
       </div>
     </SiteShell>

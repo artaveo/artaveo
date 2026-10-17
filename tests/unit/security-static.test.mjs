@@ -35,7 +35,8 @@ function walk(dir, exts, out = []) {
 
 /** Public entry points: anyone on the internet can call these. Each is here on purpose, and each must be rate-limited (or say why not). */
 const PUBLIC_ACTIONS = {
-  'inquiries.ts': { submitInquiry: 'rate-limited' },
+  // Phase 27.5: product purchase and demo requests share the brief's guarded path (runSubmission).
+  'inquiries.ts': { submitInquiry: 'rate-limited', submitProductRequest: 'rate-limited' },
   'inquiry-attachments.ts': { uploadInquiryAttachment: 'rate-limited', removeInquiryAttachment: 'rate-limited' },
   'consultations.ts': { submitConsultationRequest: 'rate-limited', cancelMyConsultation: 'rate-limited', rescheduleMyConsultation: 'rate-limited' },
   'recommendations.ts': { submitRecommendation: 'rate-limited' },
@@ -57,6 +58,8 @@ const GATES = {
   'notifications.ts': 'requireOwnerSession',
   'observability.ts': 'requireOwnerSession',
   'pipeline.ts': 'requireOwnerSession',
+  // Phase 27.2 / 27.3: blocks, sale options, after-sales services — content, so editor-level.
+  'products.ts': 'requireEditorSession',
   'settings.ts': 'requireEditorSession',
   'admin-auth.ts': 'getAdminSession',
 }
@@ -108,7 +111,17 @@ describe('Server Actions', () => {
         assert.ok(fn.async, "a 'use server' file may export only async functions — anything else is still an endpoint")
         const publicKind = PUBLIC_ACTIONS[file]?.[fn.name]
         if (publicKind) {
-          if (publicKind === 'rate-limited') assert.match(fn.body, /\bcheckRateLimit\(/, 'a public action must be rate-limited')
+          if (publicKind === 'rate-limited') {
+            // The same one level of delegation the gates allow below: a public entry point may hand
+            // its guarded work to a helper in the same file, which must then do the rate limiting.
+            let limited = fn.body
+            if (!/\bcheckRateLimit\(/.test(limited)) {
+              const helpers = allFunctionBodies(file)
+              const delegate = [...helpers.keys()].find((name) => name !== fn.name && new RegExp(`\\b${name}\\(`).test(fn.body) && /\bcheckRateLimit\(/.test(helpers.get(name)))
+              if (delegate) limited = helpers.get(delegate)
+            }
+            assert.match(limited, /\bcheckRateLimit\(/, 'a public action must be rate-limited')
+          }
           return
         }
         const gate = GATES[file]
@@ -130,6 +143,7 @@ describe('Server Actions', () => {
 
   it('the role split holds: leads, notifications and consultations are owner-only; content and media are editor-level', () => {
     assert.match(read('app/actions/pipeline.ts'), /canAccessLeads\(session\)/)
+    assert.match(read('app/actions/products.ts'), /mfaSatisfied\(session\)/)
     assert.match(read('app/actions/notifications.ts'), /canAccessNotifications\(session\)|role === 'owner'/)
     assert.match(read('app/actions/consultation-admin.ts'), /owner/i)
   })

@@ -1,12 +1,21 @@
 import 'server-only'
 
 import { getDbClient } from './server'
+import { galleryMediaIds, toPublicBlock, type BlockMediaAsset, type StoredBlockBody } from '@/lib/products/blocks'
+import { moneyFromRow } from '@/lib/products/money'
 import type {
-  DecisionRecord,
+  BillingPeriod,
+  MaintenanceMode,
+  ProjectPlatform,
+  SaleOptionCta,
+  SaleOptionKind,
   EngagementModel,
   FaqItem,
   LocalizedText,
+  ProductSaleOption,
+  ProductService,
   Project,
+  ProjectBlock,
   ProjectMediaItem,
   Recommendation,
   Service,
@@ -53,19 +62,11 @@ function requireClient() {
 // projects
 // ---------------------------------------------------------------------------
 
-type ProjectSectionRow = { type: string; body: unknown; sort_order: number }
-
-const SINGLE_SECTION_TYPES: Record<string, keyof Project> = {
-  context: 'context',
-  'problem-and-goals': 'problemAndGoals',
-  architecture: 'architecture',
-  'engineering-highlight': 'engineeringHighlight',
-  'data-integrity-and-security': 'dataIntegrityAndSecurity',
-  'responsive-and-rtl': 'responsiveAndRtl',
-  quality: 'quality',
-  'current-status-and-next': 'currentStatusAndNext',
-  'lessons-learned': 'lessonsLearned',
-}
+/**
+ * Phase 27: a project is read with its published blocks and — when it is a
+ * product — its published sale options and after-sales services. The archived
+ * engineering sections (`project_sections`, migration 0026) are not read at all.
+ */
 
 type ProjectMediaRow = {
   kind: string
@@ -77,141 +78,251 @@ type ProjectMediaRow = {
   media_assets: { url: string; alt: LocalizedText; width: number | null; height: number | null } | null
 }
 
-function assembleProject(
-  row: Record<string, any>,
-  sections: ProjectSectionRow[],
-  technologyNames: string[],
-  mediaRows: ProjectMediaRow[],
-): Project {
-  const project: Project = {
-    id: row.id,
-    slug: row.slug,
-    title: row.title,
-    category: row.category,
-    summary: row.summary,
-    highlights: row.highlights ?? [],
-    technologies: technologyNames,
-    status: row.status ?? undefined,
-    coverImage: row.cover_image ?? undefined,
-    githubUrl: row.github_url ?? undefined,
-    liveUrl: row.live_url ?? undefined,
-    year: row.year ?? undefined,
-    role: row.role ?? undefined,
-    featured: !!row.featured,
-    published: !!row.published,
-    relatedServiceSlug: row.related_service_slug ?? undefined,
-  }
-
-  const constraints: LocalizedText[] = []
-  const keyDecisions: DecisionRecord[] = []
-
-  for (const section of [...sections].sort((a, b) => a.sort_order - b.sort_order)) {
-    if (section.type === 'constraint') {
-      constraints.push(section.body as LocalizedText)
-    } else if (section.type === 'key-decision') {
-      keyDecisions.push(section.body as DecisionRecord)
-    } else {
-      const field = SINGLE_SECTION_TYPES[section.type]
-      if (field) (project as any)[field] = section.body
-    }
-  }
-
-  if (constraints.length > 0) project.constraints = constraints
-  if (keyDecisions.length > 0) project.keyDecisions = keyDecisions
-
-  const media: ProjectMediaItem[] = [...mediaRows]
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .filter((m) => m.media_assets)
-    .map((m) => ({
-      src: m.media_assets!.url,
-      alt: m.media_assets!.alt,
-      caption: m.caption ?? undefined,
-      kind: m.kind as ProjectMediaItem['kind'],
-      placement: m.placement as ProjectMediaItem['placement'],
-      storyKey: m.story_key ?? undefined,
-      storyAnchor: m.story_anchor ?? undefined,
-      width: m.media_assets!.width ?? undefined,
-      height: m.media_assets!.height ?? undefined,
-    }))
-  if (media.length > 0) project.media = media
-
-  return project
+/** A `projects` row as the selectors read it (0003 + 0026). */
+export type ProjectRow = {
+  id: string
+  slug: string
+  title: LocalizedText
+  category: LocalizedText
+  summary: LocalizedText
+  highlights: LocalizedText[] | null
+  cover_image: string | null
+  cover_media_id: string | null
+  github_url: string | null
+  live_url: string | null
+  year: string | null
+  related_service_slug: string | null
+  featured: boolean
+  published: boolean
+  sort_order: number
+  show_in_portfolio: boolean
+  is_product: boolean
+  brand_color: string | null
+  accent_color: string | null
+  industry: LocalizedText | null
+  platforms: ProjectPlatform[] | null
+  outcome_line: LocalizedText | null
+  features: LocalizedText[] | null
+  updated_at?: string
 }
 
-async function fetchProjectsByFilter(filter: (query: any) => any): Promise<Project[]> {
+/** `product_sale_options` (0026). Amounts are `numeric`: the Data API may send them as strings. */
+export type SaleOptionRow = {
+  id: string
+  project_id: string
+  kind: SaleOptionKind
+  title: LocalizedText
+  summary: LocalizedText | null
+  price_afn: number | string | null
+  price_usd: number | string | null
+  price_from: boolean
+  billing_period: BillingPeriod
+  maintenance: MaintenanceMode
+  maintenance_price_afn: number | string | null
+  maintenance_price_usd: number | string | null
+  maintenance_period: 'month' | 'year' | null
+  included: LocalizedText[] | null
+  highlighted: boolean
+  cta: SaleOptionCta
+  published: boolean
+  sort_order: number
+}
+
+/** `product_services` (0026). */
+export type ProductServiceRow = {
+  id: string
+  project_id: string
+  title: LocalizedText
+  description: LocalizedText | null
+  price_afn: number | string | null
+  price_usd: number | string | null
+  price_from: boolean
+  period: BillingPeriod
+  published: boolean
+  sort_order: number
+}
+
+type BlockRow = { id: string; project_id: string; type: string; title: LocalizedText | null; body: StoredBlockBody | null; sort_order: number }
+type TechLinkRow = { project_id: string; technologies: { name: string } | null }
+
+const PROJECT_COLUMNS =
+  'id, slug, title, category, summary, highlights, cover_image, cover_media_id, github_url, ' +
+  'live_url, year, related_service_slug, featured, published, sort_order, show_in_portfolio, is_product, ' +
+  'brand_color, accent_color, industry, platforms, outcome_line, features'
+
+export function toSaleOption(row: SaleOptionRow): ProductSaleOption {
+  const option: ProductSaleOption = {
+    id: row.id,
+    kind: row.kind,
+    title: row.title,
+    price: moneyFromRow(row.price_afn, row.price_usd, row.price_from),
+    billingPeriod: row.billing_period,
+    maintenance: row.maintenance,
+    included: row.included ?? [],
+    highlighted: !!row.highlighted,
+    cta: row.cta,
+  }
+  if (row.summary) option.summary = row.summary
+  if (row.maintenance === 'optional') {
+    option.maintenancePrice = moneyFromRow(row.maintenance_price_afn, row.maintenance_price_usd)
+    if (row.maintenance_period) option.maintenancePeriod = row.maintenance_period
+  }
+  return option
+}
+
+export function toProductService(row: ProductServiceRow): ProductService {
+  const service: ProductService = {
+    id: row.id,
+    title: row.title,
+    price: moneyFromRow(row.price_afn, row.price_usd, row.price_from),
+    period: row.period,
+  }
+  if (row.description) service.description = row.description
+  return service
+}
+
+function groupByProject<T extends { project_id: string }>(rows: T[] | null | undefined): Map<string, T[]> {
+  const map = new Map<string, T[]>()
+  for (const row of rows ?? []) {
+    const list = map.get(row.project_id) ?? []
+    list.push(row)
+    map.set(row.project_id, list)
+  }
+  return map
+}
+
+/**
+ * `drafts`: the admin preview only — the project, its blocks, options and services
+ * whether published or not. Every public caller leaves it off.
+ */
+// The query builder's own generic type is not worth spelling out for a pass-through filter.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type QueryFilter = (query: any) => any
+
+async function fetchProjectsByFilter(filter: QueryFilter, { drafts = false }: { drafts?: boolean } = {}): Promise<Project[]> {
   const client = requireClient()
 
-  let query = client
-    .from('projects')
-    .select(
-      'id, slug, title, category, summary, highlights, status, cover_image, github_url, ' +
-        'live_url, year, role, related_service_slug, featured, published, sort_order',
-    )
-    .eq('published', true)
-    .order('sort_order', { ascending: true })
+  let query = client.from('projects').select(PROJECT_COLUMNS).order('sort_order', { ascending: true })
+  if (!drafts) query = query.eq('published', true)
   query = filter(query)
 
-  const { data: projectRows, error: projectError } = await query
+  const { data, error: projectError } = await query
   if (projectError) throw new Error(`Failed to load projects: ${projectError.message}`)
-  if (!projectRows || projectRows.length === 0) return []
+  const projectRows = (data ?? []) as unknown as ProjectRow[]
+  if (projectRows.length === 0) return []
 
-  const projectIds = projectRows.map((p: any) => p.id)
+  const projectIds = projectRows.map((p) => p.id)
+  const productIds = projectRows.filter((p) => p.is_product).map((p) => p.id)
+  const none = Promise.resolve({ data: [] as never[], error: null })
 
   const [
-    { data: sectionRows, error: sectionError },
+    { data: blockRows, error: blockError },
     { data: techLinkRows, error: techLinkError },
     { data: mediaRows, error: mediaError },
+    { data: optionRows, error: optionError },
+    { data: serviceRows, error: serviceError },
   ] = await Promise.all([
-    client
-      .from('project_sections')
-      .select('project_id, type, body, sort_order')
-      .in('project_id', projectIds),
-    client
-      .from('project_technologies')
-      .select('project_id, technologies(name)')
-      .in('project_id', projectIds),
+    (drafts ? client.from('project_blocks').select('id, project_id, type, title, body, sort_order').in('project_id', projectIds) : client.from('project_blocks').select('id, project_id, type, title, body, sort_order').in('project_id', projectIds).eq('published', true)).order('sort_order', { ascending: true }),
+    client.from('project_technologies').select('project_id, technologies(name)').in('project_id', projectIds),
     client
       .from('project_media')
       .select(
         'project_id, kind, placement, story_key, story_anchor, caption, sort_order, media_assets(url, alt, width, height)',
       )
       .in('project_id', projectIds),
+    productIds.length
+      ? (drafts ? client.from('product_sale_options').select('*').in('project_id', productIds) : client.from('product_sale_options').select('*').in('project_id', productIds).eq('published', true)).order('sort_order', { ascending: true })
+      : none,
+    productIds.length
+      ? (drafts ? client.from('product_services').select('*').in('project_id', productIds) : client.from('product_services').select('*').in('project_id', productIds).eq('published', true)).order('sort_order', { ascending: true })
+      : none,
   ])
-  if (sectionError) throw new Error(`Failed to load project_sections: ${sectionError.message}`)
+  if (blockError) throw new Error(`Failed to load project_blocks: ${blockError.message}`)
   if (techLinkError) throw new Error(`Failed to load project_technologies: ${techLinkError.message}`)
   if (mediaError) throw new Error(`Failed to load project_media: ${mediaError.message}`)
+  if (optionError) throw new Error(`Failed to load product_sale_options: ${optionError.message}`)
+  if (serviceError) throw new Error(`Failed to load product_services: ${serviceError.message}`)
 
-  const sectionsByProject = new Map<string, ProjectSectionRow[]>()
-  for (const row of sectionRows ?? []) {
-    const list = sectionsByProject.get(row.project_id) ?? []
-    list.push(row)
-    sectionsByProject.set(row.project_id, list)
+  // One query for every library image the projects point at: covers and gallery blocks.
+  const assetIds = new Set<string>()
+  const blocks = (blockRows ?? []) as unknown as BlockRow[]
+  for (const row of projectRows) if (row.cover_media_id) assetIds.add(row.cover_media_id)
+  for (const block of blocks) for (const id of galleryMediaIds(block.type, block.body ?? {})) assetIds.add(id)
+  const mediaById = new Map<string, BlockMediaAsset>()
+  if (assetIds.size > 0) {
+    const { data: assets, error: assetError } = await client
+      .from('media_assets')
+      .select('id, url, alt, width, height')
+      .in('id', [...assetIds])
+    if (assetError) throw new Error(`Failed to load media_assets: ${assetError.message}`)
+    for (const asset of (assets ?? []) as BlockMediaAsset[]) mediaById.set(asset.id, asset)
   }
 
+  const blocksByProject = groupByProject(blocks)
+  const mediaByProject = groupByProject((mediaRows ?? []) as unknown as (ProjectMediaRow & { project_id: string })[])
+  const optionsByProject = groupByProject((optionRows ?? []) as unknown as SaleOptionRow[])
+  const servicesByProject = groupByProject((serviceRows ?? []) as unknown as ProductServiceRow[])
   const techNamesByProject = new Map<string, string[]>()
-  for (const row of (techLinkRows ?? []) as any[]) {
+  for (const row of (techLinkRows ?? []) as unknown as TechLinkRow[]) {
     const list = techNamesByProject.get(row.project_id) ?? []
     if (row.technologies?.name) list.push(row.technologies.name)
     techNamesByProject.set(row.project_id, list)
   }
 
-  const mediaByProject = new Map<string, ProjectMediaRow[]>()
-  for (const row of (mediaRows ?? []) as any[]) {
-    const list = mediaByProject.get(row.project_id) ?? []
-    list.push(row)
-    mediaByProject.set(row.project_id, list)
-  }
+  return projectRows.map((row): Project => {
+    const media: ProjectMediaItem[] = (mediaByProject.get(row.id) ?? [])
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .filter((m) => m.media_assets)
+      .map((m) => ({
+        src: m.media_assets!.url,
+        alt: m.media_assets!.alt,
+        caption: m.caption ?? undefined,
+        kind: m.kind as ProjectMediaItem['kind'],
+        placement: m.placement as ProjectMediaItem['placement'],
+        storyKey: m.story_key ?? undefined,
+        storyAnchor: m.story_anchor ?? undefined,
+        width: m.media_assets!.width ?? undefined,
+        height: m.media_assets!.height ?? undefined,
+      }))
 
-  return projectRows.map((row: any) =>
-    assembleProject(
-      row,
-      sectionsByProject.get(row.id) ?? [],
-      techNamesByProject.get(row.id) ?? [],
-      mediaByProject.get(row.id) ?? [],
-    ),
-  )
+    const blocks: ProjectBlock[] = (blocksByProject.get(row.id) ?? [])
+      .map((block) => toPublicBlock({ ...block, body: block.body ?? {} }, mediaById))
+      .filter((block): block is ProjectBlock => block !== null)
+
+    const cover = row.cover_media_id ? mediaById.get(row.cover_media_id) : undefined
+
+    return {
+      id: row.id,
+      slug: row.slug,
+      title: row.title,
+      category: row.category,
+      summary: row.summary,
+      highlights: row.highlights ?? [],
+      technologies: techNamesByProject.get(row.id) ?? [],
+      coverImage: cover?.url ?? row.cover_image ?? undefined,
+      ...(media.length > 0 ? { media } : {}),
+      githubUrl: row.github_url ?? undefined,
+      liveUrl: row.live_url ?? undefined,
+      year: row.year ?? undefined,
+      featured: !!row.featured,
+      published: !!row.published,
+      relatedServiceSlug: row.related_service_slug ?? undefined,
+      showInPortfolio: row.show_in_portfolio !== false,
+      isProduct: !!row.is_product,
+      brandColor: row.brand_color ?? undefined,
+      accentColor: row.accent_color ?? undefined,
+      industry: row.industry ?? undefined,
+      platforms: row.platforms ?? [],
+      outcomeLine: row.outcome_line ?? undefined,
+      features: row.features ?? [],
+      blocks,
+      saleOptions: row.is_product ? (optionsByProject.get(row.id) ?? []).map(toSaleOption) : [],
+      productServices: row.is_product ? (servicesByProject.get(row.id) ?? []).map(toProductService) : [],
+    }
+  })
 }
 
+/** Every published project (portfolio and products alike). */
 export async function queryAllProjects(): Promise<Project[]> {
   return fetchProjectsByFilter((q) => q)
 }
@@ -225,6 +336,17 @@ export async function queryProjectBySlug(slug: string): Promise<Project | undefi
   return projects[0]
 }
 
+/** Admin preview: one project as it would render, drafts included (callers check the admin session first). */
+export async function queryProjectPreview(id: string): Promise<Project | undefined> {
+  const projects = await fetchProjectsByFilter((q) => q.eq('id', id), { drafts: true })
+  return projects[0]
+}
+
+/** Phase 27.3 — every published product, with its published ways to get it. */
+export async function queryProducts(): Promise<Project[]> {
+  return fetchProjectsByFilter((q) => q.eq('is_product', true))
+}
+
 // ---------------------------------------------------------------------------
 // services
 // ---------------------------------------------------------------------------
@@ -232,10 +354,12 @@ export async function queryProjectBySlug(slug: string): Promise<Project | undefi
 function assembleService(
   row: Record<string, any>,
   processSteps: { title: LocalizedText; description: LocalizedText; sort_order: number }[],
-  packages: Record<string, any>[],
-  addons: Record<string, any>[],
+  packagesIn: Record<string, any>[],
+  addonsIn: Record<string, any>[],
   faqs: Record<string, any>[],
 ): Service {
+  let packages = packagesIn
+  let addons = addonsIn
   const service: Service = {
     id: row.id,
     slug: row.slug,
@@ -244,6 +368,7 @@ function assembleService(
     description: row.description,
     deliverables: row.deliverables ?? [],
     type: row.type ?? undefined,
+    kind: row.kind ?? undefined,
     tagline: row.tagline ?? undefined,
     forWhom: row.for_whom?.length ? row.for_whom : undefined,
     notForWhom: row.not_for_whom?.length ? row.not_for_whom : undefined,
@@ -256,6 +381,15 @@ function assembleService(
     relatedProjectSlugs: row.related_project_slugs?.length ? row.related_project_slugs : undefined,
     whatDrivesCost: row.what_drives_cost?.length ? row.what_drives_cost : undefined,
     paymentScheduleNote: row.payment_schedule_note ?? undefined,
+  }
+
+  const fromPrice = moneyFromRow(row.from_price_afn, row.from_price_usd, true)
+  if (fromPrice.afn !== undefined || fromPrice.usd !== undefined) service.fromPrice = fromPrice
+
+  // Phase 27.4: packages (and the add-ons sold with them) are optional per service.
+  if (!row.show_packages) {
+    packages = []
+    addons = []
   }
 
   if (processSteps.length > 0) {
@@ -325,7 +459,7 @@ async function fetchServicesByFilter(filter: (query: any) => any): Promise<Servi
     .select(
       'id, slug, icon, title, description, deliverables, type, tagline, for_whom, not_for_whom, ' +
         'problem, what_i_do, included, not_included, timeline, requirements, related_project_slugs, ' +
-        'what_drives_cost, payment_schedule_note, published, sort_order',
+        'what_drives_cost, payment_schedule_note, published, sort_order, kind, from_price_afn, from_price_usd, show_packages',
     )
     .eq('published', true)
     .order('sort_order', { ascending: true })

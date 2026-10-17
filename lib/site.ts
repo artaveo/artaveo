@@ -22,6 +22,7 @@ export const siteConfig = {
  */
 export type NavKey =
   | 'home'
+  | 'products'
   | 'work'
   | 'services'
   | 'process'
@@ -59,8 +60,16 @@ export type NavItem = {
   contentFlag?: ContentFlag
 }
 
+/**
+ * Phase 27.6: which items a visitor sees, where and in which order comes from the
+ * database (`navigation_items`, edited in the admin — `lib/shell-settings.ts`).
+ * These lists are the structure the code needs and the fallback the shell uses
+ * only when the database cannot be read.
+ */
 export const mainNav: NavItem[] = [
   { href: '/', key: 'home' },
+  // Phase 30 builds /products; until then the item stays hidden (`has_content = false`).
+  { href: '/products', key: 'products', hasDescription: true, hasContent: false },
   { href: '/work', key: 'work', hasDescription: true },
   { href: '/services', key: 'services', hasDescription: true },
   { href: '/process', key: 'process', hasDescription: true },
@@ -142,6 +151,7 @@ export type CommandItem = {
 
 export const commandItems: CommandItem[] = [
   { labelKey: 'home', labelNamespace: 'CommandPalette', href: '/', group: 'navigate', keywords: 'start landing home' },
+  { labelKey: 'products', labelNamespace: 'Nav', href: '/products', group: 'navigate', keywords: 'products software licence buy demo', hasContent: false },
   { labelKey: 'work', labelNamespace: 'Nav', href: '/work', group: 'navigate', keywords: 'projects portfolio case studies work' },
   { labelKey: 'services', labelNamespace: 'Nav', href: '/services', group: 'navigate', keywords: 'offerings help services' },
   { labelKey: 'process', labelNamespace: 'Nav', href: '/process', group: 'navigate', keywords: 'method steps how process' },
