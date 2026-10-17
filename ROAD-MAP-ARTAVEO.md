@@ -71,7 +71,7 @@ Phase  Name                                        Status
 - **O-2 Admin account** — create it in Neon Auth and point `admin_users` at it; Neon Auth: sign-ups off, shared Google provider removed (`docs/runbooks/admin-onboarding.md`).
 - **O-3 Retire Supabase** — after the site has run on Neon for a while: pause, then delete, the old project.
 - **O-4 Backups** — after Phase 26.8 commits the workflow: create the `age` key pair (private key offline), add the GitHub secrets the workflow names, run it once by hand (`docs/runbooks/backup-restore.md`).
-- **O-5 GitHub / Vercel settings** — branch protection requiring `CI passed`, preview deployments, `CRON_SECRET` in Vercel and GitHub, optional `SITE_URL` for the uptime workflow (`docs/ci.md`, `docs/observability.md`).
+- **O-5 GitHub / Vercel settings** — `CRON_SECRET` in Vercel and GitHub (no branch protection that blocks direct pushes — work goes straight to `main`), optional `SITE_URL` for the uptime workflow (`docs/ci.md`, `docs/observability.md`).
 - **O-6 Domain (D-01)** — buy the domain, set SPF/DKIM/DMARC; then real e-mail sending is switched on (Phase 19's provider) as a small activation task.
 - **O-7 Decide D-19** — the `Transportation-System` repository is public; decide before that product is sold.
 - **O-8 Prices** — enter real prices per product sale option and per service in the admin once Phase 27 ships (D-04). Nothing is invented meanwhile.
@@ -186,7 +186,7 @@ This document records the real state of the project, the product direction, the 
 > If a phase has no numbered sub-phases, report against the phase itself. This rule applies from this revision forward; it is not retroactive.
 
 > **End-of-phase delivery rule.** Finishing a phase or sub-phase means the changed files actually leave the session, not just that they exist on disk. Order matters — **output first, status line second**, never the reverse:
-> 1. **Deliver the changed files.** Per § 6.5, that means pushed to a branch (not `main`) with a pull request opened for review — not a direct push to `main`, even once push access exists. If the session's environment has no write/push credentials configured (check before claiming otherwise — do not assume), the default fallback is a **plain zip of the actual changed/new files, at their real repo-relative paths**, plus a short note listing any files that need deleting (a zip can't represent a deletion) — not a git patch or bundle. The owner works from GitHub Desktop against a local working copy, not the git CLI, so the delivered artifact must be something that drops directly into that working copy and shows up as changes/new files on its own — nothing requiring `git am`, `git clone`, or any other CLI step. Only offer the CLI-oriented formats (patch/bundle) if the owner asks for them specifically.
+> 1. **Deliver the changed files.** **Owner decision, 17 October 2026: commit and push straight to `main` — no feature branches and no pull requests unless the owner asks for one.** (This replaces the earlier branch-and-pull-request rule of § 6.5.) Every push to `main` runs CI and deploys to Vercel, so push only verified work. If the session's environment has no write/push credentials configured (check before claiming otherwise — do not assume), the default fallback is a **plain zip of the actual changed/new files, at their real repo-relative paths**, plus a short note listing any files that need deleting (a zip can't represent a deletion) — not a git patch or bundle. The owner works from GitHub Desktop against a local working copy, not the git CLI, so the delivered artifact must be something that drops directly into that working copy and shows up as changes/new files on its own — nothing requiring `git am`, `git clone`, or any other CLI step. Only offer the CLI-oriented formats (patch/bundle) if the owner asks for them specifically.
 > 2. **Then** give the end-of-message status line above (what finished, what's next, same/new chat).
 > Reporting "phase done" without either a pushed branch/PR or a working-copy-ready zip is incomplete — the roadmap file existing in the repo's history is not itself delivery.
 
@@ -281,7 +281,7 @@ When requirements conflict, prioritize in this order:
 | SEO | Unique metadata per page and locale, hreflang, structured data |
 | Observability | Structured logs, error tracking, correlation IDs, business events |
 | Testing | Unit + integration + E2E for critical flows |
-| Delivery | CI quality gates, preview deployments, protected `main` |
+| Delivery | Work pushed straight to `main` (owner decision, 17 October 2026); CI quality gates on every push; Vercel deploys `main` |
 | Documentation | Roadmap + phase documents + ADRs + runbooks |
 
 ---
@@ -521,7 +521,7 @@ These findings do not change the historical status of phases 1–3. They are res
 
 ## 6.5 Delivery-process debt
 
-- v0 pushes directly to `main`, and every merge to `main` auto-deploys. Until Phase 22, rule: v0 and other agents work on a branch; `main` changes only through a reviewed pull request.
+- v0 pushes directly to `main`, and every merge to `main` auto-deploys. Until Phase 22, rule: v0 and other agents work on a branch; `main` changes only through a reviewed pull request. *(Withdrawn on 17 October 2026 by the owner: work now goes straight to `main` — see the delivery rule at the top.)*
 
 ## 6.6 Roadmap gap — design system & brand identity (added 10 September 2026, after audit)
 
@@ -1844,7 +1844,7 @@ For each phase or sub-phase:
 1. read this roadmap (sections listed at the top) and the latest phase document
 2. inspect the current code — never assume a previous session's work is in `main`
 3. check the Decision Register; if a needed decision is missing, stop that part and mark it BLOCKED
-4. implement only the defined scope, on a branch
+4. implement only the defined scope, then commit and push to `main` (no branches or pull requests unless the owner asks)
 5. verify against section 17
 6. write the phase document and the completion report
 7. update this roadmap
