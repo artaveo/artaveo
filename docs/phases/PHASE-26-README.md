@@ -86,10 +86,10 @@ All on 17 October 2026, on this Windows machine, against a production build (`ne
 | **26.4** internal references | Raw HTML of all 38 public routes searched for "§", "Phase n", «فاز n», "(D-nn)", "roadmap": **none**. The search found two things first, both fixed: (1) every page carries the whole message dictionary, admin included, and two admin strings said "(D-01)" / "since this phase went live" — reworded; two stale admin notices ("… are added in a later phase", untrue since Phase 15) removed; (2) `/work` sent whole project objects to its client-side grid — see 26.5. |
 | **26.5** hidden | Case-study pages: none of the hidden headings rendered (en and fa). No repository URL in any public page's HTML or data (the `/work` grid now receives only the card fields — `toProjectCardData`). No status badge text. No `/insights` link anywhere. `/en/insights`, `/fa/insights` and `/…/insights/concurrent-seat-booking` render the not-found page (`noindex`; HTTP 200 for these routes is the known, pinned behaviour from Phase 21). |
 | **26.6** `/work` at 1440 px | two cards of 592 px — two columns |
-| **26.8** workflow | YAML parsed, every `run:` block passes `bash -n`; the self-test runs on GitHub on this push (result in the completion report). |
+| **26.8** workflow | YAML parsed, every `run:` block passes `bash -n`. **Self-test on GitHub (run 39050326585): every step green** — the throw-away source built from the migrations, the real content and the fixtures; dump; restore into a fresh PostgreSQL 17 with every table and row count matching; `age` encrypt, then decrypt with the run's own key. |
 | Visual | `/fa/work/transportation-system` at 375 px: Vazirmatn, no status badge, nothing wider than the screen. |
 
-Not run here (no PostgreSQL on this machine): the integration and end-to-end suites — they run in CI on the push.
+**CI on GitHub, run 39054380910 (commit `86b776b`): all gates green** — typecheck, lint and unit tests; integration tests on real PostgreSQL + PostgREST; production build with the end-to-end and accessibility suites; dependency audit and the full-history secret scan; and the aggregate *CI passed*. The integration and end-to-end suites cannot run on this Windows machine (no PostgreSQL), so CI is where they were verified — four pushes, guided by the new failure annotations.
 
 ## Known issues
 
