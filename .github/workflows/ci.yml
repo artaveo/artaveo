@@ -65,7 +65,9 @@ jobs:
       - name: Content placeholders (no [PLACEHOLDER] in published copy)
         run: pnpm run check:content
       - name: Unit tests
-        run: pnpm run test:unit
+        # The extra reporter turns each failing test into an annotation on the run's page (tests/support/github-annotations.mjs).
+        # Same command as `pnpm run test:unit`, plus the annotation reporter.
+        run: node --import ./scripts/register-ts-resolve.mjs --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=./tests/support/github-annotations.mjs --test-reporter-destination=stdout scripts/test-*.mjs tests/unit/*.test.mjs
 
   integration:
     name: Integration tests (real PostgreSQL + PostgREST)
@@ -101,7 +103,8 @@ jobs:
       - name: Start the test stack
         run: pnpm run test:stack:up
       - name: Integration tests
-        run: pnpm run test:integration
+        # Same command as `pnpm run test:integration`, plus the annotation reporter (tests/support/github-annotations.mjs).
+        run: node --import ./scripts/register-ts-resolve.mjs --test --test-concurrency=1 --test-reporter=spec --test-reporter-destination=stdout --test-reporter=./tests/support/github-annotations.mjs --test-reporter-destination=stdout tests/integration/*.test.mjs
       - name: Stack logs (on failure)
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -201,7 +204,12 @@ jobs:
           curl -fsSL -o gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
           echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum --check
           tar -xzf gitleaks.tar.gz gitleaks
-          ./gitleaks detect --source . --config .gitleaks.toml --redact --no-banner --verbose
+          # On a finding, each one also becomes an annotation — file, line, rule and commit only; the value stays redacted.
+          ./gitleaks detect --source . --config .gitleaks.toml --redact --no-banner --verbose \
+            --report-format json --report-path "$RUNNER_TEMP/gitleaks.json" || {
+            jq -r '.[] | "::error file=\(.File),line=\(.StartLine)::gitleaks \(.RuleID) in commit \(.Commit[0:7]) (value redacted)"' "$RUNNER_TEMP/gitleaks.json" | head -20
+            exit 1
+          }
 
   gate:
     name: CI passed

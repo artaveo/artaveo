@@ -31,7 +31,7 @@ const capabilitiesData: Capability[] = [
     title: tx('Full-stack development', 'توسعه‌ی فول‌استک'),
     description: tx(
       'Interface, API and database in one workflow.',
-      'رابط کاربری، API و پایگاه داده در یک مسیر واحد جلو می‌روند.',
+      'رابط کاربری، API و پایگاه داده در یک مسیر واحد پیش می‌روند.',
     ),
   },
   {
@@ -72,20 +72,20 @@ const featuredProjectsData: Project[] = [
   {
     id: 'transportation-system',
     slug: 'transportation-system',
-    title: tx('Transportation System', 'سامانه‌ی حمل‌ونقل'),
+    title: tx('Transportation System', 'سیستم حمل‌ونقل'),
     category: tx('Full-stack platform', 'پلتفرم فول‌استک'),
     summary: tx(
       'A booking and operations platform for intercity bus companies: passengers search trips and pick seats on a live seat map, while operators manage routes, buses, drivers and trips from a database-backed admin.',
-      'پلتفرم رزرو و مدیریت عملیات برای شرکت‌های اتوبوس‌رانی بین‌شهری است. مسافران سفر را جست‌وجو و صندلی را روی نقشه‌ی زنده انتخاب می‌کنند؛ اپراتورها هم مسیرها، ناوگان، رانندگان و سفرها را از یک پنل متصل به پایگاه داده مدیریت می‌کنند.',
+      'پلتفرم فروش تکت و مدیریت عملیات برای شرکت‌های ترانسپورتی بین‌شهری است. مسافران سفر را جست‌وجو و چوکی را روی نقشه‌ی زنده انتخاب می‌کنند؛ اپراتورها هم مسیرها، موترها، رانندگان و سفرها را از یک پنل متصل به پایگاه داده مدیریت می‌کنند.',
     ),
     highlights: [
       tx(
         'Seat holds and booking confirmation are enforced on the server, never in the browser',
-        'نگه‌داشت موقت صندلی و تأیید نهایی در سمت سرور انجام می‌شود، نه در مرورگر',
+        'نگه‌داشت موقت چوکی و تأیید نهایی در سمت سرور انجام می‌شود، نه در مرورگر',
       ),
       tx(
         'Operations admin for routes, fleet, trips, bookings, reports and CSV exports',
-        'پنل عملیات برای مسیرها، ناوگان، سفرها، رزروها، گزارش‌ها و خروجی CSV',
+        'پنل عملیات برای مسیرها، موترها، سفرها، تکت‌ها، گزارش‌ها و خروجی CSV',
       ),
       tx(
         'PostgreSQL row-level security combined with server-side authorization checks',
@@ -102,15 +102,15 @@ const featuredProjectsData: Project[] = [
     year: '2026',
     context: tx(
       'A booking and operations platform built for intercity bus companies in Afghanistan. The market runs on manual ticket counters and phone-based booking, with no shared system connecting passenger sales to fleet and trip operations. I built this as a real product bet: passengers get a live seat map and a bookable trip search, and operators get a database-backed admin for routes, fleet, drivers, trips and reporting — the two sides of the same booking, in one system.',
-      `این سامانه برای رزرو و مدیریت عملیات شرکت‌های اتوبوس‌رانی بین‌شهری در افغانستان ساخته شده است. این بازار هنوز عمدتاً با گیشه‌های فروش دستی و رزرو تلفنی اداره می‌شود و سامانه‌ی مشترکی برای اتصال فروش بلیت به عملیات ناوگان و سفرها وجود ندارد.
+      `این سیستم برای فروش تکت و مدیریت عملیات شرکت‌های ترانسپورتی بین‌شهری در افغانستان ساخته شده است. این بازار هنوز عمدتاً با گیشه‌های فروش دستی و فروش تلفنی تکت اداره می‌شود و سیستم مشترکی برای اتصال فروش تکت به عملیات موترها و سفرها وجود ندارد.
 
-مسافران سفر را جست‌وجو و صندلی را روی نقشه‌ی زنده انتخاب می‌کنند. اپراتورها هم مسیرها، ناوگان، رانندگان و سفرها را از یک پنل متصل به پایگاه داده مدیریت می‌کنند.`,
+مسافران سفر را جست‌وجو و چوکی را روی نقشه‌ی زنده انتخاب می‌کنند. اپراتورها هم مسیرها، موترها، رانندگان و سفرها را از یک پنل متصل به پایگاه داده مدیریت می‌کنند.`,
     ),
     problemAndGoals: tx(
       "The core problem: seat availability and payment status are business-critical state that a booking site cannot let the browser decide. If two people can claim the same seat, or a cancelled booking can silently keep its payment marked as taken, the platform is unusable for a real operator. The goal was a passenger booking flow and an operations admin where every sensitive decision — holding a seat, confirming a booking, changing a payment's status — is made and enforced by the database, not the UI.",
-      `وضعیت صندلی و پرداخت داده‌های حیاتی این سامانه‌اند و نباید مرورگر درباره‌ی آن‌ها تصمیم بگیرد.
+      `وضعیت چوکی و پرداخت داده‌های حیاتی این سیستم‌اند و نباید مرورگر درباره‌ی آن‌ها تصمیم بگیرد.
 
-اگر دو نفر یک صندلی را هم‌زمان بگیرند یا پرداخت یک رزرو لغوشده همچنان دریافت‌شده بماند، سیستم قابل‌اعتماد نیست. برای همین، تصمیم‌های حساس رزرو، تأیید و پرداخت در پایگاه داده و سمت سرور اجرا می‌شوند.`,
+اگر دو نفر یک چوکی را هم‌زمان بگیرند یا پرداخت یک تکت لغوشده همچنان دریافت‌شده بماند، سیستم قابل‌اعتماد نیست. برای همین، تصمیم‌های حساس فروش تکت، تأیید و پرداخت در پایگاه داده و سمت سرور اجرا می‌شوند.`,
     ),
     constraints: [
       tx(
@@ -119,7 +119,7 @@ const featuredProjectsData: Project[] = [
       ),
       tx(
         "No live payment provider yet: HesabPay (the target gateway) integration is blocked on getting developer/sandbox credentials from the provider — an external dependency outside my control, not a technical gap.",
-        'هنوز درگاه پرداخت زنده وصل نیست. اتصال حساب‌پی به دریافت دسترسی developer/sandbox از خودِ ارائه‌دهنده وابسته است؛ این یک وابستگی بیرونی است، نه یک نقص فنی در سامانه.',
+        'هنوز درگاه پرداخت زنده وصل نیست. اتصال حساب‌پی به دریافت دسترسی developer/sandbox از خودِ ارائه‌دهنده وابسته است؛ این یک وابسته‌گی بیرونی است، نه یک نقص فنی در سیستم.',
       ),
       tx(
         'Built for a bilingual Dari/English market with RTL as the primary reading direction, not an English-first product with translation bolted on.',
@@ -136,7 +136,7 @@ const featuredProjectsData: Project[] = [
 
 عملیات حساس علاوه بر RLS از بررسی دسترسی سمت سرور هم عبور می‌کنند. کلاینت service-role به‌تنهایی مجوز دسترسی محسوب نمی‌شود.
 
-وضعیت صندلی و پرداخت نیز هرکدام state machine مشخص خودشان را دارند. مرورگر فقط وضعیت را نمایش می‌دهد.`,
+وضعیت چوکی و پرداخت نیز هرکدام state machine مشخص خودشان را دارند. مرورگر فقط وضعیت را نمایش می‌دهد.`,
     ),
     keyDecisions: [
       {
@@ -156,11 +156,11 @@ const featuredProjectsData: Project[] = [
       {
         context: tx(
           'Partial refunds needed to release any coupon used on the booking, but wallet balance was also in scope for "what should a refund touch."',
-          'بازپرداخت جزئی باید کوپن استفاده‌شده روی رزرو را آزاد می‌کرد، ولی موجودی wallet هم در محدوده‌ی «بازپرداخت باید چه چیزهایی را برگرداند» بود.',
+          'بازپرداخت جزئی باید کوپن استفاده‌شده روی تکت را آزاد می‌کرد، ولی موجودی wallet هم در محدوده‌ی «بازپرداخت باید چه چیزهایی را برگرداند» بود.',
         ),
         decision: tx(
           'Checked real data before writing any logic — every existing booking had a zero wallet deduction, because wallet debiting was never wired into the booking-confirmation path in the first place. Built coupon release only; left wallet refund logic undone rather than building a return path for money that was never actually taken.',
-          'قبل از نوشتن منطق جدید، داده‌ی واقعی را بررسی کردم. هیچ رزروی کسر واقعی از wallet نداشت؛ این بخش اصلاً در مسیر تأیید رزرو وصل نشده بود. بنابراین فقط آزادسازی کوپن را پیاده کردم و مسیر بازگشت wallet را تا زمانی که واقعاً کسر شود باز نگه داشتم.',
+          'قبل از نوشتن منطق جدید، داده‌ی واقعی را بررسی کردم. هیچ تکتی کسر واقعی از wallet نداشت؛ این بخش اصلاً در مسیر تأیید تکت وصل نشده بود. بنابراین فقط آزادسازی کوپن را پیاده کردم و مسیر بازگشت wallet را تا زمانی که واقعاً کسر شود باز نگه داشتم.',
         ),
         tradeoff: tx(
           'The refund feature is incomplete until wallet debiting ships — documented as open debt rather than papered over with unused code.',
@@ -172,7 +172,7 @@ const featuredProjectsData: Project[] = [
       "While building the refund path, a security review with Supabase's advisory tooling turned up a real gap: the function that writes to the payment audit-trail table was callable directly by any authenticated (or even anonymous) client, with no permission check of its own — because it was only ever meant to be called internally, from inside other trusted functions. That meant anyone could have written fake entries into the audit history and undermined the one table meant to make payment changes reviewable. I revoked execute permission on that function from every role except its owner, then re-verified with a direct privilege check — not just the advisory tool — that only trusted internal callers could reach it. The same review also caught a real functional bug: an admin could \"cancel\" a booking whose payment was already confirmed, leaving the booking cancelled but the payment still marked as taken — money in, booking gone. I closed that path with an explicit error and routed it through the new refund function instead, so a paid booking can only be unwound by actually refunding it.",
       `در مسیر ساخت بازپرداخت، بررسی امنیتی Supabase یک نقص دسترسی واقعی پیدا کرد: تابع ثبت تاریخچه‌ی پرداخت برای کلاینت‌های احراز‌هویت‌شده و حتی مهمان قابل‌فراخوانی بود. دسترسی اجرا محدود شد و دوباره با یک بررسی مستقیم تأیید شد.
 
-همان بررسی یک مشکل دیگر را هم نشان داد: ادمین می‌توانست رزروی با پرداخت تأییدشده را لغو کند و پرداخت همچنان دریافت‌شده بماند. این مسیر بسته شد. حالا چنین رزروی فقط با بازپرداخت واقعی قابل لغو است.`,
+همان بررسی یک مشکل دیگر را هم نشان داد: ادمین می‌توانست تکتی با پرداخت تأییدشده را لغو کند و پرداخت همچنان دریافت‌شده بماند. این مسیر بسته شد. حالا چنین تکتی فقط با بازپرداخت واقعی قابل لغو است.`,
     ),
     dataIntegrityAndSecurity: tx(
       "PostgreSQL Row-Level Security is applied to every business table, paired with server-side authorization checks rather than relied on alone. A database trigger enforces the payment state machine at the row level, closing off direct-UPDATE bypasses, and a dedicated payment_status_events audit trail — writable only through one internal function — gives every payment status change a reviewable history of who changed what, when and why. Limited admins work through a permission-center model where access is scoped per section (bookings, payments, etc.) rather than all-or-nothing. Security reviews combine Supabase's advisory tooling with direct privilege checks rather than trusting the advisory output alone.",
@@ -182,7 +182,7 @@ const featuredProjectsData: Project[] = [
     ),
     responsiveAndRtl: tx(
       'Built with five responsive tiers from mobile (under 768px) through ultra-wide (2560px and up), covering both the passenger booking flow and the admin\'s wide data tables. RTL/LTR behaviour is treated as a layout requirement from the start (Dari/English), not a late pass — including RTL-aware admin navigation and wide-table handling.',
-      'رابط در پنج بازه‌ی واکنش‌گرا از موبایل تا نمایشگرهای فوق‌عریض کار می‌کند؛ هم برای رزرو مسافر و هم جدول‌های عریض پنل ادمین. RTL/LTR نیز از ابتدا بخشی از طراحی بوده و فقط در پایان اضافه نشده است.',
+      'رابط در پنج بازه‌ی واکنش‌گرا از موبایل تا نمایشگرهای فوق‌عریض کار می‌کند؛ هم برای خرید تکت مسافر و هم جدول‌های عریض پنل ادمین. RTL/LTR نیز از ابتدا بخشی از طراحی بوده و فقط در پایان اضافه نشده است.',
     ),
     quality: tx(
       'Every migration is validated against real production data inside a transaction that is rolled back afterward, never tested only in theory. tsc --noEmit and a full next build run after each phase; the project tracks a known TypeScript baseline error count so new errors are never silently absorbed into "pre-existing" noise. Security posture is re-checked after schema changes with Supabase\'s advisory tooling and direct privilege queries. There is no dedicated automated test suite or CI pipeline yet — tracked explicitly as debt, not hidden.',
@@ -194,7 +194,7 @@ const featuredProjectsData: Project[] = [
     ),
     currentStatusAndNext: tx(
       'Finished: passenger booking with server-enforced seat holds, operations admin (routes, fleet, drivers, trips, bookings, reports, CSV), loyalty and coupon foundations, a public CMS lite with in-site responsive image cropping, and a full payment-status state machine with audit trail and partial refunds — all running on manual/offline payment confirmation. Not finished: a live payment gateway. HesabPay integration is the next planned step and is blocked on getting developer/sandbox credentials from the provider — until that\'s resolved, online bookings are recorded but stay in a pending payment state rather than auto-confirming.',
-      `انجام‌شده: رزرو مسافر با hold صندلی سمت سرور، پنل عملیات برای مسیرها، ناوگان، رانندگان، سفرها، رزروها، گزارش‌ها و CSV، پایه‌های loyalty و کوپن، CMS عمومی سبک و state machine پرداخت همراه با audit و بازپرداخت جزئی. پرداخت‌ها هنوز تأیید خودکار ندارند.
+      `انجام‌شده: خرید تکت مسافر با hold چوکی سمت سرور، پنل عملیات برای مسیرها، موترها، رانندگان، سفرها، تکت‌ها، گزارش‌ها و CSV، پایه‌های loyalty و کوپن، CMS عمومی سبک و state machine پرداخت همراه با audit و بازپرداخت جزئی. پرداخت‌ها هنوز تأیید خودکار ندارند.
 
 اتصال حساب‌پی هم به دریافت دسترسی developer/sandbox از ارائه‌دهنده وابسته است.`,
     ),
@@ -214,7 +214,7 @@ const featuredProjectsData: Project[] = [
     category: tx('Web application', 'اپلیکیشن وب'),
     summary: tx(
       'A bilingual Dari and English portal for a student community — study lounge, academic advising, scholarships and achievements — run through a custom CMS that non-developers can manage safely.',
-      'پورتالی دوزبانه برای یک جامعه‌ی دانشجویی با بخش‌های سالن مطالعه، مشاوره‌ی تحصیلی، بورسیه و دستاوردها که از طریق یک CMS اختصاصی توسط کارکنان غیرتوسعه‌دهنده هم قابل مدیریت است.',
+      'پورتالی دوزبانه برای یک جامعه‌ی محصلان با بخش‌های سالن مطالعه، مشوره‌ی تحصیلی، بورسیه و دستاوردها که از طریق یک CMS اختصاصی توسط کارکنان غیرتوسعه‌دهنده هم قابل مدیریت است.',
     ),
     highlights: [
       tx(
@@ -240,13 +240,13 @@ const featuredProjectsData: Project[] = [
     year: '2026',
     context: tx(
       'A bilingual Dari/English portal I built for Pezhohesh Complex, an educational institute I run myself — a study lounge, academic advising, scholarship listings and student achievements, all manageable by non-developer staff through a custom admin panel.',
-      'پورتالی دوزبانه برای مجتمع پژوهش ساختم؛ مؤسسه‌ای آموزشی که خودم اداره‌اش می‌کنم. سالن مطالعه، مشاوره‌ی تحصیلی، بورسیه‌های فعال و دستاوردهای دانشجویی از طریق یک پنل ادمین اختصاصی مدیریت می‌شوند.',
+      'پورتالی دوزبانه برای مجتمع پژوهش ساختم؛ مؤسسه‌ای آموزشی که خودم اداره‌اش می‌کنم. سالن مطالعه، مشوره‌ی تحصیلی، بورسیه‌های فعال و دستاوردهای محصلان از طریق یک پنل ادمین اختصاصی مدیریت می‌شوند.',
     ),
     problemAndGoals: tx(
       "The institute needed a real content pipeline, not a static site someone has to ask a developer to update. Staff needed to publish scholarships, edit study-lounge rules, and review membership/advising requests themselves — with two different levels of access, since not everyone should be able to touch every part of the site. On top of that, visitors on unreliable connections needed pages they'd already seen to keep working, without the admin panel ever risking a stale view of pending requests.",
-      `مؤسسه به یک content pipeline واقعی نیاز داشت، نه سایتی که برای هر تغییر به توسعه‌دهنده وابسته باشد. کارکنان باید می‌توانستند بورسیه منتشر کنند، قوانین سالن مطالعه را ویرایش کنند و درخواست‌های عضویت و مشاوره را بررسی کنند.
+      `مؤسسه به یک content pipeline واقعی نیاز داشت، نه سایتی که برای هر تغییر به توسعه‌دهنده وابسته باشد. کارکنان باید می‌توانستند بورسیه منتشر کنند، قوانین سالن مطالعه را ویرایش کنند و درخواست‌های عضویت و مشوره را بررسی کنند.
 
-بازدیدکننده با اینترنت ناپایدار هم باید صفحات قبلی را می‌دید. در عین حال، پنل ادمین نباید داده‌ی قدیمیِ درخواست‌های در انتظار را نشان دهد.`,
+بازدیدکننده با انترنت ناپایدار هم باید صفحات قبلی را می‌دید. در عین حال، پنل ادمین نباید داده‌ی قدیمیِ درخواست‌های در انتظار را نشان دهد.`,
     ),
     constraints: [
       tx(
@@ -255,7 +255,7 @@ const featuredProjectsData: Project[] = [
       ),
       tx(
         "Deployed by building locally and uploading the production bundle directly, not a Git-triggered CI/CD pipeline — a deliberate simplicity trade-off for a small, single-maintainer project.",
-        'استقرار با build محلی و آپلود مستقیم خروجی انجام می‌شود. این انتخاب برای سادگی یک پروژه‌ی کوچک با یک نگهدارنده است؛ CI/CD متصل به Git در این پروژه وجود ندارد.',
+        'استقرار با build محلی و آپلود مستقیم خروجی انجام می‌شود. این انتخاب برای ساده‌گی یک پروژه‌ی کوچک با یک نگهدارنده است؛ CI/CD متصل به Git در این پروژه وجود ندارد.',
       ),
       tx(
         'Admin panel is Dari-only by design; the public site is bilingual.',
@@ -347,7 +347,7 @@ cache کردن همه‌چیز می‌توانست داده‌ی قدیمی را
 
 /** The single delivery chain Artaveo covers end to end. */
 const workflowStagesData: LocalizedText[] = [
-  tx('Idea', 'ایده'),
+  tx('Idea', 'طرح'),
   tx('Architecture', 'معماری'),
   tx('Interface', 'رابط کاربری'),
   tx('Frontend', 'فرانت‌اند'),

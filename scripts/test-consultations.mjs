@@ -397,7 +397,7 @@ test('received: nothing is booked yet, the link and the D-08 commitment are ther
   assert.ok(en.text.includes('https://x.test/en/consultation/T'))
   const fa = buildConsultationReceivedEmail({ locale: 'fa', windows: [W1], timezone: 'Asia/Kabul', manageUrl: 'https://x.test/fa/consultation/T' })
   assert.match(fa.subject, PERSIAN)
-  assert.match(fa.text, /چیزی رزرو نشده است/)
+  assert.match(fa.text, /چیزی ثبت نشده است/)
   assert.match(fa.text, /پاسخ‌گویی در همان روز، طی چند ساعت/)
   assert.ok(fa.text.includes('https://x.test/fa/consultation/T'))
 })

@@ -118,7 +118,7 @@ export function getHireChannels(): HireChannel[] {
       title: tx('Via Fiverr', 'از طریق Fiverr'),
       summary: tx(
         'Hire through my verified Fiverr profile when you want the platform’s buyer protection, escrow and dispute process.',
-        'از پروفایل تأییدشده‌ام در Fiverr استخدام کن؛ مناسب وقتی است که محافظت خریدار، سپرده‌ی امانی و فرایند رسیدگی به اختلاف پلتفرم را می‌خواهی.',
+        'از پروفایل تأییدشده‌ام در Fiverr استخدام کن؛ مناسب وقتی است که محافظت خریدار، سپرده‌ی امانی و فرایند رسیده‌گی به اختلاف پلتفرم را می‌خواهی.',
       ),
       points: [
         tx('Payment held in escrow and released on delivery', 'پرداخت در سپرده‌ی امانی نگه‌داری و پس از تحویل آزاد می‌شود'),

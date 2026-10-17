@@ -34,7 +34,7 @@ const storyData: LocalizedText[] = [
   ),
   tx(
     'That shape comes from two real products, not a portfolio exercise: a booking and operations platform for intercity bus companies, and a bilingual portal and CMS for an educational institute.',
-    'این مدل کار را روی دو محصول واقعی شکل داده‌ام: یک پلتفرم رزرو و مدیریت عملیات برای شرکت‌های اتوبوس‌رانی بین‌شهری و یک پورتال و CMS دوزبانه برای یک مؤسسه‌ی آموزشی.',
+    'این مدل کار را روی دو محصول واقعی شکل داده‌ام: یک پلتفرم فروش تکت و مدیریت عملیات برای شرکت‌های ترانسپورتی بین‌شهری و یک پورتال و CMS دوزبانه برای یک مؤسسه‌ی آموزشی.',
   ),
   tx(
     'Both are covered in full on the Work page — architecture, the decisions I made, the trade-offs I accepted and the mistakes a security review actually caught. I would rather show that thinking than describe it in adjectives.',
@@ -228,7 +228,7 @@ const processPhasesData: ProcessPhase[] = [
     ),
     decisionsAndRisks: tx(
       'There is no dedicated automated test suite on every project today — a limitation stated openly rather than implied away; critical flows (payments, bookings, auth) get the most deliberate manual scrutiny in the meantime.',
-      'برای هر پروژه هنوز مجموعه‌ی تست خودکار اختصاصی ندارم. این محدودیت را صریح می‌گویم؛ در عوض، مسیرهای حساس مثل پرداخت، رزرو و احراز هویت با دقت دستی بیشتری بررسی می‌شوند.',
+      'برای هر پروژه هنوز مجموعه‌ی تست خودکار اختصاصی ندارم. این محدودیت را صریح می‌گویم؛ در عوض، مسیرهای حساس مثل پرداخت، ثبت و احراز هویت با دقت دستی بیشتری بررسی می‌شوند.',
     ),
   },
   {

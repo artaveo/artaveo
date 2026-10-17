@@ -298,7 +298,7 @@ const servicesData: Service[] = [
       'ساخت محصول فول‌استک — رابط کاربری، API و پایگاه داده را به‌عنوان یک سیستم واحد می‌سازم؛ کار با یک Discovery Sprint شروع می‌شود.',
     ),
     forWhom: [
-      tx('A founder or business with a real product idea and unclear or evolving scope', 'یک بنیان‌گذار یا کسب‌وکار با ایده‌ی محصولی واقعی و محدوده‌ای که هنوز در حال شکل‌گیری است'),
+      tx('A founder or business with a real product idea and unclear or evolving scope', 'یک بنیان‌گذار یا کسب‌وکار با طرح محصولی واقعی و محدوده‌ای که هنوز در حال شکل‌گیری است'),
       tx('A team that needs user accounts, a database and real business logic — not just informational pages', 'تیمی که به حساب کاربری، پایگاه داده و منطق واقعی کسب‌وکار نیاز دارد — نه فقط صفحات اطلاع‌رسانی'),
     ],
     notForWhom: [
@@ -619,7 +619,7 @@ const servicesData: Service[] = [
     ),
     requirements: [
       tx('Access to the existing codebase and any current database, if one exists', 'دسترسی به کدبیس موجود و هر پایگاه داده‌ی فعلی، اگر وجود دارد'),
-      tx('Credentials or sandbox access for any third-party service that needs integrating', 'اطلاعات دسترسی یا sandbox هر سرویس شخص‌ثالثی که باید متصل شود'),
+      tx('Credentials or sandbox access for any third-party service that needs integrating', 'معلومات دسترسی یا sandbox هر سرویس شخص‌ثالثی که باید متصل شود'),
     ],
     relatedProjectSlugs: ['transportation-system', 'pazhuhesh-portal'],
     faq: [
@@ -950,22 +950,22 @@ const servicesData: Service[] = [
     ),
     forWhom: [
       tx('A live product that needs someone keeping an eye on it between larger pieces of work', 'یک محصول زنده که بین کارهای بزرگ‌تر، به کسی نیاز دارد که مراقبش باشد'),
-      tx('An owner who wants dependency and security updates to actually happen, not just get postponed', 'صاحب محصولی که می‌خواهد به‌روزرسانی‌های وابستگی و امنیت واقعاً انجام شوند، نه فقط به تعویق بیفتند'),
+      tx('An owner who wants dependency and security updates to actually happen, not just get postponed', 'صاحب محصولی که می‌خواهد به‌روزرسانی‌های وابسته‌گی و امنیت واقعاً انجام شوند، نه فقط به تعویق بیفتند'),
     ],
     notForWhom: [
       tx('A one-off, defined bug — that is Bug Fix & Rescue, without an ongoing monthly commitment', 'یک باگ یک‌باره و تعریف‌شده — آن خدمت «رفع باگ و نجات کدبیس» است، بدون تعهد ماهانه‌ی مستمر'),
     ],
     problem: tx(
       'Products that ship and then get no attention accumulate outdated dependencies, unnoticed errors and small annoyances that compound. Someone needs to actually be looking, on a schedule, not only when something breaks loudly.',
-      'محصولی که بعد از راه‌اندازی رها شود، به‌مرور با وابستگی‌های قدیمی و خطاهای دیده‌نشده روبه‌رو می‌شود. این خدمت برای بررسی منظم همین موارد است، نه فقط زمانی که چیزی خراب می‌شود.',
+      'محصولی که بعد از راه‌اندازی رها شود، به‌مرور با وابسته‌گی‌های قدیمی و خطاهای دیده‌نشده روبه‌رو می‌شود. این خدمت برای بررسی منظم همین موارد است، نه فقط زمانی که چیزی خراب می‌شود.',
     ),
     whatIDo: [
-      tx('Apply dependency and security updates on a regular schedule', 'به‌روزرسانی وابستگی‌ها و امنیت طبق یک برنامه‌ی منظم'),
+      tx('Apply dependency and security updates on a regular schedule', 'به‌روزرسانی وابسته‌گی‌ها و امنیت طبق یک برنامه‌ی منظم'),
       tx('Monitor for errors and confirm backups are actually running and restorable', 'پایش خطاها و بررسی اینکه پشتیبان‌گیری‌ها واقعاً اجرا می‌شوند و قابل‌بازیابی‌اند'),
       tx('Make the small changes that come up between larger engagements', 'انجام تغییرهای کوچکی که بین همکاری‌های بزرگ‌تر پیش می‌آیند'),
     ],
     included: [
-      tx('Dependency and security updates on a monthly cadence', 'به‌روزرسانی وابستگی‌ها و امنیت با ریتم ماهانه'),
+      tx('Dependency and security updates on a monthly cadence', 'به‌روزرسانی وابسته‌گی‌ها و امنیت با ریتم ماهانه'),
       tx('Error monitoring and a monthly health check', 'مانیتورینگ خطا و یک بررسی سلامت ماهانه'),
       tx('A pool of small-change time each month for minor fixes and content tweaks', 'مقداری زمان اختصاصی هر ماه برای اصلاح‌های جزئی و تغییرات کوچک محتوا'),
       tx('A monthly backups check — confirming a real backup exists and can be restored', 'یک بررسی ماهانه‌ی پشتیبان‌گیری — تأیید اینکه یک نسخه‌ی پشتیبان واقعی وجود دارد و قابل‌بازیابی است'),
@@ -982,7 +982,7 @@ const servicesData: Service[] = [
     process: [
       step(
         ['Onboard', 'A short audit of the current product, dependencies and backup setup before the plan starts.'],
-        ['شروع همکاری', 'یک ارزیابی کوتاه از محصول فعلی، وابستگی‌ها و وضعیت پشتیبان‌گیری، پیش از شروع برنامه.'],
+        ['شروع همکاری', 'یک ارزیابی کوتاه از محصول فعلی، وابسته‌گی‌ها و وضعیت پشتیبان‌گیری، پیش از شروع برنامه.'],
       ),
       step(
         ['Monthly cycle', 'Updates, monitoring review and the small-change work happen on a set monthly cadence.'],
@@ -1011,9 +1011,9 @@ const servicesData: Service[] = [
         id: 'starter',
         name: tx('Starter', 'استارتر'),
         summary: tx('Updates and monitoring, no small-change hours included.', 'به‌روزرسانی و مانیتورینگ، بدون سهمیه‌ی زمانی برای تغییرات کوچک.'),
-        forWhom: tx('A stable, low-change product that mainly needs someone keeping dependencies and backups healthy.', 'یک محصول پایدار و کم‌تغییر که بیشتر به نگهداری وابستگی‌ها و پشتیبان‌گیری نیاز دارد.'),
+        forWhom: tx('A stable, low-change product that mainly needs someone keeping dependencies and backups healthy.', 'یک محصول پایدار و کم‌تغییر که بیشتر به نگهداری وابسته‌گی‌ها و پشتیبان‌گیری نیاز دارد.'),
         included: [
-          tx('Dependency and security updates on a monthly cadence', 'به‌روزرسانی وابستگی‌ها و امنیت با ریتم ماهانه'),
+          tx('Dependency and security updates on a monthly cadence', 'به‌روزرسانی وابسته‌گی‌ها و امنیت با ریتم ماهانه'),
           tx('Error monitoring and a monthly health check', 'مانیتورینگ خطا و یک بررسی سلامت ماهانه'),
           tx('A monthly backups check', 'یک بررسی ماهانه‌ی پشتیبان‌گیری'),
         ],

@@ -71,6 +71,32 @@ describe('Persian text hygiene', () => {
   })
 })
 
+/**
+ * Dari, not Iranian Persian (roadmap § 16.3, owner's rule). The "avoid" column of the glossary,
+ * as whole words — a Persian letter may not come right before the match, so «قابلیت» is not
+ * «بلیت». Checked in the dictionary and in every file that holds public Dari copy.
+ */
+const IRANIAN = ['اتوبوس', 'صندلی', 'بلیت', 'دلار', 'مشاوره', 'کامپیوتر', 'اینترنت', 'اطلاعات', 'دانشجو', 'دانشگاه', 'سامانه', 'آمریکا', 'رزرو', 'ناوگان', 'ایده(?!‌آل)', 'جلو می‌', 'سادگی', 'وابستگی', 'رسیدگی']
+const IRANIAN_RE = new RegExp(`(?<![\\u0600-\\u06FF])(?:${IRANIAN.join('|')})`)
+const DARI_COPY_FILES = ['lib/about-content.ts', 'lib/contact-content.ts', 'lib/home-content.ts', 'lib/inquiry-content.ts', 'lib/legal-content.ts', 'lib/services-content.ts', 'lib/notifications/templates.ts', 'lib/notifications/consultation-templates.ts']
+
+describe('Dari vocabulary (§ 16.3)', () => {
+  it('no Iranian Persian word in the Dari dictionary', () => {
+    const bad = Object.entries(flatFa).filter(([, v]) => typeof v === 'string' && IRANIAN_RE.test(v)).map(([k, v]) => `${k}: ${v.match(IRANIAN_RE)[0]}`)
+    assert.deepEqual(bad, [])
+  })
+  it('no Iranian Persian word in the files that hold Dari copy', () => {
+    const bad = DARI_COPY_FILES.flatMap((file) =>
+      readFileSync(join(ROOT, file), 'utf8')
+        .split('\n')
+        .map((line, i) => [i + 1, line.match(IRANIAN_RE)])
+        .filter(([, m]) => m)
+        .map(([n, m]) => `${file}:${n}: ${m[0]}`),
+    )
+    assert.deepEqual(bad, [])
+  })
+})
+
 describe('the code only asks for keys that exist', () => {
   const files = []
   const walk = (dir) => {

@@ -97,10 +97,10 @@ export const timelineOptions: OptionDef<TimelineId>[] = [
  * is common and should not block the brief.
  */
 export const budgetBandOptions: OptionDef<BudgetBandId>[] = [
-  { id: 'under-1k', label: tx('Under $1,000', 'کمتر از ۱٬۰۰۰ دلار') },
-  { id: '1k-5k', label: tx('$1,000 – $5,000', '۱٬۰۰۰ تا ۵٬۰۰۰ دلار') },
-  { id: '5k-15k', label: tx('$5,000 – $15,000', '۵٬۰۰۰ تا ۱۵٬۰۰۰ دلار') },
-  { id: '15k-plus', label: tx('$15,000+', 'بیش از ۱۵٬۰۰۰ دلار') },
+  { id: 'under-1k', label: tx('Under $1,000', 'کمتر از ۱٬۰۰۰ دالر') },
+  { id: '1k-5k', label: tx('$1,000 – $5,000', '۱٬۰۰۰ تا ۵٬۰۰۰ دالر') },
+  { id: '5k-15k', label: tx('$5,000 – $15,000', '۵٬۰۰۰ تا ۱۵٬۰۰۰ دالر') },
+  { id: '15k-plus', label: tx('$15,000+', 'بیش از ۱۵٬۰۰۰ دالر') },
   { id: 'not-sure', label: tx('Not sure yet', 'هنوز مطمئن نیستم') },
 ]
 

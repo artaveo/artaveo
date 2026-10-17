@@ -34,7 +34,8 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   timeout: 45_000,
   expect: { timeout: 10_000 },
-  reporter: process.env.CI ? [['list'], ['html', { open: 'never', outputFolder: path.join(ROOT, 'playwright-report') }]] : [['list']],
+  // `github`: each failing test is also an annotation on the CI run's page (job logs are admin-only).
+  reporter: process.env.CI ? [['list'], ['github'], ['html', { open: 'never', outputFolder: path.join(ROOT, 'playwright-report') }]] : [['list']],
   globalSetup: path.join(__dirname, 'global-setup.ts'),
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,

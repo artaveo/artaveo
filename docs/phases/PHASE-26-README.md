@@ -1,7 +1,7 @@
 # Phase 26 — Live-site corrections
 
 **Status:** ✅ COMPLETE — 17 October 2026 (roadmap § 11A, revision 46).
-**Migration:** `0024_live_site_corrections.sql` — two content rows, no schema change, **applied on Neon** (`calm-breeze-36870180`, branch `main`) and checked afterwards.
+**Migrations:** `0024_live_site_corrections.sql` (two content rows) and `0025_dari_vocabulary.sql` (38 content fields) — no schema change, both **applied on Neon** (`calm-breeze-36870180`, branch `main`) and checked afterwards.
 **Goal (roadmap):** stop the live site from hurting sales while the redesign is built. Small, low-risk fixes on the current design — nothing here is redesign work.
 
 ## What was done
@@ -24,8 +24,18 @@ The exit criteria need CI green. It was not: every gate had been failing on `mai
 - **Dependency gate — a critical advisory.** Next.js 16.3.3 had a **remote-code-execution advisory in `next/og`** (GHSA-vcvr-r3jv-pc5j; this site serves `/api/og`) and an SSRF in image optimisation (GHSA-cjq9-62q9-8jv4), among others. `next` and `eslint-config-next` → **16.3.8** (released 30 September). Four transitive packages with published fixes are pinned up in `pnpm-workspace.yaml` → `overrides` (`fast-uri` ≥ 3.1.8, `source-map-js` ≥ 1.2.2, `sharp` ≥ 0.35.5, and `proxy-addr` ≥ 2.0.8 — a critical advisory in development tooling, which the gate also blocks), with a note to drop each once its parent requires the fix.
 - **Unit tests — two real findings from the Neon move.** A component (`components/home/recommendations.tsx`) imported `lib/db` directly; it now reads through `lib/recommendations.ts`, the rule the secret-inventory test enforces. The TOTP replay guard interpolated a number into a PostgREST `.or()` filter; it now goes through the new `assertSafeInteger` (`lib/postgrest.ts`), which the filter-injection test accepts.
 - **The suites run on Windows now** (the owner's machine): two static tests built paths with `\`, the i18n test read its files through a URL `pathname`, and `scripts/audit-gate.mjs` compared `import.meta.url` with a hand-built `file://` string — on Windows the gate silently did nothing and exited 0 — and started `pnpm` without the shell Windows needs for it.
+- **A red run now says why on its own page:** job logs of this repository are readable by admins only, and CI's annotations said nothing but "exit code 1". Failing unit and integration tests (`tests/support/github-annotations.mjs`, a `node:test` reporter), failing browser tests (Playwright's `github` reporter) and secret-scan findings (file, line, rule, commit — value redacted) are now annotations on the run's summary page.
 - **Two more mobile-overflow causes**, found by the 26.3 check on `/design-system`: `CodeBlock` and `Callout` (`components/ui/content.tsx`) now shrink inside a grid and wrap long words.
 - **Less data in public pages:** the `/work` grid now receives only what a card shows (`toProjectCardData`), not whole projects with their repository URLs and engineering sections; two stale admin notices ("… added in a later phase", untrue since Phase 15) removed and two admin strings without "(D-01)" / "this phase" — every page carries the whole dictionary (known issue below).
+
+### Also done — Dari vocabulary (owner's request during the phase)
+
+The owner saw Iranian words («اتوبوس‌رانی»، «صندلی»، «سامانه»…) in this phase's screenshots and asked for them to go now, not in Phase 32. Every word in the § 16.3 "avoid" column was replaced in **all public Dari copy**: `messages/fa.json`, `lib/*-content.ts`, `lib/notifications/consultation-templates.ts` and **38 database fields** (migration `0025_dari_vocabulary`, applied on Neon 17 October 2026 16:43 UTC through the HTTPS SQL endpoint; 38 rows changed; afterwards 0 of 152 content rows contain an avoid-list word).
+
+- Whole words only (a Persian letter may not precede the match), so «قابلیت» stays «قابلیت»; English is never touched (only `fa` values in the database).
+- Context first, then words: «پلتفرم رزرو» → «پلتفرم فروش تکت», «شرکت‌های اتوبوس‌رانی» → «شرکت‌های ترانسپورتی», «رزرو مشاوره» → «گرفتن وقت مشوره» (the copy § 31.4 names), «یک تماس آشنایی رایگان رزرو کن» → «برای یک تماس آشنایی رایگان وقت بگیر»; then صندلی → چوکی, بلیت → تکت, سامانه → سیستم, ناوگان → موترها, مشاوره → مشوره, اطلاعات → معلومات, ایده → طرح, دانشجو → محصل, اینترنت → انترنت, دلار → دالر, جلو می‌… → پیش می‌…, سادگی/وابستگی/رسیدگی → ساده‌گی/وابسته‌گی/رسیده‌گی.
+- **It cannot come back unnoticed:** `tests/unit/i18n.test.mjs` → *Dari vocabulary (§ 16.3)* fails on any of these words in the dictionary or in the files that hold Dari copy. Two new rows in the § 16.3 table (ناوگان, شرکت‌های اتوبوس‌رانی).
+- **Still Phase 32:** the voice (the copy still says «من» and «تو»; § 16.2 wants «آرتاویو» and «شما») and the word-by-word read of every sentence.
 
 ## Decisions
 
@@ -63,7 +73,7 @@ All on 17 October 2026, on this Windows machine, against a production build (`ne
 |---|---|
 | Typecheck (`tsc --noEmit`) | 0 errors |
 | Lint (`eslint . --max-warnings=82`) | 0 errors, 82 warnings — the existing cap, nothing new |
-| Unit tests (`scripts/test-*.mjs`, `tests/unit/*.test.mjs`) | **450 / 450** (new: Dari dates, all twelve Afghan months, Dari order, «افغانی»/«دالر», add-on prices) |
+| Unit tests (`scripts/test-*.mjs`, `tests/unit/*.test.mjs`) | **452 / 452** (new: Dari dates, all twelve Afghan months, Dari order, «افغانی»/«دالر», add-on prices, and the Dari-vocabulary check) |
 | Content placeholder check | passes |
 | Dependency gate (`scripts/audit-gate.mjs`) | **passes** — 0 blocking (was: 1 critical + 14 high in production, 1 critical in development tooling); one allowlist entry (sharp) removed as no longer needed |
 | `next build` with Next 16.3.8 | passes, 95 pages |
@@ -97,18 +107,19 @@ None beyond the known issues; each has a phase.
 ## Rollback
 
 - Code: revert the phase commit. The Next upgrade is in the same commit (`package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`).
-- Data: the `ROLLBACK:` block in `db/migrations/0024_live_site_corrections.sql`.
+- Data: the `ROLLBACK:` block in `db/migrations/0024_live_site_corrections.sql`; for `0025`, restore the branch to 17 October 2026 16:43 UTC from Neon's history (6-hour window) or a snapshot (`docs/runbooks/backup-restore.md` § 5a).
 - Backups: deleting `.github/workflows/backup.yml` stops them; nothing else depends on it.
 
 ## Files changed
 
-- New: `.github/workflows/backup.yml`, `db/migrations/0024_live_site_corrections.sql`, `scripts/backup/tables.mjs`, `docs/phases/PHASE-26-README.md`
+- New: `.github/workflows/backup.yml`, `db/migrations/0024_live_site_corrections.sql`, `db/migrations/0025_dari_vocabulary.sql`, `scripts/backup/tables.mjs`, `docs/phases/PHASE-26-README.md`
 - Deleted: `public/images/work-analytics.png`, `work-commerce.png`, `work-fintech.png`, `public/placeholder-logo.png`, `placeholder-logo.svg`, `placeholder-user.jpg`, `placeholder.jpg`, `placeholder.svg`
 - Font and formatting: `app/[locale]/layout.tsx`, `app/globals.css`, `lib/format.ts`, `lib/pricing.ts`, `components/ui/identity.tsx`, `components/services/service-addons.tsx`, `lib/consultation/time.ts` (comment)
 - Public pages: `components/work/case-study.tsx`, `case-study-media.tsx`, `project-card.tsx`, `work-grid.tsx`, `app/[locale]/work/page.tsx`, `components/home/featured-work.tsx`, `app/[locale]/page.tsx`, `components/ui/content.tsx`, `lib/site.ts`, `lib/search/build-index.ts`
 - Copy: `lib/about-content.ts`, `lib/services-content.ts`, `messages/en.json`, `messages/fa.json`, `app/[locale]/admin/(protected)/page.tsx`, `app/[locale]/admin/(protected)/content/page.tsx`
 - CI: `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.security/audit-allowlist.json`, `scripts/audit-gate.mjs`, `app/actions/admin-auth.ts`, `lib/postgrest.ts`, `lib/recommendations.ts`, `components/home/recommendations.tsx`
 - Backups: `scripts/backup/collect.mjs`, `docs/runbooks/backup-restore.md`, `docs/security.md`
+- Dari vocabulary: `messages/fa.json`, `lib/about-content.ts`, `lib/contact-content.ts`, `lib/home-content.ts`, `lib/inquiry-content.ts`, `lib/legal-content.ts`, `lib/services-content.ts`, `lib/notifications/consultation-templates.ts`
 - Tests: `tests/unit/format.test.mjs`, `pricing.test.mjs`, `i18n.test.mjs`, `observability-static.test.mjs`, `security-static.test.mjs`, `scripts/test-consultations.mjs`
 - `ROAD-MAP-ARTAVEO.md` (revision 46)
 
