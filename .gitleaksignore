@@ -1,0 +1,14 @@
+# Secret-scan findings that were reviewed and are not secrets (read by gitleaks in CI).
+# Format: <commit>:<file>:<rule>:<line> — one exact finding each, so a new secret anywhere,
+# even in the same files, still fails the scan. Reviewed 17 October 2026 (Phase 26).
+#
+# Phase 24's redaction tests feed the log scrubber fake credentials on purpose, to prove it
+# removes them: a repeated "Zk3n…" letter pattern shaped like a link token, the literal
+# "sk_live_abcdefghijk", and a sample JWT whose payload is {"sub":"1234567890"}.
+0870373fa8b2ee1a5a6804d2c4c2658fb9cf9858:tests/unit/observability-redact.test.mjs:generic-api-key:12
+0870373fa8b2ee1a5a6804d2c4c2658fb9cf9858:tests/unit/observability-redact.test.mjs:jwt:21
+0870373fa8b2ee1a5a6804d2c4c2658fb9cf9858:tests/unit/observability-redact.test.mjs:stripe-access-token:26
+0870373fa8b2ee1a5a6804d2c4c2658fb9cf9858:tests/unit/observability-core.test.mjs:generic-api-key:123
+0870373fa8b2ee1a5a6804d2c4c2658fb9cf9858:tests/integration/observability.integration.test.mjs:generic-api-key:195
+0870373fa8b2ee1a5a6804d2c4c2658fb9cf9858:tests/integration/observability.integration.test.mjs:generic-api-key:228
+0870373fa8b2ee1a5a6804d2c4c2658fb9cf9858:tests/integration/observability-routes.integration.test.mjs:generic-api-key:226

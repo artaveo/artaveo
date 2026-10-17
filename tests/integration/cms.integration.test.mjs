@@ -373,6 +373,9 @@ describe('uploads', () => {
 
     it('the daily sweep deletes unlinked files older than a day, object and row, and leaves linked and fresh ones', async () => {
       const { sweepUnlinkedInquiryFiles } = await import('../../lib/inquiry-files.ts')
+      // The app's own client, as the daily run passes it: the sweep removes the stored object
+      // through `.storage`, which the test's plain database handle (`service()`) does not have.
+      const { getDbClient } = await import('../../lib/db/server.ts')
       resetRequest(ipHeaders(9))
       const old = (await attach({ name: 'old.png' })).mediaId
       const fresh = (await attach({ name: 'fresh.png' })).mediaId
@@ -381,7 +384,7 @@ describe('uploads', () => {
       sql(`update public.inquiry_files set created_at = now() - interval '25 hours' where id in ('${old}', '${linkedOld}')`)
       sql(`update public.inquiry_files set inquiry_id = '${owner}' where id = '${linkedOld}'`)
       const oldPath = (await files(old)).storage_path
-      assert.deepEqual(await sweepUnlinkedInquiryFiles(db), { deleted: 1 })
+      assert.deepEqual(await sweepUnlinkedInquiryFiles(getDbClient()), { deleted: 1 })
       assert.equal((await db.from('inquiry_files').select('id').eq('id', old)).data.length, 0)
       assert.ok(!(await stored()).some((o) => o.key === `inquiry-files/${oldPath}`))
       assert.equal((await db.from('inquiry_files').select('id').in('id', [fresh, linkedOld])).data.length, 2)
