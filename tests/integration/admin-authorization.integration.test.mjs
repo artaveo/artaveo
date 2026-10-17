@@ -209,22 +209,12 @@ describe('two-factor (TOTP, the app\'s own — lib/admin/totp.ts)', () => {
       assert.deepEqual(await verifyMfaChallenge(codeForm(codeAt(started.secret, enrolledStep))), { ok: false, code: 'invalid-code' }, 'the enrolment code is used up')
       const fresh = codeAt(started.secret, enrolledStep + 1)
       const lastStep = sql(`select totp_last_step from public.admin_users where id = '${OWNER.id}'`)
-      const accepted = totp.verifyCode(started.secret, fresh, Number(lastStep))
-      // The action's own conditional "claim", run here with the value unchanged, to see what the database says.
-      const { getDbClient } = await import('../../lib/db/server.ts')
-      const probe = await getDbClient()
-        .from('admin_users')
-        .update({ totp_last_step: Number(lastStep) })
-        .eq('id', OWNER.id)
-        .or(`totp_last_step.is.null,totp_last_step.lt.${Number(lastStep) + 1}`)
-        .select('id')
-      const outcome = await verifyMfaChallenge(codeForm(fresh))
-      const lastAfter = sql(`select totp_last_step from public.admin_users where id = '${OWNER.id}'`)
       assert.deepEqual(
-        outcome,
+        await verifyMfaChallenge(codeForm(fresh)),
         { ok: true },
-        `next code (step ${enrolledStep + 1}) refused: stored last step ${lastStep} → ${lastAfter}, current step ${currentStep()}, verifyCode here → ${accepted}; claim probe: status ${probe.status}, rows ${probe.data?.length}, error ${JSON.stringify(probe.error)}`,
+        `next code (step ${enrolledStep + 1}) refused: stored last step ${lastStep}, current step ${currentStep()}`,
       )
+      assert.equal(sql(`select totp_last_step from public.admin_users where id = '${OWNER.id}'`), String(enrolledStep + 1), 'the accepted step is recorded')
       assert.equal(mfaSatisfied(await getAdminSession()), true)
       assert.deepEqual(await verifyMfaChallenge(codeForm(fresh)), { ok: false, code: 'invalid-code' }, 'each code works once')
 

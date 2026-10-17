@@ -176,12 +176,12 @@ describe('places that can create markup or queries', () => {
   })
   it('the JSON-LD component still escapes "<"', () => assert.match(read('components/site/json-ld.tsx'), /replace\(\/<\/g,\s*'\\\\u003c'\)/))
 
-  it('no query filter is built by interpolating a value into .or() / .filter() except through lib/postgrest.ts (a validated UUID or integer)', () => {
+  it('no query filter is built by interpolating a value into .or() / .filter() except through lib/postgrest.ts or a validated UUID', () => {
     const offenders = []
     for (const file of sources) {
       const text = read(file)
       for (const match of text.matchAll(/\.(?:or|filter)\(\s*`[^`]*\$\{([^}]*)\}[^`]*`/g)) {
-        if (!/assert(?:Uuid|SafeInteger)\(/.test(match[1])) offenders.push(`${file}: ${match[0].slice(0, 80)}`)
+        if (!/assertUuid\(/.test(match[1])) offenders.push(`${file}: ${match[0].slice(0, 80)}`)
       }
     }
     assert.deepEqual(offenders, [])

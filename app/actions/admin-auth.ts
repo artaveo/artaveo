@@ -19,7 +19,6 @@ import {
   verifyCode,
 } from '@/lib/admin/totp'
 import { getDbClient } from '@/lib/db/server'
-import { assertSafeInteger } from '@/lib/postgrest'
 import { checkRateLimit } from '@/lib/security/rate-limit'
 
 /**
@@ -186,12 +185,15 @@ export async function verifyMfaChallenge(formData: FormData): Promise<MfaChallen
 
   // Record the step first, conditionally: of two concurrent submissions of the same
   // code, only the one that moves `totp_last_step` forward gets the session upgraded.
-  const { data: claimed } = await db
-    .from('admin_users')
-    .update({ totp_last_step: step })
-    .eq('id', session.userId)
-    .or(`totp_last_step.is.null,totp_last_step.lt.${assertSafeInteger(step)}`)
-    .select('id')
+  // One plain filter, chosen by what was read — not an `.or(…)` logic tree, which the
+  // PostgREST the test stack runs (v12.2) turns into invalid SQL on an UPDATE ("column
+  // … does not exist"). An enrolled factor always has a last step: enrolling sets it.
+  const lastStep = row?.totp_last_step ?? null
+  const claim = db.from('admin_users').update({ totp_last_step: step }).eq('id', session.userId)
+  const { data: claimed } = await (lastStep === null
+    ? claim.is('totp_last_step', null)
+    : claim.lt('totp_last_step', step)
+  ).select('id')
   if (!claimed || claimed.length === 0) {
     await writeAuditLog({ actor: session.userId, action: 'admin.mfa_challenge_failed', entity: 'admin_session' })
     return { ok: false, code: 'invalid-code' }
