@@ -14,10 +14,9 @@ import { expect, msg, test } from './support'
 
 const DS2 = ['#ds2-tokens', '#ds2-type', '#ds2-glass', '#ds2-motion', '#ds2-components']
 
+/** Always drawn: the test stack's data (seed projects, services) is enough for each. */
 const COMPONENTS = [
   'glass-header',
-  'laptop-mockup',
-  'phone-mockup',
   'product-block',
   'portfolio-row',
   'service-card',
@@ -25,10 +24,26 @@ const COMPONENTS = [
   'sale-option-card',
   'after-sales',
   'cta-band',
-  'whatsapp-button',
-  'article-card',
   'brand-footer',
 ]
+
+/**
+ * Drawn only from real data, never invented: mock-ups and the article card need a
+ * project screenshot (the test stack's seed projects have none — the live site's
+ * do), the WhatsApp button needs the number set in the admin. Each must then be
+ * consistently present or absent.
+ */
+const fromData = (page: Page) =>
+  page.evaluate(() => {
+    const has = (slot: string) => document.querySelector(`[data-slot="${slot}"]`) !== null
+    return {
+      laptop: has('laptop-mockup'),
+      phone: has('phone-mockup'),
+      article: has('article-card'),
+      whatsappButton: has('whatsapp-button'),
+      whatsappLink: document.querySelector('[data-slot="cta-band"] a[href^="https://wa.me/"]') !== null,
+    }
+  })
 
 const setTheme = (page: Page, theme: 'light' | 'dark') =>
   page.evaluate((t) => {
@@ -58,6 +73,10 @@ for (const locale of ['en', 'fa'] as const) {
     await page.goto(`/${locale}/design-system`)
     await expect(page.locator('html')).toHaveAttribute('dir', locale === 'fa' ? 'rtl' : 'ltr')
     for (const slot of COMPONENTS) await expect(page.locator(`[data-slot="${slot}"]`).first(), slot).toBeAttached()
+    const data = await fromData(page)
+    expect(data.article, 'the article card shows exactly when a screenshot exists for its cover').toBe(data.laptop)
+    if (data.phone) expect(data.laptop, 'a phone only ever stands beside a laptop').toBe(true)
+    expect(data.whatsappButton, 'the WhatsApp button and the WhatsApp actions come from the same number').toBe(data.whatsappLink)
 
     for (const label of ['Phone · 375', 'Tablet · 768', 'Desktop · 1240']) {
       await page.getByRole('radio', { name: label }).click()

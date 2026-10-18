@@ -34,10 +34,15 @@ Design System 2.0 comes first: tokens (with measured contrast for each text pair
 
 ## Verification
 
-- `npm run verify`: typecheck, lint (66 warnings — at the cap, none new), content check, **548 unit tests** (54 new in `tests/unit/design-system.test.mjs`: every token pairing, glass over white and ink and its solid fallback, the blur range, the reduced-transparency and no-backdrop-filter rules, the project palette on the real colours and 5,000 random pairs, invalid colours, the mock-up choice, the type ranges and Dari line heights, the removed page fade and the reduced-motion gates).
+- `npm run verify`: typecheck, lint (66 warnings — at the cap, none new), content check, **549 unit tests** (55 new in `tests/unit/design-system.test.mjs`: every token pairing, glass over white and ink and its solid fallback, the blur range, the reduced-transparency and no-backdrop-filter rules, the project palette on the real colours and 5,000 random pairs, invalid colours, the mock-up choice, the type ranges and Dari line heights, the removed page fade and the reduced-motion gates, and class merging that knows the type scale).
 - `next build` passes.
 - In the browser (dev server, `/fa/design-system`): all components render; no element spills out of any preview at 375, 768 or 1240 px and the page has no horizontal scroll; at phone width the header shows the menu button and folds its links into it; the Services mega menu opens, Escape closes it and focus returns to its button; glass computes to `rgba(10, 12, 17, 0.74)` with an 18 px blur. Both share images were rendered and checked by eye.
 - New end-to-end suite `tests/e2e/design-system.spec.ts` (CI): every component in both languages at the three widths with no spill, axe (WCAG 2.2 AA) on the new sections in both languages and both themes, the mega menu by keyboard, the phone-width menu, glass turning solid under emulated `prefers-reduced-transparency`, the hover lift with motion allowed, no movement and no pending reveal under reduced motion, no whole-page fade on Home.
+
+## Found by CI and fixed
+
+- **tailwind-merge did not know the new type scale.** `cn()` took `text-small`, `text-body`… for text colours and dropped the real colour class next to them — axe caught the gold "Start a project" pill with light text on gold. `lib/utils.ts` now registers the six sizes as font sizes (unit-tested).
+- **The showcase test expected mock-ups the test data cannot have.** The test stack's seed projects have no screenshots, so the showcase rightly draws no laptop, phone or article card there (nothing is invented). The e2e test now requires the always-present components and checks the data-driven ones for consistency (article card ⇔ a screenshot exists; the WhatsApp button ⇔ the WhatsApp actions).
 
 ## Known issues and what is next
 

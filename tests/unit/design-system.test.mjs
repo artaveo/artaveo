@@ -26,6 +26,7 @@ import {
   worstContrast,
 } from '../../lib/design/color.ts'
 import { pickMockupImages } from '../../lib/design/mockups.ts'
+import { cn } from '../../lib/utils.ts'
 
 const css = readFileSync(new URL('../../app/globals.css', import.meta.url), 'utf8')
 
@@ -262,5 +263,13 @@ describe('motion (28.4)', () => {
   it('reveals and menus stay at or under 300 ms', () => {
     assert.match(css, /--animate-menu-in: menu-in 150ms/)
     for (const ms of css.slice(css.indexOf("[data-reveal='shown']")).match(/(\d+)ms/g).slice(0, 2)) assert.ok(Number.parseInt(ms) <= 300)
+  })
+})
+
+describe('class merging knows the type scale', () => {
+  it('a type-scale size never removes a text colour, and replaces an older size', () => {
+    assert.equal(cn('bg-gold text-gold-foreground', 'text-small'), 'bg-gold text-gold-foreground text-small')
+    assert.equal(cn('text-small font-bold', 'text-gold'), 'text-small font-bold text-gold')
+    assert.equal(cn('text-sm', 'text-body'), 'text-body')
   })
 })
