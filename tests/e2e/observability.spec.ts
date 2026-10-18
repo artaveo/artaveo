@@ -94,7 +94,7 @@ test.describe('the owner’s Observability page', () => {
       await expect(page.getByText('inquiry.persist_failed').first()).toBeVisible()
       await expect(page.getByText('inquiry.submitted').first()).toBeVisible()
       await expect(page.getByText(msg(locale, 'Admin.obsFunnelTitle'))).toBeVisible()
-      await expect(page.getByText(msg(locale, 'Admin.obsHealthTitle'))).toBeVisible()
+      await expect(page.getByText(msg(locale, 'Admin.obsHealthTitle'), { exact: true })).toBeVisible()
       // No missing translation, no raw ICU, no undefined anywhere on the page.
       const text = await page.locator('main').innerText()
       expect(text).not.toMatch(/MISSING_MESSAGE|\bundefined\b|\[object Object\]|obs[A-Z]\w+|\{count\}|\{ms\}/)
