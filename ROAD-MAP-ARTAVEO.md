@@ -1450,7 +1450,7 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 
 ## Phase 29 — Shell & Home rebuild  ⬜
 
-- **29.1 Header and navigation:** Products · Services · Work · About + *Start a Project*; Products and Services as mega menus; search as an icon (no "⌘K" text); language switch; mobile menu; floating WhatsApp button; footer per § 14.1.
+- **29.1 Header and navigation:** Products · Services · Work · About + *Start a Project*; Products and Services as mega menus; search as an icon (no "⌘K" text); language switch; mobile menu; floating WhatsApp button; footer per § 14.1. **WhatsApp icon (owner, 18 October 2026):** the floating button and every WhatsApp action must show the real WhatsApp glyph (the phone in a speech bubble, from WhatsApp's own brand resources, used as their guidelines allow), not a generic chat bubble coloured green — Phase 28's `FloatingWhatsAppButton` and `CtaBand` use lucide's `MessageCircle` as a stand-in; swap it for an inline SVG in one shared `WhatsAppIcon` component.
 - **29.2 Home** (≈ 7 sections, each hidden when empty): hero with real product mock-ups and two actions (*Start a Project*, *See products*); platforms strip; products — **one separate block per product**; work — one row per project; services; process in four steps; CTA band. Removed: Capability Strip, Tech Stack, "one developer" Why section, About preview's technical focus, Insights preview (returns with Phase 33 if wanted).
 - **29.3 Themes:** dark bands (hero, products, CTA, footer) stay ink in both themes; content panels warm light.
 

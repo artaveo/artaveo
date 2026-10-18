@@ -37,7 +37,7 @@ export function CtaBand({
     <div
       data-slot="cta-band"
       className={cn(
-        '@container relative mx-auto max-w-[77.5rem] overflow-hidden rounded-panel border border-ink-line bg-ink-raised bg-[radial-gradient(60%_90%_at_50%_0%,rgb(226_182_92/0.24),transparent_70%)] text-ink-foreground',
+        '@container relative mx-auto w-full max-w-[77.5rem] overflow-hidden rounded-panel border border-ink-line bg-ink-raised bg-[radial-gradient(60%_90%_at_50%_0%,rgb(226_182_92/0.24),transparent_70%)] text-ink-foreground',
         compact ? 'flex flex-wrap items-center justify-between gap-5 px-5 py-7 @2xl:px-8 @2xl:py-8' : 'px-6 py-14 text-center @3xl:px-8 @3xl:py-16',
       )}
     >

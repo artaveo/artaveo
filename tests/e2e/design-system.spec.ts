@@ -84,6 +84,9 @@ for (const locale of ['en', 'fa'] as const) {
       expect(await spill(page), `nothing spills out of a preview at ${label}`).toEqual([])
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+    // At desktop width each CTA band spans its band — it once shrank to a one-word-wide column.
+    const narrowest = await page.evaluate(() => Math.min(...[...document.querySelectorAll<HTMLElement>('[data-slot="cta-band"]')].map((el) => el.getBoundingClientRect().width)))
+    expect(narrowest).toBeGreaterThan(600)
   })
 
   for (const theme of ['light', 'dark'] as const) {

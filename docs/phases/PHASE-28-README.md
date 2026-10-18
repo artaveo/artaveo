@@ -45,6 +45,8 @@ Design System 2.0 comes first: tokens (with measured contrast for each text pair
 
 - **tailwind-merge did not know the new type scale.** `cn()` took `text-small`, `text-body`… for text colours and dropped the real colour class next to them — axe caught the gold "Start a project" pill with light text on gold. `lib/utils.ts` now registers the six sizes as font sizes (unit-tested).
 - **The showcase test expected mock-ups the test data cannot have.** The test stack's seed projects have no screenshots, so the showcase rightly draws no laptop, phone or article card there (nothing is invented). The e2e test now requires the always-present components and checks the data-driven ones for consistency (article card ⇔ a screenshot exists; the WhatsApp button ⇔ the WhatsApp actions).
+- **The compact CTA band shrank to a one-word-wide column on wide screens** (found by the owner): centred with `mx-auto` in a flex column and no width of its own. It now takes the full width (`w-full`, capped at 1240 px); the e2e test checks every CTA band is wider than 600 px at desktop width.
+- **The WhatsApp icon is a generic green chat bubble** (owner): noted for 29.1 — the real WhatsApp glyph in one shared component.
 - **The compact CTA band ran off a phone screen in English.** "Chat on WhatsApp" could not wrap at 375 px; the band now has less side padding on narrow widths and its pills may take two lines.
 
 ## Known issues and what is next
