@@ -1480,6 +1480,7 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 - **32.2** Rewrite Dari word by word with § 16.3 (research unclear words in Afghan sources — do not ask the owner); write English separately to native quality (D-15).
 - **32.3** Extend `npm run check:content` to fail on banned patterns in public copy: "§", roadmap phase numbers, the § 16.3 "avoid" list, backend vocabulary from § 16.1.
 - **32.4** The owner reads `/fa` end to end as a native reader; corrections applied.
+- **32.5 Project texts in the database (owner, 18 October 2026).** Rewrite every project's title line, summary, outcome line and features in both languages (`projects` rows, edited through the admin or a migration). Known example — Pezhohesh Portal: «پورتالی دوزبانه برای یک جامعه‌ی محصلان … از طریق یک CMS اختصاصی توسط کارکنان غیرتوسعه‌دهنده هم قابل مدیریت است» → no «دوزبانه», no «CMS», no «غیرتوسعه‌دهنده»; e.g. «وب‌سایت و پنل مدیریت یک مرکز آموزشی: سالن مطالعه، مشوره‌ی تحصیلی، بورسیه‌ها و دستاوردهای محصلان. کارمندان مرکز همه‌چیز را خودشان به‌روز می‌کنند.» (the design sample's line). Same check for every other project and for the English texts ("bilingual", "CMS", "non-developer staff"). 32.3's content check also scans these database fields for «دوزبانه» / "bilingual" in titles and summaries.
 
 **Exit criteria:** zero § 16.1 violations; the glossary enforced by the content check; owner's read-through done.
 
@@ -1683,7 +1684,7 @@ Every public sentence must answer one of four customer questions — *What is th
 2. **Not even dressed as a benefit.** ✗ «هیچ چوکی‌ای دو بار فروخته نمی‌شود» ✓ «مسافر تکتش را آنلاین می‌گیرد و چوکی‌اش را خودش انتخاب می‌کند». ✗ "Row-Level Security with server-side checks" ✓ (say nothing, or) «دسترسی هر بخش جداست».
 3. **No technology names or jargon** in customer copy: React, Next.js, Supabase, Neon, PostgreSQL, CMS, API, MVP, PWA, RTL, SEO terms (sitemap, robots.txt), WCAG, Core Web Vitals, schema, migration, endpoint.
 4. **Capabilities are never inferred from the existing projects** (D-18). Projects are examples, not the limit.
-5. **No number that makes Artaveo look small:** «چندزبانه», not «دوزبانه (دری/انگلیسی)»; «روی موبایل، تبلت و کمپیوتر», not «پنج بازه‌ی واکنش‌گرا».
+5. **No number that makes Artaveo look small:** «چندزبانه», not «دوزبانه (دری/انگلیسی)»; «روی موبایل، تبلت و کمپیوتر», not «پنج بازه‌ی واکنش‌گرا». **Owner, 18 October 2026: languages are never the headline.** A project is not «پورتال دوزبانه» / "bilingual portal"; say what it does for its users. Languages may appear at most as one feature among others, never in a title, a summary or a first sentence.
 6. **Nothing internal:** limitations, bugs, debt, missing tests or CI, team size, "in development", repositories, roadmap sections or phase numbers, claims-ledger language.
 7. **No defensive tone:** no «…، نه …» contrasts, «نه با حدس», «صادقانه», «فقط تعهدهایی که واقعاً می‌توانم».
 8. **Short and benefit-first.** One idea per sentence; headings ≤ 8 words; cards ≤ 2 lines.
