@@ -1459,7 +1459,7 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 ## Phase 30 — Products & Work pages  ⬜
 
 - **30.1** `/products` (hidden from the nav until one product is published) and `/products/[slug]`: hero with mock-ups, features by role, screens with one-line captions, who it is for, **ways to get it** (the published sale options from 27.3, as cards; the highlighted one marked), after-sales services, FAQ, demo and purchase requests.
-- **30.2** `/work` (large two-column cards or rows; filters only from six projects) and `/work/[slug]` built from 27.2's blocks, visuals first; link to the product page when `is_product`.
+- **30.2** `/work`: **one project per row, full width, each in its own colour** — Phase 28's `PortfolioList` / `PortfolioRow` (owner, 18 October 2026: not two-column cards); laptop and phone mock-ups, never the old browser frame with an address bar; industry and platforms instead of technical labels such as «پلتفرم فول‌استک»; filters only from six projects. `/work/[slug]` built from 27.2's blocks, visuals first; link to the product page when `is_product`. Home's portfolio (29.2) uses the same rows.
 - **30.3** Purchase and demo requests → 27.5's inquiry types → pipeline + notifications; success only after persistence.
 - **30.4** Sitemap, metadata, structured data (`Product` / `Offer` for priced options), redirects for any changed URL.
 
