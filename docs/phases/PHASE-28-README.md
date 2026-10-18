@@ -39,6 +39,8 @@ Design System 2.0 comes first: tokens (with measured contrast for each text pair
 - In the browser (dev server, `/fa/design-system`): all components render; no element spills out of any preview at 375, 768 or 1240 px and the page has no horizontal scroll; at phone width the header shows the menu button and folds its links into it; the Services mega menu opens, Escape closes it and focus returns to its button; glass computes to `rgba(10, 12, 17, 0.74)` with an 18 px blur. Both share images were rendered and checked by eye.
 - New end-to-end suite `tests/e2e/design-system.spec.ts` (CI): every component in both languages at the three widths with no spill, axe (WCAG 2.2 AA) on the new sections in both languages and both themes, the mega menu by keyboard, the phone-width menu, glass turning solid under emulated `prefers-reduced-transparency`, the hover lift with motion allowed, no movement and no pending reveal under reduced motion, no whole-page fade on Home.
 
+**CI run 39127664210 is green on every gate** (249 end-to-end and accessibility tests, the new showcase suite included).
+
 ## Found by CI and fixed
 
 - **tailwind-merge did not know the new type scale.** `cn()` took `text-small`, `text-body`… for text colours and dropped the real colour class next to them — axe caught the gold "Start a project" pill with light text on gold. `lib/utils.ts` now registers the six sizes as font sizes (unit-tested).
