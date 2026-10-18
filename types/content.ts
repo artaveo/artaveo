@@ -83,6 +83,12 @@ export type ProjectMediaItem = {
   height?: number
 }
 
+/**
+ * Groups a technology can be filed under (`technologies.category`, free text in
+ * the table since 0003; the admin offers this list since Phase 27).
+ */
+export const TECHNOLOGY_CATEGORIES = ['frontend', 'backend', 'database', 'mobile', 'desktop', 'infrastructure', 'other'] as const
+
 /** Kinds of software a project runs as (`projects.platforms`, migration 0026). */
 export type ProjectPlatform = 'web' | 'android' | 'ios' | 'windows' | 'mac' | 'offline'
 

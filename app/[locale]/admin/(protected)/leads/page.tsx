@@ -18,6 +18,7 @@ import { computeSlaFromFirstResponse, getFirstResponseTimes, getResponseCommitme
 import { formatDate } from '@/lib/format'
 import type { Locale } from '@/types/content'
 import { INQUIRY_KIND_LABEL } from '@/components/admin/pipeline/product-request-card'
+import { listServicesAdmin } from '@/lib/admin/content'
 import type { InquiryPriority, InquiryStage } from '@/types/pipeline'
 
 export async function generateMetadata({
@@ -68,7 +69,12 @@ export default async function LeadsPage({
   const page = Math.max(1, Number(firstValue(sp.page)) || 1)
 
   const filters = { stage, priority, tag, q, page, pageSize: PAGE_SIZE }
-  const [result, commitment] = await Promise.all([listInquiries(filters), getResponseCommitment()])
+  const [result, commitment, services] = await Promise.all([listInquiries(filters), getResponseCommitment(), listServicesAdmin()])
+  // The service's name, not its address (owner's review).
+  const serviceTitle = (slug: string) => {
+    const service = (services ?? []).find((s) => s.slug === slug)
+    return service ? service.title[locale as Locale] || service.title.en : slug
+  }
 
   if (result === null) {
     return (
@@ -88,6 +94,7 @@ export default async function LeadsPage({
         <div>
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{t('leadsEyebrow')}</p>
           <h1 className="mt-1 text-xl font-semibold tracking-tight">{t('leadsTitle')}</h1>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{t('leadsNote')}</p>
         </div>
         <CsvExportButton filters={{ stage, priority, tag, q }} />
       </div>
@@ -136,11 +143,11 @@ export default async function LeadsPage({
                     </TableCell>
                     <TableCell label={t('tableColumnService')}>
                       {inquiry.kind === 'project' ? (
-                        (inquiry.serviceSlug ?? '—')
+                        (inquiry.serviceSlug ? serviceTitle(inquiry.serviceSlug) : '—')
                       ) : (
                         <span className="flex flex-col items-start gap-1">
                           <Badge variant="brand-soft">{t(INQUIRY_KIND_LABEL[inquiry.kind])}</Badge>
-                          {inquiry.productSnapshot ? <span className="text-xs">{inquiry.productSnapshot.product.title.en || inquiry.productSnapshot.product.slug}</span> : null}
+                          {inquiry.productSnapshot ? <span className="text-xs">{inquiry.productSnapshot.product.title[locale as Locale] || inquiry.productSnapshot.product.title.en}</span> : null}
                         </span>
                       )}
                     </TableCell>

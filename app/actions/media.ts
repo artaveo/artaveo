@@ -28,6 +28,16 @@ export type MediaUploadResult =
   | { ok: false; code: 'forbidden' | 'not-configured' | 'invalid-type' | 'too-large' | 'missing-alt' | 'error' }
   | { ok: true; id: string; url: string }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/** A project id from the client → that id if the project exists, `null` for none, `'invalid'` otherwise. */
+async function existingProjectId(db: NonNullable<ReturnType<typeof requireDb>>, value: unknown): Promise<string | null | 'invalid'> {
+  if (value === null || value === undefined || value === '') return null
+  if (typeof value !== 'string' || !UUID.test(value)) return 'invalid'
+  const { data } = await db.from('projects').select('id').eq('id', value).maybeSingle()
+  return data ? value : 'invalid'
+}
+
 async function requireEditorSession(): Promise<{ userId: string } | { code: 'forbidden' }> {
   const session = await getAdminSession()
   if (!session || !mfaSatisfied(session)) return { code: 'forbidden' }
@@ -70,6 +80,12 @@ export async function uploadMedia(formData: FormData): Promise<MediaUploadResult
 
   const focalX = clampFocal(Number(formData.get('focalX') ?? 0.5))
   const focalY = clampFocal(Number(formData.get('focalY') ?? 0.5))
+  // Phase 27: an image uploaded from a project's editor belongs to that project.
+  const projectId = await existingProjectId(db, formData.get('projectId'))
+  if (projectId === 'invalid') {
+    await db.storage.from(MEDIA_BUCKET).remove([path])
+    return { ok: false, code: 'error' }
+  }
 
   const { data: inserted, error: insertError } = await db
     .from('media_assets')
@@ -82,6 +98,7 @@ export async function uploadMedia(formData: FormData): Promise<MediaUploadResult
       height: inspection.height,
       focal_x: focalX,
       focal_y: focalY,
+      project_id: projectId,
     })
     .select('id')
     .single()
@@ -104,14 +121,18 @@ export async function updateMediaAlt(id: string, input: MediaAltInput): Promise<
   const db = requireDb()
   if (!db) return { ok: false, code: 'not-configured' }
 
-  const { error } = await db
-    .from('media_assets')
-    .update({
-      alt: { en: input.alt.en.trim(), fa: input.alt.fa.trim() },
-      focal_x: clampFocal(input.focalX),
-      focal_y: clampFocal(input.focalY),
-    })
-    .eq('id', id)
+  const update: Record<string, unknown> = {
+    alt: { en: input.alt.en.trim(), fa: input.alt.fa.trim() },
+    focal_x: clampFocal(input.focalX),
+    focal_y: clampFocal(input.focalY),
+  }
+  if (input.projectId !== undefined) {
+    const projectId = await existingProjectId(db, input.projectId)
+    if (projectId === 'invalid') return { ok: false, code: 'error' }
+    update.project_id = projectId
+  }
+
+  const { error } = await db.from('media_assets').update(update).eq('id', id)
   if (error) return { ok: false, code: 'error' }
 
   await writeAuditLog({ actor: auth.userId, action: 'content.media_updated', entity: 'media_asset', entityId: id })

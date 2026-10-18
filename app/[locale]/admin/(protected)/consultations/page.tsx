@@ -82,6 +82,7 @@ export default async function ConsultationsPage({
       <div>
         <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{t('consultationsEyebrow')}</p>
         <h1 className="mt-1 text-xl font-semibold tracking-tight">{t('consultationsTitle')}</h1>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{t('consultationsNote')}</p>
       </div>
 
       {awaiting ? <FormMessage variant="info">{t('consultationsAwaitingBanner', { count: awaiting })}</FormMessage> : null}

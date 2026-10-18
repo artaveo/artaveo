@@ -55,6 +55,7 @@ export default async function EngagementModelsListPage({
         <div>
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{t('cmsEngagementModelsEyebrow')}</p>
           <h1 className="mt-1 text-xl font-semibold tracking-tight">{t('cmsEngagementModelsTitle')}</h1>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{t('cmsEngagementModelsNote')}</p>
         </div>
         <Button size="sm" render={<Link href="/admin/content/engagement-models/new" />}>
           {t('cmsNewEngagementModel')}

@@ -27,6 +27,7 @@ import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
 import { ChildRowControls, moved } from '@/components/admin/content/child-row-controls'
 import { LocalizedListField, LocalizedTextareaField, LocalizedTextField, emptyLocalized } from '@/components/admin/content/localized-fields'
+import { PRODUCT_EXAMPLES as EX } from '@/components/admin/content/field-examples'
 import { SALE_OPTION_KINDS, type BillingPeriod, type LocalizedText, type Money, type SaleOptionKind } from '@/types/content'
 import type { AdminProductService, AdminSaleOption, ProductServiceInput, SaleOptionInput } from '@/types/cms'
 
@@ -179,10 +180,10 @@ function SaleOptionCard({ projectId, option, index, ids }: { projectId: string; 
           </Field>
           <PeriodSelect id={`${id}-period`} label={t('cmsFieldBillingPeriod')} value={form.billingPeriod} disabled={pending} onChange={(billingPeriod) => set({ billingPeriod })} />
         </div>
-        <LocalizedTextField id={`${id}-title`} label={t('cmsFieldTitle')} value={form.title} disabled={pending} required onChange={(title) => set({ title })} />
-        <LocalizedTextareaField id={`${id}-summary`} label={t('cmsFieldSaleOptionSummary')} value={form.summary ?? emptyLocalized()} rows={2} disabled={pending} onChange={(summary) => set({ summary: summary.en || summary.fa ? summary : null })} />
+        <LocalizedTextField id={`${id}-title`} label={t('cmsFieldTitle')} value={form.title} disabled={pending} required onChange={(title) => set({ title })} example={EX.optionTitle} hint={t('cmsHintOptionTitle')} />
+        <LocalizedTextareaField id={`${id}-summary`} label={t('cmsFieldSaleOptionSummary')} value={form.summary ?? emptyLocalized()} rows={2} disabled={pending} onChange={(summary) => set({ summary: summary.en || summary.fa ? summary : null })} example={EX.optionSummary} />
         <MoneyFields idPrefix={`${id}-price`} value={form.price} disabled={pending} onChange={(price) => set({ price })} />
-        <LocalizedListField id={`${id}-included`} label={t('cmsFieldIncluded')} items={form.included} disabled={pending} onChange={(included) => set({ included })} addLabel={t('cmsAddItem')} />
+        <LocalizedListField id={`${id}-included`} label={t('cmsFieldIncluded')} items={form.included} disabled={pending} onChange={(included) => set({ included })} addLabel={t('cmsAddItem')} example={EX.included} hint={t('cmsHintIncluded')} />
 
         <div className="grid gap-3 sm:grid-cols-2">
           <Field>
@@ -266,7 +267,7 @@ function NewSaleOption({ projectId }: { projectId: string }) {
             ))}
           </NativeSelect>
         </Field>
-        <LocalizedTextField id="new-option-title" label={t('cmsFieldTitle')} value={title} disabled={pending} required onChange={setTitle} />
+        <LocalizedTextField id="new-option-title" label={t('cmsFieldTitle')} value={title} disabled={pending} required onChange={setTitle} example={EX.optionTitle} />
         {error ? <FormMessage variant="destructive">{error}</FormMessage> : null}
         <Button
           type="button"
@@ -326,8 +327,8 @@ function ProductServiceCard({ projectId, service, index, ids }: { projectId: str
             if (window.confirm(t('cmsConfirmDelete'))) void run(() => deleteProductService(service.id, projectId))
           }}
         />
-        <LocalizedTextField id={`${id}-title`} label={t('cmsFieldTitle')} value={form.title} disabled={pending} required onChange={(title) => setForm({ ...form, title })} />
-        <LocalizedTextareaField id={`${id}-description`} label={t('cmsFieldDescription')} value={form.description ?? emptyLocalized()} rows={2} disabled={pending} onChange={(description) => setForm({ ...form, description: description.en || description.fa ? description : null })} />
+        <LocalizedTextField id={`${id}-title`} label={t('cmsFieldTitle')} value={form.title} disabled={pending} required onChange={(title) => setForm({ ...form, title })} example={EX.serviceTitle} />
+        <LocalizedTextareaField id={`${id}-description`} label={t('cmsFieldDescription')} value={form.description ?? emptyLocalized()} rows={2} disabled={pending} onChange={(description) => setForm({ ...form, description: description.en || description.fa ? description : null })} example={EX.serviceDescription} />
         <MoneyFields idPrefix={`${id}-price`} value={form.price} disabled={pending} onChange={(price) => setForm({ ...form, price })} />
         <PeriodSelect id={`${id}-period`} label={t('cmsFieldBillingPeriod')} value={form.period} disabled={pending} onChange={(period) => setForm({ ...form, period })} />
         {error ? <FormMessage variant="destructive">{error}</FormMessage> : null}
@@ -348,7 +349,7 @@ function NewProductService({ projectId }: { projectId: string }) {
       <CardContent className="flex flex-col gap-3 pt-6">
         <p className="text-sm font-medium text-foreground">{t('cmsAddProductService')}</p>
         <FieldDescription>{t('cmsProductServiceHint')}</FieldDescription>
-        <LocalizedTextField id="new-product-service-title" label={t('cmsFieldTitle')} value={title} disabled={pending} required onChange={setTitle} />
+        <LocalizedTextField id="new-product-service-title" label={t('cmsFieldTitle')} value={title} disabled={pending} required onChange={setTitle} example={EX.serviceTitle} />
         {error ? <FormMessage variant="destructive">{error}</FormMessage> : null}
         <Button
           type="button"

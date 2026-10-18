@@ -59,6 +59,7 @@ export default async function AdminDashboardPage({
           {t('dashboardEyebrow')}
         </p>
         <h1 className="mt-1 text-xl font-semibold tracking-tight">{t('dashboardTitle')}</h1>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{t('dashboardNote')}</p>
       </div>
 
       <Card>

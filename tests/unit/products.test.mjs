@@ -190,3 +190,30 @@ describe('inquiries (27.5)', () => {
     assert.deepEqual(validateProductRequest(null), { form: 'required' })
   })
 })
+
+describe('owner review (18 October 2026): addresses and image filtering', async () => {
+  const { toSlug, toSlugWhileTyping } = await import('../../lib/slug.ts')
+  const { filterMedia, countByProject } = await import('../../lib/media-filter.ts')
+
+  it('a page address can be typed freely: "Windows Application" becomes windows-application', () => {
+    assert.equal(toSlug('Windows Application'), 'windows-application')
+    assert.equal(toSlug('  Artaveo Dental!! '), 'artaveo-dental')
+    assert.equal(toSlug('Café_Menu  2026'), 'cafe-menu-2026')
+    assert.equal(toSlug('آرتاویو'), '', 'a Persian-only title gives no address — the owner types one')
+    assert.equal(toSlugWhileTyping('windows '), 'windows-', 'a trailing dash survives while typing, so the next word can follow')
+  })
+
+  it('images: one project, the unassigned ones, or all — and a search over alt text and file name', () => {
+    const assets = [
+      { id: '1', url: '/media/seat-map.png', alt: { en: 'Seat map', fa: 'نقشه‌ی چوکی' }, projectId: 'p1', createdAt: '' },
+      { id: '2', url: '/media/dashboard.png', alt: { en: 'Admin dashboard', fa: 'داشبورد' }, projectId: 'p2', createdAt: '' },
+      { id: '3', url: '/media/logo.svg', alt: null, projectId: null, createdAt: '' },
+    ]
+    assert.deepEqual(filterMedia(assets, 'p1', '').map((a) => a.id), ['1'])
+    assert.deepEqual(filterMedia(assets, 'none', '').map((a) => a.id), ['3'])
+    assert.deepEqual(filterMedia(assets, 'all', 'چوکی').map((a) => a.id), ['1'])
+    assert.deepEqual(filterMedia(assets, 'all', 'LOGO').map((a) => a.id), ['3'], 'file name, case-insensitive')
+    assert.deepEqual(filterMedia(assets, 'all', 'admin board').map((a) => a.id), ['2'], 'every word must appear')
+    assert.deepEqual(Object.fromEntries(countByProject(assets)), { p1: 1, p2: 1, none: 1 })
+  })
+})

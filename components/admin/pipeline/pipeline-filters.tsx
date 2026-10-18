@@ -70,7 +70,7 @@ export function PipelineFiltersBar({
           onValueChange={(value) => push({ stage: !value || value === NONE ? undefined : value })}
         >
           <SelectTrigger id="filter-stage" size="sm">
-            <SelectValue placeholder={t('filterStageAll')} />
+            <SelectValue>{stage ? t(stageLabelKey(stage)) : t('filterStageAll')}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
@@ -92,7 +92,7 @@ export function PipelineFiltersBar({
           onValueChange={(value) => push({ priority: !value || value === NONE ? undefined : value })}
         >
           <SelectTrigger id="filter-priority" size="sm">
-            <SelectValue placeholder={t('filterPriorityAll')} />
+            <SelectValue>{priority ? t(PRIORITY_KEY[priority]) : t('filterPriorityAll')}</SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>

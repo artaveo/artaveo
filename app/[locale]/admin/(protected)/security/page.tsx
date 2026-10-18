@@ -42,6 +42,7 @@ export default async function AdminSecurityPage({
       <div>
         <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{t('securityEyebrow')}</p>
         <h1 className="mt-1 text-xl font-semibold tracking-tight">{t('securityTitle')}</h1>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{t('securityNote')}</p>
       </div>
 
       <FormMessage variant="info">{t('mfaOptionalNotice')}</FormMessage>

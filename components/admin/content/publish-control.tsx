@@ -63,6 +63,7 @@ export function PublishControl({
             </span>
             <CompletenessBadges completeness={completeness} />
           </div>
+          <p className="max-w-md text-xs text-muted-foreground">{t('cmsCompletenessHint')}</p>
           {error ? <FormMessage variant="destructive">{error}</FormMessage> : null}
         </div>
         <div className="flex items-center gap-2">

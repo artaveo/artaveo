@@ -11,7 +11,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldLabel, FormMessage } from '@/components/ui/form-controls'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { LocalizedTextField, emptyLocalized } from '@/components/admin/content/localized-fields'
-import type { AdminMediaAsset, AdminProjectMediaItem } from '@/types/cms'
+import { MediaPicker } from '@/components/admin/content/media-picker'
+import { BLOCK_EXAMPLES } from '@/components/admin/content/field-examples'
+import type { AdminMediaAsset, AdminProjectMediaItem, MediaProjectOption } from '@/types/cms'
 
 const KINDS: Array<'desktop' | 'mobile' | 'diagram'> = ['desktop', 'mobile', 'diagram']
 
@@ -28,15 +30,17 @@ export function ProjectMediaEditor({
   projectSlug,
   items,
   library,
+  projects,
 }: {
   projectId: string
   projectSlug: string | null
   items: AdminProjectMediaItem[]
   library: AdminMediaAsset[]
+  projects: MediaProjectOption[]
 }) {
   const t = useTranslations('Admin')
   const router = useRouter()
-  const [mediaId, setMediaId] = useState(library[0]?.id ?? '')
+  const [mediaId, setMediaId] = useState('')
   const [kind, setKind] = useState<'desktop' | 'mobile' | 'diagram'>('desktop')
   const [caption, setCaption] = useState(emptyLocalized())
   const [pending, setPending] = useState(false)
@@ -53,6 +57,7 @@ export function ProjectMediaEditor({
       return
     }
     setCaption(emptyLocalized())
+    setMediaId('')
     setPending(false)
     router.refresh()
   }
@@ -91,27 +96,18 @@ export function ProjectMediaEditor({
       <Card>
         <CardContent className="flex flex-col gap-3 pt-6">
           <p className="text-sm font-medium text-foreground">{t('cmsAddProjectMedia')}</p>
-          {library.length === 0 ? (
-            <FormMessage variant="info">{t('cmsProjectMediaNoLibrary')}</FormMessage>
-          ) : (
-            <>
-              <Field>
-                <FieldLabel htmlFor="pm-asset">{t('cmsFieldMediaAsset')}</FieldLabel>
-                <Select value={mediaId} onValueChange={(v) => v && setMediaId(v)} disabled={pending}>
-                  <SelectTrigger id="pm-asset">
-                    <SelectValue>{library.find((a) => a.id === mediaId)?.alt?.en || mediaId}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {library.map((asset) => (
-                        <SelectItem key={asset.id} value={asset.id}>
-                          {asset.alt?.en || asset.url}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
+          <>
+              <MediaPicker
+                id="pm-asset"
+                label={t('cmsFieldMediaAsset')}
+                value={mediaId || null}
+                library={library}
+                projects={projects}
+                currentProjectId={projectId}
+                allowNone={false}
+                disabled={pending}
+                onChange={(next) => setMediaId(next ?? '')}
+              />
               <Field>
                 <FieldLabel htmlFor="pm-kind">{t('cmsFieldMediaKind')}</FieldLabel>
                 <Select value={kind} onValueChange={(v) => v && setKind(v as typeof kind)} disabled={pending}>
@@ -129,12 +125,12 @@ export function ProjectMediaEditor({
                   </SelectContent>
                 </Select>
               </Field>
-              <LocalizedTextField id="pm-caption" label={t('cmsFieldCaption')} value={caption} onChange={setCaption} disabled={pending} />
-              <Button type="button" size="sm" disabled={pending} onClick={handleAdd} className="self-start">
+              <p className="-mt-2 text-xs text-muted-foreground">{t('cmsMediaKindHint')}</p>
+              <LocalizedTextField id="pm-caption" label={t('cmsFieldCaption')} value={caption} onChange={setCaption} disabled={pending} example={BLOCK_EXAMPLES.caption} />
+              <Button type="button" size="sm" disabled={pending || !mediaId} onClick={handleAdd} className="self-start">
                 {t('cmsAddProjectMedia')}
               </Button>
-            </>
-          )}
+          </>
           {error ? <FormMessage variant="destructive">{t('errorForbidden')}</FormMessage> : null}
         </CardContent>
       </Card>

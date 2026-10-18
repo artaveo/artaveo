@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldDescription, FieldLabel, FormMessage } from '@/components/ui/form-controls'
 import { Input } from '@/components/ui/input'
-import { LocalizedListField, LocalizedTextField } from '@/components/admin/content/localized-fields'
+import { LocalizedListField, LocalizedTextareaField, LocalizedTextField } from '@/components/admin/content/localized-fields'
 import { MediaPicker } from '@/components/admin/content/media-picker'
 import { TechnologyPicker } from '@/components/admin/content/technology-picker'
+import { toSlug, toSlugWhileTyping } from '@/lib/slug'
+import { PROJECT_EXAMPLES as EX } from '@/components/admin/content/field-examples'
 import { PROJECT_PLATFORMS, type LocalizedText, type ProjectPlatform } from '@/types/content'
-import type { AdminMediaAsset, AdminProject, AdminTechnology, ProjectCoreInput } from '@/types/cms'
+import type { AdminMediaAsset, AdminProject, AdminTechnology, MediaProjectOption, ProjectCoreInput } from '@/types/cms'
 
 function toInput(project: AdminProject | undefined, technologyIds: string[]): ProjectCoreInput {
   return {
@@ -82,17 +84,21 @@ export function ProjectForm({
   technologies,
   initialTechnologyIds,
   media,
+  projects,
 }: {
   mode: 'create' | 'edit'
   project?: AdminProject
   technologies: AdminTechnology[]
   initialTechnologyIds: string[]
   media: AdminMediaAsset[]
+  projects: MediaProjectOption[]
 }) {
   const t = useTranslations('Admin')
   const tPlatform = useTranslations('Platforms')
   const router = useRouter()
   const [form, setForm] = useState<ProjectCoreInput>(() => toInput(project, initialTechnologyIds))
+  // A new project's address follows its English title until the owner edits the address itself.
+  const [slugTouched, setSlugTouched] = useState(mode === 'edit')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -109,7 +115,9 @@ export function ProjectForm({
     setPending(true)
     setError(null)
 
-    const result = mode === 'create' ? await createProject(form) : await updateProject(project!.id, form)
+    const ready = { ...form, slug: toSlug(form.slug) }
+    setForm(ready)
+    const result = mode === 'create' ? await createProject(ready) : await updateProject(project!.id, ready)
 
     if (!result.ok) {
       setError(result.code === 'duplicate-slug' ? t('cmsErrorDuplicateSlug') : result.code === 'error' ? t('cmsErrorInvalid') : t('errorForbidden'))
@@ -160,21 +168,26 @@ export function ProjectForm({
               value={form.slug}
               disabled={pending}
               required
-              pattern="[a-z0-9]+(-[a-z0-9]+)*"
-              onChange={(event) => setField('slug', event.target.value)}
+              placeholder="ticket-sales-system"
+              onChange={(event) => {
+                setSlugTouched(true)
+                setField('slug', toSlugWhileTyping(event.target.value))
+              }}
             />
+            <FieldDescription>{mode === 'edit' ? `${t('cmsHintSlug')} ${t('cmsHintSlugChange')}` : `${t('cmsHintSlug')} ${t('cmsHintSlugAuto')}`}</FieldDescription>
           </Field>
 
-          <LocalizedTextField id="project-title" label={t('cmsFieldTitle')} value={form.title} onChange={(v) => setField('title', v)} required disabled={pending} />
-          <LocalizedTextField id="project-category" label={t('cmsFieldProjectCategory')} value={form.category} onChange={(v) => setField('category', v)} required disabled={pending} />
-          <LocalizedTextField id="project-summary" label={t('cmsFieldProjectSummary')} value={form.summary} onChange={(v) => setField('summary', v)} required disabled={pending} />
-          <LocalizedTextField id="project-industry" label={t('cmsFieldIndustry')} value={form.industry ?? EMPTY} onChange={(v) => setField('industry', v.en || v.fa ? v : null)} disabled={pending} />
-          <LocalizedTextField id="project-outcome" label={t('cmsFieldOutcomeLine')} value={form.outcomeLine ?? EMPTY} onChange={(v) => setField('outcomeLine', v.en || v.fa ? v : null)} disabled={pending} />
-          <LocalizedListField id="project-features" label={t('cmsFieldFeatures')} items={form.features} onChange={(v) => setField('features', v)} disabled={pending} addLabel={t('cmsAddItem')} />
-          <LocalizedListField id="project-highlights" label={t('cmsFieldHighlights')} items={form.highlights} onChange={(v) => setField('highlights', v)} disabled={pending} addLabel={t('cmsAddItem')} />
+          <LocalizedTextField id="project-title" label={t('cmsFieldTitle')} value={form.title} onChange={(v) => setForm((current) => ({ ...current, title: v, slug: slugTouched ? current.slug : toSlug(v.en) }))} required disabled={pending} example={EX.title} hint={t('cmsHintProjectTitle')} />
+          <LocalizedTextField id="project-category" label={t('cmsFieldProjectCategory')} value={form.category} onChange={(v) => setField('category', v)} required disabled={pending} example={EX.category} hint={t('cmsHintProjectCategory')} />
+          <LocalizedTextareaField id="project-summary" label={t('cmsFieldProjectSummary')} value={form.summary} onChange={(v) => setField('summary', v)} required disabled={pending} rows={3} example={EX.summary} hint={t('cmsHintProjectSummary')} />
+          <LocalizedTextField id="project-industry" label={t('cmsFieldIndustry')} value={form.industry ?? EMPTY} onChange={(v) => setField('industry', v.en || v.fa ? v : null)} disabled={pending} example={EX.industry} hint={t('cmsHintIndustry')} />
+          <LocalizedTextField id="project-outcome" label={t('cmsFieldOutcomeLine')} value={form.outcomeLine ?? EMPTY} onChange={(v) => setField('outcomeLine', v.en || v.fa ? v : null)} disabled={pending} example={EX.outcomeLine} hint={t('cmsHintOutcomeLine')} />
+          <LocalizedListField id="project-features" label={t('cmsFieldFeatures')} items={form.features} onChange={(v) => setField('features', v)} disabled={pending} addLabel={t('cmsAddItem')} example={EX.feature} hint={t('cmsHintFeatures')} />
+          <LocalizedListField id="project-highlights" label={t('cmsFieldHighlights')} items={form.highlights} onChange={(v) => setField('highlights', v)} disabled={pending} addLabel={t('cmsAddItem')} example={EX.highlight} hint={t('cmsHintHighlights')} />
 
           <fieldset className="flex flex-col gap-2">
             <legend className="text-sm font-medium">{t('cmsFieldPlatforms')}</legend>
+            <p className="text-xs text-muted-foreground">{t('cmsHintPlatforms')}</p>
             <div className="flex flex-wrap gap-x-5 gap-y-2">
               {PROJECT_PLATFORMS.map((platform) => (
                 <label key={platform} className="flex items-center gap-2 text-sm">
@@ -189,12 +202,15 @@ export function ProjectForm({
             <ColorField id="project-brand-color" label={t('cmsFieldBrandColor')} value={form.brandColor} onChange={(v) => setField('brandColor', v)} disabled={pending} />
             <ColorField id="project-accent-color" label={t('cmsFieldAccentColor')} value={form.accentColor} onChange={(v) => setField('accentColor', v)} disabled={pending} />
           </div>
+          <p className="-mt-2 text-xs text-muted-foreground">{t('cmsHintColors')}</p>
 
           <MediaPicker
             id="project-cover"
             label={t('cmsFieldCoverImage')}
             value={form.coverMediaId}
             library={media}
+            projects={projects}
+            currentProjectId={project?.id ?? null}
             disabled={pending}
             onChange={(v) => setField('coverMediaId', v)}
             description={!form.coverMediaId && project?.legacyCoverImage ? t('cmsCoverLegacyNote', { path: project.legacyCoverImage }) : t('cmsCoverHint')}
@@ -205,15 +221,16 @@ export function ProjectForm({
           <div className="grid gap-4 sm:grid-cols-3">
             <Field>
               <FieldLabel htmlFor="project-year">{t('cmsFieldYear')}</FieldLabel>
-              <Input id="project-year" dir="ltr" value={form.year ?? ''} disabled={pending} onChange={(event) => setField('year', event.target.value || null)} />
+              <Input id="project-year" dir="ltr" value={form.year ?? ''} placeholder="2026" disabled={pending} onChange={(event) => setField('year', event.target.value || null)} />
             </Field>
             <Field>
               <FieldLabel htmlFor="project-live">{t('cmsFieldLiveUrl')}</FieldLabel>
-              <Input id="project-live" dir="ltr" type="url" value={form.liveUrl ?? ''} disabled={pending} onChange={(event) => setField('liveUrl', event.target.value || null)} />
+              <Input id="project-live" dir="ltr" type="url" value={form.liveUrl ?? ''} placeholder="https://example.com" disabled={pending} onChange={(event) => setField('liveUrl', event.target.value || null)} />
+              <FieldDescription>{t('cmsHintLiveUrl')}</FieldDescription>
             </Field>
             <Field>
               <FieldLabel htmlFor="project-related-service">{t('cmsFieldRelatedServiceSlug')}</FieldLabel>
-              <Input id="project-related-service" dir="ltr" value={form.relatedServiceSlug ?? ''} disabled={pending} onChange={(event) => setField('relatedServiceSlug', event.target.value || null)} />
+              <Input id="project-related-service" dir="ltr" value={form.relatedServiceSlug ?? ''} placeholder="business-website" disabled={pending} onChange={(event) => setField('relatedServiceSlug', event.target.value || null)} />
               <FieldDescription>{t('cmsFieldRelatedServiceHint')}</FieldDescription>
             </Field>
           </div>

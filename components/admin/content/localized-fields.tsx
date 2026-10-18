@@ -3,7 +3,7 @@
 import { Plus, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { Field, FieldLabel } from '@/components/ui/form-controls'
+import { Field, FieldDescription, FieldLabel } from '@/components/ui/form-controls'
 import { Input, Textarea } from '@/components/ui/input'
 import type { LocalizedText } from '@/types/content'
 
@@ -26,6 +26,22 @@ import type { LocalizedText } from '@/types/content'
 
 const emptyLocalized = (): LocalizedText => ({ en: '', fa: '' })
 
+/**
+ * Phase 27 — every field may carry an example (shown faintly inside the empty
+ * inputs, gone as soon as the owner types) and a one-line hint under it saying
+ * what the field is for and where it appears on the site.
+ */
+type Guidance = {
+  /** Example text per language, shown as the inputs' placeholder. */
+  example?: LocalizedText
+  /** One line under the field: what it is for and where it appears. */
+  hint?: string
+}
+
+function Hint({ text }: { text?: string }) {
+  return text ? <FieldDescription>{text}</FieldDescription> : null
+}
+
 export function LocalizedTextField({
   id,
   label,
@@ -35,7 +51,9 @@ export function LocalizedTextField({
   disabled,
   placeholderEn,
   placeholderFa,
-}: {
+  example,
+  hint,
+}: Guidance & {
   id: string
   label: string
   value: LocalizedText
@@ -57,7 +75,7 @@ export function LocalizedTextField({
           dir="ltr"
           value={value.en}
           disabled={disabled}
-          placeholder={placeholderEn ?? 'English'}
+          placeholder={placeholderEn ?? example?.en ?? 'English'}
           onChange={(event) => onChange({ ...value, en: event.target.value })}
         />
         <Input
@@ -65,10 +83,11 @@ export function LocalizedTextField({
           dir="rtl"
           value={value.fa}
           disabled={disabled}
-          placeholder={placeholderFa ?? 'فارسی'}
+          placeholder={placeholderFa ?? example?.fa ?? 'فارسی'}
           onChange={(event) => onChange({ ...value, fa: event.target.value })}
         />
       </div>
+      <Hint text={hint} />
     </Field>
   )
 }
@@ -81,7 +100,10 @@ export function LocalizedTextareaField({
   required,
   disabled,
   rows = 3,
-}: {
+  example,
+  hint,
+  stacked = false,
+}: Guidance & {
   id: string
   label: string
   value: LocalizedText
@@ -89,6 +111,8 @@ export function LocalizedTextareaField({
   required?: boolean
   disabled?: boolean
   rows?: number
+  /** One language under the other, each full width — for narrow places like a media card. */
+  stacked?: boolean
 }) {
   return (
     <Field>
@@ -96,14 +120,14 @@ export function LocalizedTextareaField({
         {label}
         {required ? <span className="text-destructive-text"> *</span> : null}
       </FieldLabel>
-      <div className="grid gap-2 sm:grid-cols-2">
+      <div className={stacked ? 'grid gap-2' : 'grid gap-2 sm:grid-cols-2'}>
         <Textarea
           id={`${id}-en`}
           dir="ltr"
           rows={rows}
           value={value.en}
           disabled={disabled}
-          placeholder="English"
+          placeholder={example?.en ?? 'English'}
           onChange={(event) => onChange({ ...value, en: event.target.value })}
         />
         <Textarea
@@ -112,10 +136,11 @@ export function LocalizedTextareaField({
           rows={rows}
           value={value.fa}
           disabled={disabled}
-          placeholder="فارسی"
+          placeholder={example?.fa ?? 'فارسی'}
           onChange={(event) => onChange({ ...value, fa: event.target.value })}
         />
       </div>
+      <Hint text={hint} />
     </Field>
   )
 }
@@ -127,7 +152,9 @@ export function LocalizedListField({
   onChange,
   disabled,
   addLabel,
-}: {
+  example,
+  hint,
+}: Guidance & {
   id: string
   label: string
   items: LocalizedText[]
@@ -157,7 +184,7 @@ export function LocalizedListField({
                 dir="ltr"
                 value={item.en}
                 disabled={disabled}
-                placeholder="English"
+                placeholder={example?.en ?? 'English'}
                 onChange={(event) => updateItem(index, { ...item, en: event.target.value })}
               />
               <Input
@@ -165,7 +192,7 @@ export function LocalizedListField({
                 dir="rtl"
                 value={item.fa}
                 disabled={disabled}
-                placeholder="فارسی"
+                placeholder={example?.fa ?? 'فارسی'}
                 onChange={(event) => updateItem(index, { ...item, fa: event.target.value })}
               />
             </div>
@@ -186,6 +213,7 @@ export function LocalizedListField({
           {addLabel}
         </Button>
       </div>
+      <Hint text={hint} />
     </Field>
   )
 }

@@ -1,4 +1,4 @@
-import { db, EDITOR, expect, OWNER, signInAsAdmin, test } from './support'
+import { db, EDITOR, expect, msg, OWNER, signInAsAdmin, test } from './support'
 
 /**
  * The owner's and the editor's real journeys through /admin (roadmap § 13–15).
@@ -69,7 +69,7 @@ test.describe('signing in', () => {
     await page.locator('#admin-password').fill(OWNER.password)
     await page.getByRole('button', { name: 'Sign in' }).click()
     await expect(page).toHaveURL(/\/en\/admin\/leads/)
-    await expect(page.getByRole('heading', { name: 'Lead pipeline' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: msg('en', 'Admin.leadsTitle') })).toBeVisible()
   })
 
   test('a wrong password shows one generic message and stays on the login page', async ({ page }) => {
@@ -111,7 +111,10 @@ test.describe('the editor', () => {
   test('sees content tools but no lead data, and cannot reach it by URL either', async ({ page }) => {
     await signInAsAdmin(page, EDITOR)
     await page.goto('/en/admin')
-    await expect(page.getByRole('link', { name: /lead/i })).toHaveCount(0)
+    // Owner-only sections are not even linked for an editor (renamed in the owner's review: Leads → Requests).
+    for (const key of ['Admin.leadsNavLink', 'Admin.consultationsNavLink', 'Admin.notifNavLink', 'Admin.obsNavLink']) {
+      await expect(page.getByRole('link', { name: msg('en', key), exact: true })).toHaveCount(0)
+    }
     await expect(page.getByRole('link', { name: /content/i }).first()).toBeVisible()
     for (const url of ['/en/admin/leads', `/en/admin/leads/${leadId}`, '/en/admin/notifications']) {
       await page.goto(url)
@@ -165,10 +168,10 @@ test.describe('the editor: publishing a project changes the public site', () => 
     expect((await request.get(`/en/work/${SLUG}`)).headers()['x-nextjs-cache'] ?? '').not.toBe('HIT')
     await signInAsAdmin(page, EDITOR)
     await page.goto(`/en/admin/content/projects/${projectId}`)
-    await expect(page.getByText('Draft', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText(msg('en', 'Admin.cmsStatusDraft'), { exact: true }).first()).toBeVisible()
 
     await page.getByRole('button', { name: 'Publish', exact: true }).click()
-    await expect(page.getByText('Published', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText(msg('en', 'Admin.cmsStatusPublished'), { exact: true }).first()).toBeVisible()
 
     for (const locale of ['en', 'fa']) {
       await expect.poll(async () => (await request.get(`/${locale}/work/${SLUG}`)).status(), { message: `${locale} case study after publish`, timeout: 15_000 }).toBe(200)
@@ -177,7 +180,7 @@ test.describe('the editor: publishing a project changes the public site', () => 
 
     await page.goto(`/en/admin/content/projects/${projectId}`)
     await page.getByRole('button', { name: 'Unpublish', exact: true }).click()
-    await expect(page.getByText('Draft', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText(msg('en', 'Admin.cmsStatusDraft'), { exact: true }).first()).toBeVisible()
     await expectWorkIndex(page, 'E2E Draft Project', false)
   })
 

@@ -43,7 +43,7 @@ import type {
 } from '@/types/cms'
 import { captureError } from '@/lib/observability/store'
 import { cleanAmount } from '@/lib/products/money'
-import { PROJECT_PLATFORMS, SERVICE_KINDS } from '@/types/content'
+import { PROJECT_PLATFORMS, SERVICE_KINDS, TECHNOLOGY_CATEGORIES } from '@/types/content'
 
 /**
  * § 15.1 Server Actions for the Services cluster (services, packages,
@@ -499,6 +499,42 @@ export async function deleteFaq(id: string, serviceId: string | null): Promise<C
   await writeAuditLog({ actor: auth.userId, action: 'content.faq_deleted', entity: serviceId ? 'service' : 'faq', entityId: serviceId ?? id })
   revalidateServiceRoutes([])
   return { ok: true }
+}
+
+// ---------------------------------------------------------------------------
+// technologies (Phase 27 — the owner adds a project's technologies without code)
+// ---------------------------------------------------------------------------
+
+export type CreateTechnologyResult =
+  | { ok: false; code: 'forbidden' | 'not-configured' | 'invalid' | 'error' }
+  | { ok: true; technology: { id: string; slug: string; name: string; category: string } }
+
+/**
+ * Adds a technology to the list a project's stack is picked from. The name is a
+ * proper noun ("Flutter", "Laravel", "SQL Server") — kept as typed, never
+ * translated; the slug is made from it, and a name that already exists returns
+ * the existing row instead of a duplicate.
+ */
+export async function createTechnology(input: { name: string; category: string }): Promise<CreateTechnologyResult> {
+  const auth = await requireEditorSession()
+  if ('code' in auth) return { ok: false, code: 'forbidden' }
+
+  const name = String(input?.name ?? '').replace(/\s+/g, ' ').trim()
+  const category = String(input?.category ?? '')
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+  if (!name || name.length > 40 || !slug || !(TECHNOLOGY_CATEGORIES as readonly string[]).includes(category)) return { ok: false, code: 'invalid' }
+
+  const db = requireDb()
+  if (!db) return { ok: false, code: 'not-configured' }
+
+  const { data: existing } = await db.from('technologies').select('id, slug, name, category').eq('slug', slug).maybeSingle()
+  if (existing) return { ok: true, technology: existing as { id: string; slug: string; name: string; category: string } }
+
+  const { data, error } = await db.from('technologies').insert({ slug, name, category, learning: false }).select('id, slug, name, category').single()
+  if (error || !data) return { ok: false, code: 'error' }
+
+  await writeAuditLog({ actor: auth.userId, action: 'content.technology_created', entity: 'technology', entityId: (data as { id: string }).id, after: { name, category } })
+  return { ok: true, technology: data as { id: string; slug: string; name: string; category: string } }
 }
 
 // ---------------------------------------------------------------------------

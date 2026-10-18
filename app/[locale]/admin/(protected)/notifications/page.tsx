@@ -104,6 +104,7 @@ export default async function NotificationsPage({
         <div>
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{t('notifEyebrow')}</p>
           <h1 className="mt-1 text-xl font-semibold tracking-tight">{t('notifTitle')}</h1>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{t('notifNote')}</p>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground text-pretty">{t('notifIntro')}</p>
         </div>
         <SendDueButton disabled={summary.overdue === 0} />

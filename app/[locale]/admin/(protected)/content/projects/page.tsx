@@ -55,6 +55,7 @@ export default async function ProjectsListPage({
         <div>
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{t('cmsProjectsEyebrow')}</p>
           <h1 className="mt-1 text-xl font-semibold tracking-tight">{t('cmsProjectsTitle')}</h1>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{t('cmsProjectsNote')}</p>
         </div>
         <Button size="sm" render={<Link href="/admin/content/projects/new" />}>
           {t('cmsNewProject')}
@@ -80,9 +81,13 @@ export default async function ProjectsListPage({
                   <TableRow key={project.id}>
                     <TableCell label={t('cmsColumnTitle')}>
                       <Link href={`/admin/content/projects/${project.id}`} className="font-medium text-foreground underline-offset-4 hover:underline">
-                        {project.title.en || project.slug}
+                        {project.title[locale as Locale] || project.title.en || project.slug}
                       </Link>
-                      <p className="text-xs text-muted-foreground">{project.slug}</p>
+                      <p className="text-xs text-muted-foreground" dir="ltr">/work/{project.slug}</p>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {project.isProduct ? <Badge variant="brand-soft">{t('cmsBadgeProduct')}</Badge> : null}
+                        <Badge variant="outline">{project.showInPortfolio ? t('cmsBadgePortfolio') : t('cmsBadgeNotPortfolio')}</Badge>
+                      </div>
                     </TableCell>
                     <TableCell label={t('cmsColumnStatus')}>
                       <Badge variant={project.published ? 'success' : 'muted'}>

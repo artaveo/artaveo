@@ -315,9 +315,24 @@ export type AdminMediaAsset = {
   focalX: number | null
   focalY: number | null
   createdAt: string
+  /** Phase 27 (0027) — the project this image belongs to; `null` = not tied to a project. */
+  projectId: string | null
+  /** Phase 27 — every place the image appears (computed, not stored); empty = not used yet. */
+  usages: MediaUsage[]
 }
 
-export type MediaAltInput = { alt: LocalizedText; focalX: number; focalY: number }
+/**
+ * Where an image appears: a project's cover, one of its case-study screenshots
+ * (`project_media` — top image, inside the text, or the gallery), or a gallery
+ * block of its page.
+ */
+export type MediaUsage = { kind: 'cover' | 'hero' | 'story' | 'gallery' | 'block'; projectId: string }
+
+/** `projectId`: `undefined` leaves it as it is, `null` unassigns the image. */
+export type MediaAltInput = { alt: LocalizedText; focalX: number; focalY: number; projectId?: string | null }
+
+/** A project as the media pickers name it — for grouping and filtering images. */
+export type MediaProjectOption = { id: string; title: LocalizedText }
 
 /** `project_media` (0003) — one project's screenshot/diagram gallery, each row pointing at a `media_assets` row. */
 export type AdminProjectMediaItem = {

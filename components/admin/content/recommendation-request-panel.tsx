@@ -109,7 +109,10 @@ export function RecommendationRequestPanel({
               <FieldLabel htmlFor="rec-request-project">{t('cmsRecRequestForProject')}</FieldLabel>
               <Select value={projectId || 'none'} onValueChange={(next) => setProjectId(next === 'none' ? '' : (next ?? ''))} disabled={pending}>
                 <SelectTrigger id="rec-request-project">
-                  <SelectValue placeholder={t('cmsRecRequestNoProject')} />
+                  <SelectValue>{(() => {
+                    const project = projects.find((p) => p.id === projectId)
+                    return project ? tLocalized(project.title, locale) : t('cmsRecRequestNoProject')
+                  })()}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -127,7 +130,10 @@ export function RecommendationRequestPanel({
               <FieldLabel htmlFor="rec-request-service">{t('cmsRecRequestForService')}</FieldLabel>
               <Select value={serviceId || 'none'} onValueChange={(next) => setServiceId(next === 'none' ? '' : (next ?? ''))} disabled={pending}>
                 <SelectTrigger id="rec-request-service">
-                  <SelectValue placeholder={t('cmsRecRequestNoService')} />
+                  <SelectValue>{(() => {
+                    const service = services.find((s) => s.id === serviceId)
+                    return service ? tLocalized(service.title, locale) : t('cmsRecRequestNoService')
+                  })()}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>

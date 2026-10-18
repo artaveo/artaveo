@@ -1,7 +1,7 @@
 import 'server-only'
 
 import { requireDb } from '@/lib/admin/pipeline'
-import type { AdminMediaAsset, AdminProjectMediaItem } from '@/types/cms'
+import type { AdminMediaAsset, AdminProjectMediaItem, MediaProjectOption, MediaUsage } from '@/types/cms'
 import { captureError } from '@/lib/observability/store'
 
 /**
@@ -24,21 +24,65 @@ function assembleAsset(row: Record<string, any>): AdminMediaAsset {
     focalX: row.focal_x ?? null,
     focalY: row.focal_y ?? null,
     createdAt: row.created_at,
+    projectId: row.project_id ?? null,
+    usages: [],
   }
 }
 
-const ASSET_COLUMNS = 'id, url, alt, width, height, type, size_bytes, focal_x, focal_y, created_at'
+type UsageRows = {
+  covers: { id: string; cover_media_id: string | null }[]
+  screenshots: { media_id: string | null; project_id: string; placement: string }[]
+  galleries: { project_id: string; body: { images?: { mediaId?: string }[] } | null }[]
+}
+
+/** Where every image is used — one pass over covers, case-study screenshots and gallery blocks. */
+function usagesByMedia(rows: UsageRows): Map<string, MediaUsage[]> {
+  const map = new Map<string, MediaUsage[]>()
+  const add = (mediaId: string | null | undefined, usage: MediaUsage) => {
+    if (!mediaId) return
+    const list = map.get(mediaId) ?? []
+    if (!list.some((u) => u.kind === usage.kind && u.projectId === usage.projectId)) list.push(usage)
+    map.set(mediaId, list)
+  }
+  for (const p of rows.covers) add(p.cover_media_id, { kind: 'cover', projectId: p.id })
+  for (const m of rows.screenshots) {
+    const kind = m.placement === 'hero' || m.placement === 'story' ? m.placement : 'gallery'
+    add(m.media_id, { kind, projectId: m.project_id })
+  }
+  for (const b of rows.galleries) for (const image of b.body?.images ?? []) add(image.mediaId, { kind: 'block', projectId: b.project_id })
+  return map
+}
+
+const ASSET_COLUMNS = 'id, url, alt, width, height, type, size_bytes, focal_x, focal_y, created_at, project_id'
 
 export async function listMediaAssets(): Promise<AdminMediaAsset[] | null> {
   const db = requireDb()
   if (!db) return null
 
-  const { data, error } = await db.from('media_assets').select(ASSET_COLUMNS).order('created_at', { ascending: false })
+  const [{ data, error }, covers, screenshots, galleries] = await Promise.all([
+    db.from('media_assets').select(ASSET_COLUMNS).order('created_at', { ascending: false }),
+    db.from('projects').select('id, cover_media_id'),
+    db.from('project_media').select('media_id, project_id, placement'),
+    db.from('project_blocks').select('project_id, body').eq('type', 'gallery'),
+  ])
   if (error || !data) {
     await captureError(error, { event: 'admin.list_media_assets_failed', source: 'database' })
     return []
   }
-  return data.map(assembleAsset)
+  const usages = usagesByMedia({
+    covers: (covers.data ?? []) as UsageRows['covers'],
+    screenshots: (screenshots.data ?? []) as UsageRows['screenshots'],
+    galleries: (galleries.data ?? []) as unknown as UsageRows['galleries'],
+  })
+  return data.map((row: Record<string, unknown>) => ({ ...assembleAsset(row), usages: usages.get(row.id as string) ?? [] }))
+}
+
+/** Phase 27 — every project (published or not), for the pickers' grouping and filters. */
+export async function listMediaProjects(): Promise<MediaProjectOption[]> {
+  const db = requireDb()
+  if (!db) return []
+  const { data } = await db.from('projects').select('id, title').order('sort_order', { ascending: true })
+  return ((data ?? []) as unknown as MediaProjectOption[]).map((p) => ({ id: p.id, title: p.title }))
 }
 
 export async function getMediaAsset(id: string): Promise<AdminMediaAsset | null> {

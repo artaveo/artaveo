@@ -20,7 +20,7 @@ import {
   listTechnologiesAdmin,
   projectCompleteness,
 } from '@/lib/admin/content'
-import { listMediaAssets, listProjectMedia } from '@/lib/admin/media'
+import { listMediaAssets, listMediaProjects, listProjectMedia } from '@/lib/admin/media'
 
 export async function generateMetadata({
   params,
@@ -65,9 +65,10 @@ export default async function EditProjectPage({
     return <NotFoundState size="page" title={t('cmsProjectNotFoundTitle')} />
   }
 
-  const [projectMedia, mediaLibrary, blocks, saleOptions, productServices] = await Promise.all([
+  const [projectMedia, mediaLibrary, mediaProjects, blocks, saleOptions, productServices] = await Promise.all([
     listProjectMedia(id),
     listMediaAssets(),
+    listMediaProjects(),
     listProjectBlocksAdmin(id),
     listSaleOptionsAdmin(id),
     listProductServicesAdmin(id),
@@ -97,7 +98,7 @@ export default async function EditProjectPage({
 
       {activeTab === 'project' ? (
         <section className="flex flex-col gap-4" aria-labelledby="tab-project">
-          <ProjectForm mode="edit" project={project} technologies={technologies ?? []} initialTechnologyIds={technologyIds} media={mediaLibrary ?? []} />
+          <ProjectForm mode="edit" project={project} technologies={technologies ?? []} initialTechnologyIds={technologyIds} media={mediaLibrary ?? []} projects={mediaProjects} />
         </section>
       ) : null}
 
@@ -108,11 +109,14 @@ export default async function EditProjectPage({
               <h2 className="text-sm font-semibold tracking-wide text-foreground uppercase">{t('cmsSectionBlocks')}</h2>
               <p className="mt-1 text-xs text-muted-foreground">{t('cmsSectionBlocksHint')}</p>
             </div>
-            <ProjectBlocksEditor projectId={id} blocks={blocks ?? []} media={mediaLibrary ?? []} />
+            <ProjectBlocksEditor projectId={id} blocks={blocks ?? []} media={mediaLibrary ?? []} projects={mediaProjects} />
           </section>
           <section className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold tracking-wide text-foreground uppercase">{t('cmsSectionMedia')}</h2>
-            <ProjectMediaEditor projectId={id} projectSlug={project.slug} items={projectMedia ?? []} library={mediaLibrary ?? []} />
+            <div>
+  <h2 className="text-sm font-semibold tracking-wide text-foreground uppercase">{t('cmsSectionMedia')}</h2>
+              <p className="mt-1 text-xs text-muted-foreground">{t('cmsSectionMediaHint')}</p>
+            </div>
+            <ProjectMediaEditor projectId={id} projectSlug={project.slug} items={projectMedia ?? []} library={mediaLibrary ?? []} projects={mediaProjects} />
           </section>
         </>
       ) : null}

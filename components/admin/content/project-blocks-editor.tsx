@@ -26,9 +26,10 @@ import {
   emptyLocalized,
 } from '@/components/admin/content/localized-fields'
 import { MediaPicker } from '@/components/admin/content/media-picker'
+import { BLOCK_EXAMPLES as EX } from '@/components/admin/content/field-examples'
 import { videoWatchUrl } from '@/lib/products/blocks'
 import { PROJECT_BLOCK_TYPES, type LocalizedText, type ProjectBlockType } from '@/types/content'
-import type { AdminMediaAsset, AdminProjectBlock, BlockInput } from '@/types/cms'
+import type { AdminMediaAsset, AdminProjectBlock, BlockInput, MediaProjectOption } from '@/types/cms'
 
 /**
  * Phase 27.2 — builds a project page from blocks: add one of nine types, edit it
@@ -59,10 +60,17 @@ function toInput(type: ProjectBlockType, draft: Draft): BlockInput {
     delete body.provider
     delete body.videoId
   }
+  // A row added with "Add image" but no image picked yet is simply not saved.
+  if (type === 'gallery' && Array.isArray(body.images)) {
+    body.images = body.images.filter((image: { mediaId?: string }) => image.mediaId)
+  }
   return { type, title, body }
 }
 
-function BlockFields({ type, draft, setDraft, media, pending, idPrefix }: { type: ProjectBlockType; draft: Draft; setDraft: (next: Draft) => void; media: AdminMediaAsset[]; pending: boolean; idPrefix: string }) {
+type MediaContext = { media: AdminMediaAsset[]; projects: MediaProjectOption[]; projectId: string }
+
+function BlockFields({ type, draft, setDraft, mediaContext, pending, idPrefix }: { type: ProjectBlockType; draft: Draft; setDraft: (next: Draft) => void; mediaContext: MediaContext; pending: boolean; idPrefix: string }) {
+  const { media } = mediaContext
   const t = useTranslations('Admin')
   const body = draft.body
   const setBody = (patch: Record<string, unknown>) => setDraft({ ...draft, body: { ...body, ...patch } })
@@ -71,21 +79,20 @@ function BlockFields({ type, draft, setDraft, media, pending, idPrefix }: { type
     case 'intro':
     case 'challenge':
     case 'result':
-      return <LocalizedTextareaField id={`${idPrefix}-text`} label={t('cmsBlockText')} value={body.text ?? EMPTY()} rows={4} disabled={pending} onChange={(text) => setBody({ text })} required />
+      return <LocalizedTextareaField id={`${idPrefix}-text`} label={t('cmsBlockText')} value={body.text ?? EMPTY()} rows={4} disabled={pending} onChange={(text) => setBody({ text })} required example={EX[type]} />
 
     case 'features':
       return (
         <>
-          <LocalizedTextareaField id={`${idPrefix}-text`} label={t('cmsBlockLeadText')} value={body.text ?? EMPTY()} rows={2} disabled={pending} onChange={(text) => setBody({ text })} />
-          <FieldDescription>{t('cmsBlockFeaturesNote')}</FieldDescription>
+          <LocalizedTextareaField id={`${idPrefix}-text`} label={t('cmsBlockLeadText')} value={body.text ?? EMPTY()} rows={2} disabled={pending} onChange={(text) => setBody({ text })} example={EX.lead} hint={t('cmsBlockFeaturesNote')} />
         </>
       )
 
     case 'audience':
       return (
         <>
-          <LocalizedTextareaField id={`${idPrefix}-text`} label={t('cmsBlockLeadText')} value={body.text ?? EMPTY()} rows={2} disabled={pending} onChange={(text) => setBody({ text })} />
-          <LocalizedListField id={`${idPrefix}-items`} label={t('cmsBlockItems')} items={body.items ?? []} disabled={pending} onChange={(items) => setBody({ items })} addLabel={t('cmsAddItem')} />
+          <LocalizedTextareaField id={`${idPrefix}-text`} label={t('cmsBlockLeadText')} value={body.text ?? EMPTY()} rows={2} disabled={pending} onChange={(text) => setBody({ text })} example={EX.lead} />
+          <LocalizedListField id={`${idPrefix}-items`} label={t('cmsBlockItems')} items={body.items ?? []} disabled={pending} onChange={(items) => setBody({ items })} addLabel={t('cmsAddItem')} example={EX.audienceItem} />
         </>
       )
 
@@ -96,15 +103,15 @@ function BlockFields({ type, draft, setDraft, media, pending, idPrefix }: { type
         <div className="flex flex-col gap-3">
           {images.map((image, index) => (
             <div key={index} className="flex flex-col gap-2 rounded-lg border border-border p-3">
-              <MediaPicker id={`${idPrefix}-image-${index}`} label={t('cmsBlockImage')} value={image.mediaId || null} library={media} allowNone={false} disabled={pending} onChange={(mediaId) => setImages(images.map((img, i) => (i === index ? { ...img, mediaId: mediaId ?? '' } : img)))} />
-              <LocalizedTextField id={`${idPrefix}-caption-${index}`} label={t('cmsBlockCaption')} value={image.caption ?? EMPTY()} disabled={pending} onChange={(caption) => setImages(images.map((img, i) => (i === index ? { ...img, caption } : img)))} />
+              <MediaPicker id={`${idPrefix}-image-${index}`} label={t('cmsBlockImage')} value={image.mediaId || null} library={media} projects={mediaContext.projects} currentProjectId={mediaContext.projectId} allowNone={false} disabled={pending} onChange={(mediaId) => setImages(images.map((img, i) => (i === index ? { ...img, mediaId: mediaId ?? '' } : img)))} />
+              <LocalizedTextField id={`${idPrefix}-caption-${index}`} label={t('cmsBlockCaption')} value={image.caption ?? EMPTY()} example={EX.caption} disabled={pending} onChange={(caption) => setImages(images.map((img, i) => (i === index ? { ...img, caption } : img)))} />
               <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={() => setImages(images.filter((_, i) => i !== index))} className="self-start text-destructive-text">
                 <Trash2 aria-hidden="true" data-icon="inline-start" />
                 {t('cmsDelete')}
               </Button>
             </div>
           ))}
-          <Button type="button" variant="outline" size="sm" disabled={pending || media.length === 0} onClick={() => setImages([...images, { mediaId: media.find((m) => m.alt?.en && m.alt?.fa)?.id ?? '' }])} className="self-start">
+          <Button type="button" variant="outline" size="sm" disabled={pending} onClick={() => setImages([...images, { mediaId: '' }])} className="self-start">
             <Plus aria-hidden="true" data-icon="inline-start" />
             {t('cmsBlockAddImage')}
           </Button>
@@ -119,8 +126,8 @@ function BlockFields({ type, draft, setDraft, media, pending, idPrefix }: { type
         <div className="flex flex-col gap-3">
           {groups.map((group, index) => (
             <div key={index} className="flex flex-col gap-2 rounded-lg border border-border p-3">
-              <LocalizedTextField id={`${idPrefix}-role-${index}`} label={t('cmsBlockRole')} value={group.role} disabled={pending} onChange={(role) => setGroups(groups.map((g, i) => (i === index ? { ...g, role } : g)))} />
-              <LocalizedListField id={`${idPrefix}-role-items-${index}`} label={t('cmsBlockItems')} items={group.items} disabled={pending} onChange={(items) => setGroups(groups.map((g, i) => (i === index ? { ...g, items } : g)))} addLabel={t('cmsAddItem')} />
+              <LocalizedTextField id={`${idPrefix}-role-${index}`} label={t('cmsBlockRole')} value={group.role} example={EX.role} disabled={pending} onChange={(role) => setGroups(groups.map((g, i) => (i === index ? { ...g, role } : g)))} />
+              <LocalizedListField id={`${idPrefix}-role-items-${index}`} label={t('cmsBlockItems')} items={group.items} example={EX.roleItem} disabled={pending} onChange={(items) => setGroups(groups.map((g, i) => (i === index ? { ...g, items } : g)))} addLabel={t('cmsAddItem')} />
               <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={() => setGroups(groups.filter((_, i) => i !== index))} className="self-start text-destructive-text">
                 <Trash2 aria-hidden="true" data-icon="inline-start" />
                 {t('cmsDelete')}
@@ -142,8 +149,8 @@ function BlockFields({ type, draft, setDraft, media, pending, idPrefix }: { type
         <div className="flex flex-col gap-3">
           {items.map((item, index) => (
             <div key={index} className="flex flex-col gap-2 rounded-lg border border-border p-3">
-              <LocalizedTextField id={`${idPrefix}-q-${index}`} label={t('cmsFieldQuestion')} value={item.question} disabled={pending} onChange={(question) => setItems(items.map((it, i) => (i === index ? { ...it, question } : it)))} />
-              <LocalizedTextareaField id={`${idPrefix}-a-${index}`} label={t('cmsFieldAnswer')} value={item.answer} rows={3} disabled={pending} onChange={(answer) => setItems(items.map((it, i) => (i === index ? { ...it, answer } : it)))} />
+              <LocalizedTextField id={`${idPrefix}-q-${index}`} label={t('cmsFieldQuestion')} value={item.question} example={EX.question} disabled={pending} onChange={(question) => setItems(items.map((it, i) => (i === index ? { ...it, question } : it)))} />
+              <LocalizedTextareaField id={`${idPrefix}-a-${index}`} label={t('cmsFieldAnswer')} value={item.answer} rows={3} example={EX.answer} disabled={pending} onChange={(answer) => setItems(items.map((it, i) => (i === index ? { ...it, answer } : it)))} />
               <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={() => setItems(items.filter((_, i) => i !== index))} className="self-start text-destructive-text">
                 <Trash2 aria-hidden="true" data-icon="inline-start" />
                 {t('cmsDelete')}
@@ -166,15 +173,16 @@ function BlockFields({ type, draft, setDraft, media, pending, idPrefix }: { type
             <Input id={`${idPrefix}-url`} dir="ltr" type="url" value={body.url ?? ''} placeholder="https://www.youtube.com/watch?v=…" disabled={pending} onChange={(event) => setBody({ url: event.target.value })} />
             <FieldDescription>{t('cmsBlockVideoHint')}</FieldDescription>
           </Field>
-          <LocalizedTextField id={`${idPrefix}-caption`} label={t('cmsBlockCaption')} value={body.caption ?? EMPTY()} disabled={pending} onChange={(caption) => setBody({ caption })} />
+          <LocalizedTextField id={`${idPrefix}-caption`} label={t('cmsBlockCaption')} value={body.caption ?? EMPTY()} example={EX.caption} disabled={pending} onChange={(caption) => setBody({ caption })} />
         </>
       )
   }
 }
 
-function BlockCard({ projectId, block, index, count, ids, media }: { projectId: string; block: AdminProjectBlock; index: number; count: number; ids: string[]; media: AdminMediaAsset[] }) {
+function BlockCard({ projectId, block, index, count, ids, mediaContext }: { projectId: string; block: AdminProjectBlock; index: number; count: number; ids: string[]; mediaContext: MediaContext }) {
   const t = useTranslations('Admin')
   const tBlock = useTranslations('BlockTypes')
+  const tHint = useTranslations('BlockHints')
   const router = useRouter()
   const [draft, setDraft] = useState<Draft>(() => toDraft(block))
   const [pending, setPending] = useState(false)
@@ -208,8 +216,9 @@ function BlockCard({ projectId, block, index, count, ids, media }: { projectId: 
             if (window.confirm(t('cmsConfirmDelete'))) void run(() => deleteProjectBlock(block.id, projectId))
           }}
         />
-        <LocalizedTextField id={`block-${block.id}-title`} label={t('cmsBlockTitle')} value={draft.title} disabled={pending} onChange={(title) => setDraft({ ...draft, title })} />
-        <BlockFields type={block.type} draft={draft} setDraft={setDraft} media={media} pending={pending} idPrefix={`block-${block.id}`} />
+        <p className="-mt-1 text-xs text-muted-foreground">{tHint(block.type)}</p>
+        <LocalizedTextField id={`block-${block.id}-title`} label={t('cmsBlockTitle')} value={draft.title} disabled={pending} onChange={(title) => setDraft({ ...draft, title })} example={EX.title} />
+        <BlockFields type={block.type} draft={draft} setDraft={setDraft} mediaContext={mediaContext} pending={pending} idPrefix={`block-${block.id}`} />
         {error ? <FormMessage variant="destructive">{error}</FormMessage> : null}
         <Button type="button" size="sm" disabled={pending} className="self-start" onClick={() => run(() => updateProjectBlock(block.id, projectId, toInput(block.type, draft)))}>
           {pending ? t('cmsSaving') : t('cmsSaveChanges')}
@@ -219,9 +228,11 @@ function BlockCard({ projectId, block, index, count, ids, media }: { projectId: 
   )
 }
 
-export function ProjectBlocksEditor({ projectId, blocks, media }: { projectId: string; blocks: AdminProjectBlock[]; media: AdminMediaAsset[] }) {
+export function ProjectBlocksEditor({ projectId, blocks, media, projects }: { projectId: string; blocks: AdminProjectBlock[]; media: AdminMediaAsset[]; projects: MediaProjectOption[] }) {
+  const mediaContext: MediaContext = { media, projects, projectId }
   const t = useTranslations('Admin')
   const tBlock = useTranslations('BlockTypes')
+  const tHint = useTranslations('BlockHints')
   const router = useRouter()
   const [type, setType] = useState<ProjectBlockType>('intro')
   const [pending, setPending] = useState(false)
@@ -255,7 +266,7 @@ export function ProjectBlocksEditor({ projectId, blocks, media }: { projectId: s
     <div className="flex flex-col gap-3">
       {blocks.length === 0 ? <p className="text-sm text-muted-foreground">{t('cmsBlocksEmpty')}</p> : null}
       {blocks.map((block, index) => (
-        <BlockCard key={`${block.id}-${block.sortOrder}`} projectId={projectId} block={block} index={index} count={blocks.length} ids={ids} media={media} />
+        <BlockCard key={`${block.id}-${block.sortOrder}`} projectId={projectId} block={block} index={index} count={blocks.length} ids={ids} mediaContext={mediaContext} />
       ))}
 
       <Card>
@@ -279,6 +290,7 @@ export function ProjectBlocksEditor({ projectId, blocks, media }: { projectId: s
               </Button>
             )}
           </div>
+          <p className="text-xs text-muted-foreground">{tHint(type)}</p>
           {error ? <FormMessage variant="destructive">{error}</FormMessage> : null}
         </CardContent>
       </Card>

@@ -60,7 +60,10 @@ function EntitySelect({
       <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <Select value={value ?? 'none'} onValueChange={(next) => onChange(!next || next === 'none' ? null : next)} disabled={disabled}>
         <SelectTrigger id={id}>
-          <SelectValue placeholder={noneLabel} />
+          <SelectValue>{(() => {
+            const option = options.find((o) => o.id === value)
+            return option ? tLocalized(option.title, locale) : noneLabel
+          })()}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
@@ -195,7 +198,7 @@ function RecommendationCard({
             ) : (
               <Select value={draft.verification} onValueChange={(next) => next && setDraft({ ...draft, verification: next as RecommendationVerification })} disabled={pending}>
                 <SelectTrigger id={`rec-${rec.id}-verification`}>
-                  <SelectValue />
+                  <SelectValue>{draft.verification === 'public-profile' ? t('cmsRecVerificationPublicProfile') : t('cmsRecVerificationPlatformReview')}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -333,7 +336,7 @@ function AddRecommendationCard({ projects, services, locale, onDone }: { project
             <FieldLabel htmlFor="new-rec-verification">{t('cmsRecFieldVerification')}</FieldLabel>
             <Select value={draft.verification} onValueChange={(next) => next && setDraft({ ...draft, verification: next as RecommendationVerification })} disabled={pending}>
               <SelectTrigger id="new-rec-verification">
-                <SelectValue />
+                <SelectValue>{draft.verification === 'public-profile' ? t('cmsRecVerificationPublicProfile') : t('cmsRecVerificationPlatformReview')}</SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>

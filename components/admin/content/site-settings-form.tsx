@@ -103,7 +103,8 @@ export function SiteSettingsForm({ settings }: { settings: AdminSiteSettings }) 
               <Input id="settings-timezone" dir="ltr" value={form.timezone} disabled={pending} required onChange={(e) => setForm({ ...form, timezone: e.target.value })} />
             </Field>
           </div>
-          <LocalizedTextField id="settings-response-commitment" label={t('cmsFieldResponseCommitment')} value={form.responseCommitment} onChange={(v) => setForm({ ...form, responseCommitment: v })} required disabled={pending} />
+          <p className="-mt-2 text-xs text-muted-foreground">{t('cmsHintAvailability')}</p>
+          <LocalizedTextField id="settings-response-commitment" label={t('cmsFieldResponseCommitment')} value={form.responseCommitment} onChange={(v) => setForm({ ...form, responseCommitment: v })} required disabled={pending} hint={t('cmsHintResponseCommitment')} />
         </CardContent>
       </Card>
 

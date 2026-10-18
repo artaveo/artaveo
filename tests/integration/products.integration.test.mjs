@@ -26,6 +26,7 @@ const { adminSignIn } = await import('../../app/actions/admin-auth.ts')
 const content = await import('../../app/actions/content.ts')
 const products = await import('../../app/actions/products.ts')
 const settings = await import('../../app/actions/settings.ts')
+const media = await import('../../app/actions/media.ts')
 const { submitInquiry, submitProductRequest } = await import('../../app/actions/inquiries.ts')
 const { queryProjectBySlug, queryProducts } = await import('../../lib/db/content-queries.ts')
 const { getShellData } = await import('../../lib/shell-settings-server.ts')
@@ -388,5 +389,61 @@ describe('27.6 the shell reads its settings from the database', () => {
     assert.equal((await visitor.from('site_settings').select('contact_email')).data.length, 1)
     const upd = await visitor.from('site_settings').update({ contact_email: 'x@evil.example' }).eq('id', true).select()
     assert.deepEqual(upd.data ?? [], [])
+  })
+})
+
+describe('owner review (18 October 2026): technologies and images per project', () => {
+  // The same test image the CMS suite uploads.
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64')
+  const uploadForm = (extra = {}) => {
+    const f = new FormData()
+    f.set('file', new File([PNG], 'shot.png', { type: 'image/png' }))
+    f.set('altEn', 'A screen')
+    f.set('altFa', 'یک صفحه')
+    for (const [key, value] of Object.entries(extra)) f.set(key, value)
+    return f
+  }
+  after(() => sql("delete from public.media_assets where url not like '/images/%'; delete from public.technologies where slug in ('flutter', 'sql-server')"))
+
+  it('a technology that is not in the list is added from the project form, once', async () => {
+    await login(EDITOR)
+    const first = await content.createTechnology({ name: '  Flutter ', category: 'mobile' })
+    assert.equal(first.ok, true)
+    assert.deepEqual([first.technology.name, first.technology.slug, first.technology.category], ['Flutter', 'flutter', 'mobile'])
+    const again = await content.createTechnology({ name: 'flutter', category: 'mobile' })
+    assert.equal(again.technology.id, first.technology.id, 'the same name returns the existing row')
+    assert.deepEqual(await content.createTechnology({ name: 'SQL Server', category: 'nonsense' }), { ok: false, code: 'invalid' })
+    assert.deepEqual(await content.createTechnology({ name: 'x'.repeat(41), category: 'other' }), { ok: false, code: 'invalid' })
+    resetRequest()
+    assert.deepEqual(await content.createTechnology({ name: 'SQL Server', category: 'database' }), { ok: false, code: 'forbidden' })
+  })
+
+  it('an image uploaded from a project belongs to it; it can be moved to another project or to none; a fake project is refused', async () => {
+    await login(EDITOR)
+    const { id: projectId } = await content.createProject(projectInput())
+    const { id: otherId } = await content.createProject(projectInput())
+    const uploaded = await media.uploadMedia(uploadForm({ projectId }))
+    assert.equal(uploaded.ok, true)
+    const row = async () => (await db.from('media_assets').select('project_id').eq('id', uploaded.id).single()).data.project_id
+    assert.equal(await row(), projectId)
+
+    const alt = { en: 'A screen', fa: 'یک صفحه' }
+    assert.deepEqual(await media.updateMediaAlt(uploaded.id, { alt, focalX: 0.5, focalY: 0.5, projectId: otherId }), { ok: true })
+    assert.equal(await row(), otherId)
+    assert.deepEqual(await media.updateMediaAlt(uploaded.id, { alt, focalX: 0.5, focalY: 0.5 }), { ok: true })
+    assert.equal(await row(), otherId, 'leaving projectId out keeps it')
+    assert.deepEqual(await media.updateMediaAlt(uploaded.id, { alt, focalX: 0.5, focalY: 0.5, projectId: null }), { ok: true })
+    assert.equal(await row(), null)
+    assert.deepEqual(await media.updateMediaAlt(uploaded.id, { alt, focalX: 0.5, focalY: 0.5, projectId: uuid() }), { ok: false, code: 'error' })
+    assert.equal((await media.uploadMedia(uploadForm({ projectId: 'not-a-uuid' }))).ok, false)
+  })
+
+  it('deleting a project keeps its images, no longer tied to it', async () => {
+    await login(EDITOR)
+    const { id: projectId } = await content.createProject(projectInput())
+    const uploaded = await media.uploadMedia(uploadForm({ projectId }))
+    await db.from('projects').delete().eq('id', projectId)
+    const asset = (await db.from('media_assets').select('id, project_id').eq('id', uploaded.id).single()).data
+    assert.deepEqual(asset, { id: uploaded.id, project_id: null })
   })
 })

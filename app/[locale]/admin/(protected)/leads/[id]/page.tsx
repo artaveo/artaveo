@@ -23,6 +23,10 @@ import { formatDate } from '@/lib/format'
 import type { Locale } from '@/types/content'
 import { ProductRequestCard } from '@/components/admin/pipeline/product-request-card'
 import { projectTypeLabel } from '@/lib/inquiry-content'
+import { budgetLabel, channelLabel, featureLabel, languageLabel, timelineLabel } from '@/lib/inquiry-labels'
+import { listServicesAdmin } from '@/lib/admin/content'
+
+const TIER_KEY: Record<string, string> = { starter: 'cmsTierStarter', standard: 'cmsTierStandard', custom: 'cmsTierCustom' }
 
 export async function generateMetadata({
   params,
@@ -66,6 +70,13 @@ export default async function LeadDetailPage({
   }
 
   const sla = computeSla(inquiry.createdAt, events, commitment?.timezone ?? 'UTC')
+  // Codes stored with the request, shown as the words the customer chose (owner's review).
+  const loc = locale as Locale
+  const services = (await listServicesAdmin()) ?? []
+  const serviceTitle = (slug: string) => {
+    const service = services.find((s) => s.slug === slug)
+    return service ? service.title[loc] || service.title.en : slug
+  }
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -179,8 +190,8 @@ export default async function LeadDetailPage({
           <Field label={t('fieldName')} value={inquiry.name} />
           <Field label={t('fieldEmail')} value={inquiry.email} />
           <Field label={t('fieldPhone')} value={inquiry.phone || '—'} />
-          <Field label={t('fieldPreferredChannel')} value={inquiry.preferredChannel} />
-          <Field label={t('fieldPreferredLocale')} value={inquiry.preferredLocale} />
+          <Field label={t('fieldPreferredChannel')} value={channelLabel(inquiry.preferredChannel, loc) ?? '—'} />
+          <Field label={t('fieldPreferredLocale')} value={languageLabel(inquiry.preferredLocale, loc) ?? '—'} />
         </CardContent>
       </Card>
 
@@ -194,21 +205,21 @@ export default async function LeadDetailPage({
         </CardHeader>
         <CardContent className="flex flex-col gap-3 text-sm">
           {inquiry.goal ? <Field label={inquiry.kind === 'project' ? t('fieldGoal') : t('fieldMessage')} value={inquiry.goal} block /> : null}
-          {inquiry.serviceSlug ? <Field label={t('fieldService')} value={inquiry.serviceSlug} /> : null}
-          {inquiry.packageId ? <Field label={t('fieldPackage')} value={inquiry.packageId} /> : null}
+          {inquiry.serviceSlug ? <Field label={t('fieldService')} value={serviceTitle(inquiry.serviceSlug)} /> : null}
+          {inquiry.packageId ? <Field label={t('fieldPackage')} value={TIER_KEY[inquiry.packageId] ? t(TIER_KEY[inquiry.packageId]) : inquiry.packageId} /> : null}
           {inquiry.engagementModelId ? (
             <Field label={t('fieldEngagementModel')} value={inquiry.engagementModelId} />
           ) : null}
-          {inquiry.projectType ? <Field label={t('fieldProjectType')} value={projectTypeLabel(inquiry.projectType)?.en ?? inquiry.projectType} /> : null}
-          {inquiry.timeline ? <Field label={t('fieldTimeline')} value={inquiry.timeline} /> : null}
-          {inquiry.budgetBand ? <Field label={t('fieldBudget')} value={inquiry.budgetBand} /> : null}
+          {inquiry.projectType ? <Field label={t('fieldProjectType')} value={(() => { const label = projectTypeLabel(inquiry.projectType); return label ? label[loc] || label.en : inquiry.projectType })()} /> : null}
+          {inquiry.timeline ? <Field label={t('fieldTimeline')} value={timelineLabel(inquiry.timeline, loc) ?? ''} /> : null}
+          {inquiry.budgetBand ? <Field label={t('fieldBudget')} value={budgetLabel(inquiry.budgetBand, loc) ?? ''} /> : null}
           {inquiry.featureTags.length > 0 ? (
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium text-muted-foreground uppercase">{t('fieldFeatureTags')}</span>
               <div className="flex flex-wrap gap-1.5">
                 {inquiry.featureTags.map((tag) => (
                   <Badge key={tag} variant="outline">
-                    {tag}
+                    {featureLabel(tag, loc)}
                   </Badge>
                 ))}
               </div>

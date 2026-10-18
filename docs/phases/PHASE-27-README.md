@@ -97,3 +97,21 @@ None beyond the known issues; each has a phase.
 ## Final status
 
 **COMPLETE.** Next phase: **Phase 28 — Design System 2.0**.
+
+## Owner's review of the admin (18 October 2026) — fixed in Phase 27
+
+After trying the new admin, the owner found that parts of it could not be used without help. All of them belong to Phase 27's exit criterion ("without code the owner can … add a new project"), so they were fixed here, with migration **`0027_media_projects`** (applied on Neon, Data API settings re-saved).
+
+| Found | Fixed |
+|---|---|
+| Only the technologies already in the list could be picked; a new project's stack could not be entered without code | The technology picker has an **Add technology** row (name + group); the new technology is created, listed and picked (`createTechnology`, editor-level, same name never duplicated) |
+| Fields gave no idea what to type or where it appears | Every new field has a faint **example** (gone as soon as you type) and a one-line **hint** saying what it is for and where it shows (`components/admin/content/field-examples.ts`, `Admin.cmsHint*`, `BlockHints.*`); each block type explains itself |
+| The **slug** refused "Windows Application" with no explanation | The page address is built from the English title as you type it and anything typed is turned into a valid address (`lib/slug.ts`: "Windows Application" → `windows-application`); the hint says what it is |
+| It was not clear where a project's other images, page sections and texts are edited | The new-project page says that after saving, the project opens with three tabs; the tabs are named **Project details · Page sections & images · Product & prices** |
+| The cover could not be uploaded from the project form | Every image picker can **upload a new image in place**; it belongs to the project being edited and is picked at once |
+| Images were one flat list — unusable with many projects | Each image belongs to a project (`media_assets.project_id`; the 25 existing images were linked from their screenshots and covers). The picker is a window that opens on **this project's images**, can switch to another project / "not tied to a project" / all, searches alt text and file name, and draws thumbnails in batches. The **image library** is grouped by project, and inside each project by where the image appears (cover, top of the case study, inside the text, gallery, page sections, not used yet); every card says where it is used, shows its alt text in full and can be moved to another project |
+| No way back up from a sub-page | Every admin page has a clickable **path** (Admin › Content › Projects › Edit), the top links mark the current section, the logo goes to the dashboard, and Security is in the menu |
+| Raw values on screen: "new", "__none__", service slugs, codes | Dropdowns show labels (six `SelectValue`s printed their raw value); requests show the service's name, and the request page shows timeline, budget, channel, language, package and features in words |
+| Unclear names and pages | "Leads / سرنخ‌ها" → **Requests / درخواست‌ها**, "Notifications" → **E-mails**, "Observability" → **Site health**, "Navigation" → **Site menu**, "Media" → **Images**, "Settings" → **Contact & availability**; every list page has a one-line description; the Content hub is grouped (what the site shows · images · site settings · not shown on the site); projects show Product / In portfolio badges; services are grouped by kind of software; menu and settings options say where they appear; the publish card explains the EN/FA badges; out-of-date notes corrected (articles at /insights, "schema", Discovery Sprint, UTC-only times) |
+
+Tests: `tests/unit/products.test.mjs` (addresses, image filtering), `tests/integration/products.integration.test.mjs` (adding a technology, images per project: upload, move, unassign, refuse a fake project, keep images when a project is deleted); the admin end-to-end tests now read the renamed texts from the dictionaries. Typecheck, lint (66), 494 unit tests and the production build pass locally; CI runs the rest.
