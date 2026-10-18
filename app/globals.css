@@ -110,6 +110,91 @@
      "Motion principles" for which duration/curve pairs to use where. */
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ── Design System 2.0 (Phase 28, roadmap § 14.1) ─────────────────────
+     The ink bands and the warm content panels are the same in both themes
+     (§ 29.3: "dark bands stay ink in both themes; content panels warm
+     light"), so these map to fixed values defined once on :root below.
+     Every pairing that carries text is measured in
+     tests/unit/design-system.test.mjs. */
+  --color-ink: var(--ink);
+  --color-ink-raised: var(--ink-raised);
+  --color-ink-elevated: var(--ink-elevated);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-ink-line: var(--ink-line);
+  --color-ink-line-strong: var(--ink-line-strong);
+  --color-paper: var(--paper);
+  --color-paper-card: var(--paper-card);
+  --color-paper-foreground: var(--paper-foreground);
+  --color-paper-muted: var(--paper-muted);
+  --color-paper-line: var(--paper-line);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-gold-deep: var(--gold-deep);
+  --color-cool: var(--cool);
+  --color-cool-text: var(--cool-text);
+  --color-whatsapp: var(--whatsapp);
+  --color-glass-foreground: var(--glass-foreground);
+  --color-glass-muted: var(--glass-muted);
+  --color-glass-line: var(--glass-line);
+  /* Per-project colour (28.1): a project's or product's own colour, set by
+     `projectStyle()` (lib/design/color.ts) from `projects.brand_color` /
+     `accent_color` as inline custom properties on its block. Outside a
+     project block they fall back to the ink + gold pair. */
+  --color-project: var(--project, var(--ink-raised));
+  --color-project-deep: var(--project-deep, var(--ink));
+  --color-project-on: var(--project-on, var(--ink-foreground));
+  --color-project-on-muted: var(--project-on-muted, var(--ink-muted));
+  --color-project-accent: var(--project-accent, var(--gold));
+  --color-project-accent-foreground: var(--project-accent-foreground, var(--gold-foreground));
+  --color-project-accent-text: var(--project-accent-text, var(--gold));
+
+  /* Shape (28.1): pill buttons and chips, 16–24 px small cards, 28–40 px panels. */
+  --radius-pill: 9999px;
+  --radius-card: 1.25rem; /* 20px */
+  --radius-card-lg: 1.5rem; /* 24px */
+  --radius-panel: 2rem; /* 32px */
+  --radius-panel-lg: 2.5rem; /* 40px */
+
+  /* Depth (28.1): layered soft shadows. */
+  --shadow-card: 0 30px 70px rgb(22 24 29 / 0.08), 0 0 0 1px rgb(22 24 29 / 0.05);
+  --shadow-card-hover: 0 36px 80px rgb(22 24 29 / 0.13), 0 0 0 1px rgb(22 24 29 / 0.06);
+  --shadow-float: 0 40px 90px rgb(0 0 0 / 0.5);
+  --shadow-device: 0 40px 90px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.07);
+  --shadow-gold: 0 14px 34px rgb(226 182 92 / 0.26);
+
+  /* Type scale (28.2) — "not oversized": h1 32–50, h2 24–34, h3 20–25,
+     card titles 16–18, body 15–16, small 12–13 px. Sized in `cqi`, so a
+     component scales with the width it is given (the /design-system
+     previews at three widths); with no container around it, `cqi` is the
+     viewport width. Persian line heights are set under [dir='rtl'] below. */
+  --text-h1: clamp(2rem, 1.51rem + 2.08cqi, 3.125rem);
+  --text-h1--line-height: 1.2;
+  --text-h1--font-weight: 800;
+  --text-h2: clamp(1.5rem, 1.23rem + 1.16cqi, 2.125rem);
+  --text-h2--line-height: 1.25;
+  --text-h2--font-weight: 800;
+  --text-h3: clamp(1.25rem, 1.11rem + 0.58cqi, 1.5625rem);
+  --text-h3--line-height: 1.35;
+  --text-h3--font-weight: 700;
+  --text-card-title: clamp(1rem, 0.95rem + 0.23cqi, 1.125rem);
+  --text-card-title--line-height: 1.45;
+  --text-card-title--font-weight: 700;
+  --text-body: clamp(0.9375rem, 0.91rem + 0.12cqi, 1rem);
+  --text-body--line-height: 1.65;
+  --text-small: clamp(0.75rem, 0.72rem + 0.12cqi, 0.8125rem);
+  --text-small--line-height: 1.5;
+
+  /* Motion (28.4): menus fade in ≈ 150 ms; element reveals ≤ 300 ms. */
+  --animate-menu-in: menu-in 150ms var(--ease-standard) both;
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
 }
 
 :root {
@@ -193,6 +278,42 @@
   --sidebar-accent-foreground: oklch(0.24 0.014 262);
   --sidebar-border: oklch(0.905 0.005 250);
   --sidebar-ring: oklch(0.55 0.16 256);
+
+  /* Design System 2.0 (Phase 28.1, § 14.1). Not redefined under .dark: the
+     ink bands and warm panels look the same in both themes. */
+  --ink: #0a0c11;
+  --ink-raised: #11141b;
+  --ink-elevated: #16181d;
+  --ink-foreground: #f3f1ec;
+  --ink-muted: #a9aeb8;
+  --ink-subtle: #c9cdd5;
+  --ink-line: rgb(255 255 255 / 0.08);
+  --ink-line-strong: rgb(255 255 255 / 0.14);
+  --paper: #f4f2ed;
+  --paper-card: #ffffff;
+  --paper-foreground: #16181d;
+  --paper-muted: #555a65;
+  --paper-line: #e8e4da;
+  /* Brand gold from the logo. On ink it is a text colour too (≈ 10:1); on
+     the warm panel it is a fill only — text there uses --gold-deep. */
+  --gold: #e2b65c;
+  --gold-foreground: #17130a;
+  --gold-deep: #7d5f17;
+  /* The one cool accent: glows and secondary highlights on ink. */
+  --cool: #4078ff;
+  --cool-text: #8fb0ff;
+  --whatsapp: #15803d;
+  /* Glass (28.3). The fills alone — before any blur — keep text at ≥ 4.5:1
+     over the worst background that can scroll behind them (white), so the
+     contrast never depends on what the blur happens to smear. */
+  --glass-fill: rgb(10 12 17 / 0.74);
+  --glass-fill-strong: rgb(17 20 28 / 0.88);
+  --glass-solid: #171a22;
+  --glass-line: rgb(255 255 255 / 0.12);
+  --glass-foreground: #f3f1ec;
+  --glass-muted: #d0d4db;
+  --glass-blur: 18px;
+  --glass-blur-strong: 26px;
 }
 
 .dark {
@@ -270,9 +391,9 @@
   :where([dir='rtl']) body {
     font-family: var(--font-persian);
     /* Vazirmatn needs more vertical room than Geist Sans at the same
-       font-size (taller x-height, heavier diacritic marks) — bumped from
-       the Tailwind default (1.5) rather than left at the Latin value. */
-    line-height: 1.7;
+       font-size (taller x-height, heavier diacritic marks). Phase 28.2:
+       1.85, inside § 14.1's 1.8–2.0 for Persian body text. */
+    line-height: 1.85;
   }
   /* Letter-spacing safety net: the Latin "display label" treatment used
      for the wordmark, eyebrows and nav labels (font-mono + uppercase +
@@ -345,5 +466,103 @@
 @layer utilities {
   [dir='rtl'] .font-mono {
     font-family: var(--font-geist-mono), var(--font-vazirmatn), ui-monospace, monospace;
+  }
+}
+
+/* ── Design System 2.0 — type (28.2) ─────────────────────────────────────
+   The same sizes for Persian; only the line height grows (Vazirmatn's
+   taller marks). One attribute more specific than the utility, so it wins. */
+@layer utilities {
+  [dir='rtl'] .text-h1 {
+    line-height: 1.5;
+  }
+  [dir='rtl'] .text-h2 {
+    line-height: 1.55;
+  }
+  [dir='rtl'] .text-h3,
+  [dir='rtl'] .text-card-title {
+    line-height: 1.6;
+  }
+  [dir='rtl'] .text-body {
+    line-height: 1.9;
+  }
+  [dir='rtl'] .text-small {
+    line-height: 1.8;
+  }
+}
+
+/* ── Glass (28.3) ─────────────────────────────────────────────────────────
+   Only for the header, mega menus, the mobile menu, floating chips over
+   mock-ups and cards on ink bands — never behind long text, at most three
+   layers in a viewport. `glass` for the header and chips, `glass-strong`
+   for menus. Text on glass uses --glass-foreground / --glass-muted. */
+@utility glass {
+  background-color: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+}
+@utility glass-strong {
+  background-color: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur-strong)) saturate(150%);
+}
+/* Unlayered on purpose: unlayered rules beat every utility, so the solid
+   fallback always wins — for visitors who ask for less transparency, and
+   for browsers without backdrop-filter (where a translucent fill with no
+   blur would show the page through). */
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-strong {
+    background-color: var(--glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-strong {
+    background-color: var(--glass-solid);
+  }
+}
+
+/* ── Motion (28.4) ────────────────────────────────────────────────────────
+   No whole-page fade. Hover lift on cards (4 px), a slow zoom on the screen
+   inside a mock-up, menus fading in, and per-element reveals. Each one only
+   exists under `prefers-reduced-motion: no-preference`; the design does not
+   depend on any of them. */
+@utility hover-lift {
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      transform 250ms var(--ease-standard),
+      box-shadow 250ms var(--ease-standard);
+    &:hover,
+    &:has(:focus-visible) {
+      transform: translateY(-4px);
+    }
+  }
+}
+@utility media-zoom {
+  overflow: hidden;
+  @media (prefers-reduced-motion: no-preference) {
+    & img {
+      transition: transform 700ms var(--ease-standard);
+    }
+    &:hover img {
+      transform: scale(1.03);
+    }
+  }
+}
+/* <Reveal> (components/brand/reveal.tsx) marks an element that starts
+   below the fold as `pending` and as `shown` once it scrolls in. Without
+   JavaScript, or with reduced motion, nothing is ever hidden. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal='pending'] {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  [data-reveal='shown'] {
+    transition:
+      opacity 280ms var(--ease-emphasized),
+      transform 280ms var(--ease-emphasized);
   }
 }

@@ -2,7 +2,6 @@
 
 import { usePathname } from '@/i18n/navigation'
 import { getDeveloperProfile } from '@/lib/home-content'
-import { PageTransition } from '@/components/site/page-transition'
 import { SiteFooter } from '@/components/site/site-footer'
 import { SiteHeader } from '@/components/site/site-header'
 import { StickyMobileCta } from '@/components/ui/identity'
@@ -34,7 +33,8 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-col bg-background">
       <SiteHeader />
       <main id="main" className={cn('flex-1', showStickyCta && 'pb-20 md:pb-0')}>
-        <PageTransition>{children}</PageTransition>
+        {/* Phase 28.4: no whole-page fade on navigation — elements reveal on their own (components/brand/reveal.tsx). */}
+        {children}
       </main>
       <SiteFooter />
       {showStickyCta ? <StickyMobileCta availability={developer?.availability} /> : null}

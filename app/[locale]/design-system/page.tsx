@@ -19,7 +19,14 @@ import { ShowcaseHeader } from '@/components/showcase/showcase-header'
 import { StatesSection } from '@/components/showcase/states-section'
 import { SpacingSection } from '@/components/showcase/spacing-section'
 import { TypographySection } from '@/components/showcase/typography-section'
+import { Ds2ComponentsSection } from '@/components/showcase/ds2/components-section'
+import { Ds2GlassSection, Ds2MotionSection, Ds2TokensSection, Ds2TypeSection } from '@/components/showcase/ds2/foundations'
+import { PreviewWidthProvider } from '@/components/showcase/ds2/preview-width'
 import { Badge } from '@/components/ui/badge'
+import { getAllProjects, getProducts } from '@/lib/home-content-projects'
+import { getAllServices } from '@/lib/services-content'
+import { getShellData } from '@/lib/shell-settings-server'
+import { whatsappHref } from '@/lib/shell-settings'
 
 export async function generateMetadata({
   params,
@@ -40,6 +47,12 @@ export async function generateMetadata({
  * bilingual public-site content scope. Only the metadata is translated
  * here; the showcase content itself stays in English, same as before
  * Phase 5.1.
+ *
+ * Phase 28: Design System 2.0 comes first — its tokens, type, glass, motion
+ * and components, fed by the same data the site uses (published projects,
+ * products, services, the WhatsApp number from the admin). The numbered
+ * sections after it are the revision 1–44 primitives, still used by the
+ * admin and by the pages Phases 29–33 rebuild.
  */
 export default async function DesignSystemPage({
   params,
@@ -48,6 +61,10 @@ export default async function DesignSystemPage({
 }) {
   const { locale } = await params
   setRequestLocale(locale)
+
+  const [projects, products, services, shell] = await Promise.all([getAllProjects(), getProducts(), getAllServices(), getShellData()])
+  const whatsapp = shell.contact.whatsappNumber ? whatsappHref(shell.contact.whatsappNumber) : null
+  const screenshot = projects.find((p) => p.coverImage)?.coverImage
 
   return (
     <div className="min-h-screen bg-background">
@@ -58,21 +75,19 @@ export default async function DesignSystemPage({
           <Badge variant="brand-soft" className="mb-6">
             01 — Foundations
           </Badge>
-          <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance md:text-6xl">
-            The Artaveo Design System
-          </h1>
+          <h1 className="max-w-3xl text-h1 text-balance">The Artaveo Design System</h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground text-pretty">
-            The visual foundation for an independent full-stack development
-            studio — semantic color tokens, a typographic scale, spacing rhythm,
-            and the core component primitives that every page is built from.
-            Precise, minimal, and intentional in both light and dark.
+            Design System 2.0 (Phase 28): ink bands for impact, warm panels for
+            reading, brand gold, each project in its own colour, glass in five
+            places only, and motion that the design never depends on. Below it,
+            the earlier primitives the admin is still built from.
           </p>
           <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-4">
             {[
               { k: 'Modes', v: 'Light · Dark' },
               { k: 'Direction', v: 'LTR · RTL' },
               { k: 'Fonts', v: 'Geist · Vazirmatn' },
-              { k: 'Base unit', v: '4px' },
+              { k: 'Sizes', v: 'Phone · Tablet · Desktop' },
             ].map((item) => (
               <div key={item.k} className="bg-card p-4">
                 <dt className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
@@ -83,6 +98,14 @@ export default async function DesignSystemPage({
             ))}
           </dl>
         </section>
+
+        <PreviewWidthProvider>
+          <Ds2TokensSection projects={projects} />
+          <Ds2TypeSection />
+          <Ds2GlassSection screenshot={screenshot} />
+          <Ds2MotionSection />
+          <Ds2ComponentsSection projects={projects} products={products} services={services} whatsappHref={whatsapp} />
+        </PreviewWidthProvider>
 
         <ColorsSection />
         <TypographySection />
@@ -109,7 +132,7 @@ export default async function DesignSystemPage({
             ARTAVEO
           </span>
           <span className="text-sm text-muted-foreground">
-            Design System · Phase 1
+            Design System 2.0 · Phase 28
           </span>
         </div>
       </footer>

@@ -1,5 +1,7 @@
 # Art Direction — Derived Brand System (Phase 4.1)
 
+> **Succeeded by Design System 2.0 (Phase 28, 18 October 2026).** The current visual direction is ROAD-MAP-ARTAVEO.md § 14.1, built as tokens and components in `app/globals.css` and `components/brand/` and shown on `/design-system` — see `docs/phases/PHASE-28-README.md`. In short: ink bands (#0A0C11) and warm reading panels (#F4F2ED) that look the same in both themes; brand gold #E2B65C (text on ink only — `gold-deep` #7D5F17 on the warm panel); one cool blue; each project in its own admin-set colour, kept readable by `projectPalette()`; a type scale of h1 32–50 / h2 24–34 / h3 20–25 / card 16–18 / body 15–16 / small 12–13 px with Dari line height 1.85–1.9; glass only for the header, menus, chips over mock-ups and cards on ink, solid under reduced transparency; no whole-page fade, small motion off under reduced motion. This document stays as the record of Phase 4.1; where it conflicts with § 14.1 (for example "no gradients or glass"), § 14.1 wins. **The placeholder-mark debt below is fully closed:** the last old-trace asset, `public/brand/og-image.png`, was re-rendered from the corrected mark in Phase 28.6 (`scripts/brand/render-og-image.mjs`), and the mark's outline now lives once in `lib/brand/mark-path.ts`.
+
 ## Status: PARTIAL — tokens, logo variants, and all §4.1.3 items (favicon/header wiring, clear-space, semantic colours, typography, imagery, iconography, motion) delivered; owner (D-12) approval still open
 
 ## Objective
@@ -132,7 +134,8 @@ The pre-existing, approved-shape versions were **not deleted** — they're kept 
 - ✅ `public/brand/artaveo-mark-mono-white.svg` (built from the verified `mono-black` silhouette — the source PNG itself is still defective, SVG is correct)
 - ✅ `public/brand/artaveo-mark-mono-black.svg`
 - ✅ `public/artaveo-icon.svg`, `public/icon.svg`, `app/favicon.ico`, `app/apple-icon.png`, `public/apple-icon.png`, `public/icon-{light,dark}-{16,32}x{16,32}.png`
-- ❌ still on the old trace: `public/icon-192.png`, `public/icon-512.png`, `public/icon-512-maskable.png`, `public/brand/og-image.png`
+- ✅ `public/icon-192.png`, `public/icon-512.png`, `public/icon-512-maskable.png` — rebuilt in Phase 10.1
+- ✅ `public/brand/og-image.png` — re-rendered from the corrected mark in Phase 28.6 (ink and gold, `scripts/brand/render-og-image.mjs`)
 - ✅ `components/site/artaveo-mark.tsx` — both inline `<path>` values swapped.
 
 ## §4.1.3 — Favicon/header wiring, clear-space, semantic colours, typography, imagery, iconography, motion

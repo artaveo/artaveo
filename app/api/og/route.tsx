@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import type { NextRequest } from 'next/server'
 
+import { OG_SIZE, ogPageCard } from '@/lib/brand/og-card'
 import { siteConfig } from '@/lib/site'
 
 /**
@@ -8,10 +9,10 @@ import { siteConfig } from '@/lib/site'
  * `lib/og.ts` for why Persian pages keep the static fallback). Runs on
  * the default Node.js runtime — the Edge runtime works too, but Next
  * 16 flags it as deprecated and it isn't needed for a route this simple.
+ *
+ * Phase 28.6: the card itself (ink, gold, the corrected mark) is built in
+ * lib/brand/og-card.ts, shared with the static fallback image.
  */
-
-const BRAND_BG = '#1A1A1A'
-const BRAND_GOLD = '#D4A24C'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -23,61 +24,5 @@ export async function GET(request: NextRequest) {
   const title = clean(searchParams.get('title'), 120) ?? siteConfig.name
   const eyebrow = clean(searchParams.get('eyebrow'), 60) ?? siteConfig.tagline
 
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          backgroundColor: BRAND_BG,
-          padding: '72px',
-          fontFamily: 'sans-serif',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            fontSize: 28,
-            fontWeight: 600,
-            letterSpacing: '0.3em',
-            color: '#FFFFFF',
-          }}
-        >
-          ARTAVEO
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          <div
-            style={{
-              display: 'flex',
-              fontSize: 26,
-              fontWeight: 500,
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              color: BRAND_GOLD,
-            }}
-          >
-            {eyebrow}
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              fontSize: 64,
-              fontWeight: 600,
-              lineHeight: 1.15,
-              color: '#FFFFFF',
-              maxWidth: '980px',
-            }}
-          >
-            {title}
-          </div>
-        </div>
-      </div>
-    ),
-    { width: 1200, height: 630 },
-  )
+  return new ImageResponse(ogPageCard({ title, eyebrow }), OG_SIZE)
 }
