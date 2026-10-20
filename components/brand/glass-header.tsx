@@ -113,6 +113,7 @@ export function GlassHeader({
   const toggle = (menu: Exclude<OpenMenu, null>) => setOpen((current) => (current === menu ? null : menu))
   const close = () => setOpen(null)
   const hasProducts = products.length > 0
+  // The current page: a lighter fill and a gold bar — never gold text, which falls under 4.5:1 where a white page shows through the glass.
   const isCurrent = (href: string) => (href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`))
 
   const menuButton = (menu: 'products' | 'services', label: string) => (
@@ -153,7 +154,7 @@ export function GlassHeader({
               key={link.href}
               href={link.href}
               aria-current={isCurrent(link.href) ? 'page' : undefined}
-              className="inline-flex min-h-11 items-center rounded-pill px-3.5 text-sm font-medium outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70 aria-[current=page]:bg-white/9 aria-[current=page]:text-gold"
+              className="inline-flex min-h-11 items-center rounded-pill px-3.5 text-sm font-medium outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70 aria-[current=page]:bg-white/9 aria-[current=page]:shadow-[inset_0_-2px_0_var(--color-gold)]"
             >
               {link.label}
             </Link>
@@ -372,7 +373,7 @@ function MobileLink({ href, label, current = false, onNavigate }: { href: string
       href={href}
       onClick={onNavigate}
       aria-current={current ? 'page' : undefined}
-      className="flex min-h-11 items-center rounded-xl px-4 font-semibold outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70 aria-[current=page]:text-gold"
+      className="flex min-h-11 items-center rounded-xl px-4 font-semibold outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70 aria-[current=page]:bg-white/9 aria-[current=page]:shadow-[inset_3px_0_0_var(--color-gold)] rtl:aria-[current=page]:shadow-[inset_-3px_0_0_var(--color-gold)]"
     >
       {label}
     </Link>

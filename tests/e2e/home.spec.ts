@@ -93,6 +93,6 @@ test('the footer: Services · Artaveo · Contact columns, the legal row and the 
     await expect(footer.getByRole('navigation', { name: column })).toBeVisible()
   }
   await expect(footer.getByRole('navigation', { name: msg('fa', 'Brand.products') })).toHaveCount(0)
-  await expect(footer).toContainText(/© ۱۴\d\d/)
+  await expect(footer).toContainText(/© ۱۴[۰-۹]{2}/) // Persian digits: `\d` would only match 0–9
   await expect(footer.getByRole('link', { name: msg('fa', 'Nav.privacy') })).toBeVisible()
 })

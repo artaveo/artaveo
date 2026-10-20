@@ -160,6 +160,15 @@ describe('the WhatsApp glyph (owner, 18 October 2026)', () => {
   })
 })
 
+describe('the current page in the header', () => {
+  it('is marked with a fill and a gold bar, never gold text (gold on glass over a white page is 3.6:1 — found by CI)', () => {
+    const header = read('components/brand/glass-header.tsx')
+    assert.match(header, /aria-current=\{isCurrent\(link\.href\) \? 'page' : undefined\}/)
+    assert.doesNotMatch(header, /aria-\[current=page\]:text-gold/)
+    assert.match(header, /aria-\[current=page\]:shadow-\[inset_0_-2px_0_var\(--color-gold\)\]/)
+  })
+})
+
 describe('Home (29.2)', () => {
   const page = read('app/[locale]/page.tsx')
   it('is built from the Design System 2.0 sections, in the sample\'s order', () => {

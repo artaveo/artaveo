@@ -35,7 +35,7 @@ New `Home` namespace (and `Brand.footerWhatsapp`, `Brand.footerContact`), writte
 
 ## Verification
 
-- `npm run verify`: typecheck, lint (**65** warnings — one fewer; the cap is lowered to 65), content check, **567 unit tests** (18 new in `tests/unit/shell-home.test.mjs`: product links, menu entries, the header for every data case — no product, a product, "All products", no service, the mobile menu, the fallback — the footer columns, the WhatsApp glyph in every WhatsApp action and its colours, Home's section order, the removed sections, no sale options on Home, no "⌘K" or theme switch in the header).
+- `npm run verify`: typecheck, lint (**65** warnings — one fewer; the cap is lowered to 65), content check, **568 unit tests** (19 new in `tests/unit/shell-home.test.mjs`: product links, menu entries, the header for every data case — no product, a product, "All products", no service, the mobile menu, the fallback — the footer columns, the WhatsApp glyph in every WhatsApp action and its colours, Home's section order, the removed sections, no sale options on Home, no "⌘K" or theme switch in the header).
 - `next build` passes (against Neon).
 - On the production build with the live data, in headless Edge (Playwright):
   - Home has **no horizontal overflow** at 375, 768 and 1280 px in both languages; About, Work, a case study, Services, Start and Contact have none at 375 px either, and no browser errors.
@@ -47,6 +47,11 @@ New `Home` namespace (and `Brand.footerWhatsapp`, `Brand.footerContact`), writte
   - On a phone the WhatsApp button ends above the mobile call-to-action bar (804 px vs 843 px).
   - Screenshots checked by eye: Dari Home at 1280 px, the Services mega menu (English), the Dari mobile menu.
 - End-to-end suites updated for the new shell (CI): `flows-public` (language link, footer theme switch), `mobile` (the glass menu), `a11y` (mobile menu), `search` (search through the phone menu); new `tests/e2e/home.spec.ts` (Home's sections from data in both languages, grounds in both themes, the header's content and current page, the WhatsApp glyph and number, the footer's columns and Solar Hijri year).
+
+## Found by CI and fixed
+
+- **The current page in the header was gold text on glass** — 7:1 over ink (Home, where it was checked locally), but **3.59:1** where a white page shows through the glass (Work, a case study, About; CI run 39414964165, axe). The current page is now marked with a lighter fill and a gold bar (a non-text mark, 3.6:1 ≥ 3:1) and keeps white text (≈ 6.8:1 on that worst background); a unit test forbids gold text there.
+- **The footer test's year pattern** used `\d`, which in JavaScript matches only 0–9 and never «۰–۹»; it now looks for Persian digits.
 
 ## Known issues and what is next
 
