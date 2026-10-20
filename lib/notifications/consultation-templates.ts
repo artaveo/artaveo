@@ -56,7 +56,7 @@ const LABELS = {
   fa: {
     when: 'تاریخ',
     time: 'ساعت',
-    zone: 'منطقه‌ی زمانی',
+    zone: 'ساعت محل',
     utc: 'به وقت جهانی',
     how: 'روش تماس',
   },
@@ -76,7 +76,7 @@ function confirmedBlock(range: ConsultationWindow, timezone: string, locale: Loc
 }
 
 export function consultationSummary(locale: Locale): string {
-  return locale === 'fa' ? 'آرتاویو — تماس آشنایی' : 'Artaveo — intro call'
+  return locale === 'fa' ? 'آرتاویو — تماس مشوره' : 'Artaveo — consultation call'
 }
 
 /** The client's acknowledgement. Nothing is booked yet, and the message says so. */
@@ -90,32 +90,32 @@ export function buildConsultationReceivedEmail(input: {
 
   if (input.locale === 'fa') {
     return {
-      subject: 'درخواست تماس شما دریافت شد — آرتاویو',
+      subject: 'درخواست وقت مشوره‌ی شما رسید — آرتاویو',
       text: [
-        'از اینکه یک تماس آشنایی خواسته‌اید سپاسگزارم. زمان قطعی را برایتان می‌فرستم. تعهد من: ' + commitment('fa') + '.',
+        `تشکر که وقت مشوره خواستید. آرتاویو ${commitment('fa')}، یک وقت تأییدشده برای شما می‌فرستد.`,
         '',
-        'بازه‌هایی که پیشنهاد کرده‌اید:',
+        'وقت‌هایی که پیشنهاد کردید:',
         ...windowLines(input.windows, input.timezone, 'fa'),
-        `منطقه‌ی زمانی: ${zoneLine(input.timezone, first)}`,
+        `ساعت محل: ${zoneLine(input.timezone, first)}`,
         '',
-        'تا وقتی زمان را تأیید نکرده‌ام، چیزی ثبت نشده است. با پیوند اختصاصی‌تان می‌توانید هر وقت خواستید این درخواست را تغییر دهید یا لغو کنید:',
+        'تا وقتی آرتاویو وقتی را تأیید نکند، چیزی ثبت نشده است. با لینک خصوصی خود هر وقت خواستید می‌توانید این درخواست را تغییر دهید یا لغو کنید:',
         input.manageUrl,
         '',
-        'می‌توانید به همین ایمیل هم پاسخ دهید.',
+        'به همین ایمیل هم می‌توانید جواب دهید.',
       ].join('\n'),
     }
   }
 
   return {
-    subject: 'Your call request was received — Artaveo',
+    subject: 'Artaveo has your call request',
     text: [
-      `Thanks for asking for an intro call. I'll send you a confirmed time — ${commitment('en')}.`,
+      `Thank you for asking for a consultation call. Artaveo will send you a confirmed time ${commitment('en')}.`,
       '',
       'The times you offered:',
       ...windowLines(input.windows, input.timezone, 'en'),
       `Time zone: ${zoneLine(input.timezone, first)}`,
       '',
-      "Nothing is booked until I confirm a time. You can change or cancel this request whenever you like with your private link:",
+      'Nothing is booked until Artaveo confirms a time. You can change or cancel this request whenever you like with your private link:',
       input.manageUrl,
       '',
       'You can also just reply to this e-mail.',
@@ -138,28 +138,28 @@ export function buildConsultationConfirmedEmail(
 
   if (input.locale === 'fa') {
     return {
-      subject: moved ? 'زمان تماس شما تغییر کرد — آرتاویو' : 'تماس آشنایی شما تأیید شد — آرتاویو',
+      subject: moved ? 'وقت تماس مشوره‌ی شما تغییر کرد — آرتاویو' : 'تماس مشوره‌ی شما تأیید شد — آرتاویو',
       text: [
-        moved ? 'زمان تماس آشنایی‌مان را به این زمان جدید منتقل کردم:' : 'تماس آشنایی‌مان تأیید شد:',
+        moved ? 'آرتاویو تماس مشوره‌ی شما را به این وقت تازه برد:' : 'تماس مشوره‌ی شما با آرتاویو تأیید شد:',
         '',
         ...confirmedBlock(input.range, input.timezone, 'fa', input.meetingDetails),
         ...(input.previous
-          ? ['', 'زمان قبلی (لغو شد):', ...confirmedBlock(input.previous, input.timezone, 'fa').slice(0, 3)]
+          ? ['', 'وقت قبلی (لغو شد):', ...confirmedBlock(input.previous, input.timezone, 'fa').slice(0, 3)]
           : []),
         '',
-        'دعوت‌نامه‌ی تقویم پیوست است. اگر برنامه‌ی ایمیلتان آن را نشان نمی‌دهد، تماس را از صفحه‌ی خودتان به تقویم اضافه کنید:',
+        'دعوت‌نامه‌ی تقویم پیوست است. اگر برنامه‌ی ایمیل شما آن را نشان نمی‌دهد، تماس را از صفحه‌ی خود به تقویم اضافه کنید:',
         input.calendarUrl,
         '',
-        'زمان دیگری مناسب‌تان است یا نمی‌توانید بیایید؟ با پیوند اختصاصی‌تان زمان را عوض یا تماس را لغو کنید:',
+        'وقت دیگری برای شما بهتر است یا نمی‌توانید بیایید؟ با لینک خصوصی خود وقت را عوض یا تماس را لغو کنید:',
         input.manageUrl,
       ].join('\n'),
     }
   }
 
   return {
-    subject: moved ? 'Your intro call was moved — Artaveo' : 'Your intro call is confirmed — Artaveo',
+    subject: moved ? 'Your consultation call was moved — Artaveo' : 'Your consultation call is confirmed — Artaveo',
     text: [
-      moved ? "I've moved our intro call to this new time:" : 'Our intro call is confirmed:',
+      moved ? 'Artaveo has moved your consultation call to this new time:' : 'Your consultation call with Artaveo is confirmed:',
       '',
       ...confirmedBlock(input.range, input.timezone, 'en', input.meetingDetails),
       ...(input.previous
@@ -193,25 +193,25 @@ export function buildConsultationCancelledEmail(
 
   if (input.locale === 'fa') {
     return {
-      subject: 'تماس آشنایی لغو شد — آرتاویو',
+      subject: 'تماس مشوره لغو شد — آرتاویو',
       text: [
-        input.by === 'owner' ? 'تماس آشنایی‌مان را لغو کردم.' : 'تماس آشنایی را طبق درخواستتان لغو کردم.',
+        input.by === 'owner' ? 'آرتاویو تماس مشوره‌ی شما را لغو کرد.' : 'تماس مشوره‌ی شما به درخواست خودتان لغو شد.',
         ...(input.range ? ['', ...confirmedBlock(input.range, input.timezone, 'fa').slice(0, 4)] : []),
         ...(reason && input.by === 'owner' ? ['', 'دلیل:', reason] : []),
-        ...(input.range ? ['', 'دعوت‌نامه‌ی پیوست، این رویداد را از تقویمتان برمی‌دارد.'] : []),
+        ...(input.range ? ['', 'دعوت‌نامه‌ی پیوست، این تماس را از تقویم شما برمی‌دارد.'] : []),
         '',
         input.by === 'owner'
-          ? 'اگر هنوز می‌خواهید صحبت کنیم، می‌توانید زمان دیگری درخواست کنید:'
-          : 'هر وقت خواستید، می‌توانید زمان دیگری درخواست کنید:',
+          ? 'اگر هنوز می‌خواهید گفتگو کنید، می‌توانید وقت دیگری بخواهید:'
+          : 'هر وقت خواستید، می‌توانید وقت دیگری بخواهید:',
         input.newRequestUrl,
       ].join('\n'),
     }
   }
 
   return {
-    subject: 'Your intro call was cancelled — Artaveo',
+    subject: 'Your consultation call was cancelled — Artaveo',
     text: [
-      input.by === 'owner' ? "I've cancelled our intro call." : "I've cancelled the intro call, as you asked.",
+      input.by === 'owner' ? 'Artaveo has cancelled your consultation call.' : 'Your consultation call has been cancelled, as you asked.',
       ...(input.range ? ['', ...confirmedBlock(input.range, input.timezone, 'en').slice(0, 4)] : []),
       ...(reason && input.by === 'owner' ? ['', 'Reason:', reason] : []),
       ...(input.range ? ['', 'The attached calendar update removes it from your calendar.'] : []),

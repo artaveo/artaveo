@@ -22,7 +22,7 @@ export function ServiceKindCard({ service, href }: { service: Service; href: str
       className="hover-lift flex h-full flex-col gap-2.5 rounded-card-lg border border-paper-line bg-paper-card p-7 text-paper-foreground outline-none hover:shadow-card-hover focus-visible:ring-3 focus-visible:ring-ring/60"
       data-slot="service-card"
     >
-      <span className="grid size-12 place-items-center rounded-2xl bg-paper-foreground text-gold">
+      <span className="grid size-12 place-items-center rounded-2xl bg-paper-ink text-gold">
         <ServiceKindIcon kind={service.kind} className="size-5" />
       </span>
       <span className="mt-1 text-card-title">{t(service.title, locale)}</span>
@@ -60,7 +60,7 @@ export function ServiceKindGrid({
 /** The last tile of a services grid: not sure which service fits → a consultation request. */
 export function ConsultationTile({ title, line, action }: { title: string; line: string; action: string }) {
   return (
-    <div className="flex h-full flex-col justify-between gap-4 rounded-card-lg bg-paper-foreground bg-[radial-gradient(120%_100%_at_100%_0%,rgb(226_182_92/0.3),transparent_60%)] p-7 text-ink-foreground rtl:bg-[radial-gradient(120%_100%_at_0%_0%,rgb(226_182_92/0.3),transparent_60%)]">
+    <div className="flex h-full flex-col justify-between gap-4 rounded-card-lg bg-paper-ink bg-[radial-gradient(120%_100%_at_100%_0%,rgb(226_182_92/0.3),transparent_60%)] p-7 text-ink-foreground rtl:bg-[radial-gradient(120%_100%_at_0%_0%,rgb(226_182_92/0.3),transparent_60%)]">
       <div>
         <p className="text-card-title">{title}</p>
         <p className="mt-1.5 text-sm text-ink-muted">{line}</p>

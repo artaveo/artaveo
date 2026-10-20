@@ -16,7 +16,7 @@ export function ProcessSteps({ steps }: { steps: { title: LocalizedText; line: L
     <ol className="grid gap-4 @2xl:grid-cols-2 @5xl:grid-cols-4" data-slot="process-steps">
       {steps.map((step, index) => (
         <li key={index} className="rounded-card-lg border border-paper-line bg-paper-card p-6 text-paper-foreground">
-          <span aria-hidden="true" className="grid size-10 place-items-center rounded-full bg-paper-foreground text-base font-extrabold text-gold">
+          <span aria-hidden="true" className="grid size-10 place-items-center rounded-full bg-paper-ink text-base font-extrabold text-gold">
             {formatNumber(index + 1, locale)}
           </span>
           <span className="sr-only">{tr('step', { n: index + 1 })}</span>

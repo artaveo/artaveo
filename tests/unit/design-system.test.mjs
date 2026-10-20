@@ -18,10 +18,14 @@ import { existsSync, readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
 
 import {
+  cardTonesStyle,
   composite,
   contrastRatio,
+  luminance,
   PROJECT_GLOW_ALPHA,
+  projectCardTones,
   projectPalette,
+  tone,
   toHex,
   worstContrast,
 } from '../../lib/design/color.ts'
@@ -81,9 +85,48 @@ describe('Design System 2.0 tokens (28.1)', () => {
     assert.ok(contrastRatio('#ffffff', token('whatsapp')) >= 3)
   })
 
-  it('the ink and warm grounds are not redefined for the dark theme', () => {
-    const dark = css.slice(css.indexOf('.dark {'), css.indexOf('@layer base'))
-    for (const name of ['ink', 'paper', 'gold', 'glass-fill']) assert.doesNotMatch(dark, new RegExp(`--${name}:`))
+  it('the ink bands, gold and glass are not redefined for the dark theme', () => {
+    const dark = css.slice(css.indexOf('.dark {'), css.search(/^\[data-project-tones\] \{/m))
+    for (const name of ['ink', 'gold', 'glass-fill']) assert.doesNotMatch(dark, new RegExp(`--${name}:`))
+  })
+
+  // Phase 32.6 (D-22): the warm panels follow the theme — every pairing is measured again on the dark values.
+  const darkToken = (name) => {
+    const dark = css.slice(css.indexOf('.dark {'), css.search(/^\[data-project-tones\] \{/m))
+    const match = new RegExp(`--${name}:\\s*([^;]+);`).exec(dark)
+    assert.ok(match, `--${name} is redefined under .dark`)
+    return match[1].trim()
+  }
+  for (const [fg, bg] of [
+    ['paper-foreground', 'paper'],
+    ['paper-foreground', 'paper-card'],
+    ['paper-muted', 'paper'],
+    ['paper-muted', 'paper-card'],
+    ['gold-deep', 'paper'],
+    ['gold-deep', 'paper-card'],
+    ['paper-card', 'paper-foreground'],
+  ]) {
+    it(`dark theme: ${fg} on ${bg} reaches 4.5:1`, () => {
+      const ratio = contrastRatio(darkToken(fg), darkToken(bg))
+      assert.ok(ratio >= 4.5, `${fg} ${darkToken(fg)} on ${bg} ${darkToken(bg)}: ${ratio.toFixed(2)}`)
+    })
+  }
+  it('both themes: gold and ink text stay readable on the dark tiles of the warm panel (paper-ink)', () => {
+    for (const ink of [token('paper-ink'), darkToken('paper-ink')]) {
+      assert.ok(contrastRatio(token('gold'), ink) >= 4.5, `gold on ${ink}`)
+      assert.ok(contrastRatio(token('ink-foreground'), ink) >= 4.5, `ink-foreground on ${ink}`)
+      assert.ok(contrastRatio(token('ink-muted'), ink) >= 4.5, `ink-muted on ${ink}`)
+    }
+  })
+  it('the dark warm panel still stands apart from the ink around it', () => {
+    assert.ok(contrastRatio(darkToken('paper'), token('ink')) > 1.05)
+    assert.ok(contrastRatio(darkToken('paper-card'), darkToken('paper')) > 1.1)
+  })
+  it('the /design-system light preview repeats the light values exactly', () => {
+    const light = css.slice(css.indexOf('.theme-light {'), css.indexOf('.dark .theme-light'))
+    for (const name of ['paper', 'paper-card', 'paper-foreground', 'paper-muted', 'paper-line', 'paper-ink', 'gold-deep']) {
+      assert.equal(new RegExp(`--${name}:\\s*([^;]+);`).exec(light)?.[1].trim(), token(name), name)
+    }
   })
 
   it('radii follow § 14.1: pill, 16–24 px cards, 28–40 px panels', () => {
@@ -194,6 +237,90 @@ describe('per-project colour (28.1)', () => {
     assert.ok(r.on >= 4.5)
     const [rr, gg, bb] = [1, 3, 5].map((i) => Number.parseInt(r.p.surface.slice(i, i + 2), 16))
     assert.ok(rr > gg && gg > bb, `still an orange: ${r.p.surface}`)
+  })
+})
+
+describe('project cards (32.6, D-22)', () => {
+  const CARD_TEXTS = ['title', 'text', 'muted']
+  const measure = (brand) => {
+    const tones = projectCardTones(brand)
+    const out = {}
+    for (const theme of ['light', 'dark']) {
+      const c = tones[theme]
+      for (const name of CARD_TEXTS) out[`${theme}.${name}`] = contrastRatio(c[name], c.ground)
+      out[`${theme}.link`] = contrastRatio(c.actionText, c.title)
+    }
+    return { tones, out }
+  }
+
+  it('the two real projects: every text reaches 4.5:1 in both themes', () => {
+    for (const brand of ['#14243D', '#123B2C', '#34838D']) {
+      const { out } = measure(brand)
+      for (const [pair, ratio] of Object.entries(out)) assert.ok(ratio >= 4.5, `${brand} ${pair}: ${ratio.toFixed(2)}`)
+    }
+  })
+
+  it('every text reaches 4.5:1 in both themes for any colour (5,000 seeded samples)', () => {
+    let seed = 32
+    const next = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31)
+    for (let i = 0; i < 5000; i++) {
+      const brand = `#${(next() % 0x1000000).toString(16).padStart(6, '0')}`
+      const { out } = measure(brand)
+      for (const [pair, ratio] of Object.entries(out)) assert.ok(ratio >= 4.5, `${brand} ${pair}: ${ratio.toFixed(2)}`)
+    }
+  })
+
+  it('the tones follow the theme: a light tint in the light theme, a deep tone in the dark one', () => {
+    const { tones } = measure('#14243D')
+    assert.ok(luminance(tones.light.ground) > 0.8 && luminance(tones.dark.ground) < 0.03)
+    assert.ok(luminance(tones.light.panel) > luminance(tones.light.panelDeep))
+    assert.ok(luminance(tones.light.title) < luminance(tones.light.ground))
+    assert.ok(luminance(tones.dark.title) > luminance(tones.dark.ground))
+  })
+
+  it("the project's identity hue is kept in both themes (navy stays blue, green stays green)", () => {
+    const hue = (hex) => {
+      const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16))
+      return { r, g, b }
+    }
+    for (const theme of ['light', 'dark']) {
+      const navy = projectCardTones('#14243D')[theme]
+      for (const c of [navy.ground, navy.panel, navy.title].map(hue)) assert.ok(c.b > c.r, `${theme} navy keeps blue: ${JSON.stringify(c)}`)
+      const green = projectCardTones('#123B2C')[theme]
+      for (const c of [green.ground, green.panel, green.title].map(hue)) assert.ok(c.g > c.r && c.g > c.b, `${theme} green stays green: ${JSON.stringify(c)}`)
+    }
+  })
+
+  it('tone() reaches its luminance target', () => {
+    for (const target of [0.02, 0.2, 0.5, 0.86]) assert.ok(Math.abs(luminance(tone('#34838D', target)) - target) < 0.01, `${target}`)
+  })
+
+  it('an invalid colour falls back to ink, never into a style', () => {
+    const style = cardTonesStyle(projectCardTones('red;background:url(x)'))
+    for (const value of Object.values(style)) assert.match(value, /^#[0-9a-f]{6}$/)
+    assert.ok('--pc-ground-light' in style && '--pc-action-text-dark' in style)
+  })
+
+  it('CSS: [data-project-tones] picks the light values, .dark the dark ones, for every tone', () => {
+    const block = (selector) => css.slice(css.indexOf(`${selector} {`), css.indexOf('}', css.indexOf(`${selector} {`)))
+    for (const key of ['ground', 'panel', 'panel-deep', 'line', 'chip-line', 'title', 'text', 'muted', 'action-text']) {
+      assert.match(block('[data-project-tones]'), new RegExp(`--pc-${key}: var\\(--pc-${key}-light\\)`))
+      assert.match(block('.dark [data-project-tones]'), new RegExp(`--pc-${key}: var\\(--pc-${key}-dark\\)`))
+    }
+  })
+
+  it('the card is compact and coloured over the whole card (owner, 20 October 2026)', () => {
+    const row = readFileSync(new URL('../../components/brand/portfolio-row.tsx', import.meta.url), 'utf8')
+    assert.match(row, /data-project-tones/)
+    assert.match(row, /max-w-\[68\.75rem\]/) // ≈ 1100 px, centred — never a full-width band
+    assert.match(row, /mx-auto/)
+    assert.match(row, /@3xl:basis-\[45%\]/) // the screenshot panel ≈ 45 %
+    assert.match(row, /bg-pc-ground/)
+    assert.match(row, /text-pc-title/)
+    assert.match(row, /border-pc-chip-line/)
+    assert.match(row, /variant="project-card"/)
+    assert.doesNotMatch(row, /bg-paper-card|bg-paper\b/) // no plain white text side any more
+    assert.match(row, /flex flex-col gap-7/) // 28 px between cards (§ 14.1)
   })
 })
 

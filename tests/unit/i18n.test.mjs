@@ -9,6 +9,8 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, it } from 'node:test'
 
+import { IRANIAN_RE } from '../../scripts/content-rules.mjs'
+
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const load = (locale) => JSON.parse(readFileSync(join(ROOT, `messages/${locale}.json`), 'utf8'))
 const en = load('en')
@@ -74,10 +76,9 @@ describe('Persian text hygiene', () => {
 /**
  * Dari, not Iranian Persian (roadmap § 16.3, owner's rule). The "avoid" column of the glossary,
  * as whole words — a Persian letter may not come right before the match, so «قابلیت» is not
- * «بلیت». Checked in the dictionary and in every file that holds public Dari copy.
+ * «بلیت». Checked in the dictionary and in every file that holds public Dari copy. Phase 32: the
+ * list is the one the content check uses (`scripts/content-rules.mjs`).
  */
-const IRANIAN = ['اتوبوس', 'صندلی', 'بلیت', 'دلار', 'مشاوره', 'کامپیوتر', 'اینترنت', 'اطلاعات', 'دانشجو', 'دانشگاه', 'سامانه', 'آمریکا', 'رزرو', 'ناوگان', 'ایده(?!‌آل)', 'جلو می‌', 'سادگی', 'وابستگی', 'رسیدگی']
-const IRANIAN_RE = new RegExp(`(?<![\\u0600-\\u06FF])(?:${IRANIAN.join('|')})`)
 const DARI_COPY_FILES = ['lib/contact-content.ts', 'lib/home-content.ts', 'lib/inquiry-content.ts', 'lib/legal-content.ts', 'lib/services-content.ts', 'lib/notifications/templates.ts', 'lib/notifications/consultation-templates.ts']
 
 describe('Dari vocabulary (§ 16.3)', () => {

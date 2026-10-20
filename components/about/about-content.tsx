@@ -68,7 +68,7 @@ export function AboutContent({ whatsappHref }: { whatsappHref: string | null }) 
             <ul className="grid gap-4 @2xl:grid-cols-2 @5xl:grid-cols-4">
               {VALUES.map(({ key, icon: Icon }) => (
                 <li key={key} className="flex flex-col gap-3 rounded-card-lg border border-paper-line bg-paper-card p-7 shadow-card">
-                  <span className="grid size-12 place-items-center rounded-2xl bg-paper-foreground text-gold">
+                  <span className="grid size-12 place-items-center rounded-2xl bg-paper-ink text-gold">
                     <Icon aria-hidden="true" className="size-5" />
                   </span>
                   <h3 className="mt-1 text-card-title">{ta(`${key}Title`)}</h3>
@@ -79,7 +79,7 @@ export function AboutContent({ whatsappHref }: { whatsappHref: string | null }) 
           </section>
 
           {founder.name ? (
-            <section aria-labelledby="about-founder-title" className="grid items-center gap-8 rounded-panel bg-paper-foreground p-6 text-ink-foreground @3xl:grid-cols-[auto_1fr] @3xl:p-10" data-slot="about-founder">
+            <section aria-labelledby="about-founder-title" className="grid items-center gap-8 rounded-panel bg-paper-ink p-6 text-ink-foreground @3xl:grid-cols-[auto_1fr] @3xl:p-10" data-slot="about-founder">
               {founder.portrait ? (
                 <Image
                   src={founder.portrait}

@@ -150,17 +150,21 @@ export function Ds2ComponentsSection({
         </Preview>
       </div>
 
-      <div>
-        <Subhead>Portfolio rows on the warm panel</Subhead>
-        <Preview>
-          <PaperPanel>
-            <BandInner className="flex flex-col gap-10">
-              <SectionHeading tone="paper" eyebrow={tr('work')} title={locale === 'fa' ? 'کارهایی که آرتاویو ساخته است' : 'What Artaveo has built'} />
-              <PortfolioList projects={projects} href={workHref} />
-            </BandInner>
-          </PaperPanel>
-        </Preview>
-      </div>
+      {/* Phase 32.6 (D-22): the same cards in the light and the dark theme, whatever theme this page is in.
+          The direction is the page's own — /fa/design-system shows them right to left. */}
+      {(['light', 'dark'] as const).map((theme) => (
+        <div key={theme} className={theme === 'dark' ? 'dark' : 'theme-light'} data-slot={`portfolio-cards-${theme}`}>
+          <Subhead>Project cards on the warm panel — {theme} theme</Subhead>
+          <Preview>
+            <PaperPanel>
+              <BandInner className="flex flex-col gap-10">
+                <SectionHeading tone="paper" eyebrow={tr('work')} title={locale === 'fa' ? 'کارهایی که آرتاویو ساخته است' : 'What Artaveo has built'} />
+                <PortfolioList projects={projects} href={workHref} />
+              </BandInner>
+            </PaperPanel>
+          </Preview>
+        </div>
+      ))}
 
       <div>
         <Subhead>Service cards · process steps</Subhead>
@@ -172,7 +176,7 @@ export function Ds2ComponentsSection({
                 services={services}
                 href={(s) => `/services/${s.slug}`}
                 closingTile={
-                  <div className="flex h-full flex-col justify-between gap-4 rounded-card-lg bg-paper-foreground bg-[radial-gradient(120%_100%_at_100%_0%,rgb(226_182_92/0.3),transparent_60%)] p-7 text-ink-foreground">
+                  <div className="flex h-full flex-col justify-between gap-4 rounded-card-lg bg-paper-ink bg-[radial-gradient(120%_100%_at_100%_0%,rgb(226_182_92/0.3),transparent_60%)] p-7 text-ink-foreground">
                     <p className="text-card-title">{locale === 'fa' ? 'نمی‌دانید از کجا شروع کنید؟' : 'Not sure where to start?'}</p>
                     <PillLink href="/consultation" variant="gold" size="sm" className="self-start">
                       {locale === 'fa' ? 'گرفتن وقت مشوره' : 'Book a free call'}

@@ -164,6 +164,119 @@ export function projectPalette(brandColor?: string | null, accentColor?: string 
   }
 }
 
+/**
+ * `color` made lighter (toward white) or darker (toward black) until its
+ * luminance is `target` — a tonal step of the same hue, as Material 3's tonal
+ * palettes are, so every project colour the owner types gets the same calm
+ * steps whatever its own lightness.
+ */
+export function tone(color: string | Rgb, target: number): string {
+  // Only the lightness moves; hue and saturation stay, so a navy's light tone is still blue, not grey.
+  const { h, s } = toHsl(rgbOf(color))
+  let lo = 0
+  let hi = 1
+  for (let i = 0; i < 28; i += 1) {
+    const mid = (lo + hi) / 2
+    if (luminance(fromHsl(h, s, mid)) < target) lo = mid
+    else hi = mid
+  }
+  return toHex(fromHsl(h, s, (lo + hi) / 2))
+}
+
+function toHsl({ r, g, b }: Rgb): { h: number; s: number; l: number } {
+  const [rr, gg, bb] = [r / 255, g / 255, b / 255]
+  const max = Math.max(rr, gg, bb)
+  const min = Math.min(rr, gg, bb)
+  const l = (max + min) / 2
+  if (max === min) return { h: 0, s: 0, l }
+  const d = max - min
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+  const h = max === rr ? (gg - bb) / d + (gg < bb ? 6 : 0) : max === gg ? (bb - rr) / d + 2 : (rr - gg) / d + 4
+  return { h: h / 6, s, l }
+}
+
+function fromHsl(h: number, s: number, l: number): Rgb {
+  if (s === 0) return { r: l * 255, g: l * 255, b: l * 255 }
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+  const p = 2 * l - q
+  const channel = (t: number) => {
+    const u = t < 0 ? t + 1 : t > 1 ? t - 1 : t
+    if (u < 1 / 6) return p + (q - p) * 6 * u
+    if (u < 1 / 2) return q
+    if (u < 2 / 3) return p + (q - p) * (2 / 3 - u) * 6
+    return p
+  }
+  return { r: channel(h + 1 / 3) * 255, g: channel(h) * 255, b: channel(h - 1 / 3) * 255 }
+}
+
+/** One theme's colours of a project card (§ 6.8, D-22). */
+export type CardTones = {
+  /** The text side — a very light tint (light theme) or a deep tone (dark theme) of the hue. */
+  ground: string
+  /** The screenshot panel — a soft tone of the hue, and its second gradient stop. */
+  panel: string
+  panelDeep: string
+  /** Hairline border of the card. */
+  line: string
+  /** Outline of the chips and the platform tiles. */
+  chipLine: string
+  /** The title, the link and the button fill — the project's colour as text. */
+  title: string
+  /** Body text and the text on the button. */
+  text: string
+  muted: string
+  actionText: string
+}
+
+/** Luminance targets of the card's tonal steps, per theme (light ≈ tone 94/80/70, dark ≈ tone 12/20/30). */
+const CARD_TONE_TARGETS = {
+  light: { ground: 0.86, panel: 0.6, panelDeep: 0.48, line: 0.66, chipLine: 0.42, title: 0.06 },
+  dark: { ground: 0.018, panel: 0.05, panelDeep: 0.032, line: 0.08, chipLine: 0.14, title: 0.42 },
+} as const
+
+/**
+ * Phase 32.6 (owner, 20 October 2026 — § 6.8, D-22): the colours of a project
+ * card in the light and the dark theme, from the project's own colour. One hue
+ * in tonal steps over the whole card; the identity hue is the same in both
+ * themes, only its tones follow the theme (a container colour is light in the
+ * light scheme and dark in the dark scheme). The title, the body text, the
+ * secondary text and the button text reach 4.5:1 or more on their grounds.
+ */
+export function projectCardTones(brandColor?: string | null): { light: CardTones; dark: CardTones } {
+  const brand = toHex(parseHex(brandColor) ?? rgbOf(DEFAULT_PROJECT_COLORS.brand))
+  const build = (theme: 'light' | 'dark'): CardTones => {
+    const target = CARD_TONE_TARGETS[theme]
+    const pole: Pole = theme === 'light' ? '#000000' : '#ffffff'
+    const opposite: Pole = theme === 'light' ? '#ffffff' : '#000000'
+    const ground = tone(brand, target.ground)
+    const title = ensureContrast(tone(brand, target.title), [ground], 4.5, pole)
+    const text = ensureContrast(mix(theme === 'light' ? DARK_TEXT : LIGHT_TEXT, brand, 0.12), [ground], 7, pole)
+    return {
+      ground,
+      panel: tone(brand, target.panel),
+      panelDeep: tone(brand, target.panelDeep),
+      line: tone(brand, target.line),
+      chipLine: tone(brand, target.chipLine),
+      title,
+      text,
+      muted: ensureContrast(mix(text, ground, 0.3), [ground], 4.5, pole),
+      actionText: ensureContrast(ground, [title], 4.5, opposite),
+    }
+  }
+  return { light: build('light'), dark: build('dark') }
+}
+
+/** The card tones as the custom properties `[data-project-tones]` switches between (app/globals.css). */
+export function cardTonesStyle(tones: { light: CardTones; dark: CardTones }): React.CSSProperties {
+  const style: Record<string, string> = {}
+  for (const theme of ['light', 'dark'] as const) {
+    for (const [key, value] of Object.entries(tones[theme])) {
+      style[`--pc-${key.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}-${theme}`] = value
+    }
+  }
+  return style as React.CSSProperties
+}
+
 /** The palette as the custom properties `--color-project-*` read (app/globals.css). */
 export function projectStyle(palette: ProjectPalette): React.CSSProperties {
   return {

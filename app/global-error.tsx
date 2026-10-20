@@ -42,7 +42,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
           onClick={reset}
           style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid rgba(51,57,64,.3)', background: 'transparent', color: 'inherit', cursor: 'pointer' }}
         >
-          Try again · تلاش دوباره
+          Try again · دوباره امتحان کنید
         </button>
         {error.digest ? (
           <p style={{ fontSize: 12, opacity: 0.7, margin: 0 }}>

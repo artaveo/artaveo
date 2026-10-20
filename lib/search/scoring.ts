@@ -50,7 +50,6 @@ const KIND_BONUS: Record<SearchKind, number> = {
   project: 1,
   service: 1,
   article: 1,
-  technology: 0,
   action: 0,
 }
 

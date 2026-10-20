@@ -15,7 +15,7 @@ import type { Locale } from '@/types/content'
  * changing one import in `lib/search/provider.ts` — no component changes.
  */
 
-export type SearchKind = 'page' | 'project' | 'service' | 'article' | 'technology' | 'action'
+export type SearchKind = 'page' | 'project' | 'service' | 'article' | 'action'
 
 /** Order groups appear in when two groups have an equal best score. */
 export const SEARCH_KIND_ORDER: readonly SearchKind[] = [
@@ -23,13 +23,12 @@ export const SEARCH_KIND_ORDER: readonly SearchKind[] = [
   'project',
   'service',
   'article',
-  'technology',
   'action',
 ]
 
 /**
  * One searchable thing, already resolved to a single locale. The server does
- * all localisation (titles, descriptions, the "used in N projects" line), so
+ * all localisation (titles and descriptions), so
  * the client index carries no translation logic and no `LocalizedText`.
  */
 export type SearchDocument = {
@@ -67,7 +66,7 @@ export type SearchResult = {
   score: number
   titleRanges: Range[]
   descriptionRanges: Range[]
-  /** Set when the only thing that matched was a keyword (e.g. a technology) — shown as "Matches: …". */
+  /** Set when the only thing that matched was a keyword (e.g. a deliverable) — shown as "Matches: …". */
   matchedKeyword?: string
 }
 

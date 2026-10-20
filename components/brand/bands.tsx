@@ -4,8 +4,9 @@ import { cn } from '@/lib/utils'
 
 /**
  * Phase 28.5 — the two grounds of Design System 2.0 (§ 14.1 "dark bands for
- * impact, warm light panels for reading"). Both look the same in the light
- * and the dark theme.
+ * impact, warm light panels for reading"). The ink band is ink in both
+ * themes; the warm panel follows the theme (Phase 32.6, D-22) and gets a
+ * hairline in the dark one so its edge still shows against the ink.
  *
  * Each band is an inline-size container, so the components inside it lay out
  * by the width they are given (`@container` variants) — the same component
@@ -43,7 +44,7 @@ export function PaperPanel({
   return (
     <div className="bg-ink px-3">
       <section
-        className={cn('@container rounded-panel-lg bg-paper px-4 py-14 text-paper-foreground @3xl:px-6 @3xl:py-24', className)}
+        className={cn('@container rounded-panel-lg bg-paper px-4 py-14 text-paper-foreground dark:ring-1 dark:ring-white/7 @3xl:px-6 @3xl:py-24', className)}
         {...rest}
       >
         {children}

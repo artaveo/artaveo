@@ -134,7 +134,6 @@ export function CommandPalette({
       project: t('groupProjects'),
       service: t('groupServices'),
       article: t('groupArticles'),
-      technology: t('groupTechnologies'),
       action: t('groupActions'),
     }
     const byKind = new Map<SearchKind, SearchResult[]>()

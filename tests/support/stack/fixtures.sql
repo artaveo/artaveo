@@ -12,7 +12,7 @@ values (
   'published',
   '2026-09-01T06:00:00Z',
   '{"en": "A fixture article for the test suite", "fa": "یک مقاله آزمایشی برای مجموعه آزمون"}',
-  '{"en": "Exists only in the test database.", "fa": "فقط در پایگاه داده آزمون وجود دارد."}',
+  '{"en": "Exists only in the test suite.", "fa": "فقط در مجموعه‌ی آزمون وجود دارد."}',
   '{"en": "## First heading\n\nA paragraph of test text.\n\n## Second heading\n\nMore test text.\n\n## Third heading\n\nEven more.", "fa": "## عنوان اول\n\nیک بند متن آزمایشی.\n\n## عنوان دوم\n\nمتن آزمایشی بیشتر.\n\n## عنوان سوم\n\nباز هم متن."}',
   '{"en": "Engineering", "fa": "مهندسی"}'
 )
@@ -28,7 +28,7 @@ values (
   'e2e-product',
   '{"en": "E2E Clinic System", "fa": "سیستم آزمایشی کلینیک"}',
   '{"en": "Product", "fa": "محصول"}',
-  '{"en": "A fixture product that exists only in the test database.", "fa": "محصولی آزمایشی که فقط در پایگاه داده‌ی آزمون وجود دارد."}',
+  '{"en": "A fixture product that exists only in the test suite.", "fa": "محصولی آزمایشی که فقط در مجموعه‌ی آزمون وجود دارد."}',
   true, false, false, true,
   '#1B3A4B', '#E2B65C',
   '{"en": "Health care", "fa": "صحت"}',
@@ -45,7 +45,7 @@ from public.projects p,
   (values
     ('features-by-role', '{"groups": [{"role": {"en": "Reception", "fa": "پذیرش"}, "items": [{"en": "Books appointments", "fa": "نوبت می‌دهد"}]}, {"role": {"en": "Doctor", "fa": "داکتر"}, "items": [{"en": "Writes prescriptions", "fa": "نسخه می‌نویسد"}]}]}', 1),
     ('audience', '{"items": [{"en": "Dental clinics", "fa": "کلینیک‌های دندان"}]}', 2),
-    ('faq', '{"items": [{"question": {"en": "Does it work without internet?", "fa": "بدون انترنت کار می‌کند؟"}, "answer": {"en": "Yes.", "fa": "بله."}}]}', 3)
+    ('faq', '{"items": [{"question": {"en": "Does it work without internet?", "fa": "بدون انترنت کار می‌کند؟"}, "answer": {"en": "Yes.", "fa": "بلی."}}]}', 3)
   ) as b(type, body, sort_order)
 where p.slug = 'e2e-product'
   and not exists (select 1 from public.project_blocks x where x.project_id = p.id);

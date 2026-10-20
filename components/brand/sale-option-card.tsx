@@ -43,7 +43,7 @@ export function SaleOptionCard({ option, href }: { option: ProductSaleOption; hr
       className={cn(
         'hover-lift relative flex h-full flex-col gap-4 rounded-card-lg border p-6',
         highlighted
-          ? 'border-gold bg-paper-foreground text-ink-foreground shadow-card-hover'
+          ? 'border-gold bg-paper-ink text-ink-foreground shadow-card-hover'
           : priced
             ? 'border-paper-line bg-paper-card text-paper-foreground'
             : 'border-dashed border-[#a8a294] bg-paper-card text-paper-foreground',

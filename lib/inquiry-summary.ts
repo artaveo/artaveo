@@ -28,7 +28,7 @@ function productLines(product: SummaryProduct, locale: Locale): { label: string;
   const lines = [{ label: locale === 'fa' ? 'محصول' : 'Product', value: t(product.title, locale) }]
   if (product.option) {
     lines.push({
-      label: locale === 'fa' ? 'روش خرید' : 'Way to get it',
+      label: locale === 'fa' ? 'روش تهیه' : 'Way to get it',
       value: `${t(product.option.title, locale)} — ${formatMoney(product.option.price, product.option.billingPeriod, locale)}`,
     })
   }
@@ -44,14 +44,14 @@ function productLines(product: SummaryProduct, locale: Locale): { label: string;
 function contactLines(draft: { name: string; email: string; phone: string; preferredChannel: string }, locale: Locale): { label: string; value: string }[] {
   const lines = [
     { label: locale === 'fa' ? 'نام' : 'Name', value: draft.name.trim() },
-    { label: locale === 'fa' ? 'ایمیل' : 'Email', value: draft.email.trim() },
+    { label: locale === 'fa' ? 'ایمیل' : 'E-mail', value: draft.email.trim() },
   ]
   if (draft.phone.trim()) {
     lines.push({ label: locale === 'fa' ? 'تلفن / واتس‌اپ' : 'Phone / WhatsApp', value: draft.phone.trim() })
   }
   const channel = preferredChannelOptions.find((o) => o.id === draft.preferredChannel)
   if (channel) {
-    lines.push({ label: locale === 'fa' ? 'روش ارتباط ترجیحی' : 'Preferred contact channel', value: t(channel.label, locale) })
+    lines.push({ label: locale === 'fa' ? 'راه جواب دلخواه' : 'Preferred way to reply', value: t(channel.label, locale) })
   }
   return lines
 }
@@ -61,7 +61,7 @@ export function buildProductRequestSummaryLines(request: ProductRequestDraft, lo
   const lines = [
     {
       label: locale === 'fa' ? 'درخواست' : 'Request',
-      value: request.kind === 'product-demo' ? (locale === 'fa' ? 'دیدن نمونه‌ی کار (دمو)' : 'A demo') : locale === 'fa' ? 'خرید' : 'A purchase',
+      value: request.kind === 'product-demo' ? (locale === 'fa' ? 'دیدن دمو' : 'A demo') : locale === 'fa' ? 'خرید' : 'A purchase',
     },
     ...productLines(product, locale),
   ]
@@ -111,7 +111,7 @@ export function buildInquirySummaryLines(
   if (draft.projectType === 'buy-product' && product) lines.push(...productLines(product, locale))
 
   if (draft.goal.trim()) {
-    lines.push({ label: locale === 'fa' ? 'هدف' : 'Goal', value: draft.goal.trim() })
+    lines.push({ label: locale === 'fa' ? 'آنچه باید انجام دهد' : 'What it should do', value: draft.goal.trim() })
   }
 
   const features = draft.featureTags
@@ -120,19 +120,19 @@ export function buildInquirySummaryLines(
     .map((o) => t(o.label, locale))
   if (features.length) {
     lines.push({
-      label: locale === 'fa' ? 'ویژگی‌های موردنیاز' : 'Key features',
+      label: locale === 'fa' ? 'امکانات لازم' : 'Main features',
       value: features.join(', ') + (draft.featureOtherNote.trim() ? ` — ${draft.featureOtherNote.trim()}` : ''),
     })
   }
 
   const timeline = timelineOptions.find((o) => o.id === draft.timeline)
   if (timeline) {
-    lines.push({ label: locale === 'fa' ? 'بازه‌ی زمانی' : 'Timeline', value: t(timeline.label, locale) })
+    lines.push({ label: locale === 'fa' ? 'زمان' : 'When it is needed', value: t(timeline.label, locale) })
   }
 
   const budget = budgetBandOptions.find((o) => o.id === draft.budgetBand)
   if (budget) {
-    lines.push({ label: locale === 'fa' ? 'بازه‌ی بودجه' : 'Budget range', value: t(budget.label, locale) })
+    lines.push({ label: locale === 'fa' ? 'بودجه' : 'Budget', value: t(budget.label, locale) })
   }
 
   if (draft.links.length) {
@@ -171,7 +171,7 @@ export function buildInquiryMailtoHref(
   product: SummaryProduct | null = null,
   email: string = siteConfig.email,
 ): string {
-  const subject = locale === 'fa' ? 'بریف پروژه از طریق آرتاویو' : 'Project brief from Artaveo'
+  const subject = locale === 'fa' ? 'جزئیات پروژه برای آرتاویو' : 'Project details for Artaveo'
   const body = buildInquirySummaryText(draft, locale, services, product)
   return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }

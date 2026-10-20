@@ -82,7 +82,7 @@ export function ContactContent({ shell }: { shell: ShellData }) {
           <SectionHeading tone="paper" id="contact-paths-title" title={tc('pathsTitle')} lead={tc('pathsLead')} />
           <ul className="grid gap-4 @3xl:grid-cols-2">
             <li className="flex flex-col gap-4 rounded-card-lg border border-paper-line bg-paper-card p-7 shadow-card">
-              <span className="grid size-12 place-items-center rounded-2xl bg-paper-foreground text-gold">
+              <span className="grid size-12 place-items-center rounded-2xl bg-paper-ink text-gold">
                 <ClipboardList aria-hidden="true" className="size-5" />
               </span>
               <div>
@@ -94,7 +94,7 @@ export function ContactContent({ shell }: { shell: ShellData }) {
               </PillLink>
             </li>
             <li className="flex flex-col gap-4 rounded-card-lg border border-paper-line bg-paper-card p-7 shadow-card">
-              <span className="grid size-12 place-items-center rounded-2xl bg-paper-foreground text-gold">
+              <span className="grid size-12 place-items-center rounded-2xl bg-paper-ink text-gold">
                 <CalendarClock aria-hidden="true" className="size-5" />
               </span>
               <div>

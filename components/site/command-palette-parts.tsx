@@ -5,7 +5,6 @@ import {
   BookOpen,
   Clock,
   CornerDownLeft,
-  Cpu,
   FileText,
   FolderOpen,
   Wrench,
@@ -27,7 +26,6 @@ const KIND_ICON: Record<SearchKind, typeof FileText> = {
   project: FolderOpen,
   service: Wrench,
   article: BookOpen,
-  technology: Cpu,
   action: Zap,
 }
 

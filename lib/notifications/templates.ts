@@ -3,6 +3,7 @@ import type { InquiryDraft, ProductRequestDraft } from '@/types/inquiry'
 import type { NotificationKind } from '@/types/notifications'
 import { buildInquirySummaryText, buildProductRequestSummaryText, type SummaryProduct } from '@/lib/inquiry-summary'
 import { t } from '@/types/content'
+import { formatDate } from '@/lib/format'
 import { siteConfig } from '@/lib/site'
 
 /**
@@ -64,9 +65,9 @@ export function buildOwnerAlertEmail(
   return { subject, text }
 }
 
-/** D-08's exact published wording (`lib/about-content.ts`, `lib/home-content.ts`) — never re-paraphrase it here. */
+/** D-08, as the site says it (ContactPage.replyLine: "the same day, usually within a few hours") — one wording for every e-mail. */
 export function responseCommitment(locale: Locale): string {
-  return locale === 'fa' ? 'پاسخ‌گویی در همان روز، طی چند ساعت' : 'a reply within a few hours, same day'
+  return locale === 'fa' ? 'در همان روز، معمولاً طی چند ساعت' : 'the same day, usually within a few hours'
 }
 
 export function buildClientConfirmationEmail(
@@ -76,17 +77,17 @@ export function buildClientConfirmationEmail(
   product: SummaryProduct | null = null,
 ): { subject: string; text: string } {
   const subject =
-    locale === 'fa' ? 'بریف پروژه‌ی شما دریافت شد — آرتاویو' : 'Your project brief was received — Artaveo'
+    locale === 'fa' ? 'پروژه‌ی شما به آرتاویو رسید' : 'Artaveo has your project details'
 
   const intro =
     locale === 'fa'
-      ? `از ارسال بریف پروژه‌تان سپاسگزاریم. طبق تعهد پاسخ‌گویی آرتاویو، ${responseCommitment(locale)} پاسخ خواهید گرفت. خلاصه‌ی چیزی که ارسال کردید:`
-      : `Thanks for sending your project brief. Per Artaveo's response commitment, you'll get ${responseCommitment(locale)}. Here's a copy of what you sent:`
+      ? `تشکر که پروژه‌ی خود را برای آرتاویو فرستادید. ${responseCommitment(locale)} جواب می‌گیرید. آنچه فرستادید:`
+      : `Thank you for telling Artaveo about your project. You'll hear back ${responseCommitment(locale)}. Here is a copy of what you sent:`
 
   const outro =
     locale === 'fa'
-      ? 'اگر نیاز به اصلاح یا افزودن چیزی دارید، کافی‌ست به همین ایمیل پاسخ دهید.'
-      : 'If you need to correct or add anything, just reply to this email.'
+      ? 'اگر می‌خواهید چیزی را درست یا اضافه کنید، به همین ایمیل جواب دهید.'
+      : 'To correct or add anything, just reply to this e-mail.'
 
   const text = [intro, '', buildInquirySummaryText(draft, locale, services, product), '', outro].join('\n')
   return { subject, text }
@@ -120,16 +121,16 @@ export function buildProductRequestClientEmail(request: ProductRequestDraft, pro
   const name = t(product.title, locale)
   const subject =
     locale === 'fa'
-      ? `${demo ? 'درخواست دمو' : 'درخواست خرید'} شما دریافت شد — آرتاویو`
-      : `Your ${demo ? 'demo' : 'purchase'} request was received — Artaveo`
+      ? `${demo ? 'درخواست دموی' : 'درخواست خرید'} شما به آرتاویو رسید`
+      : `Artaveo has your ${demo ? 'demo' : 'purchase'} request`
   const intro =
     locale === 'fa'
-      ? `از درخواست شما برای «${name}» سپاسگزاریم. طبق تعهد پاسخ‌گویی آرتاویو، ${responseCommitment(locale)} پاسخ خواهید گرفت. خلاصه‌ی درخواست شما:`
-      : `Thank you for your request about ${name}. Per Artaveo's response commitment, you'll get ${responseCommitment(locale)}. Here's a copy of what you sent:`
+      ? `تشکر از درخواست شما برای «${name}». ${responseCommitment(locale)} جواب می‌گیرید. آنچه فرستادید:`
+      : `Thank you for your request about ${name}. You'll hear back ${responseCommitment(locale)}. Here is a copy of what you sent:`
   const outro =
     locale === 'fa'
-      ? 'اگر نیاز به اصلاح یا افزودن چیزی دارید، کافی‌ست به همین ایمیل پاسخ دهید.'
-      : 'If you need to correct or add anything, just reply to this email.'
+      ? 'اگر می‌خواهید چیزی را درست یا اضافه کنید، به همین ایمیل جواب دهید.'
+      : 'To correct or add anything, just reply to this e-mail.'
   return { subject, text: [intro, '', buildProductRequestSummaryText(request, locale, product), '', outro].join('\n') }
 }
 
@@ -206,13 +207,11 @@ export function buildContentPublishedEmail(input: {
 
 /**
  * D-14 — the owner sends a recommender their link. Written in the language the
- * owner chose for that request. The recommender is someone the owner knows, so
- * it is written in the owner's own first-person voice (as the rest of the
- * site is), and every factual line is true of the flow: the
- * link is theirs alone, the form asks for explicit consent to publish, and
- * nothing goes on the site before the owner has reviewed it. No name is
- * addressed (the site only holds an e-mail address), and no Persian spelling
- * of the owner's name is invented — the Latin name stays at a pause point.
+ * owner chose for that request, in the brand's voice like the rest of the site
+ * (Phase 32, D-15), and signed by the founder by name («ذاکر ناصری», D-02). Every
+ * factual line is true of the flow: the link is theirs alone, the form asks for
+ * explicit consent to publish, and nothing goes on the site before Artaveo has
+ * read it. No name is addressed (the site only holds an e-mail address).
  */
 export function buildRecommendationRequestEmail(input: {
   locale: Locale
@@ -220,41 +219,46 @@ export function buildRecommendationRequestEmail(input: {
   /** ISO timestamp the link stops working, or `null` when it does not expire. */
   expiresAt: string | null
 }): { subject: string; text: string } {
-  const expiry = input.expiresAt ? input.expiresAt.slice(0, 10) : null
+  // The reader's own calendar: Solar Hijri with Afghan month names for fa, Gregorian for en (D-03).
+  const expiry = input.expiresAt ? formatDate(input.expiresAt, input.locale) : null
 
   if (input.locale === 'fa') {
     return {
-      subject: 'درخواست یک توصیه‌نامه‌ی کوتاه — آرتاویو',
+      subject: 'چند خط درباره‌ی همکاری با آرتاویو؟',
       text: [
         'سلام،',
         '',
-        'من از آرتاویو (Zakir Naseri) می‌خواهم بپرسم آیا حاضرید یک توصیه‌نامه‌ی کوتاه درباره‌ی همکاری‌مان بنویسید.',
+        'آرتاویو از شما می‌خواهد، اگر حاضر باشید، چند خط درباره‌ی همکاری خود با آرتاویو بنویسید.',
         '',
-        'چند دقیقه بیشتر طول نمی‌کشد. بدون رضایت صریح شما در فرم چیزی منتشر نمی‌شود، و پیش از قرار گرفتن در سایت، متن را خودم بازبینی می‌کنم.',
+        'چند دقیقه بیشتر وقت نمی‌گیرد. بدون موافقت شما در فورم چیزی نشر نمی‌شود و آرتاویو متن را پیش از نشر می‌خواند.',
         '',
-        'پیوند اختصاصی شما:',
+        'لینک خصوصی شما:',
         input.url,
-        ...(expiry ? ['', `این پیوند تا ${expiry} معتبر است.`] : []),
+        ...(expiry ? ['', `این لینک تا ${expiry} کار می‌کند.`] : []),
         '',
-        'اگر نمی‌خواهید، فقط این ایمیل را نادیده بگیرید. می‌توانید با پاسخ‌دادن به همین ایمیل مستقیم با من در ارتباط باشید.',
+        'اگر نمی‌خواهید، این ایمیل را نادیده بگیرید. برای هر سؤالی، به همین ایمیل جواب دهید.',
+        '',
+        'ذاکر ناصری — آرتاویو',
       ].join('\n'),
     }
   }
 
   return {
-    subject: 'Could you write a short recommendation? — Artaveo',
+    subject: 'Would you write a short recommendation for Artaveo?',
     text: [
       'Hello,',
       '',
-      "This is Zakir Naseri from Artaveo. I'd like to ask whether you'd be willing to write a short recommendation about working together.",
+      'Artaveo would be grateful for a few lines about what it was like to work together.',
       '',
-      "It takes a few minutes. Nothing is published without your explicit consent on the form, and I review the text myself before anything goes on the site.",
+      'It takes a few minutes. Nothing is published without your agreement on the form, and Artaveo reads the text before it goes on the site.',
       '',
       'Your personal link:',
       input.url,
-      ...(expiry ? ['', `This link is valid until ${expiry}.`] : []),
+      ...(expiry ? ['', `This link works until ${expiry}.`] : []),
       '',
-      "If you'd rather not, just ignore this e-mail. You can also reply to it to reach me directly.",
+      "If you'd rather not, just ignore this e-mail. For any question, reply to it.",
+      '',
+      'Zakir Naseri — Artaveo',
     ].join('\n'),
   }
 }
@@ -273,28 +277,28 @@ export function buildRecommendationChangesEmail(input: {
 
   if (input.locale === 'fa') {
     return {
-      subject: 'درخواست یک اصلاح کوچک — آرتاویو',
+      subject: 'یک تغییر کوچک در توصیه‌نامه‌ی شما — آرتاویو',
       text: [
         'سلام،',
         '',
-        'از اینکه توصیه‌نامه نوشتید سپاسگزارم. پیش از انتشار، از شما یک اصلاح می‌خواهم:',
+        'تشکر که توصیه‌نامه نوشتید. پیش از نشر، آرتاویو از شما یک تغییر کوچک می‌خواهد:',
         '',
         note,
         '',
-        'با همان پیوند می‌توانید متن را ویرایش کنید:',
+        'با همان لینک می‌توانید متن را تغییر دهید:',
         input.url,
         '',
-        'اگر ترجیح می‌دهید توصیه‌نامه منتشر نشود، فقط به همین ایمیل پاسخ دهید.',
+        'اگر نمی‌خواهید توصیه‌نامه نشر شود، به همین ایمیل جواب دهید.',
       ].join('\n'),
     }
   }
 
   return {
-    subject: 'A small change was requested — Artaveo',
+    subject: 'A small change to your recommendation — Artaveo',
     text: [
       'Hello,',
       '',
-      "Thank you for writing a recommendation. Before it can be published I'd like to ask for a change:",
+      'Thank you for writing a recommendation. Before it is published, Artaveo would like to ask for one change:',
       '',
       note,
       '',
@@ -358,7 +362,7 @@ export function buildSystemAlertEmail(input: {
     '',
     `Attempts: ${input.attempts}`,
     input.permanent
-      ? 'The provider refused it in a way retrying cannot fix — something needs to change first (sender domain, API key, address).'
+      ? 'The provider refused it in a way retrying cannot fix — something needs to change first (sender domain, API key, address).' // owner-facing
       : 'Every attempt failed; the retry limit was reached.',
     `Last error: ${singleLine(input.lastError, 300)}`,
     '',

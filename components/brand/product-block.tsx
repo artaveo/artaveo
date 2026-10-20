@@ -46,7 +46,7 @@ export function ProductBlock({
         ...projectStyle(palette),
         backgroundImage: `radial-gradient(70% 90% at ${reverse ? '100%' : '0%'} 100%, ${withAlpha(palette.accent, PROJECT_GLOW_ALPHA)}, transparent 60%), linear-gradient(160deg, ${palette.surface}, ${palette.deep})`,
       }}
-      className="@container rounded-panel border border-white/10 text-project-on"
+      className="@container mx-auto w-full max-w-[68.75rem] rounded-panel border border-white/10 text-project-on"
       data-slot="product-block"
     >
       <div className={cn('flex flex-col gap-8 p-6 @3xl:items-center @3xl:gap-11 @3xl:p-11', reverse ? '@3xl:flex-row-reverse' : '@3xl:flex-row')}>

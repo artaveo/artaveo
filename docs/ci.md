@@ -15,7 +15,7 @@ The four jobs run **in parallel**; a fifth, **`CI passed`**, waits for all of th
 | Install | `pnpm install --frozen-lockfile` — resolution never happens in CI | a lockfile that does not match `package.json` | 1 min |
 | Typecheck | `tsc --noEmit` (whole project, tests included) | any error | 1 min |
 | Lint | ESLint with `eslint-config-next` | any **error**; warnings may not **grow** (below) | 1 min |
-| Content | no `[PLACEHOLDER]` in published copy (`scripts/check-content-placeholders.mjs`) | any placeholder | seconds |
+| Content | the public-copy rules of roadmap § 16 (`scripts/check-content.mjs`, patterns in `scripts/content-rules.mjs`): placeholders, § and phase numbers, technology and backend words, «دوزبانه» / "bilingual", "one person", «من» / «تو», defensive wording, Iranian words. The database part runs where the Neon Data API is configured (`npm run check:content` locally) and against the test stack in the integration job | any violation | seconds |
 | Unit | `npm run test:unit` — includes dictionary parity and the audit-policy tests | any failure | 1 min |
 | Integration | real PostgreSQL + PostgREST: RLS, constraints, triggers, the real Server Actions | any failure | 3 min |
 | Build + E2E | a production build against the test stack, then the browser and accessibility suites (desktop + phone) | any failure, and any browser error raised during any test | 12–15 min |

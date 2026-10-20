@@ -99,7 +99,7 @@ test('separator-less fallback: nextjs ↔ Next.js, tailwind css ↔ TailwindCSS'
 
   // …and an exact-title match outranks projects that merely list it as a keyword.
   const ranked = searchDocuments(
-    [doc('proj', 'Booking system', { keywords: ['Next.js'], boost: 2 }), doc('tech', 'Next.js', { kind: 'technology' })],
+    [doc('proj', 'Booking system', { keywords: ['Next.js'], boost: 2 }), doc('tech', 'Next.js', { kind: 'service' })],
     'nextjs',
   )
   assert.deepEqual(ids(ranked.results), ['tech', 'proj'])

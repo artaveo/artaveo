@@ -31,16 +31,6 @@ export function t(field: LocalizedText, locale: Locale = 'en'): string {
 export type ProjectStatus = 'live' | 'in-development' | 'private' | 'archived' | 'concept'
 
 /**
- * One "context → decision → trade-off" card for a case study's Key
- * Decisions section (roadmap § 6.1 template).
- */
-export type DecisionRecord = {
-  context: LocalizedText
-  decision: LocalizedText
-  tradeoff: LocalizedText
-}
-
-/**
  * Real device/context a screenshot was captured in (`project_media.kind`,
  * migration 0003). 'diagram' is reserved for a future architecture
  * diagram — no project has one yet.
@@ -282,18 +272,6 @@ export type ProjectSeed = Omit<
   /** Seed blocks, in the shape `project_blocks` stores them. */
   blocks?: { type: ProjectBlockType; title?: LocalizedText; body: Record<string, unknown> }[]
   status?: ProjectStatus
-  role?: LocalizedText
-  context?: LocalizedText
-  problemAndGoals?: LocalizedText
-  constraints?: LocalizedText[]
-  architecture?: LocalizedText
-  keyDecisions?: DecisionRecord[]
-  engineeringHighlight?: LocalizedText
-  dataIntegrityAndSecurity?: LocalizedText
-  responsiveAndRtl?: LocalizedText
-  quality?: LocalizedText
-  currentStatusAndNext?: LocalizedText
-  lessonsLearned?: LocalizedText
 }
 
 /**
@@ -433,30 +411,12 @@ export type EngagementModel = {
   billing: LocalizedText
 }
 
-export type Capability = {
-  icon: string
-  title: LocalizedText
-  description: LocalizedText
-}
-
-export type Principle = {
-  icon: string
-  title: LocalizedText
-  description: LocalizedText
-}
-
 export type TechCategory = {
   id: string
   title: LocalizedText
   icon: string
   /** Proper nouns — not translated. */
   items: string[]
-}
-
-export type ProcessStep = {
-  id: string
-  title: LocalizedText
-  description: LocalizedText
 }
 
 /**
@@ -574,7 +534,6 @@ export type DeveloperProfile = {
   /** UTC offset or IANA zone. City intentionally omitted (D-02). */
   timezone?: string
   bio: LocalizedText
-  focus: LocalizedText[]
   availability?: Availability
 }
 

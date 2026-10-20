@@ -95,26 +95,10 @@ function buildImportModel() {
     learning: false,
   }))
 
-  const SINGLE_SECTION_FIELDS = [
-    ['context', 'context'],
-    ['problemAndGoals', 'problem-and-goals'],
-    ['architecture', 'architecture'],
-    ['engineeringHighlight', 'engineering-highlight'],
-    ['dataIntegrityAndSecurity', 'data-integrity-and-security'],
-    ['responsiveAndRtl', 'responsive-and-rtl'],
-    ['quality', 'quality'],
-    ['currentStatusAndNext', 'current-status-and-next'],
-    ['lessonsLearned', 'lessons-learned'],
-  ]
-
+  // Phase 32: the engineering sections (`project_sections`) and the "my role" line
+  // were archived in Phase 27 and are no longer in the seed. The importer leaves
+  // both alone, so the archived rows stay in the database as history.
   const projectRows = projects.map((project, sortOrder) => {
-    const sections = []
-    for (const [field, type] of SINGLE_SECTION_FIELDS) {
-      if (project[field]) sections.push({ type, body: project[field], sort_order: 0 })
-    }
-    ;(project.constraints ?? []).forEach((item, i) => sections.push({ type: 'constraint', body: item, sort_order: i }))
-    ;(project.keyDecisions ?? []).forEach((d, i) => sections.push({ type: 'key-decision', body: d, sort_order: i }))
-
     return {
       slug: project.slug,
       row: {
@@ -128,7 +112,6 @@ function buildImportModel() {
         github_url: project.githubUrl ?? null,
         live_url: project.liveUrl ?? null,
         year: project.year ?? null,
-        role: project.role ?? null,
         related_service_slug: project.relatedServiceSlug ?? null,
         featured: !!project.featured,
         published: !!project.published,
@@ -143,8 +126,7 @@ function buildImportModel() {
         outcome_line: project.outcomeLine ?? null,
         features: project.features ?? [],
       },
-      sections,
-      // Phase 27.2: blocks, resynced per project like the (archived) sections.
+      // Phase 27.2: blocks, resynced per project.
       blocks: (project.blocks ?? []).map((block, i) => ({
         type: block.type,
         title: block.title ?? null,
@@ -279,16 +261,11 @@ function renderSql(model) {
     out.push(
       '',
       `-- project: ${p.slug}`,
-      `insert into public.projects (slug, title, category, summary, highlights, status, cover_image, github_url, live_url, year, role, related_service_slug, featured, published, sort_order, show_in_portfolio, is_product, brand_color, accent_color, industry, platforms, outcome_line, features)\n` +
-        `values (${slugLit}, ${sqlJsonb(p.row.title)}, ${sqlJsonb(p.row.category)}, ${sqlJsonb(p.row.summary)}, ${sqlJsonb(p.row.highlights)}, ${sqlStr(p.row.status)}, ${sqlStr(p.row.cover_image)}, ${sqlStr(p.row.github_url)}, ${sqlStr(p.row.live_url)}, ${sqlStr(p.row.year)}, ${sqlJsonb(p.row.role)}, ${sqlStr(p.row.related_service_slug)}, ${sqlBool(p.row.featured)}, ${sqlBool(p.row.published)}, ${sqlNum(p.row.sort_order)}, ${sqlBool(p.row.show_in_portfolio)}, ${sqlBool(p.row.is_product)}, ${sqlStr(p.row.brand_color)}, ${sqlStr(p.row.accent_color)}, ${sqlJsonb(p.row.industry)}, ${sqlTextArray(p.row.platforms)}, ${sqlJsonb(p.row.outcome_line)}, ${sqlJsonb(p.row.features)})\n` +
-        `on conflict (slug) do update set title=excluded.title, category=excluded.category, summary=excluded.summary, highlights=excluded.highlights, status=excluded.status, cover_image=excluded.cover_image, github_url=excluded.github_url, live_url=excluded.live_url, year=excluded.year, role=excluded.role, related_service_slug=excluded.related_service_slug, featured=excluded.featured, published=excluded.published, sort_order=excluded.sort_order, show_in_portfolio=excluded.show_in_portfolio, is_product=excluded.is_product, brand_color=excluded.brand_color, accent_color=excluded.accent_color, industry=excluded.industry, platforms=excluded.platforms, outcome_line=excluded.outcome_line, features=excluded.features, updated_at=now();`,
+      `insert into public.projects (slug, title, category, summary, highlights, status, cover_image, github_url, live_url, year, related_service_slug, featured, published, sort_order, show_in_portfolio, is_product, brand_color, accent_color, industry, platforms, outcome_line, features)\n` +
+        `values (${slugLit}, ${sqlJsonb(p.row.title)}, ${sqlJsonb(p.row.category)}, ${sqlJsonb(p.row.summary)}, ${sqlJsonb(p.row.highlights)}, ${sqlStr(p.row.status)}, ${sqlStr(p.row.cover_image)}, ${sqlStr(p.row.github_url)}, ${sqlStr(p.row.live_url)}, ${sqlStr(p.row.year)}, ${sqlStr(p.row.related_service_slug)}, ${sqlBool(p.row.featured)}, ${sqlBool(p.row.published)}, ${sqlNum(p.row.sort_order)}, ${sqlBool(p.row.show_in_portfolio)}, ${sqlBool(p.row.is_product)}, ${sqlStr(p.row.brand_color)}, ${sqlStr(p.row.accent_color)}, ${sqlJsonb(p.row.industry)}, ${sqlTextArray(p.row.platforms)}, ${sqlJsonb(p.row.outcome_line)}, ${sqlJsonb(p.row.features)})\n` +
+        `on conflict (slug) do update set title=excluded.title, category=excluded.category, summary=excluded.summary, highlights=excluded.highlights, status=excluded.status, cover_image=excluded.cover_image, github_url=excluded.github_url, live_url=excluded.live_url, year=excluded.year, related_service_slug=excluded.related_service_slug, featured=excluded.featured, published=excluded.published, sort_order=excluded.sort_order, show_in_portfolio=excluded.show_in_portfolio, is_product=excluded.is_product, brand_color=excluded.brand_color, accent_color=excluded.accent_color, industry=excluded.industry, platforms=excluded.platforms, outcome_line=excluded.outcome_line, features=excluded.features, updated_at=now();`,
       `update public.projects set cover_media_id = (select id from public.media_assets where url = projects.cover_image limit 1) where slug = ${slugLit};`,
-      `delete from public.project_sections where project_id = ${idSub};`,
     )
-    if (p.sections.length > 0) {
-      const rows = p.sections.map((s) => `(${idSub}, ${sqlStr(s.type)}, ${sqlJsonb(s.body)}, ${sqlNum(s.sort_order)})`)
-      out.push(`insert into public.project_sections (project_id, type, body, sort_order) values\n  ${rows.join(',\n  ')};`)
-    }
     out.push(`delete from public.project_blocks where project_id = ${idSub};`)
     if (p.blocks.length > 0) {
       const rows = p.blocks.map((b) => `(${idSub}, ${sqlStr(b.type)}, ${sqlJsonb(b.title)}, ${sqlJsonb(b.body)}, ${sqlBool(b.published)}, ${sqlNum(b.sort_order)})`)
@@ -370,14 +347,6 @@ async function runAgainstDatabase(model, client) {
       .single()
     if (projectError) throw new Error(`projects upsert failed for ${p.slug}: ${projectError.message}`)
     const projectId = projectRow.id
-
-    await client.from('project_sections').delete().eq('project_id', projectId)
-    if (p.sections.length > 0) {
-      const { error } = await client
-        .from('project_sections')
-        .insert(p.sections.map((s) => ({ ...s, project_id: projectId })))
-      if (error) throw new Error(`project_sections insert failed for ${p.slug}: ${error.message}`)
-    }
 
     const { data: coverRows } = await client.from('media_assets').select('id').eq('url', p.row.cover_image ?? '').limit(1)
     await client.from('projects').update({ cover_media_id: coverRows?.[0]?.id ?? null }).eq('id', projectId)

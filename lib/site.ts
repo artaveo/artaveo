@@ -13,7 +13,6 @@ export const siteConfig = {
   description:
     'Artaveo designs and builds websites, management systems, mobile apps and desktop software for businesses.',
   email: 'artaveo.dev@gmail.com',
-  location: 'Remote · Worldwide',
 }
 
 /**

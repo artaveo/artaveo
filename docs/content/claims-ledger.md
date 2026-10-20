@@ -246,3 +246,16 @@ Services are described by what the customer gets (D-18: Artaveo builds any kind 
 | Zakir Naseri founded Artaveo; name and photo | D-02 (name and `/Profile-pic.jpg`) | 2026-10-20 |
 | Related work on a service page | the owner's `related_project_slugs`; only published projects are shown | 2026-10-20 |
 | Removed: "one independent developer" (privacy policy), the hire-channel comparison (Fiverr escrow), the availability card, the technical focus and tool lists, languages and time zone on About | — | 2026-10-20 |
+
+## Phase 32 (21 October 2026) — content rewrite and project texts
+
+Every public string was read against § 16 and rewritten where it broke a rule; `scripts/check-content.mjs` now keeps it that way (dictionaries, content seeds, customer e-mails and the published database content). No new factual claim was added; the claims below were re-worded, not widened.
+
+| Claim | Evidence | Verified |
+|---|---|---|
+| Transport project: passengers find a trip, buy the ticket online, pick their seat, look it up with its code; the company runs routes, buses, drivers, trips, sales reports, loyalty levels and coupons from one panel | the screenshots of the project (`project_media`, Phase 23.1) and its Phase 27 feature list | 2026-10-21 |
+| Pezhohesh website: study lounge, academic advising, scholarships, student achievements; staff update everything themselves; separate access for the director and each department head; light and dark appearance | the project's screenshots (admin panels, department-head panel) and its Phase 27 feature list | 2026-10-21 |
+| Artaveo Dental: patients, appointments, doctors, front desk and prescriptions; roles per staff member | the owner's own entry in the admin (unpublished), meaning kept, wording corrected | 2026-10-21 |
+| "the same day, usually within a few hours" — now the one wording in every e-mail too | D-08 | 2026-10-21 |
+| Privacy policy: the demo and purchase form and what it asks | `components/products/product-request-form.tsx` (Phase 30) | 2026-10-21 |
+| Removed: «دوزبانه» / "bilingual" and «CMS» from the education project, "Row-Level Security", "PostgreSQL", "server-side", «سمت سرور», "offline-first PWA", "RTL" from the highlights, "not a static list" and every «…، نه …» caption, the unconfirmed "Shabraw" brand in an image description (D-20), technology names in the public search, "one independent full-stack developer" in the site description, the founder's technical focus list, "a known gap" in the privacy policy's retention section, and the Process page reference in the terms | — | 2026-10-21 |

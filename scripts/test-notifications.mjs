@@ -405,14 +405,14 @@ test('owner alert: a newline in the name cannot reach the subject; links to the 
 
 test('client confirmation: English and Persian, D-08 wording, reply invitation', () => {
   const en = buildClientConfirmationEmail(draft({ preferredLocale: 'en' }), 'en', [], null)
-  assert.match(en.subject, /received/)
-  assert.match(en.text, /a reply within a few hours, same day/)
-  assert.match(en.text, /just reply to this email/)
+  assert.match(en.subject, /Artaveo has your project details/)
+  assert.match(en.text, /the same day, usually within a few hours/)
+  assert.match(en.text, /just reply to this e-mail/)
 
   const fa = buildClientConfirmationEmail(draft(), 'fa', [], null)
   assert.match(fa.subject, /آرتاویو/)
-  assert.match(fa.text, /پاسخ‌گویی در همان روز، طی چند ساعت/)
-  assert.match(fa.text, /به همین ایمیل پاسخ دهید/)
+  assert.match(fa.text, /در همان روز، معمولاً طی چند ساعت جواب می‌گیرید/)
+  assert.match(fa.text, /به همین ایمیل جواب دهید/)
 })
 
 test('evidence-submitted: first submission vs resubmission; no statement text, only who and where to review', () => {
@@ -468,22 +468,24 @@ test('content-published: scheduled and manual read differently, and both carry t
   assert.equal(buildContentPublishedEmail({ entity: 'service', title: 'x', url: 'u', how: { via: 'manual', by: 'a' } }).text.startsWith('A service page was published.'), true)
 })
 
-test('recommendation request e-mail: en and fa, personal link, optional expiry, honest consent wording', () => {
+test("recommendation request e-mail: en and fa, personal link, the expiry in the reader's calendar, the brand's voice", () => {
   const en = buildRecommendationRequestEmail({ locale: 'en', url: 'https://site.test/en/recommend/tok', expiresAt: '2026-10-19T12:00:00.000Z' })
-  assert.match(en.subject, /short recommendation/)
+  assert.match(en.subject, /short recommendation for Artaveo/)
   assert.match(en.text, /https:\/\/site\.test\/en\/recommend\/tok/)
-  assert.match(en.text, /valid until 2026-10-19/)
-  assert.match(en.text, /explicit consent/)
-  assert.match(en.text, /I review the text myself/)
+  assert.match(en.text, /works until Oct 19, 2026/)
+  assert.match(en.text, /without your agreement on the form/)
+  assert.match(en.text, /Artaveo reads the text before it goes on the site/)
+  assert.doesNotMatch(en.text, /\bI\b|I'd|\bme\b/) // Phase 32: the brand speaks (D-15)
   assert.equal(en.text.includes('undefined'), false)
 
   const noExpiry = buildRecommendationRequestEmail({ locale: 'en', url: 'u', expiresAt: null })
-  assert.equal(noExpiry.text.includes('valid until'), false)
+  assert.equal(noExpiry.text.includes('works until'), false)
 
   const fa = buildRecommendationRequestEmail({ locale: 'fa', url: 'https://site.test/fa/recommend/tok', expiresAt: '2026-10-19T12:00:00.000Z' })
   assert.match(fa.subject, /آرتاویو/)
-  assert.match(fa.text, /رضایت صریح/)
-  assert.match(fa.text, /تا 2026-10-19 معتبر است/)
+  assert.match(fa.text, /بدون موافقت شما در فورم/)
+  assert.match(fa.text, /تا ۲۷ میزان ۱۴۰۵ کار می‌کند/) // Solar Hijri with Afghan month names (D-03)
+  assert.doesNotMatch(fa.text, /(?<![؀-ۿ])من(?![؀-ۿ])|می‌کنم/)
   assert.match(fa.text, /https:\/\/site\.test\/fa\/recommend\/tok/)
 })
 
@@ -495,7 +497,7 @@ test('recommendation change e-mail: the owner\'s note goes in verbatim, in the c
   assert.match(en.subject, /small change/)
   const fa = buildRecommendationChangesEmail({ locale: 'fa', url: 'https://site.test/fa/recommend/tok', note: 'لطفاً نام پروژه را بنویسید.' })
   assert.ok(fa.text.includes('لطفاً نام پروژه را بنویسید.'))
-  assert.match(fa.text, /همان پیوند/)
+  assert.match(fa.text, /همان لینک/)
 })
 
 test('system alert: says permanent vs limit, names the kind, links the message, carries no recipient address', () => {

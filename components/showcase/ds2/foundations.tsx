@@ -3,7 +3,7 @@ import { ChartColumn, Ticket } from 'lucide-react'
 import { FloatingChip } from '@/components/brand/floating-chip'
 import { Reveal } from '@/components/brand/reveal'
 import { Section, Subhead } from '@/components/showcase/section'
-import { composite, contrastRatio, projectPalette, toHex } from '@/lib/design/color'
+import { composite, contrastRatio, projectCardTones, projectPalette, toHex } from '@/lib/design/color'
 import type { Project } from '@/types/content'
 
 /**
@@ -119,6 +119,46 @@ export function Ds2TokensSection({ projects }: { projects: Project[] }) {
                   </span>
                 </li>
               )
+            })}
+          </ul>
+        )}
+      </div>
+
+      <div>
+        <Subhead>Project card tones — light and dark theme, made readable by projectCardTones() (32.6, D-22)</Subhead>
+        {projects.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No published project to show.</p>
+        ) : (
+          <ul className="grid gap-4 md:grid-cols-2">
+            {projects.flatMap((project) => {
+              const tones = projectCardTones(project.brandColor)
+              return (['light', 'dark'] as const).map((theme) => {
+                const c = tones[theme]
+                return (
+                  <li key={`${project.id}-${theme}`} className="flex flex-col gap-3 overflow-hidden rounded-card-lg border" style={{ background: c.ground, borderColor: c.line, color: c.text }}>
+                    <span aria-hidden="true" className="h-14" style={{ backgroundImage: `linear-gradient(150deg, ${c.panel}, ${c.panelDeep})` }} />
+                    <span className="flex flex-col gap-2 px-5 pb-5">
+                      <span className="text-card-title" style={{ color: c.title }}>
+                        {project.title.en} · {theme}
+                      </span>
+                      <span className="flex flex-wrap gap-2 font-mono text-xs">
+                        <span className="rounded-pill border px-3 py-1" style={{ borderColor: c.chipLine }}>
+                          title {ratio(c.title, c.ground)}:1
+                        </span>
+                        <span className="rounded-pill border px-3 py-1" style={{ borderColor: c.chipLine }}>
+                          text {ratio(c.text, c.ground)}:1
+                        </span>
+                        <span className="rounded-pill border px-3 py-1" style={{ borderColor: c.chipLine, color: c.muted }}>
+                          muted {ratio(c.muted, c.ground)}:1
+                        </span>
+                        <span className="rounded-pill px-3 py-1" style={{ background: c.title, color: c.actionText }}>
+                          link {ratio(c.actionText, c.title)}:1
+                        </span>
+                      </span>
+                    </span>
+                  </li>
+                )
+              })
             })}
           </ul>
         )}

@@ -112,11 +112,11 @@
   --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
 
   /* ── Design System 2.0 (Phase 28, roadmap § 14.1) ─────────────────────
-     The ink bands and the warm content panels are the same in both themes
-     (§ 29.3: "dark bands stay ink in both themes; content panels warm
-     light"), so these map to fixed values defined once on :root below.
-     Every pairing that carries text is measured in
-     tests/unit/design-system.test.mjs. */
+     The ink bands (header, hero, products, CTA, footer) are ink in both
+     themes. Phase 32.6 (D-22, owner 20 October 2026): the warm content
+     panels, their cards, lines and muted text follow the theme — light
+     values on :root, dark ones under .dark below. Every pairing that
+     carries text is measured in tests/unit/design-system.test.mjs. */
   --color-ink: var(--ink);
   --color-ink-raised: var(--ink-raised);
   --color-ink-elevated: var(--ink-elevated);
@@ -130,6 +130,7 @@
   --color-paper-foreground: var(--paper-foreground);
   --color-paper-muted: var(--paper-muted);
   --color-paper-line: var(--paper-line);
+  --color-paper-ink: var(--paper-ink);
   --color-gold: var(--gold);
   --color-gold-foreground: var(--gold-foreground);
   --color-gold-deep: var(--gold-deep);
@@ -151,6 +152,18 @@
   --color-project-accent: var(--project-accent, var(--gold));
   --color-project-accent-foreground: var(--project-accent-foreground, var(--gold-foreground));
   --color-project-accent-text: var(--project-accent-text, var(--gold));
+  /* Project cards (32.6): one hue in tonal steps over the whole card, light
+     or dark with the theme — projectCardTones() sets both themes' values
+     and [data-project-tones] below picks the theme's. */
+  --color-pc-ground: var(--pc-ground);
+  --color-pc-panel: var(--pc-panel);
+  --color-pc-panel-deep: var(--pc-panel-deep);
+  --color-pc-line: var(--pc-line);
+  --color-pc-chip-line: var(--pc-chip-line);
+  --color-pc-title: var(--pc-title);
+  --color-pc-text: var(--pc-text);
+  --color-pc-muted: var(--pc-muted);
+  --color-pc-action-text: var(--pc-action-text);
 
   /* Shape (28.1): pill buttons and chips, 16–24 px small cards, 28–40 px panels. */
   --radius-pill: 9999px;
@@ -160,8 +173,9 @@
   --radius-panel-lg: 2.5rem; /* 40px */
 
   /* Depth (28.1): layered soft shadows. */
-  --shadow-card: 0 30px 70px rgb(22 24 29 / 0.08), 0 0 0 1px rgb(22 24 29 / 0.05);
-  --shadow-card-hover: 0 36px 80px rgb(22 24 29 / 0.13), 0 0 0 1px rgb(22 24 29 / 0.06);
+  /* Card shadows follow the theme (32.6): a soft shadow on the light panel, a hairline and a deeper shadow on the dark one. */
+  --shadow-card: var(--card-shadow);
+  --shadow-card-hover: var(--card-shadow-hover);
   --shadow-float: 0 40px 90px rgb(0 0 0 / 0.5);
   --shadow-device: 0 40px 90px rgb(0 0 0 / 0.55), 0 0 0 1px rgb(255 255 255 / 0.07);
   --shadow-gold: 0 14px 34px rgb(226 182 92 / 0.26);
@@ -280,8 +294,9 @@
   --sidebar-border: oklch(0.905 0.005 250);
   --sidebar-ring: oklch(0.55 0.16 256);
 
-  /* Design System 2.0 (Phase 28.1, § 14.1). Not redefined under .dark: the
-     ink bands and warm panels look the same in both themes. */
+  /* Design System 2.0 (Phase 28.1, § 14.1). The ink values are the same in
+     both themes; the paper values (warm panels) are redefined under .dark
+     (Phase 32.6, D-22). */
   --ink: #0a0c11;
   --ink-raised: #11141b;
   --ink-elevated: #16181d;
@@ -295,6 +310,10 @@
   --paper-foreground: #16181d;
   --paper-muted: #555a65;
   --paper-line: #e8e4da;
+  /* A dark tile on the warm panel (icon tiles, the highlighted sale option): ink in the light theme, a raised ink in the dark one. */
+  --paper-ink: #16181d;
+  --card-shadow: 0 30px 70px rgb(22 24 29 / 0.08), 0 0 0 1px rgb(22 24 29 / 0.05);
+  --card-shadow-hover: 0 36px 80px rgb(22 24 29 / 0.13), 0 0 0 1px rgb(22 24 29 / 0.06);
   /* Brand gold from the logo. On ink it is a text colour too (≈ 10:1); on
      the warm panel it is a fill only — text there uses --gold-deep. */
   --gold: #e2b65c;
@@ -326,6 +345,18 @@
 
 .dark {
   color-scheme: dark;
+
+  /* Phase 32.6 (D-22): the warm panels in the dark theme — a raised ink with
+     a warm cast, cards a step lighter, hairlines instead of shadows. */
+  --paper: #15171d;
+  --paper-card: #1d2028;
+  --paper-foreground: #f3f1ec;
+  --paper-muted: #aeb3bd;
+  --paper-line: #2c303a;
+  --paper-ink: #2a2e38;
+  --gold-deep: #e2b65c;
+  --card-shadow: 0 24px 60px rgb(0 0 0 / 0.35), 0 0 0 1px rgb(255 255 255 / 0.06);
+  --card-shadow-hover: 0 30px 70px rgb(0 0 0 / 0.45), 0 0 0 1px rgb(255 255 255 / 0.09);
 
   --background: oklch(0.17 0.008 262);
   --foreground: oklch(0.965 0.003 250);
@@ -381,6 +412,54 @@
   --sidebar-accent-foreground: oklch(0.965 0.003 250);
   --sidebar-border: oklch(1 0 0 / 11%);
   --sidebar-ring: oklch(0.66 0.15 256);
+}
+
+/* Phase 32.6: a project card reads its theme's tones (set inline by cardTonesStyle()). */
+[data-project-tones] {
+  --pc-ground: var(--pc-ground-light);
+  --pc-panel: var(--pc-panel-light);
+  --pc-panel-deep: var(--pc-panel-deep-light);
+  --pc-line: var(--pc-line-light);
+  --pc-chip-line: var(--pc-chip-line-light);
+  --pc-title: var(--pc-title-light);
+  --pc-text: var(--pc-text-light);
+  --pc-muted: var(--pc-muted-light);
+  --pc-action-text: var(--pc-action-text-light);
+}
+.dark [data-project-tones] {
+  --pc-ground: var(--pc-ground-dark);
+  --pc-panel: var(--pc-panel-dark);
+  --pc-panel-deep: var(--pc-panel-deep-dark);
+  --pc-line: var(--pc-line-dark);
+  --pc-chip-line: var(--pc-chip-line-dark);
+  --pc-title: var(--pc-title-dark);
+  --pc-text: var(--pc-text-dark);
+  --pc-muted: var(--pc-muted-dark);
+  --pc-action-text: var(--pc-action-text-dark);
+}
+/* /design-system shows the light theme's warm panel and cards even while the page itself is dark (32.6). */
+.theme-light {
+  color-scheme: light;
+  --paper: #f4f2ed;
+  --paper-card: #ffffff;
+  --paper-foreground: #16181d;
+  --paper-muted: #555a65;
+  --paper-line: #e8e4da;
+  --paper-ink: #16181d;
+  --gold-deep: #7d5f17;
+  --card-shadow: 0 30px 70px rgb(22 24 29 / 0.08), 0 0 0 1px rgb(22 24 29 / 0.05);
+  --card-shadow-hover: 0 36px 80px rgb(22 24 29 / 0.13), 0 0 0 1px rgb(22 24 29 / 0.06);
+}
+.dark .theme-light [data-project-tones] {
+  --pc-ground: var(--pc-ground-light);
+  --pc-panel: var(--pc-panel-light);
+  --pc-panel-deep: var(--pc-panel-deep-light);
+  --pc-line: var(--pc-line-light);
+  --pc-chip-line: var(--pc-chip-line-light);
+  --pc-title: var(--pc-title-light);
+  --pc-text: var(--pc-text-light);
+  --pc-muted: var(--pc-muted-light);
+  --pc-action-text: var(--pc-action-text-light);
 }
 
 @layer base {

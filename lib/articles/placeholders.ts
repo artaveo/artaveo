@@ -4,7 +4,7 @@
  * that can read them; the equivalent gate is enforced at the moment an
  * article is *published* (`app/actions/content.ts#publishArticle`).
  *
- * Same pattern `scripts/check-content-placeholders.mjs` uses for file-based
+ * Same pattern `scripts/content-rules.mjs` (the `placeholder` rule) uses for file-based
  * content: bracketed UPPER_SNAKE_CASE tokens such as `[CLIENT_NAME]`. It never
  * matches Markdown links (`[text](url)`) or lowercase/numeric brackets.
  */

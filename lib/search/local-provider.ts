@@ -25,7 +25,7 @@ const FETCH_TIMEOUT_MS = 8000
 const MAX_AGE_MS = 30 * 60 * 1000
 const DEFAULT_LIMIT = 12
 
-const KINDS: readonly SearchKind[] = ['page', 'project', 'service', 'article', 'technology', 'action']
+const KINDS: readonly SearchKind[] = ['page', 'project', 'service', 'article', 'action']
 
 type Loaded = { promise: Promise<SearchIndex>; loadedAt: number }
 const cache = new Map<Locale, Loaded>()

@@ -11,7 +11,8 @@ import { cn } from '@/lib/utils'
  * - `gold`    — the primary action (Start a Project, Request a demo).
  * - `glass`   — the second action on an ink band or a project block.
  * - `project` — a project's own accent (inside a block that set `projectStyle()`).
- * - `project-solid` — a project's own colour, on a white card (portfolio rows).
+ * - `project-solid` — a project's own colour, on a white card.
+ * - `project-card` — the link of a project card, in the project colour of the card's theme (32.6).
  * - `ink`     — a dark pill on a warm panel.
  * - `outline` — a quiet choice on a warm panel.
  */
@@ -24,6 +25,7 @@ export const pillVariants = cva(
         glass: 'glass border border-glass-line text-glass-foreground hover:bg-white/12',
         project: 'bg-project-accent text-project-accent-foreground hover:brightness-105',
         'project-solid': 'bg-project text-project-on hover:brightness-110',
+        'project-card': 'bg-pc-title text-pc-action-text hover:brightness-110',
         ink: 'bg-paper-foreground text-paper-card hover:brightness-125',
         outline: 'border border-paper-foreground text-paper-foreground hover:bg-paper-foreground/5',
       },

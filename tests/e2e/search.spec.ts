@@ -10,10 +10,10 @@ test.describe('search / command palette', () => {
     await expect(box).toBeFocused()
     await box.fill('transport')
     const first = page.getByRole('option').first()
-    await expect(first).toContainText('Transportation System')
+    await expect(first).toContainText('Ticket Sales & Transport Management')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/en\/work\/transportation-system$/)
-    await expect(page.locator('h1')).toContainText('Transportation System') // the new page has rendered
+    await expect(page.locator('h1')).toContainText('Ticket Sales & Transport Management') // the new page has rendered
     await expect(page.getByRole('combobox')).toHaveCount(0) // choosing a result closed the palette
     await page.keyboard.press('Control+k')
     await expect(page.getByRole('combobox')).toBeVisible()
@@ -25,7 +25,7 @@ test.describe('search / command palette', () => {
     await page.goto('/en')
     await page.keyboard.press('Control+k')
     const box = page.getByRole('combobox')
-    await box.fill('react')
+    await box.fill('system')
     await expect(page.getByRole('option').first()).toBeVisible()
     const before = await box.getAttribute('aria-activedescendant')
     await page.keyboard.press('ArrowDown')
@@ -39,7 +39,19 @@ test.describe('search / command palette', () => {
     await page.keyboard.press('Control+k')
     await page.getByRole('combobox').fill('zzzqqqxxx')
     await expect(page.getByRole('option')).toHaveCount(0)
-    await expect(page.getByRole('dialog').locator('p', { hasText: /no results/i })).toBeVisible()
+    await expect(page.getByRole('dialog').locator('p', { hasText: /nothing found/i })).toBeVisible()
+  })
+
+  test('technology names are not searchable and not suggested (§ 16.1 rule 3, Phase 32)', async ({ page }) => {
+    await page.goto('/en')
+    await page.keyboard.press('Control+k')
+    const box = page.getByRole('combobox')
+    await expect(box).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('dialog')).not.toContainText(/Next\.js|React|PostgreSQL|Supabase/)
+    for (const name of ['PostgreSQL', 'Supabase']) {
+      await box.fill(name)
+      await expect(page.getByRole('option')).toHaveCount(0)
+    }
   })
 
   test('searching services works, and the search button opens it without a keyboard', async ({ page }) => {

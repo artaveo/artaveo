@@ -7,7 +7,7 @@ import { getPublishedArticles } from '@/lib/insights'
 import { getAllServices } from '@/lib/services-content'
 import { commandItems, mainNav } from '@/lib/site'
 import type { SearchDocument, SearchIndex } from '@/lib/search/types'
-import { t, type Locale, type Project } from '@/types/content'
+import { t, type Locale } from '@/types/content'
 
 /**
  * Phase 18 — builds one locale's search index from **published** content only.
@@ -26,47 +26,25 @@ import { t, type Locale, type Project } from '@/types/content'
  *   `/start`, `/contact`, `/consultation` and the e-mail shortcut are
  *   *actions*, kept as client-side commands in the palette;
  *   `/design-system` is an internal, noindex tool and is a command only.
- * - projects — title, summary; category and technologies as keywords.
+ * - projects — title, summary; industry as a keyword.
  * - services — title, short description; deliverables as keywords.
  * - articles — title, excerpt; category as a keyword. Bodies are not
  *   indexed (see PHASE-18-README, "Not built").
- * - technologies — derived from the published projects that use them, so a
- *   technology is only searchable when there is real work that proves it
- *   (§ 4.5, B-03: proof-linked expertise).
+ *
+ * Phase 32: technologies are no longer searchable and no longer suggested —
+ * customer copy never names them (§ 16.1 rule 3). The suggestions are the
+ * kinds of software Artaveo builds (the published services).
  */
 
 const MAX_SUGGESTIONS = 6
 
-function slugify(value: string): string {
-  return value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '') || 'item'
-}
-
-type TechnologyUse = { name: string; projects: Project[] }
-
-/** Distinct technologies across published projects, in first-seen order. Case-insensitive; keeps the first spelling. */
-function collectTechnologies(projects: Project[]): TechnologyUse[] {
-  const byKey = new Map<string, TechnologyUse>()
-  for (const project of projects) {
-    for (const raw of project.technologies) {
-      const name = raw.trim()
-      if (!name) continue
-      const key = name.toLowerCase()
-      const entry = byKey.get(key) ?? { name, projects: [] }
-      if (!entry.projects.includes(project)) entry.projects.push(project)
-      byKey.set(key, entry)
-    }
-  }
-  return [...byKey.values()]
-}
-
 export async function buildSearchIndex(locale: Locale): Promise<SearchIndex> {
-  const [projects, services, articles, tNav, tPalette, tIndex] = await Promise.all([
+  const [projects, services, articles, tNav, tPalette] = await Promise.all([
     getAllProjects(),
     getAllServices(),
     getPublishedArticles(),
     getTranslations({ locale, namespace: 'Nav' }),
     getTranslations({ locale, namespace: 'CommandPalette' }),
-    getTranslations({ locale, namespace: 'SearchIndex' }),
   ])
 
   const docs: SearchDocument[] = []
@@ -104,7 +82,7 @@ export async function buildSearchIndex(locale: Locale): Promise<SearchIndex> {
       href: `/work/${project.slug}`,
       title: t(project.title, locale),
       description: t(project.summary, locale),
-      keywords: [t(project.category, locale), ...project.technologies],
+      keywords: project.industry ? [t(project.industry, locale)] : undefined,
       boost: project.featured ? 2 : 0,
     })
   }
@@ -133,28 +111,7 @@ export async function buildSearchIndex(locale: Locale): Promise<SearchIndex> {
     })
   }
 
-  // ── technologies (proof-linked: only those used by a published project) ─
-  const technologies = collectTechnologies(projects)
-  const listFormat = new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' })
-  for (const tech of technologies) {
-    const single = tech.projects.length === 1 ? tech.projects[0] : undefined
-    docs.push({
-      id: `technology:${slugify(tech.name)}`,
-      kind: 'technology',
-      href: single ? `/work/${single.slug}` : '/work',
-      title: tech.name,
-      description: tIndex('technologyUsedIn', {
-        count: tech.projects.length,
-        projects: listFormat.format(tech.projects.map((p) => t(p.title, locale))),
-      }),
-    })
-  }
-
-  // Most-used first; ties keep first-seen order (Array#sort is stable).
-  const suggestions = [...technologies]
-    .sort((a, b) => b.projects.length - a.projects.length)
-    .slice(0, MAX_SUGGESTIONS)
-    .map((tech) => tech.name)
+  const suggestions = services.slice(0, MAX_SUGGESTIONS).map((service) => t(service.title, locale))
 
   return { locale, generatedAt: new Date().toISOString(), docs, suggestions }
 }

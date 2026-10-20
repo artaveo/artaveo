@@ -259,7 +259,7 @@ const ICS_BASE = {
   sequence: 0,
   start: new Date('2026-09-24T09:30:00Z'),
   end: new Date('2026-09-24T10:00:00Z'),
-  summary: 'Artaveo — intro call',
+  summary: 'Artaveo — consultation call',
   description: 'Manage it: https://example.test/en/consultation/abc',
   location: 'https://meet.example.test/xyz',
   organizer: { email: 'artaveo.dev@gmail.com', name: 'Zakir Naseri' },
@@ -391,14 +391,14 @@ test('windowLines: the client\'s own zone, in both languages', () => {
 
 test('received: nothing is booked yet, the link and the D-08 commitment are there, both languages', () => {
   const en = buildConsultationReceivedEmail({ locale: 'en', windows: [W1], timezone: 'Asia/Kabul', manageUrl: 'https://x.test/en/consultation/T' })
-  assert.match(en.text, /Nothing is booked until I confirm/)
-  assert.match(en.text, /a reply within a few hours, same day/)
+  assert.match(en.text, /Nothing is booked until Artaveo confirms/)
+  assert.match(en.text, /the same day, usually within a few hours/)
   assert.match(en.text, /Asia\/Kabul \(UTC\+4:30\)/)
   assert.ok(en.text.includes('https://x.test/en/consultation/T'))
   const fa = buildConsultationReceivedEmail({ locale: 'fa', windows: [W1], timezone: 'Asia/Kabul', manageUrl: 'https://x.test/fa/consultation/T' })
   assert.match(fa.subject, PERSIAN)
   assert.match(fa.text, /چیزی ثبت نشده است/)
-  assert.match(fa.text, /پاسخ‌گویی در همان روز، طی چند ساعت/)
+  assert.match(fa.text, /در همان روز، معمولاً طی چند ساعت/)
   assert.ok(fa.text.includes('https://x.test/fa/consultation/T'))
 })
 
@@ -418,14 +418,14 @@ test('confirmed: date, time, zone and UTC on their own lines; moved calls name t
   assert.match(moved.subject, /moved/)
   assert.match(moved.text, /previous time \(cancelled\)/)
   const fa = buildConsultationConfirmedEmail({ ...base, locale: 'fa' })
-  assert.match(fa.text, /تماس آشنایی‌مان تأیید شد/)
+  assert.match(fa.text, /تماس مشوره‌ی شما با آرتاویو تأیید شد/)
   assert.ok(fa.text.split('\n').includes('ساعت: 14:00 تا 14:30'))
   assert.ok(fa.text.split('\n').includes('روش تماس: Google Meet: https://meet.example.test/abc'))
 })
 
 test('cancelled: who cancelled decides the words; the reason is only shown when the owner cancels', () => {
   const owner = buildConsultationCancelledEmail({ locale: 'en', timezone: 'UTC', by: 'owner', range: SLOT, reason: 'Sick day', newRequestUrl: 'https://x.test/en/consultation' })
-  assert.match(owner.text, /I've cancelled our intro call/)
+  assert.match(owner.text, /Artaveo has cancelled your consultation call/)
   assert.match(owner.text, /Sick day/)
   assert.match(owner.text, /removes it from your calendar/)
   const client = buildConsultationCancelledEmail({ locale: 'en', timezone: 'UTC', by: 'client', range: SLOT, reason: 'private note', newRequestUrl: 'u' })
