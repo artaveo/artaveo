@@ -284,7 +284,7 @@ export function Ds2ComponentsSection({
                 <ul className="grid gap-4 @2xl:grid-cols-2 @5xl:grid-cols-3">
                   <li>
                     <ArticleCover
-                      href="/insights"
+                      href="/articles"
                       cover={articleCover}
                       tag={locale === 'fa' ? 'ترانسپورت' : 'Transport'}
                       title={locale === 'fa' ? 'فروش آنلاین تکت برای یک شرکت ترانسپورتی چه چیزی را تغییر می‌دهد' : 'What online ticket sales change for a transport company'}

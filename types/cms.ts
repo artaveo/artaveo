@@ -266,6 +266,11 @@ export type AdminArticle = {
   excerpt: LocalizedText
   body: LocalizedText
   category: LocalizedText | null
+  /** Phase 33 (0032): required to publish or schedule. */
+  coverMediaId: string | null
+  tags: LocalizedText[]
+  /** Phase 33.3: only `customer` articles can be published. */
+  audience: ArticleAudience
   status: 'draft' | 'review' | 'scheduled' | 'published' | 'archived'
   publishedAt: string | null
   updatedAt: string
@@ -280,6 +285,9 @@ export type ArticleInput = {
   excerpt: LocalizedText
   body: LocalizedText
   category: LocalizedText | null
+  coverMediaId: string | null
+  tags: LocalizedText[]
+  audience: ArticleAudience
   /** `published` is never set through the form — only `publishArticle` publishes; saving a published article leaves it published. */
   status: 'draft' | 'review' | 'scheduled' | 'archived'
   /** `YYYY-MM-DD` (UTC). Required, today or later, when `status` is `scheduled`; ignored otherwise. */
@@ -295,7 +303,13 @@ export type ArticleFormOptions = {
   services: { id: string; slug: string; title: LocalizedText; published: boolean }[]
   articles: { id: string; slug: string; title: LocalizedText }[]
   media: AdminMediaAsset[]
+  /** For the cover picker's "which project's images" switch. */
+  mediaProjects: MediaProjectOption[]
 }
+
+/** Phase 33.3 (`articles.audience`, 0032): a customer article can be published; an engineering one never. */
+export const ARTICLE_AUDIENCES = ['customer', 'engineering'] as const
+export type ArticleAudience = (typeof ARTICLE_AUDIENCES)[number]
 
 /**
  * `media_assets` (0003/0007) — one row per uploaded file. `alt` is

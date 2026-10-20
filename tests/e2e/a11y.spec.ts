@@ -71,7 +71,7 @@ test.describe('every page type, both languages', () => {
 })
 
 test.describe('dark theme (contrast is decided per theme)', () => {
-  for (const [label, route] of ROUTES.filter(([l]) => ['home', 'case study', 'product page', 'work index', 'service detail', 'start (brief builder)', 'insights article', 'about'].includes(l))) {
+  for (const [label, route] of ROUTES.filter(([l]) => ['home', 'case study', 'product page', 'work index', 'service detail', 'start (brief builder)', 'article', 'about'].includes(l))) {
     for (const locale of ['en', 'fa'] as const) {
       test(`${label} (${locale}, dark)`, async ({ page }) => {
         await page.goto(`/${locale}${route}`)

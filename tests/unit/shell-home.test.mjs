@@ -19,7 +19,7 @@ import {
   productPageHref,
   projectHref,
 } from '../../lib/shell-menus.ts'
-import { buildShellData, FALLBACK_SHELL } from '../../lib/shell-settings.ts'
+import { applyArticleRule, buildShellData, FALLBACK_SHELL } from '../../lib/shell-settings.ts'
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), 'utf8')
 const tx = (en, fa) => ({ en, fa })
@@ -33,14 +33,16 @@ const LIVE_NAV = [
   row('work', '/work', ALL, 2),
   row('services', '/services', ALL, 3),
   row('about', '/about', ALL, 5),
-  row('insights', '/insights', ALL, 6, false),
+  row('articles', '/articles', ALL, 6),
   row('designSystem', '/design-system', ['footer', 'command-palette'], 7),
   row('contact', '/contact', ['footer', 'command-palette'], 8),
   row('start', '/start', ['command-palette'], 9),
   row('privacy', '/privacy', ['footer', 'command-palette'], 11),
   row('terms', '/terms', ['footer', 'command-palette'], 12),
 ]
-const shell = buildShellData(LIVE_NAV, { contact_email: 'a@b.co', whatsapp_number: '+93790685832', phone_number: null, external_profiles: [] })
+const rawShell = buildShellData(LIVE_NAV, { contact_email: 'a@b.co', whatsapp_number: '+93790685832', phone_number: null, external_profiles: [] })
+/** The live shell today: no article a visitor can read (Phase 33.2). */
+const shell = applyArticleRule(rawShell, 0)
 
 const project = (slug, extra = {}) => ({
   id: slug,

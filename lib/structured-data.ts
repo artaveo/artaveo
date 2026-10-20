@@ -181,11 +181,12 @@ export function buildProductJsonLd(locale: Locale, product: Project): JsonLdValu
  * `BlogPosting` for a journal article (Phase 17). Every value is a stored
  * field of the article itself: dates are `published_at` / `updated_at`,
  * `timeRequired` is the same per-locale reading-time the page shows, the
- * author is the site's one real `Person`. No image is emitted — articles
- * have no cover image, and an invented one would break § 16.5.
+ * author is the site's one real `Person`. Phase 33: the article's own cover
+ * is its `image` (every published article has one, 0032); tags are its
+ * `keywords`.
  */
 export function buildArticleJsonLd(locale: Locale, article: ArticleSummary): JsonLdValue {
-  const url = absoluteUrl(`/${locale}/insights/${article.slug}`)
+  const url = absoluteUrl(`/${locale}/articles/${article.slug}`)
   const minutes = article.readingMinutes[locale]
   return {
     '@context': 'https://schema.org',
@@ -198,6 +199,8 @@ export function buildArticleJsonLd(locale: Locale, article: ArticleSummary): Jso
     datePublished: article.publishedAt,
     dateModified: article.updatedAt,
     ...(article.category ? { articleSection: t(article.category, locale) } : {}),
+    ...(article.cover ? { image: absoluteUrl(article.cover.url) } : {}),
+    ...(article.tags.length > 0 ? { keywords: article.tags.map((tag) => t(tag, locale)).join(', ') } : {}),
     ...(minutes > 0 ? { timeRequired: `PT${minutes}M` } : {}),
     author: { '@id': absoluteUrl('/#person') },
     publisher: { '@id': absoluteUrl('/#business') },

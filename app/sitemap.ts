@@ -110,15 +110,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (articles.length > 0) {
     for (const locale of routing.locales) {
       entries.push({
-        url: absoluteUrl(`/${locale}/insights`),
+        url: absoluteUrl(`/${locale}/articles`),
         lastModified: new Date(articles[0].updatedAt),
         changeFrequency: 'weekly',
         priority: 0.7,
-        alternates: { languages: languageAlternates('/insights') },
+        alternates: { languages: languageAlternates('/articles') },
       })
     }
     for (const article of articles) {
-      const path = `/insights/${article.slug}`
+      const path = `/articles/${article.slug}`
       for (const locale of routing.locales) {
         entries.push({
           url: absoluteUrl(`/${locale}${path}`),

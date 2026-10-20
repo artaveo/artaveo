@@ -447,14 +447,14 @@ test('content-published: scheduled and manual read differently, and both carry t
   const scheduled = buildContentPublishedEmail({
     entity: 'article',
     title: 'How seat holds stay consistent',
-    url: 'https://site.test/en/insights/seat-holds',
+    url: 'https://site.test/en/articles/seat-holds',
     how: { via: 'scheduled', scheduledFor: '2026-09-25T00:00:00.000Z' },
   })
   assert.match(scheduled.subject, /Published — How seat holds stay consistent/)
   assert.match(scheduled.text, /A scheduled article went live\./)
   assert.match(scheduled.text, /Scheduled for: 2026-09-25/)
   assert.match(scheduled.text, /daily run/)
-  assert.match(scheduled.text, /https:\/\/site\.test\/en\/insights\/seat-holds/)
+  assert.match(scheduled.text, /https:\/\/site\.test\/en\/articles\/seat-holds/)
 
   const manual = buildContentPublishedEmail({
     entity: 'project',
@@ -604,7 +604,7 @@ test('event keys: a resubmission is its own notification; each publish is its ow
   assert.ok(db.tables.notification_outbox.every((row) => row.recipient_email === 'artaveo.dev@gmail.com'))
   const manual = db.tables.notification_outbox.find((r) => r.dedupe_key.includes(':manual:'))
   assert.match(manual.body_text, /Published in the admin by: a@b\.co/)
-  assert.match(manual.body_text, /\/en\/insights\/s$/m)
+  assert.match(manual.body_text, /\/en\/articles\/s$/m)
 })
 
 test('recommender events: link to the recommender\'s own locale, reply-to the owner, one link e-mail per request, one message per change ask', async () => {

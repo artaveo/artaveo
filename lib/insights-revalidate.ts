@@ -28,9 +28,9 @@ export function revalidateArticleRoutes(
   }
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}`)
-    revalidatePath(`/${locale}/insights`)
+    revalidatePath(`/${locale}/articles`)
     for (const slug of slugs) {
-      if (slug) revalidatePath(`/${locale}/insights/${slug}`)
+      if (slug) revalidatePath(`/${locale}/articles/${slug}`)
     }
   }
   revalidatePath('/sitemap.xml')

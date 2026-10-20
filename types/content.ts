@@ -438,6 +438,14 @@ export type ArticleSummary = {
   updatedAt: string
   /** Whole minutes per locale, computed from each body — see `lib/articles/reading-time.ts`. */
   readingMinutes: { en: number; fa: number }
+  /**
+   * Phase 33.1 (B-37): the large image on the article's card and at the top of
+   * the article. Every published article has one (`articles_publish_rules`, 0032);
+   * `null` only in an admin preview of a draft without one.
+   */
+  cover: ArticleImage | null
+  /** Phase 33.1: the article's topics, shown under it and found by the site search. */
+  tags: LocalizedText[]
 }
 
 export type Article = ArticleSummary & {

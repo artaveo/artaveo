@@ -42,7 +42,7 @@ test('a URL that matches no route is a real 404 with a way back home', async ({ 
 // pinned here is the safe half: the response is never indexable, and the visitor
 // sees the not-found page. If the status is ever fixed, tighten this to 404.
 test('an unknown slug under a dynamic route is never indexable and shows the not-found page', async ({ page }) => {
-  for (const url of ['/en/work/no-such-project', '/fa/work/no-such-project', '/en/products/no-such-product', '/en/services/no-such-service', '/en/insights/no-such-article']) {
+  for (const url of ['/en/work/no-such-project', '/fa/work/no-such-project', '/en/products/no-such-product', '/en/services/no-such-service', '/en/articles/no-such-article']) {
     const response = await page.goto(url)
     expect([200, 404], url).toContain(response?.status())
     if (response?.status() === 200) await expect(page.locator('meta[name=robots]').first(), url).toHaveAttribute('content', /noindex/)
@@ -65,19 +65,40 @@ test('machine-readable routes: sitemap, robots, feeds, manifest', async ({ reque
   expect(xml).toContain('/en/work/transportation-system')
   expect(xml).toContain('/en/products/e2e-product') // Phase 30.4
   expect(xml).toContain('/fa/products<')
-  expect(xml).toContain('/fa/insights/e2e-fixture-article')
+  expect(xml).toContain('/fa/articles/e2e-fixture-article')
   expect(xml, 'admin and private pages are never in the sitemap').not.toMatch(/\/(en|fa)\/admin(\/|<)|\/consultation\/[0-9a-f]{8}|\/recommend\//)
 
   const robots = await (await request.get('/robots.txt')).text()
   expect(robots).toMatch(/Disallow:\s*\/admin/)
 
   for (const locale of ['en', 'fa']) {
-    const feed = await request.get(`/${locale}/insights/feed.xml`)
+    const feed = await request.get(`/${locale}/articles/feed.xml`)
     expect(feed.status()).toBe(200)
     expect(feed.headers()['content-type']).toContain('xml')
     expect(await feed.text()).toContain('e2e-fixture-article')
   }
   expect((await request.get('/manifest.webmanifest')).status()).toBeLessThan(400)
+})
+
+test('Phase 33.1: the old /insights addresses redirect permanently to /articles', async ({ request }) => {
+  for (const [from, to] of [
+    ['/en/insights', '/en/articles'],
+    ['/fa/insights/e2e-fixture-article', '/fa/articles/e2e-fixture-article'],
+    ['/en/insights/feed.xml', '/en/articles/feed.xml'],
+  ]) {
+    const response = await request.get(from, { maxRedirects: 0 })
+    expect(response.status(), from).toBe(308)
+    expect(new URL(response.headers().location, 'http://x').pathname, from).toBe(to)
+  }
+})
+
+test('Phase 33: an article page has its cover; with one article the link is in the footer, not the header (33.2)', async ({ page }) => {
+  await page.goto('/en/articles/e2e-fixture-article')
+  await expect(page.locator('[data-slot="article-body"] figure img').first()).toBeVisible()
+  await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Articles', exact: true })).toBeVisible()
+  await expect(page.getByRole('banner').getByRole('link', { name: 'Articles', exact: true })).toHaveCount(0)
+  await page.goto('/fa/articles')
+  await expect(page.locator('[data-slot="article-card"]')).toHaveCount(1)
 })
 
 test('the daily cron route refuses callers without the secret (fails closed)', async ({ request }) => {

@@ -52,7 +52,7 @@ export async function buildSearchIndex(locale: Locale): Promise<SearchIndex> {
   // ── pages ──────────────────────────────────────────────────────────────
   for (const item of commandItems) {
     if (item.group === 'actions' || item.href === '/design-system' || item.href.startsWith('mailto:')) continue
-    if (item.contentFlag === 'insights' && articles.length === 0) continue
+    if (item.contentFlag === 'articles' && articles.length === 0) continue
     // A page hidden from the nav is not offered by search either.
     if (!item.contentFlag && item.hasContent === false) continue
 
@@ -104,10 +104,10 @@ export async function buildSearchIndex(locale: Locale): Promise<SearchIndex> {
     docs.push({
       id: `article:${article.slug}`,
       kind: 'article',
-      href: `/insights/${article.slug}`,
+      href: `/articles/${article.slug}`,
       title: t(article.title, locale),
       description: t(article.excerpt, locale),
-      keywords: article.category ? [t(article.category, locale)] : undefined,
+      keywords: [...(article.category ? [t(article.category, locale)] : []), ...article.tags.map((tag) => t(tag, locale))],
     })
   }
 

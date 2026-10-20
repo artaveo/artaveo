@@ -5,13 +5,16 @@ import { cache } from 'react'
 import { normalizeCategory } from '@/lib/articles/category'
 import { collectMediaIds, parseArticleBody } from '@/lib/articles/markdown'
 import { estimateReadingMinutes } from '@/lib/articles/reading-time'
+import { normalizeTags } from '@/lib/articles/tags'
 import { getDbClient } from '@/lib/db/server'
 import type { Article, ArticleDetail, ArticleImage, ArticleSummary } from '@/types/content'
 import { log } from '@/lib/observability/logger'
 
 /**
- * Phase 17 — the public read layer for the journal (roadmap § 12,
- * "Insights / Engineering Journal").
+ * Phase 17 — the public read layer for the articles (roadmap § 12; Insights
+ * became Articles in Phase 33). Phase 33.3: a visitor only ever reads a
+ * customer article with a cover — the same rule the database enforces on
+ * publishing (`articles_publish_rules`, 0032).
  *
  * Only `status = 'published'` rows are ever selected. The scheduled →
  * published transition is a real, stored state change made by the daily
@@ -41,7 +44,20 @@ function requireClient() {
   return client
 }
 
-const ARTICLE_COLUMNS = 'id, slug, title, excerpt, body, category, published_at, updated_at'
+/**
+ * Phase 33: the cover comes with the row (`media_assets`, 0032). The public
+ * filter below repeats the database's own rule (`articles_publish_rules`): only
+ * a customer article with a cover is ever read.
+ */
+const ARTICLE_COLUMNS = 'id, slug, title, excerpt, body, category, tags, published_at, updated_at, cover:media_assets(id, url, alt, width, height)'
+
+/** A media row as an article image, or `null` when it has no alt text in both languages (§ 15 — never shown without). */
+type MediaRow = { id: string; url: string | null; alt: { en?: string; fa?: string } | null; width: number | null; height: number | null }
+
+export function toArticleImage(asset: MediaRow | null | undefined): ArticleImage | null {
+  if (!asset?.url || !asset.alt?.en || !asset.alt?.fa) return null
+  return { id: asset.id, url: asset.url, alt: { en: asset.alt.en, fa: asset.alt.fa }, width: asset.width ?? null, height: asset.height ?? null }
+}
 
 function assembleArticle(row: Record<string, any>): Article {
   return {
@@ -50,6 +66,8 @@ function assembleArticle(row: Record<string, any>): Article {
     title: row.title,
     excerpt: row.excerpt,
     category: normalizeCategory(row.category),
+    cover: toArticleImage(row.cover),
+    tags: normalizeTags(row.tags),
     body: row.body,
     publishedAt: row.published_at,
     updatedAt: row.updated_at,
@@ -72,7 +90,9 @@ export const getPublishedArticles = cache(async (): Promise<Article[]> => {
     .from('articles')
     .select(ARTICLE_COLUMNS)
     .eq('status', 'published')
+    .eq('audience', 'customer')
     .not('published_at', 'is', null)
+    .not('cover_media_id', 'is', null)
     .order('published_at', { ascending: false })
 
   if (error) throw new Error(`Failed to load articles: ${error.message}`)
@@ -88,27 +108,45 @@ export async function getLatestArticleSummaries(limit = 3): Promise<ArticleSumma
 }
 
 /**
- * Drives "hidden from nav until content exists" (§ 5.2, § 15). Tolerant on
- * purpose — see the module header.
+ * How many articles a visitor can read. Drives "hidden until content exists"
+ * (§ 5.2, § 15) and Phase 33.2's menu rule — the footer from the first article,
+ * the header from the fourth (`applyArticleRule`). Tolerant on purpose (0 on
+ * any failure) — see the module header.
  */
-export const hasPublishedArticles = cache(async (): Promise<boolean> => {
+export const countPublishedArticles = cache(async (): Promise<number> => {
   try {
     const client = getDbClient()
-    if (!client) return false
+    if (!client) return 0
     const { count, error } = await client
       .from('articles')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'published')
+      .eq('audience', 'customer')
+      .not('published_at', 'is', null)
+      .not('cover_media_id', 'is', null)
     if (error) {
-      log.error('insights.has_published_failed', { err: error })
-      return false
+      log.error('articles.count_published_failed', { err: error })
+      return 0
     }
-    return (count ?? 0) > 0
+    return count ?? 0
   } catch (error) {
-    log.error('insights.has_published_failed', { err: error })
-    return false
+    log.error('articles.count_published_failed', { err: error })
+    return 0
   }
 })
+
+export async function hasPublishedArticles(): Promise<boolean> {
+  return (await countPublishedArticles()) > 0
+}
+
+/** One media-library image as an article image (the admin preview's cover), or `null`. */
+export async function loadMediaImage(id: string | null): Promise<ArticleImage | null> {
+  if (!id) return null
+  const client = requireClient()
+  const { data, error } = await client.from('media_assets').select('id, url, alt, width, height').eq('id', id).maybeSingle()
+  if (error) throw new Error(`Failed to load the cover image: ${error.message}`)
+  return toArticleImage(data)
+}
 
 /**
  * Resolves every media-library image the given bodies embed
@@ -156,7 +194,9 @@ export async function getArticleDetailBySlug(slug: string): Promise<ArticleDetai
     .select(ARTICLE_COLUMNS)
     .eq('slug', slug)
     .eq('status', 'published')
+    .eq('audience', 'customer')
     .not('published_at', 'is', null)
+    .not('cover_media_id', 'is', null)
     .maybeSingle()
 
   if (error) throw new Error(`Failed to load article: ${error.message}`)
@@ -235,15 +275,18 @@ export function articleFromDraft(draft: {
   excerpt: { en: string; fa: string }
   body: { en: string; fa: string }
   category: { en: string; fa: string } | null
+  tags?: { en: string; fa: string }[]
   publishedAt: string | null
   updatedAt: string
-}): Article {
+}, cover: ArticleImage | null = null): Article {
   return {
     id: draft.id,
     slug: draft.slug,
     title: draft.title,
     excerpt: draft.excerpt,
     category: normalizeCategory(draft.category),
+    cover,
+    tags: normalizeTags(draft.tags),
     body: draft.body,
     publishedAt: draft.publishedAt ?? new Date().toISOString(),
     updatedAt: draft.updatedAt,

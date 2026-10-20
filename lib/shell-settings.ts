@@ -18,7 +18,7 @@ export type NavSurface = (typeof NAV_SURFACES)[number]
 
 /** Every key the shell knows a label for (`Nav.<key>` in messages/*.json). Same list as the database check (0026). */
 export const NAV_KEYS: NavKey[] = [
-  'home', 'products', 'work', 'services', 'about', 'insights',
+  'home', 'products', 'work', 'services', 'about', 'articles',
   'designSystem', 'contact', 'start', 'consultation', 'privacy', 'terms',
 ]
 
@@ -116,6 +116,27 @@ export function buildShellData(navRows: NavRow[], settings: SettingsRow | null):
   }
 }
 
+/** Phase 33.2: the articles link joins the header and the mobile menu from this many readable articles. */
+export const ARTICLES_IN_HEADER_FROM = 4
+
+/**
+ * Phase 33.2 — where the articles link appears, by how many articles a visitor
+ * can read: nowhere without one; the footer and the search from the first;
+ * the header and the mobile menu too from the fourth. Within that, the
+ * owner's own placement in Content → Navigation still applies (a surface he
+ * turned off stays off), and turning the item off hides it altogether.
+ */
+export function applyArticleRule(shell: ShellData, publishedArticles: number): ShellData {
+  const nav = shell.nav.flatMap((item) => {
+    if (item.key !== 'articles') return [item]
+    if (publishedArticles < 1) return []
+    if (publishedArticles >= ARTICLES_IN_HEADER_FROM) return [item]
+    const surfaces = item.surfaces.filter((surface) => surface === 'footer' || surface === 'command-palette')
+    return surfaces.length > 0 ? [{ ...item, surfaces }] : []
+  })
+  return { ...shell, nav }
+}
+
 /**
  * What the shell shows when the database cannot be read (a misconfigured preview,
  * an outage): the values the site shipped with, so a page never loses its
@@ -125,7 +146,8 @@ export const FALLBACK_SHELL: ShellData = (() => {
   const command = new Set(commandItems.filter((c) => c.hasContent !== false).map((c) => c.labelKey))
   const items: ShellNavItem[] = []
   for (const item of mainNav) {
-    if (item.hasContent === false) continue
+    // An item that follows real content (the articles, Phase 33.2) has none to follow while the database is unreachable.
+    if (item.hasContent === false || item.contentFlag) continue
     items.push({ key: item.key, href: item.href, hasDescription: !!item.hasDescription, surfaces: ['header', 'footer', 'mobile', 'command-palette'] })
   }
   for (const item of [...utilityNav, ...legalNav]) {

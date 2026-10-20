@@ -25,7 +25,7 @@ export type NavKey =
   | 'work'
   | 'services'
   | 'about'
-  | 'insights'
+  | 'articles'
   | 'designSystem'
   | 'contact'
   | 'start'
@@ -37,7 +37,7 @@ export type NavKey =
  * Sections whose visibility is decided by real content in the database
  * rather than a static flag (see `components/site/site-flags.tsx`).
  */
-export type ContentFlag = 'insights'
+export type ContentFlag = 'articles'
 
 export type NavItem = {
   href: string
@@ -46,9 +46,9 @@ export type NavItem = {
   /**
    * Set to `false` to hide this item from every nav surface (header,
    * mobile nav, footer, command palette) without deleting the route
-   * definition — § 5.2's "Insights hidden until content exists" rule.
+   * definition — § 5.2's "hidden until content exists" rule.
    * Flip to `true` (or drop the field) once Phase 17 publishes real
-   * articles behind `/insights`.
+   * articles behind `/articles`.
    *
    * Phase 17: items that also carry `contentFlag` ignore this field —
    * their visibility comes from the flag, resolved server-side.
@@ -71,11 +71,9 @@ export const mainNav: NavItem[] = [
   { href: '/work', key: 'work', hasDescription: true },
   { href: '/services', key: 'services', hasDescription: true },
   { href: '/about', key: 'about', hasDescription: true },
-  // Hidden from every nav surface for now, whether or not an article is published (Phase 26.5):
-  // the articles that exist are engineering notes, not customer reading. Phase 33 decides when
-  // articles get a link again (a footer link first) — until then this stays `hasContent: false`
-  // with no `contentFlag`, so a published article does not bring the link back by itself.
-  { href: '/insights', key: 'insights', hasDescription: true, hasContent: false },
+  // Phase 33.2: follows the readable articles — the footer from the first, the header from the fourth
+  // (`applyArticleRule`, lib/shell-settings.ts). Engineering notes never count: they are never published (0032).
+  { href: '/articles', key: 'articles', hasDescription: true, contentFlag: 'articles' },
 ]
 
 /**
@@ -85,7 +83,7 @@ export const mainNav: NavItem[] = [
  * `contentFlag` follow real content in the database, everything else
  * follows the static `hasContent` rule. (Pre-Phase-17 this file exported a
  * pre-filtered `visibleMainNav`; it was removed because a static filter
- * can no longer express "Insights appears with the first article".)
+ * can no longer express "Articles appear with the first article".)
  */
 
 /**
@@ -150,7 +148,7 @@ export const commandItems: CommandItem[] = [
   { labelKey: 'work', labelNamespace: 'Nav', href: '/work', group: 'navigate', keywords: 'projects portfolio case studies work' },
   { labelKey: 'services', labelNamespace: 'Nav', href: '/services', group: 'navigate', keywords: 'offerings help services website app mobile desktop support process steps how it works' },
   { labelKey: 'about', labelNamespace: 'Nav', href: '/about', group: 'navigate', keywords: 'about studio founder' },
-  { labelKey: 'insights', labelNamespace: 'Nav', href: '/insights', group: 'navigate', keywords: 'blog writing notes insights', hasContent: false },
+  { labelKey: 'articles', labelNamespace: 'Nav', href: '/articles', group: 'navigate', keywords: 'articles blog writing insights', contentFlag: 'articles' },
   { labelKey: 'designSystem', labelNamespace: 'Nav', href: '/design-system', group: 'resources', keywords: 'tokens components ui design system' },
   { labelKey: 'start', labelNamespace: 'Nav', href: '/start', group: 'actions', keywords: 'start project brief builder inquiry hire' },
   { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'contact email whatsapp phone call' },

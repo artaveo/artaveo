@@ -50,7 +50,7 @@ const LOCALES = ['en', 'fa'];
 // intercepts or caches it. That's the enforcement mechanism behind
 // § 10.2's "excluded from the service worker's scope entirely"
 // requirement.
-const CONTENT_SEGMENTS = ['', 'work', 'services', 'about', 'process', 'insights'];
+const CONTENT_SEGMENTS = ['', 'work', 'services', 'about', 'process', 'articles'];
 
 function isContentPagePath(pathname) {
   // A path with a file extension (e.g. /en/insights/feed.xml, the RSS feed)

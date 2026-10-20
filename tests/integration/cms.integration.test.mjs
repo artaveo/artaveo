@@ -23,11 +23,13 @@ const media = await import('../../app/actions/media.ts')
 const { uploadInquiryAttachment, removeInquiryAttachment } = await import('../../app/actions/inquiry-attachments.ts')
 const { submitInquiry } = await import('../../app/actions/inquiries.ts')
 const { queryProjectBySlug, queryAllProjects } = await import('../../lib/db/content-queries.ts')
-const { hasPublishedArticles, getPublishedArticles } = await import('../../lib/insights.ts')
+const { hasPublishedArticles, getPublishedArticles, countPublishedArticles } = await import('../../lib/insights.ts')
 const { publishDueArticles } = await import('../../lib/insights-scheduler.ts')
 
 const db = service()
 const visitor = anon()
+/** Phase 33: an article needs a cover to be published — one of the seeded screenshots. */
+const COVER = (await db.from('media_assets').select('id').like('url', '/images/%').order('url').limit(1).single()).data.id
 const login = async (account) => {
   resetRequest()
   const f = new FormData()
@@ -46,6 +48,7 @@ const project = (extra = {}) => ({
 })
 const article = (extra = {}) => ({
   slug: slug(), title: tx('Probe article'), excerpt: tx('Excerpt'), body: tx('## Heading\n\nSome real text.'), category: null,
+  coverMediaId: COVER, tags: [], audience: 'customer',
   status: 'draft', scheduledFor: null, projectIds: [], serviceIds: [], relatedArticleIds: [], ...extra,
 })
 const auditFor = async (entityId) => (await db.from('audit_log').select('action, actor').eq('entity_id', entityId).order('at')).data.map((r) => r.action)
@@ -156,6 +159,39 @@ describe('projects: create → complete → publish → unpublish', () => {
 })
 
 describe('articles: the publish gates', () => {
+  it('Phase 33: no cover, no publishing or scheduling; an engineering article never goes public — and the database agrees', async () => {
+    await login(EDITOR)
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
+    const bare = await content.createArticle(article({ coverMediaId: null }))
+    assert.deepEqual(await content.publishArticle(bare.id), { ok: false, code: 'missing-cover' })
+    assert.deepEqual(await content.createArticle(article({ coverMediaId: null, status: 'scheduled', scheduledFor: tomorrow })), { ok: false, code: 'missing-cover' })
+    assert.deepEqual(await content.createArticle(article({ coverMediaId: uuid(), status: 'scheduled', scheduledFor: tomorrow })), { ok: false, code: 'missing-cover' })
+    const engineering = await content.createArticle(article({ audience: 'engineering' }))
+    assert.deepEqual(await content.publishArticle(engineering.id), { ok: false, code: 'not-for-customers' })
+    for (const id of [bare.id, engineering.id]) assert.equal((await db.from('articles').select('status').eq('id', id).single()).data.status, 'draft')
+    // Even a direct write cannot publish them (articles_publish_rules, 0032).
+    for (const id of [bare.id, engineering.id]) {
+      const { error } = await db.from('articles').update({ status: 'published', published_at: new Date().toISOString() }).eq('id', id)
+      assert.equal(error?.code, '23514', 'check violation')
+    }
+    assert.deepEqual(await content.createArticle(article({ audience: 'nobody' })), { ok: false, code: 'error' })
+  })
+
+  it('Phase 33: a published article keeps its cover and stays for customers; cover and tags reach the public read', async () => {
+    await login(EDITOR)
+    const input = article({ tags: [tx('Tickets'), { en: 'English only', fa: '' }] })
+    const { id } = await content.createArticle(input)
+    assert.deepEqual(await content.publishArticle(id), { ok: true })
+    assert.deepEqual(await content.updateArticle(id, { ...input, coverMediaId: null }), { ok: false, code: 'missing-cover' })
+    assert.deepEqual(await content.updateArticle(id, { ...input, audience: 'engineering' }), { ok: false, code: 'not-for-customers' })
+    const live = (await getPublishedArticles()).find((a) => a.slug === input.slug)
+    assert.equal(live.cover.id, COVER)
+    assert.ok(live.cover.url.startsWith('/images/'))
+    assert.deepEqual(live.tags, [tx('Tickets')])
+    assert.ok((await countPublishedArticles()) >= 1)
+    assert.deepEqual(await content.archiveArticle(id), { ok: true })
+  })
+
   it('a draft is not public; an incomplete article, or one with an unresolved [PLACEHOLDER], cannot be published', async () => {
     await login(EDITOR)
     const half = await content.createArticle(article({ excerpt: { en: 'English only', fa: '' } }))

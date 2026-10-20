@@ -25,7 +25,7 @@ export type SiteFlags = Record<ContentFlag, boolean>
 
 type SiteContextValue = { flags: SiteFlags; shell: ShellData; menus: ShellMenus }
 
-const SiteFlagsContext = createContext<SiteContextValue>({ flags: { insights: false }, shell: FALLBACK_SHELL, menus: EMPTY_MENUS })
+const SiteFlagsContext = createContext<SiteContextValue>({ flags: { articles: false }, shell: FALLBACK_SHELL, menus: EMPTY_MENUS })
 
 export function SiteFlagsProvider({
   flags,
@@ -38,7 +38,7 @@ export function SiteFlagsProvider({
   menus?: ShellMenus
   children: React.ReactNode
 }) {
-  const value = useMemo(() => ({ flags, shell, menus }), [flags.insights, shell, menus]) // eslint-disable-line react-hooks/exhaustive-deps
+  const value = useMemo(() => ({ flags, shell, menus }), [flags.articles, shell, menus]) // eslint-disable-line react-hooks/exhaustive-deps
   return <SiteFlagsContext.Provider value={value}>{children}</SiteFlagsContext.Provider>
 }
 

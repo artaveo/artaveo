@@ -78,6 +78,11 @@ const nextConfig = {
     return [
       { source: '/:locale(en|fa)/process', destination: '/:locale/services#process', permanent: true },
       { source: '/process', destination: '/services#process', permanent: true },
+      // Phase 33.1: Insights became Articles — the index, every article and the feed keep working at the old address.
+      { source: '/:locale(en|fa)/insights', destination: '/:locale/articles', permanent: true },
+      { source: '/:locale(en|fa)/insights/:path*', destination: '/:locale/articles/:path*', permanent: true },
+      { source: '/insights', destination: '/articles', permanent: true },
+      { source: '/insights/:path*', destination: '/articles/:path*', permanent: true },
       ...Object.entries(oldServices).flatMap(([from, to]) => [
         { source: `/:locale(en|fa)/services/${from}`, destination: `/:locale/services/${to}`, permanent: true },
         { source: `/services/${from}`, destination: `/services/${to}`, permanent: true },

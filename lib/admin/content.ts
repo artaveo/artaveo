@@ -1,8 +1,9 @@
 import 'server-only'
 
-import { listMediaAssets } from '@/lib/admin/media'
+import { listMediaAssets, listMediaProjects } from '@/lib/admin/media'
 import { requireDb } from '@/lib/admin/pipeline'
 import { normalizeCategory } from '@/lib/articles/category'
+import { normalizeTags } from '@/lib/articles/tags'
 import { toProductService, toSaleOption, type ProductServiceRow, type ProjectRow, type SaleOptionRow } from '@/lib/db/content-queries'
 import { blockCompleteness } from '@/lib/products/blocks'
 import { moneyFromRow } from '@/lib/products/money'
@@ -569,7 +570,7 @@ export function articleCompleteness(article: {
   return mergeCompleteness(checks)
 }
 
-const ARTICLE_COLUMNS = 'id, slug, title, excerpt, body, category, status, published_at, updated_at'
+const ARTICLE_COLUMNS = 'id, slug, title, excerpt, body, category, cover_media_id, tags, audience, status, published_at, updated_at'
 
 function assembleAdminArticle(
   row: Record<string, any>,
@@ -582,6 +583,9 @@ function assembleAdminArticle(
     excerpt: row.excerpt,
     body: row.body,
     category: normalizeCategory(row.category),
+    coverMediaId: row.cover_media_id ?? null,
+    tags: normalizeTags(row.tags),
+    audience: row.audience === 'engineering' ? 'engineering' : 'customer',
     status: row.status,
     publishedAt: row.published_at ?? null,
     updatedAt: row.updated_at,
@@ -631,11 +635,12 @@ export async function getArticleFormOptions(excludeArticleId?: string): Promise<
   const db = requireDb()
   if (!db) return null
 
-  const [projects, services, articles, media] = await Promise.all([
+  const [projects, services, articles, media, mediaProjects] = await Promise.all([
     db.from('projects').select('id, slug, title, published').order('sort_order'),
     db.from('services').select('id, slug, title, published').order('sort_order'),
     db.from('articles').select('id, slug, title').order('updated_at', { ascending: false }),
     listMediaAssets(),
+    listMediaProjects(),
   ])
 
   return {
@@ -645,6 +650,7 @@ export async function getArticleFormOptions(excludeArticleId?: string): Promise<
       .filter((r: any) => r.id !== excludeArticleId)
       .map((r: any) => ({ id: r.id, slug: r.slug, title: r.title })),
     media: media ?? [],
+    mediaProjects,
   }
 }
 

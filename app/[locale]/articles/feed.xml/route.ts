@@ -8,14 +8,14 @@ import { siteConfig } from '@/lib/site'
 import { t, type Locale } from '@/types/content'
 
 /**
- * Phase 17 — RSS 2.0 feed, one per locale: `/en/insights/feed.xml`,
- * `/fa/insights/feed.xml`. Items carry the title, excerpt, category and
+ * Phase 17 — RSS 2.0 feed, one per locale: `/en/articles/feed.xml`,
+ * `/fa/articles/feed.xml` (`/insights/…` until Phase 33; the old address redirects). Items carry the title, excerpt, category and
  * real publish date; the full text stays on the site (a feed with only
  * the excerpt is a deliberate, disclosed choice — see PHASE-17-README).
  *
  * `proxy.ts` skips paths containing a dot, so the locale is validated
  * here instead of by the i18n middleware. With nothing published the feed
- * is a 404, the same "empty means hidden" rule as `/insights` itself.
+ * is a 404, the same "empty means hidden" rule as `/articles` itself.
  *
  * Deliberately dynamic (no `force-static`): it reads the database on request
  * and is cached at the CDN instead, so a database outage can never fail a
@@ -46,13 +46,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ loc
   }
 
   const localeKey = locale as Locale
-  const tSection = await getTranslations({ locale, namespace: 'Insights' })
-  const selfUrl = absoluteUrl(`/${locale}/insights/feed.xml`)
+  const tSection = await getTranslations({ locale, namespace: 'Articles' })
+  const selfUrl = absoluteUrl(`/${locale}/articles/feed.xml`)
   const lastBuild = articles.reduce((latest, a) => (a.updatedAt > latest ? a.updatedAt : latest), articles[0].updatedAt)
 
   const items = articles
     .map((article) => {
-      const url = absoluteUrl(`/${locale}/insights/${article.slug}`)
+      const url = absoluteUrl(`/${locale}/articles/${article.slug}`)
       return [
         '    <item>',
         `      <title>${escapeXml(t(article.title, localeKey))}</title>`,
@@ -61,6 +61,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ loc
         `      <pubDate>${new Date(article.publishedAt).toUTCString()}</pubDate>`,
         `      <description>${escapeXml(t(article.excerpt, localeKey))}</description>`,
         ...(article.category ? [`      <category>${escapeXml(t(article.category, localeKey))}</category>`] : []),
+        ...article.tags.map((tag) => `      <category>${escapeXml(t(tag, localeKey))}</category>`),
         '    </item>',
       ].join('\n')
     })
@@ -71,7 +72,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ loc
     '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
     '  <channel>',
     `    <title>${escapeXml(`${siteConfig.name} — ${tSection('title')}`)}</title>`,
-    `    <link>${escapeXml(absoluteUrl(`/${locale}/insights`))}</link>`,
+    `    <link>${escapeXml(absoluteUrl(`/${locale}/articles`))}</link>`,
     `    <description>${escapeXml(tSection('description'))}</description>`,
     `    <language>${localeKey}</language>`,
     `    <lastBuildDate>${new Date(lastBuild).toUTCString()}</lastBuildDate>`,

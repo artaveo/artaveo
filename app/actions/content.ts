@@ -20,6 +20,7 @@ import { requireDb } from '@/lib/admin/pipeline'
 import { normalizeCategory } from '@/lib/articles/category'
 import { collectMediaIds, parseArticleBody } from '@/lib/articles/markdown'
 import { findPlaceholders } from '@/lib/articles/placeholders'
+import { normalizeTags } from '@/lib/articles/tags'
 import { revalidateArticleRoutes } from '@/lib/insights-revalidate'
 import { generateRequestToken } from '@/lib/recommendations'
 import { enqueueRecommendationChanges, enqueueRecommendationRequest } from '@/lib/notifications/events'
@@ -41,6 +42,7 @@ import type {
   RecommendationStatus,
   ServiceCoreInput,
 } from '@/types/cms'
+import { ARTICLE_AUDIENCES } from '@/types/cms'
 import { captureError } from '@/lib/observability/store'
 import { cleanAmount } from '@/lib/products/money'
 import { PROJECT_PLATFORMS, SERVICE_KINDS, TECHNOLOGY_CATEGORIES } from '@/types/content'
@@ -69,12 +71,15 @@ export type ContentActionResult =
         | 'has-placeholder'
         | 'missing-image'
         | 'invalid-schedule'
+        // Phase 33 — only a customer article with a cover goes public (0032):
+        | 'missing-cover'
+        | 'not-for-customers'
         | 'error'
     }
   | { ok: true }
 
 export type ContentActionResultWithId =
-  | { ok: false; code: 'forbidden' | 'not-configured' | 'duplicate-slug' | 'invalid-schedule' | 'error' }
+  | { ok: false; code: 'forbidden' | 'not-configured' | 'duplicate-slug' | 'invalid-schedule' | 'missing-cover' | 'not-for-customers' | 'error' }
   | { ok: true; id: string }
 
 async function requireEditorSession(): Promise<{ userId: string; email: string } | { code: 'forbidden' }> {
@@ -825,7 +830,28 @@ function articleContentToRow(input: ArticleInput) {
     excerpt: { en: input.excerpt.en.trim(), fa: input.excerpt.fa.trim() },
     body: { en: input.body.en.trim(), fa: input.body.fa.trim() },
     category: normalizeCategory(input.category),
+    cover_media_id: input.coverMediaId && UUID_PATTERN.test(input.coverMediaId) ? input.coverMediaId : null,
+    tags: normalizeTags(input.tags),
+    audience: input.audience,
   }
+}
+
+/**
+ * Phase 33 (0032, `articles_publish_rules`): an article is published or
+ * scheduled only when it is written for customers (33.3 — engineering notes
+ * stay in the admin) and has its cover (33.1, B-37). The database refuses the
+ * row either way; this says why, in the editor's words.
+ */
+function publicArticleProblem(article: { audience: ArticleInput['audience']; coverMediaId: string | null }): 'missing-cover' | 'not-for-customers' | null {
+  if (article.audience !== 'customer') return 'not-for-customers'
+  if (!article.coverMediaId || !UUID_PATTERN.test(article.coverMediaId)) return 'missing-cover'
+  return null
+}
+
+/** The cover exists in the media library (it can have been deleted since the form was opened). */
+async function coverExists(db: NonNullable<ReturnType<typeof requireDb>>, id: string): Promise<boolean> {
+  const { data } = await db.from('media_assets').select('id').eq('id', id).maybeSingle()
+  return Boolean(data)
 }
 
 /**
@@ -879,13 +905,16 @@ async function saveArticleRelations(
 export async function createArticle(input: ArticleInput): Promise<ContentActionResultWithId> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  if (!isValidSlug(input.slug) || !ARTICLE_FORM_STATUSES.includes(input.status)) return { ok: false, code: 'error' }
+  if (!isValidSlug(input.slug) || !ARTICLE_FORM_STATUSES.includes(input.status) || !ARTICLE_AUDIENCES.includes(input.audience)) return { ok: false, code: 'error' }
 
   const scheduledAt = input.status === 'scheduled' ? scheduleToTimestamp(input.scheduledFor) : null
   if (input.status === 'scheduled' && !scheduledAt) return { ok: false, code: 'invalid-schedule' }
+  const problem = input.status === 'scheduled' ? publicArticleProblem(input) : null
+  if (problem) return { ok: false, code: problem }
 
   const db = requireDb()
   if (!db) return { ok: false, code: 'not-configured' }
+  if (input.status === 'scheduled' && !(await coverExists(db, input.coverMediaId!))) return { ok: false, code: 'missing-cover' }
 
   const { data, error } = await db
     .from('articles')
@@ -908,7 +937,7 @@ export async function createArticle(input: ArticleInput): Promise<ContentActionR
 export async function updateArticle(id: string, input: ArticleInput): Promise<ContentActionResult> {
   const auth = await requireEditorSession()
   if ('code' in auth) return { ok: false, code: 'forbidden' }
-  if (!UUID_PATTERN.test(id) || !isValidSlug(input.slug) || !ARTICLE_FORM_STATUSES.includes(input.status)) return { ok: false, code: 'error' }
+  if (!UUID_PATTERN.test(id) || !isValidSlug(input.slug) || !ARTICLE_FORM_STATUSES.includes(input.status) || !ARTICLE_AUDIENCES.includes(input.audience)) return { ok: false, code: 'error' }
 
   const db = requireDb()
   if (!db) return { ok: false, code: 'not-configured' }
@@ -923,6 +952,11 @@ export async function updateArticle(id: string, input: ArticleInput): Promise<Co
   // unpublished the article. Nothing public read `articles` yet, so it never
   // showed; it would have from the first real article.)
   const isPublished = current.status === 'published'
+  if (isPublished || input.status === 'scheduled') {
+    const problem = publicArticleProblem(input)
+    if (problem) return { ok: false, code: problem }
+    if (!(await coverExists(db, input.coverMediaId!))) return { ok: false, code: 'missing-cover' }
+  }
   let statusColumns: Record<string, unknown> = {}
   if (!isPublished) {
     statusColumns = { status: input.status }
@@ -964,6 +998,9 @@ export async function publishArticle(id: string): Promise<ContentActionResult> {
 
   const completeness = articleCompleteness(article)
   if (!completeness.en || !completeness.fa) return { ok: false, code: 'not-complete' }
+  const problem = publicArticleProblem(article)
+  if (problem) return { ok: false, code: problem }
+  if (!(await coverExists(db, article.coverMediaId!))) return { ok: false, code: 'missing-cover' }
 
   const placeholders = findPlaceholders(
     article.title.en, article.title.fa, article.excerpt.en, article.excerpt.fa, article.body.en, article.body.fa,

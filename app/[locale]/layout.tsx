@@ -6,7 +6,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 
 import { routing } from '@/i18n/routing'
-import { hasPublishedArticles } from '@/lib/insights'
+import { countPublishedArticles } from '@/lib/insights'
 import { siteConfig } from '@/lib/site'
 import { SITE_URL, buildAlternates } from '@/lib/seo'
 import { buildSiteJsonLd } from '@/lib/structured-data'
@@ -15,6 +15,7 @@ import { ErrorReporter } from '@/components/site/error-reporter'
 import { ThemeSync } from '@/components/theme-sync'
 import { PwaManager } from '@/components/site/pwa-manager'
 import { SiteFlagsProvider } from '@/components/site/site-flags'
+import { applyArticleRule } from '@/lib/shell-settings'
 import { getShellData, getShellMenus } from '@/lib/shell-settings-server'
 import { JsonLd } from '@/components/site/json-ld'
 import type { Locale } from '@/types/content'
@@ -141,21 +142,18 @@ export default async function RootLayout({
   const dir = locale === 'fa' ? 'rtl' : 'ltr'
 
   /**
-   * Phase 17 — "Insights hidden from nav until content exists" (§ 5.2):
-   * the link follows whether any article is actually published. Tolerant
-   * by design (returns `false` on any failure, see `lib/insights.ts`) so an
-   * unreachable database can't take down routes that don't need it.
-   * Publishing/unpublishing calls `revalidatePath('/', 'layout')`.
-   *
-   * Phase 26.5: no nav item opts into this flag at the moment — Insights is hidden
-   * from every nav surface regardless (`lib/site.ts`). The flag stays wired so
-   * Phase 33 can bring an articles link back without re-plumbing it.
+   * "Hidden until content exists" (§ 5.2) and Phase 33.2: the articles link
+   * follows how many articles a visitor can read — none, nowhere; from the
+   * first, the footer and the search; from the fourth, the header too
+   * (`applyArticleRule`). Tolerant by design (0 on any failure, see
+   * `lib/insights.ts`) so an unreachable database can't take down routes that
+   * don't need it. Publishing/unpublishing calls `revalidatePath('/', 'layout')`.
    */
-  const insightsVisible = await hasPublishedArticles()
-
   // Phase 27.6 — navigation and contact channels as the owner set them in the admin.
   // Phase 29.1 — and the published products and services for the mega menus and the footer.
-  const [shell, menus] = await Promise.all([getShellData(), getShellMenus(locale as Locale)])
+  const [articleCount, shellSettings, menus] = await Promise.all([countPublishedArticles(), getShellData(), getShellMenus(locale as Locale)])
+  const articlesVisible = articleCount > 0
+  const shell = applyArticleRule(shellSettings, articleCount)
 
   /**
    * § 11.3 — fonts subset and preloaded carefully. `--font-vazirmatn` only
@@ -193,7 +191,7 @@ export default async function RootLayout({
         <ThemeSync />
         <ErrorReporter />
         <NextIntlClientProvider>
-          <SiteFlagsProvider flags={{ insights: insightsVisible }} shell={shell} menus={menus}>
+          <SiteFlagsProvider flags={{ articles: articlesVisible }} shell={shell} menus={menus}>
             {children}
             <PwaManager />
           </SiteFlagsProvider>

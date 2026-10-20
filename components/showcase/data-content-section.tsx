@@ -19,7 +19,7 @@ export function DataContentSection() {
       id="data-content"
       index="11 — Data display &amp; content"
       title="Table, tags, avatar &amp; article content"
-      description="Primitives for showing structured data and long-form content — case studies and insights articles."
+      description="Primitives for showing structured data and long-form content — case studies and articles."
       className="flex flex-col gap-10"
     >
       <div>

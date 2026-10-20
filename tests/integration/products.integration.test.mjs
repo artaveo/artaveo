@@ -357,7 +357,8 @@ describe('27.6 the shell reads its settings from the database', () => {
     // /products exists since Phase 30; the shell itself keeps it out of every menu while no product is published (lib/shell-menus.ts).
     assert.ok(shell.nav.some((item) => item.key === 'products'), 'the products item is on since migration 0029')
     assert.ok(shell.nav.some((item) => item.key === 'consultation' && item.surfaces.includes('command-palette')))
-    assert.ok(!shell.nav.some((item) => item.key === 'insights'), 'Insights stays hidden (Phase 26.5)')
+    // Phase 33.2 (0032): the articles item is on; the layout shows it by the count of readable articles (applyArticleRule).
+    assert.ok(shell.nav.some((item) => item.key === 'articles' && item.href === '/articles'), 'the articles item, migration 0032')
   })
 
   it('an edit in the admin is what the shell shows, and the whole layout is revalidated', async () => {

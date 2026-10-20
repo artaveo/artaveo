@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 
-import { ArticleView } from '@/components/insights/article-view'
+import { ArticleView } from '@/components/articles/article-view'
 import { JsonLd } from '@/components/site/json-ld'
 import { SiteShell } from '@/components/site/site-shell'
 import { ViewTracker } from '@/components/site/view-tracker'
@@ -51,7 +51,7 @@ export async function generateMetadata({
   return {
     title,
     description,
-    alternates: buildAlternates(locale, `/insights/${slug}`),
+    alternates: buildAlternates(locale, `/articles/${slug}`),
     openGraph: {
       ...og.openGraph,
       type: 'article',
@@ -82,8 +82,8 @@ export default async function ArticlePage({
       <JsonLd
         data={buildBreadcrumbJsonLd(localeKey, [
           { name: tNav('home'), path: '/' },
-          { name: tNav('insights'), path: '/insights' },
-          { name: t(article.title, localeKey), path: `/insights/${article.slug}` },
+          { name: tNav('articles'), path: '/articles' },
+          { name: t(article.title, localeKey), path: `/articles/${article.slug}` },
         ])}
       />
       <ViewTracker event="article_view" properties={{ slug: article.slug }} />

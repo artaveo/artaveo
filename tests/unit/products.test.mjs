@@ -156,7 +156,7 @@ describe('shell settings (27.6)', () => {
     // Phase 31.2: /process is retired — a stray row for it in the database is ignored.
     assert.ok(!FALLBACK_SHELL.nav.some((item) => item.key === 'process'))
     assert.deepEqual(buildShellData([{ key: 'process', href: '/process', surfaces: ['footer'], has_description: false, has_content: true, sort_order: 0 }], null).nav, [])
-    assert.ok(!FALLBACK_SHELL.nav.some((item) => item.key === 'insights'))
+    assert.ok(!FALLBACK_SHELL.nav.some((item) => item.key === 'articles'), 'no articles can be read without the database (Phase 33.2)')
     // Phase 30: /products exists; the shell itself hides it while no product is published (lib/shell-menus.ts).
     assert.ok(FALLBACK_SHELL.nav.some((item) => item.key === 'products'))
     assert.equal(FALLBACK_SHELL.contact.whatsappNumber, '+93790685832')

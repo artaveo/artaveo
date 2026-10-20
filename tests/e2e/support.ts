@@ -39,8 +39,8 @@ export const ROUTES: [string, string][] = [
   ['contact', '/contact'],
   ['start (brief builder)', '/start'],
   ['consultation request', '/consultation'],
-  ['insights index', '/insights'],
-  ['insights article', '/insights/e2e-fixture-article'],
+  ['articles index', '/articles'],
+  ['article', '/articles/e2e-fixture-article'],
   ['privacy', '/privacy'],
   ['terms', '/terms'],
 ]

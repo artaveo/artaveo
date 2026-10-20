@@ -263,7 +263,7 @@ export async function enqueueEvidenceSubmitted(
 }
 
 const PUBLIC_PATH: Record<PublishedEntity, string> = {
-  article: '/en/insights',
+  article: '/en/articles',
   project: '/en/work',
   service: '/en/services',
 }

@@ -11,9 +11,10 @@ import { Field, FieldLabel, FormMessage } from '@/components/ui/form-controls'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CompletenessBadges } from '@/components/admin/content/completeness-badge'
-import { LocalizedTextareaField, LocalizedTextField, emptyLocalized } from '@/components/admin/content/localized-fields'
+import { LocalizedListField, LocalizedTextareaField, LocalizedTextField, emptyLocalized } from '@/components/admin/content/localized-fields'
+import { MediaPicker } from '@/components/admin/content/media-picker'
 import { estimateReadingMinutes } from '@/lib/articles/reading-time'
-import type { AdminArticle, ArticleFormOptions, ArticleInput, LocaleCompleteness } from '@/types/cms'
+import { ARTICLE_AUDIENCES, type AdminArticle, type ArticleFormOptions, type ArticleInput, type LocaleCompleteness } from '@/types/cms'
 import { t as pick, type Locale } from '@/types/content'
 
 /** `published` is not selectable: only Publish / Unpublish / Archive move an article across the public line. */
@@ -25,6 +26,8 @@ const ERROR_KEYS: Record<string, string> = {
   'has-placeholder': 'cmsErrorHasPlaceholder',
   'missing-image': 'cmsErrorMissingImage',
   'invalid-schedule': 'cmsErrorInvalidSchedule',
+  'missing-cover': 'cmsErrorMissingCover',
+  'not-for-customers': 'cmsErrorNotForCustomers',
 }
 
 export function ArticleForm({
@@ -48,6 +51,9 @@ export function ArticleForm({
     excerpt: article?.excerpt ?? emptyLocalized(),
     body: article?.body ?? emptyLocalized(),
     category: article?.category ?? null,
+    coverMediaId: article?.coverMediaId ?? null,
+    tags: article?.tags ?? [],
+    audience: article?.audience ?? 'customer',
     status: article && article.status !== 'published' ? article.status : 'draft',
     scheduledFor: article?.status === 'scheduled' && article.publishedAt ? article.publishedAt.slice(0, 10) : null,
     projectIds: article?.projectIds ?? [],
@@ -226,12 +232,54 @@ export function ArticleForm({
             <LocalizedTextareaField id="article-excerpt" label={t('cmsFieldExcerpt')} value={form.excerpt} onChange={(excerpt) => setField('excerpt', excerpt)} required disabled={pending} rows={2} />
             <LocalizedTextareaField id="article-body" label={t('cmsFieldBody')} value={form.body} onChange={(body) => setField('body', body)} required disabled={pending} rows={18} />
             <LocalizedTextField id="article-category" label={t('cmsFieldCategory')} value={form.category ?? emptyLocalized()} onChange={(category) => setField('category', category)} disabled={pending} />
+            <LocalizedListField
+              id="article-tags"
+              label={t('cmsFieldTags')}
+              items={form.tags}
+              onChange={(tags) => setField('tags', tags)}
+              disabled={pending}
+              addLabel={t('cmsAddTag')}
+              hint={t('cmsArticleTagsHint')}
+            />
+            <Field>
+              <FieldLabel htmlFor="article-audience">{t('cmsFieldAudience')}</FieldLabel>
+              <Select value={form.audience} onValueChange={(value) => value && setField('audience', value as ArticleInput['audience'])} disabled={pending}>
+                <SelectTrigger id="article-audience" className="sm:max-w-80">
+                  <SelectValue>{t(form.audience === 'customer' ? 'cmsAudienceCustomer' : 'cmsAudienceEngineering')}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {ARTICLE_AUDIENCES.map((audience) => (
+                      <SelectItem key={audience} value={audience}>
+                        {t(audience === 'customer' ? 'cmsAudienceCustomer' : 'cmsAudienceEngineering')}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">{t('cmsAudienceHint')}</p>
+            </Field>
 
             <details className="rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm">
               <summary className="cursor-pointer font-medium">{t('cmsArticleFormatHelpTitle')}</summary>
               <p className="mt-3 text-muted-foreground">{t('cmsArticleFormatHelpIntro')}</p>
               <pre dir="ltr" className="mt-3 overflow-x-auto rounded-md bg-background p-3 font-mono text-xs leading-relaxed">{FORMAT_CHEATSHEET}</pre>
             </details>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex flex-col gap-3 pt-6">
+            <MediaPicker
+              id="article-cover"
+              label={t('cmsFieldCover')}
+              value={form.coverMediaId}
+              library={options.media}
+              projects={options.mediaProjects}
+              onChange={(coverMediaId) => setField('coverMediaId', coverMediaId)}
+              disabled={pending}
+              description={t('cmsArticleCoverHint')}
+            />
           </CardContent>
         </Card>
 

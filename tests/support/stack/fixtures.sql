@@ -3,10 +3,11 @@
 -- site. Everything is keyed with an `e2e-` slug so it cannot be mistaken for
 -- (or collide with) real content.
 
--- A published article in both languages: the Insights section (navigation
--- link, index, article page, feed) is invisible on the real site until an
--- article is published, so without one those routes could not be tested.
-insert into public.articles (slug, status, published_at, title, excerpt, body, category)
+-- A published article in both languages: the Articles section (footer link,
+-- index, article page, feed) is invisible on the real site until an article
+-- is published, so without one those routes could not be tested. Phase 33: a
+-- customer article with a cover (one of the seeded screenshots) and tags.
+insert into public.articles (slug, status, published_at, title, excerpt, body, category, cover_media_id, tags, audience)
 values (
   'e2e-fixture-article',
   'published',
@@ -14,7 +15,10 @@ values (
   '{"en": "A fixture article for the test suite", "fa": "یک مقاله آزمایشی برای مجموعه آزمون"}',
   '{"en": "Exists only in the test suite.", "fa": "فقط در مجموعه‌ی آزمون وجود دارد."}',
   '{"en": "## First heading\n\nA paragraph of test text.\n\n## Second heading\n\nMore test text.\n\n## Third heading\n\nEven more.", "fa": "## عنوان اول\n\nیک بند متن آزمایشی.\n\n## عنوان دوم\n\nمتن آزمایشی بیشتر.\n\n## عنوان سوم\n\nباز هم متن."}',
-  '{"en": "Engineering", "fa": "مهندسی"}'
+  '{"en": "Guides", "fa": "راهنما"}',
+  (select id from public.media_assets where url like '/images/%' order by url limit 1),
+  '[{"en": "Tickets", "fa": "تکت"}]',
+  'customer'
 )
 on conflict (slug) do nothing;
 

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 
-import { ArticleView } from '@/components/insights/article-view'
+import { ArticleView } from '@/components/articles/article-view'
 import { Link } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import { FormMessage } from '@/components/ui/form-controls'
@@ -10,7 +10,7 @@ import { NotFoundState } from '@/components/ui/states'
 import { getAdminSession, mfaDestination, mfaSatisfied } from '@/lib/admin/auth'
 import { getArticleAdmin } from '@/lib/admin/content'
 import { parseArticleBody } from '@/lib/articles/markdown'
-import { articleFromDraft, buildArticleDetail } from '@/lib/insights'
+import { articleFromDraft, buildArticleDetail, loadMediaImage } from '@/lib/insights'
 import type { Locale } from '@/types/content'
 
 export async function generateMetadata({
@@ -51,7 +51,7 @@ export default async function ArticlePreviewPage({
   if (!draft) return <NotFoundState size="page" title={t('cmsArticleNotFoundTitle')} />
 
   const previewLocale: Locale = lang === 'fa' ? 'fa' : 'en'
-  const detail = await buildArticleDetail(articleFromDraft(draft))
+  const detail = await buildArticleDetail(articleFromDraft(draft, await loadMediaImage(draft.coverMediaId)))
   const warnings = parseArticleBody(draft.body[previewLocale]).warnings
 
   return (
