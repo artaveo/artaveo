@@ -36,6 +36,15 @@ New or rewritten namespaces: `ServicesIndex`, `ServiceDetail`, `WayOfWorking` (m
 - Database after `0030`: five published services with 20 steps, seven old ones unpublished at sort 100–106, five global FAQs, navigation without `process`.
 - End-to-end (CI): `flows-public.spec.ts` — the five services on /services, the four steps and five questions there, a service carrying itself into the brief, no invented price («قیمت بعد از یک گفتگوی کوتاه»), no freelancer-menu words on Services/About/Contact/Start/Consultation in both languages, the /process and old service redirects; `brief-builder.spec.ts` and `mobile.spec.ts` follow the new copy; the theme tests look in the header; every-route suites use `/services/websites` and no longer list /process. The RLS integration test uses `web-systems` with a fixture package and add-on (`tests/support/stack/fixtures.sql`).
 
+**CI run 39472368613 is green on every gate** (integration, end-to-end and accessibility suites included, after the test fixes below).
+
+## Found by CI and fixed
+
+- **Brief Builder option test:** "Desktop software" is now also a footer link (the service of that name), so clicking the option by its text matched two elements; the test now clicks inside the project form.
+- **Search test:** it searched for the retired "Admin Dashboards" service; it now searches "admin panels" (Web systems & admin panels).
+- **Offline test:** it pinned the old wording "You're offline"; it now reads the title from the messages.
+- `home (en)` in the accessibility suite was flaky once (the page reloaded during the scan on first visit — the service worker taking control), as in Phases 29 and 30; it passed on retry.
+
 ## Known issues and what is next
 
 - **Next: Phase 32** — the content rewrite (including 32.5's project texts in the database) and **32.6**, the owner's project-card and theme notes (D-22).
