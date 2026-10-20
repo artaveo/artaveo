@@ -5,7 +5,8 @@ import { expect, msg, test } from './support'
 /**
  * Phase 29 — the shell and Home of Design System 2.0, on the built app and the
  * test stack's data (two portfolio projects without screenshots, the
- * services, no published product, the WhatsApp number from migration 0026).
+ * services, one published product — the `e2e-product` fixture, Phase 30 — and
+ * the WhatsApp number from migration 0026).
  * Accessibility of Home in both languages and themes is a11y.spec.ts's; no
  * sideways scrolling on a phone is mobile.spec.ts's.
  */
@@ -26,9 +27,11 @@ for (const locale of ['en', 'fa'] as const) {
     await expect(strip.locator('li')).toHaveCount(5)
     await expect(strip).not.toContainText(/React|Next|PostgreSQL|TypeScript/)
 
-    // No product is published on the test stack: no Products section, and the hero's second action is the work.
-    await expect(page.locator('[data-slot="home-products"]')).toHaveCount(0)
-    await expect(page.locator('[data-slot="home-hero"]').getByRole('link', { name: msg(locale, 'Home.heroSeeWork') })).toHaveAttribute('href', `/${locale}/work`)
+    // One product is published: its own block in the Products section, and the hero's second action goes there.
+    const products = page.locator('[data-slot="home-products"]')
+    await expect(products.locator('[data-slot="product-block"]')).toHaveCount(1)
+    await expect(products.getByRole('link', { name: msg(locale, 'Brand.seeProduct') })).toHaveAttribute('href', `/${locale}/products/e2e-product`)
+    await expect(page.locator('[data-slot="home-hero"]').getByRole('link', { name: msg(locale, 'Home.heroSeeProducts') })).toHaveAttribute('href', '#products')
 
     // Work: one row per project, each its own block linking to its page.
     const rows = page.locator('[data-slot="home-work"] [data-slot="portfolio-row"]')
@@ -67,7 +70,8 @@ test('the header: menus and links from the data, a search icon without "⌘K", t
   const nav = header.getByRole('navigation', { name: msg('en', 'Brand.mainNav') })
   await expect(nav.getByRole('button', { name: msg('en', 'Brand.services') })).toBeVisible()
   await expect(nav.getByRole('link', { name: 'Work', exact: true })).toBeVisible()
-  await expect(nav.getByRole('button', { name: msg('en', 'Brand.products') })).toHaveCount(0) // no product published
+  await expect(nav.getByRole('button', { name: msg('en', 'Brand.products') })).toBeVisible() // a product is published (Phase 30 fixture)
+  await expect(nav.getByRole('link', { name: 'Products', exact: true })).toHaveCount(0) // a menu, never also a plain link
   await expect(header.getByRole('button', { name: msg('en', 'Brand.search') })).toBeVisible()
   await expect(header.getByRole('link', { name: 'دری', exact: true })).toHaveAttribute('href', '/fa')
   await expect(header.getByRole('link', { name: msg('en', 'Brand.start') })).toHaveAttribute('href', '/en/start')
@@ -86,13 +90,12 @@ test('every WhatsApp action shows the real WhatsApp glyph, and the floating butt
   await expect(page.getByRole('contentinfo').locator('[data-slot="whatsapp-icon"]')).toHaveCount(1)
 })
 
-test('the footer: Services · Artaveo · Contact columns, the legal row and the year in the page\'s calendar', async ({ page }) => {
+test('the footer: Products · Services · Artaveo · Contact columns, the legal row and the year in the page\'s calendar', async ({ page }) => {
   await page.goto('/fa')
   const footer = page.getByRole('contentinfo')
-  for (const column of [msg('fa', 'Brand.services'), msg('fa', 'Brand.footerArtaveo'), msg('fa', 'Brand.footerContact')]) {
-    await expect(footer.getByRole('navigation', { name: column })).toBeVisible()
+  for (const column of [msg('fa', 'Brand.products'), msg('fa', 'Brand.services'), msg('fa', 'Brand.footerArtaveo'), msg('fa', 'Brand.footerContact')]) {
+    await expect(footer.getByRole('navigation', { name: column, exact: true })).toBeVisible()
   }
-  await expect(footer.getByRole('navigation', { name: msg('fa', 'Brand.products') })).toHaveCount(0)
   await expect(footer).toContainText(/© ۱۴[۰-۹]{2}/) // Persian digits: `\d` would only match 0–9
   await expect(footer.getByRole('link', { name: msg('fa', 'Nav.privacy') })).toBeVisible()
 })

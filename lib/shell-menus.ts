@@ -10,10 +10,10 @@ import { t, type Locale, type Project, type Service, type ServiceKind } from '@/
  * `getShellMenus()` in `lib/shell-settings-server.ts`, the client side
  * `components/site/site-header.tsx` and `site-footer.tsx`.
  *
- * - **Products** is a mega menu, drawn only while at least one published
- *   product has a page to open (§ 15: Products stays out of the menu until a
- *   product is published). Its "All products" link appears once the owner
- *   turns the `products` navigation item on (Phase 30 builds `/products`).
+ * - **Products** is a mega menu, drawn only while at least one product is
+ *   published (§ 15: Products stays out of the navigation until one is). Its
+ *   "All products" link opens `/products` (Phase 30) — unless the owner turned
+ *   the `products` navigation item off.
  * - **Services** is a mega menu when the `services` item is in the header and
  *   at least one service is published; otherwise it is an ordinary link.
  * - Every other header item (Work, About, …) is a plain link, in the owner's
@@ -38,14 +38,17 @@ export type NavLink = { key: NavKey; href: string }
 /** Keys the header draws itself — the logo and the two mega menus. */
 const MENU_KEYS: NavKey[] = ['home', 'products', 'services']
 
+/** The page a product opens: its product page (Phase 30), whether or not it is also in the portfolio. */
+export function productPageHref(product: Pick<Project, 'slug'>): string {
+  return `/products/${product.slug}`
+}
+
 /**
- * The page a product opens. Until Phase 30 builds `/products/[slug]`, a
- * product's page is its project page, which exists only while the project is
- * in the portfolio; a product without one has no page yet (`null`) and is
- * offered through its demo request only.
+ * Where a portfolio row or a project link goes: the product page for a
+ * product (§ 14.0 Portfolio Row), the project page otherwise.
  */
-export function productPageHref(product: Pick<Project, 'slug' | 'showInPortfolio'>): string | null {
-  return product.showInPortfolio ? `/work/${product.slug}` : null
+export function projectHref(project: Pick<Project, 'slug' | 'isProduct'>): string {
+  return project.isProduct ? productPageHref(project) : `/work/${project.slug}`
 }
 
 /** "Request a demo" for a product: the Brief Builder with the product chosen (Phase 27.5). */
@@ -55,16 +58,12 @@ export function productDemoHref(product: Pick<Project, 'slug'>): string {
 
 export function buildShellMenus(products: Project[], services: Service[], locale: Locale): ShellMenus {
   return {
-    products: products.flatMap((product) => {
-      const href = productPageHref(product)
-      if (!href) return []
-      return [{
-        href,
-        title: t(product.title, locale),
-        line: product.outcomeLine ? t(product.outcomeLine, locale) : t(product.summary, locale),
-        accentColor: product.accentColor ?? null,
-      }]
-    }),
+    products: products.map((product) => ({
+      href: productPageHref(product),
+      title: t(product.title, locale),
+      line: product.outcomeLine ? t(product.outcomeLine, locale) : t(product.summary, locale),
+      accentColor: product.accentColor ?? null,
+    })),
     services: services.map((service) => ({
       href: `/services/${service.slug}`,
       title: t(service.title, locale),
@@ -112,7 +111,7 @@ export function buildHeaderModel(shell: ShellData, menus: ShellMenus): HeaderMod
 
   return {
     products: menus.products,
-    allProductsHref: productsItem?.href,
+    allProductsHref: menus.products.length > 0 ? productsItem?.href : undefined,
     services: servicesAsMenu ? menus.services : [],
     allServicesHref: servicesAsMenu ? servicesItem.href : undefined,
     links: plain(header).map(toLink),
@@ -122,6 +121,8 @@ export function buildHeaderModel(shell: ShellData, menus: ShellMenus): HeaderMod
 
 export type FooterModel = {
   products: MenuEntry[]
+  /** "All products", once there is more than one. */
+  allProductsHref?: string
   services: MenuEntry[]
   /** "All services", when there are more services than the column lists. */
   allServicesHref?: string
@@ -137,6 +138,7 @@ export function buildFooterModel(shell: ShellData, menus: ShellMenus): FooterMod
   const footer = navFor(shell, 'footer')
   return {
     products: menus.products,
+    allProductsHref: menus.products.length > 1 ? visibleItem(shell, 'products')?.href : undefined,
     services: menus.services.slice(0, FOOTER_SERVICE_LIMIT),
     allServicesHref: menus.services.length > FOOTER_SERVICE_LIMIT ? visibleItem(shell, 'services')?.href : undefined,
     pages: footer.filter((item) => !MENU_KEYS.includes(item.key) && !LEGAL_KEYS.includes(item.key)).map(toLink),

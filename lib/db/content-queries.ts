@@ -347,6 +347,12 @@ export async function queryProducts(): Promise<Project[]> {
   return fetchProjectsByFilter((q) => q.eq('is_product', true))
 }
 
+/** Phase 30 — one published product by its address, with its published ways to get it and after-sales services. */
+export async function queryProductBySlug(slug: string): Promise<Project | undefined> {
+  const products = await fetchProjectsByFilter((q) => q.eq('is_product', true).eq('slug', slug))
+  return products[0]
+}
+
 // ---------------------------------------------------------------------------
 // services
 // ---------------------------------------------------------------------------

@@ -16,6 +16,7 @@ import { ProductBlockList } from '@/components/brand/product-block'
 import { AfterSalesChips, SaleOptionGrid } from '@/components/brand/sale-option-card'
 import { ServiceKindGrid } from '@/components/brand/service-card'
 import { FloatingWhatsAppButton } from '@/components/brand/whatsapp-button'
+import { ProductPage } from '@/components/products/product-page'
 import { HeaderPreview } from '@/components/showcase/ds2/header-preview'
 import { Preview } from '@/components/showcase/ds2/preview-width'
 import { Section, Subhead } from '@/components/showcase/section'
@@ -201,6 +202,31 @@ export function Ds2ComponentsSection({
           </PaperPanel>
         </Preview>
       </div>
+
+      {showcaseProject ? (
+        <div>
+          <Subhead>Product page — the whole page (Phase 30)</Subhead>
+          <Preview
+            label={
+              products.length === 0
+                ? `No product is published yet: “${t(showcaseProject.title, locale)}” stands in, with the sample ways to get it (no price set). Its request form would be refused — it is not a product.`
+                : undefined
+            }
+          >
+            <ProductPage
+              product={
+                products[0] ?? {
+                  ...showcaseProject,
+                  isProduct: true,
+                  saleOptions: SAMPLE_OPTIONS,
+                  productServices: SAMPLE_AFTER_SALES,
+                }
+              }
+              whatsappHref={whatsappHref}
+            />
+          </Preview>
+        </div>
+      ) : null}
 
       {featureProject ? (
         <div>

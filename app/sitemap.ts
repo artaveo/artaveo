@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-import { getAllProjects } from '@/lib/home-content-projects'
+import { getAllProjects, getProducts } from '@/lib/home-content-projects'
 import { getPublishedArticleSummaries } from '@/lib/insights'
 import { getAllServices } from '@/lib/services-content'
 import { routing } from '@/i18n/routing'
@@ -61,6 +61,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: now,
         changeFrequency: 'monthly',
         priority: 0.7,
+        alternates: { languages: languageAlternates(path) },
+      })
+    }
+  }
+
+  // Phase 30.4 — the products, only while at least one is published (the index 404s otherwise).
+  const products = await getProducts()
+  if (products.length > 0) {
+    for (const locale of routing.locales) {
+      entries.push({
+        url: absoluteUrl(`/${locale}/products`),
+        lastModified: now,
+        changeFrequency: 'weekly',
+        priority: 0.9,
+        alternates: { languages: languageAlternates('/products') },
+      })
+    }
+  }
+  for (const product of products) {
+    const path = `/products/${product.slug}`
+    for (const locale of routing.locales) {
+      entries.push({
+        url: absoluteUrl(`/${locale}${path}`),
+        lastModified: now,
+        changeFrequency: 'monthly',
+        priority: 0.9,
         alternates: { languages: languageAlternates(path) },
       })
     }

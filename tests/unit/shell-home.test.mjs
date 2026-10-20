@@ -17,6 +17,7 @@ import {
   FOOTER_SERVICE_LIMIT,
   productDemoHref,
   productPageHref,
+  projectHref,
 } from '../../lib/shell-menus.ts'
 import { buildShellData, FALLBACK_SHELL } from '../../lib/shell-settings.ts'
 
@@ -25,10 +26,10 @@ const tx = (en, fa) => ({ en, fa })
 
 const ALL = ['header', 'footer', 'mobile', 'command-palette']
 const row = (key, href, surfaces, sort, has_content = true) => ({ key, href, surfaces, has_description: false, has_content, sort_order: sort })
-/** The live navigation after migration 0028. */
+/** The live navigation after migrations 0028 and 0029. */
 const LIVE_NAV = [
   row('home', '/', ALL, 0),
-  row('products', '/products', ALL, 1, false),
+  row('products', '/products', ALL, 1),
   row('work', '/work', ALL, 2),
   row('services', '/services', ALL, 3),
   row('process', '/process', ['footer', 'command-palette'], 4),
@@ -63,10 +64,11 @@ const service = (slug, extra = {}) => ({
   ...extra,
 })
 
-describe('product links (until Phase 30 builds /products/[slug])', () => {
-  it('a product opens its project page while it is in the portfolio, and has no page otherwise', () => {
-    assert.equal(productPageHref({ slug: 'clinic', showInPortfolio: true }), '/work/clinic')
-    assert.equal(productPageHref({ slug: 'clinic', showInPortfolio: false }), null)
+describe('product links (Phase 30: /products/[slug])', () => {
+  it('a product always opens its product page; a portfolio row opens the product page for a product, the project page otherwise', () => {
+    assert.equal(productPageHref({ slug: 'clinic' }), '/products/clinic')
+    assert.equal(projectHref({ slug: 'clinic', isProduct: true }), '/products/clinic')
+    assert.equal(projectHref({ slug: 'bus', isProduct: false }), '/work/bus')
   })
   it('"Request a demo" opens the Brief Builder with the product chosen', () => {
     assert.equal(productDemoHref({ slug: 'clinic' }), '/start?product=clinic')
@@ -77,14 +79,14 @@ describe('mega menu entries', () => {
   it('are in the page language, with the outcome line before the summary', () => {
     const menus = buildShellMenus([project('a', { outcomeLine: tx('Outcome', 'نتیجه') }), project('b')], [service('web')], 'fa')
     assert.deepEqual(menus.products.map((entry) => [entry.href, entry.title, entry.line]), [
-      ['/work/a', 'عنوان a', 'نتیجه'],
-      ['/work/b', 'عنوان b', 'خلاصه b'],
+      ['/products/a', 'عنوان a', 'نتیجه'],
+      ['/products/b', 'عنوان b', 'خلاصه b'],
     ])
     assert.deepEqual(menus.services, [{ href: '/services/web', title: 'خدمت web', line: 'وعده web', kind: 'website' }])
   })
-  it('leave out a product with no page yet, and fall back to the description for a service without a promise', () => {
-    const menus = buildShellMenus([project('hidden', { showInPortfolio: false })], [service('x', { tagline: undefined })], 'en')
-    assert.deepEqual(menus.products, [])
+  it('include a product that is not in the portfolio (its product page is enough), and fall back to the description for a service without a promise', () => {
+    const menus = buildShellMenus([project('clinic', { showInPortfolio: false })], [service('x', { tagline: undefined })], 'en')
+    assert.deepEqual(menus.products.map((entry) => entry.href), ['/products/clinic'])
     assert.equal(menus.services[0].line, 'Long description')
   })
 })
@@ -97,12 +99,14 @@ describe('the header (29.1: Products · Services · Work · About)', () => {
     assert.equal(model.allServicesHref, '/services')
     assert.deepEqual(model.links.map((link) => link.key), ['work', 'about'])
   })
-  it('a published product brings the Products menu; "All products" waits until the owner turns the products item on (Phase 30)', () => {
-    const menus = { products: [{ href: '/work/a', title: 'A', line: '…' }], services: [] }
+  it('a published product brings the Products menu with "All products"; the owner can still switch the products item off', () => {
+    const menus = { products: [{ href: '/products/a', title: 'A', line: '…' }], services: [] }
     assert.equal(buildHeaderModel(shell, menus).products.length, 1)
-    assert.equal(buildHeaderModel(shell, menus).allProductsHref, undefined)
-    const live = buildShellData(LIVE_NAV.map((item) => (item.key === 'products' ? { ...item, has_content: true } : item)), null)
-    assert.equal(buildHeaderModel(live, menus).allProductsHref, '/products')
+    assert.equal(buildHeaderModel(shell, menus).allProductsHref, '/products')
+    assert.equal(buildHeaderModel(shell, EMPTY_MENUS).allProductsHref, undefined, 'no product → no link to /products')
+    const off = buildShellData(LIVE_NAV.map((item) => (item.key === 'products' ? { ...item, has_content: false } : item)), null)
+    assert.equal(buildHeaderModel(off, menus).allProductsHref, undefined)
+    assert.ok(!buildHeaderModel(shell, menus).links.some((link) => link.key === 'products'), 'Products is the menu, never also a plain link')
   })
   it('with no service published, Services is an ordinary link instead of an empty menu', () => {
     const model = buildHeaderModel(shell, EMPTY_MENUS)
@@ -124,8 +128,9 @@ describe('the header (29.1: Products · Services · Work · About)', () => {
 describe('the footer (§ 14.0: Products · Services · Artaveo · contact; legal)', () => {
   it('lists products, at most five services with "All services", the site pages and the legal links', () => {
     const services = Array.from({ length: 7 }, (_, i) => ({ href: `/services/s${i}`, title: `S${i}`, line: '' }))
-    const model = buildFooterModel(shell, { products: [{ href: '/work/a', title: 'A', line: '' }], services })
+    const model = buildFooterModel(shell, { products: [{ href: '/products/a', title: 'A', line: '' }], services })
     assert.equal(model.products.length, 1)
+    assert.equal(model.allProductsHref, undefined, 'one product: its own link is enough')
     assert.equal(model.services.length, FOOTER_SERVICE_LIMIT)
     assert.equal(model.allServicesHref, '/services')
     assert.deepEqual(model.pages.map((link) => link.key), ['work', 'process', 'about', 'designSystem', 'contact'])

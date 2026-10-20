@@ -107,17 +107,73 @@ export function buildBreadcrumbJsonLd(locale: Locale, items: BreadcrumbEntry[]):
  * list — never an invented category.
  */
 export function buildCreativeWorkJsonLd(locale: Locale, project: Project): JsonLdValue {
+  // Phase 30: no technology keywords any more — the page says what the project does, not what it is built with (§ 16.1).
+  const about = [project.industry ? t(project.industry, locale) : null].filter(Boolean)
   return {
     '@context': 'https://schema.org',
     '@type': 'CreativeWork',
     name: t(project.title, locale),
-    description: t(project.summary, locale),
+    description: project.outcomeLine ? t(project.outcomeLine, locale) : t(project.summary, locale),
     url: absoluteUrl(`/${locale}/work/${project.slug}`),
     ...(project.coverImage ? { image: absoluteUrl(project.coverImage) } : {}),
     ...(project.year ? { dateCreated: project.year } : {}),
-    creator: { '@id': absoluteUrl('/#person') },
-    keywords: project.technologies.join(', '),
+    creator: { '@id': absoluteUrl('/#business') },
+    ...(about.length > 0 ? { about } : {}),
     ...(project.liveUrl ? { sameAs: [project.liveUrl] } : {}),
+  }
+}
+
+const UNIT_CODE: Record<'month' | 'year', string> = { month: 'MON', year: 'ANN' }
+
+/**
+ * Phase 30.4 — `Product` for a product page. `offers` holds only the ways to
+ * get it that carry a real, owner-set price (D-04: nothing is invented — an
+ * option "priced after a short conversation" is no `Offer`), one `Offer` per
+ * currency the owner gave; a monthly or yearly licence says so with a
+ * `UnitPriceSpecification`. A "from" price is a minimum, not a price, so it
+ * is published as `minPrice`.
+ */
+export function buildProductJsonLd(locale: Locale, product: Project): JsonLdValue {
+  const url = absoluteUrl(`/${locale}/products/${product.slug}`)
+  const offers = product.saleOptions.flatMap((option) => {
+    const name = t(option.title, locale)
+    return (
+      [
+        ['AFN', option.price.afn],
+        ['USD', option.price.usd],
+      ] as const
+    )
+      .filter(([, amount]) => typeof amount === 'number')
+      .map(([currency, amount]) => {
+        const recurring = option.billingPeriod === 'month' || option.billingPeriod === 'year'
+        const spec = {
+          '@type': recurring ? 'UnitPriceSpecification' : 'PriceSpecification',
+          priceCurrency: currency,
+          ...(option.price.from ? { minPrice: amount } : { price: amount }),
+          ...(recurring ? { unitCode: UNIT_CODE[option.billingPeriod as 'month' | 'year'], referenceQuantity: { '@type': 'QuantitativeValue', value: 1, unitCode: UNIT_CODE[option.billingPeriod as 'month' | 'year'] } } : {}),
+        }
+        return {
+          '@type': 'Offer',
+          name,
+          url,
+          priceCurrency: currency,
+          ...(option.price.from ? {} : { price: amount }),
+          priceSpecification: spec,
+          seller: { '@id': absoluteUrl('/#business') },
+        }
+      })
+  })
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: t(product.title, locale),
+    description: product.outcomeLine ? t(product.outcomeLine, locale) : t(product.summary, locale),
+    url,
+    ...(product.coverImage ? { image: absoluteUrl(product.coverImage) } : {}),
+    ...(product.industry ? { category: t(product.industry, locale) } : {}),
+    brand: { '@type': 'Brand', name: 'Artaveo' },
+    ...(offers.length > 0 ? { offers } : {}),
   }
 }
 

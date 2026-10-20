@@ -38,6 +38,8 @@ export type AnalyticsEvent =
   | 'external_profile_click'
   | 'language_switch'
   | 'search_used'
+  | 'product_view'
+  | 'product_request'
 
 export type AnalyticsProperties = Record<string, string | number | boolean>
 

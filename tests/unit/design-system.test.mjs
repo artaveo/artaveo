@@ -119,16 +119,24 @@ describe('glass (28.3)', () => {
     assert.ok(contrastRatio(token('ink-muted'), composite(fill, alpha, worst)) < 4.5)
   })
 
-  it('blur stays in § 14.1’s 14–26 px', () => {
+  it('blur stays in § 14.1’s 14–30 px; menus use the 30 px of WinUI acrylic (Phase 30)', () => {
     for (const name of ['glass-blur', 'glass-blur-strong']) {
       const px = Number(token(name).replace('px', ''))
-      assert.ok(px >= 14 && px <= 26, name)
+      assert.ok(px >= 14 && px <= 30, name)
     }
+    assert.equal(token('glass-blur-strong'), '30px')
+  })
+
+  it('the header draws its glass on a layer behind it, so the menus inside it can blur the page (Phase 30)', () => {
+    assert.match(css, /@utility glass-under \{\s*&::before \{[^}]*backdrop-filter: blur\(var\(--glass-blur\)\)/)
+    const header = readFileSync(new URL('../../components/brand/glass-header.tsx', import.meta.url), 'utf8')
+    assert.match(header, /'@container glass-under /)
+    assert.doesNotMatch(header, /'@container glass /, 'a backdrop-filter on the header itself would stop the menus from blurring the page')
   })
 
   it('reduced transparency and missing backdrop-filter both fall back to a solid surface', () => {
-    assert.match(css, /@media \(prefers-reduced-transparency: reduce\)\s*{\s*\.glass,\s*\.glass-strong\s*{[^}]*background-color: var\(--glass-solid\);[^}]*backdrop-filter: none;/)
-    assert.match(css, /@supports not \(\(backdrop-filter: blur\(1px\)\) or \(-webkit-backdrop-filter: blur\(1px\)\)\)\s*{\s*\.glass,\s*\.glass-strong\s*{\s*background-color: var\(--glass-solid\);/)
+    assert.match(css, /@media \(prefers-reduced-transparency: reduce\)\s*{\s*\.glass,\s*\.glass-strong,\s*\.glass-under::before\s*{[^}]*background-color: var\(--glass-solid\);[^}]*backdrop-filter: none;/)
+    assert.match(css, /@supports not \(\(backdrop-filter: blur\(1px\)\) or \(-webkit-backdrop-filter: blur\(1px\)\)\)\s*{\s*\.glass,\s*\.glass-strong,\s*\.glass-under::before\s*{\s*background-color: var\(--glass-solid\);/)
   })
 })
 

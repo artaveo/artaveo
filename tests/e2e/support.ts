@@ -31,6 +31,8 @@ export const ROUTES: [string, string][] = [
   ['home', ''],
   ['work index', '/work'],
   ['case study', '/work/transportation-system'],
+  ['products index', '/products'],
+  ['product page', '/products/e2e-product'],
   ['services index', '/services'],
   ['service detail', '/services/business-website'],
   ['about', '/about'],

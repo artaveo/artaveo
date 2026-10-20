@@ -224,3 +224,12 @@ The Home page's own words make no factual claim beyond what Artaveo offers. Ever
 | "You'll hear back the same day" (CTA band and mega menu, Phase 28's string) | D-08's response commitment (replies within a few hours, same day) | 2026-10-20 |
 | Hero chips: the showcased project's industry, title and one feature | the project's own fields (`projects.industry`, `features`, Phase 27 rows above) | 2026-10-20 |
 | No price, client, rating or count appears on Home | — (nothing invented, § 16.7) | 2026-10-20 |
+
+## Phase 30 (20 October 2026) — product and work pages
+
+The page copy makes no new factual claim. Product names, features, prices, ways to get it and after-sales services are the owner's data from the admin (D-20: the name is the owner's); a price appears only when the owner set one (D-04).
+
+| Claim | Evidence | Verified |
+|---|---|---|
+| "You'll hear back the same day" (request section, questions band) | D-08's response commitment | 2026-10-20 |
+| Product and project facts (industry, platforms, features, outcome line) | the project's own fields, Phase 27 rows above | 2026-10-20 |

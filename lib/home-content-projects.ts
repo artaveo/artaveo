@@ -53,3 +53,9 @@ export async function getProducts(): Promise<Project[]> {
   const { queryProducts } = await import('@/lib/db/content-queries')
   return queryProducts()
 }
+
+/** Phase 30 — one published product by slug, or `undefined` — backs `/products/[slug]`. Independent of the portfolio switch. */
+export async function getProductBySlug(slug: string): Promise<Project | undefined> {
+  const { queryProductBySlug } = await import('@/lib/db/content-queries')
+  return queryProductBySlug(slug)
+}

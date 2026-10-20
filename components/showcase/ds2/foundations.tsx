@@ -197,13 +197,13 @@ export function Ds2TypeSection() {
 export function Ds2GlassSection({ screenshot }: { screenshot?: string }) {
   const worst = '#ffffff'
   const fill = toHex(composite('#0a0c11', 0.74, worst))
-  const fillStrong = toHex(composite('#11141c', 0.88, worst))
+  const fillStrong = toHex(composite('#11141c', 0.96, worst))
   return (
     <Section
       id="ds2-glass"
       index="2.0 — Glass"
       title="Glass — five places only"
-      description="The header, mega menus, the mobile menu, chips floating over mock-ups and cards on ink bands. Blur 18–26 px over a translucent ink fill. The fill alone keeps text readable over the worst background that can pass behind it (white); with “reduce transparency” turned on, or without backdrop-filter, glass becomes a solid surface. At most three glass layers in a viewport."
+      description="The header, mega menus, the mobile menu, chips floating over mock-ups and cards on ink bands. Blur 18 px (header, chips) and 30 px (menus, WinUI's acrylic blur) over a translucent ink fill; menus cover 96 % so text behind them is never readable. The fill alone keeps text readable over the worst background that can pass behind it (white); with “reduce transparency” turned on, or without backdrop-filter, glass becomes a solid surface. At most three glass layers in a viewport."
       className="flex flex-col gap-6"
     >
       <div className="relative overflow-hidden rounded-2xl border border-border">

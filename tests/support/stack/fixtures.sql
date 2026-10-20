@@ -17,3 +17,52 @@ values (
   '{"en": "Engineering", "fa": "مهندسی"}'
 )
 on conflict (slug) do nothing;
+
+-- Phase 30 — a published product, so the product pages, the Products menu and
+-- section, and the purchase and demo requests can be tested. Not in the
+-- portfolio (`show_in_portfolio = false`), so /work is unchanged. Its ways to
+-- get it: one with a price, one highlighted without a price, and one that is
+-- NOT published — it must never appear anywhere public.
+insert into public.projects (slug, title, category, summary, published, featured, show_in_portfolio, is_product, brand_color, accent_color, industry, platforms, outcome_line, features, sort_order)
+values (
+  'e2e-product',
+  '{"en": "E2E Clinic System", "fa": "سیستم آزمایشی کلینیک"}',
+  '{"en": "Product", "fa": "محصول"}',
+  '{"en": "A fixture product that exists only in the test database.", "fa": "محصولی آزمایشی که فقط در پایگاه داده‌ی آزمون وجود دارد."}',
+  true, false, false, true,
+  '#1B3A4B', '#E2B65C',
+  '{"en": "Health care", "fa": "صحت"}',
+  '{windows,offline}',
+  '{"en": "Patients and appointments in one place.", "fa": "مریضان و نوبت‌ها در یک جا."}',
+  '[{"en": "Patient records", "fa": "پرونده‌ی مریضان"}, {"en": "Appointments", "fa": "نوبت‌ها"}, {"en": "Prescriptions", "fa": "نسخه‌ها"}]',
+  90
+)
+on conflict (slug) do nothing;
+
+insert into public.project_blocks (project_id, type, title, body, published, sort_order)
+select p.id, b.type, null, b.body::jsonb, true, b.sort_order
+from public.projects p,
+  (values
+    ('features-by-role', '{"groups": [{"role": {"en": "Reception", "fa": "پذیرش"}, "items": [{"en": "Books appointments", "fa": "نوبت می‌دهد"}]}, {"role": {"en": "Doctor", "fa": "داکتر"}, "items": [{"en": "Writes prescriptions", "fa": "نسخه می‌نویسد"}]}]}', 1),
+    ('audience', '{"items": [{"en": "Dental clinics", "fa": "کلینیک‌های دندان"}]}', 2),
+    ('faq', '{"items": [{"question": {"en": "Does it work without internet?", "fa": "بدون انترنت کار می‌کند؟"}, "answer": {"en": "Yes.", "fa": "بله."}}]}', 3)
+  ) as b(type, body, sort_order)
+where p.slug = 'e2e-product'
+  and not exists (select 1 from public.project_blocks x where x.project_id = p.id);
+
+insert into public.product_sale_options (project_id, kind, title, price_afn, price_usd, billing_period, maintenance, included, highlighted, cta, published, sort_order)
+select p.id, o.kind, o.title::jsonb, o.afn, null, o.period, o.maintenance, o.included::jsonb, o.highlighted, o.cta, o.published, o.sort_order
+from public.projects p,
+  (values
+    ('licence-yearly', '{"en": "E2E yearly licence", "fa": "لایسنس سالانه‌ی آزمایشی"}', 12000::numeric, 'year', 'included', '[{"en": "Set-up", "fa": "راه‌اندازی"}]', false, 'purchase-request', true, 1),
+    ('custom-edition', '{"en": "E2E custom edition", "fa": "نسخه‌ی اختصاصی آزمایشی"}', null::numeric, 'once', 'not-offered', '[]', true, 'demo-request', true, 2),
+    ('source-code', '{"en": "E2E hidden option", "fa": "روش پنهان آزمایشی"}', 99::numeric, 'once', 'not-offered', '[]', false, 'contact', false, 3)
+  ) as o(kind, title, afn, period, maintenance, included, highlighted, cta, published, sort_order)
+where p.slug = 'e2e-product'
+  and not exists (select 1 from public.product_sale_options x where x.project_id = p.id);
+
+insert into public.product_services (project_id, title, price_afn, period, published, sort_order)
+select p.id, '{"en": "E2E staff training", "fa": "آموزش آزمایشی کارمندان"}', 3000, 'once', true, 1
+from public.projects p
+where p.slug = 'e2e-product'
+  and not exists (select 1 from public.product_services x where x.project_id = p.id);

@@ -47,9 +47,16 @@ type PillLinkProps = VariantProps<typeof pillVariants> & {
   external?: boolean
 } & Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'className' | 'children'>
 
-/** A pill that navigates. Internal paths go through the locale-aware `Link`. */
+/** A pill that navigates. Internal paths go through the locale-aware `Link`; `#…` stays on the page (Phase 30: a product page's request form). */
 export function PillLink({ href, variant, size, className, external, children, ...rest }: PillLinkProps) {
   const classes = cn(pillVariants({ variant, size }), className)
+  if (href.startsWith('#')) {
+    return (
+      <a href={href} className={classes} {...rest}>
+        {children}
+      </a>
+    )
+  }
   if (external || /^(https?:|mailto:|tel:)/.test(href)) {
     return (
       <a href={href} className={classes} target="_blank" rel="noopener noreferrer" {...rest}>

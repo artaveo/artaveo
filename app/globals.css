@@ -310,13 +310,18 @@
      over the worst background that can scroll behind them (white), so the
      contrast never depends on what the blur happens to smear. */
   --glass-fill: rgb(10 12 17 / 0.74);
-  --glass-fill-strong: rgb(17 20 28 / 0.88);
+  /* Menus (Phase 30, owner): WinUI's dark menu acrylic replaces 96 % of the
+     backdrop's brightness (AcrylicInAppFillColorDefaultBrush, luminosity
+     layer 0.96) over a 30 px blur — text behind a menu is never readable,
+     only a soft wash of its colours. */
+  --glass-fill-strong: rgb(17 20 28 / 0.96);
   --glass-solid: #171a22;
   --glass-line: rgb(255 255 255 / 0.12);
   --glass-foreground: #f3f1ec;
   --glass-muted: #d0d4db;
   --glass-blur: 18px;
-  --glass-blur-strong: 26px;
+  /* Menus: the 30 px Gaussian blur of WinUI's acrylic (microsoft-ui-xaml, AcrylicBrush.h `sc_blurRadius`), Phase 30. */
+  --glass-blur-strong: 30px;
 }
 
 .dark {
@@ -509,13 +514,34 @@
   -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(150%);
   backdrop-filter: blur(var(--glass-blur-strong)) saturate(150%);
 }
+/* Phase 30 (owner, 20 October 2026): the header's glass, drawn on a layer
+   behind its content. An element with `backdrop-filter` is a "backdrop root":
+   anything inside it can only blur what is inside it too. With the blur on the
+   header itself, the mega menus — which hang below the header but live inside
+   it — could not blur the page, so the page showed through them sharp and
+   readable. On this ::before layer the header keeps its look and the menus
+   blur the page as they should. The host needs `position` (sticky/relative)
+   and a z-index, which the header has. */
+@utility glass-under {
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--glass-fill);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  }
+}
 /* Unlayered on purpose: unlayered rules beat every utility, so the solid
    fallback always wins — for visitors who ask for less transparency, and
    for browsers without backdrop-filter (where a translucent fill with no
    blur would show the page through). */
 @media (prefers-reduced-transparency: reduce) {
   .glass,
-  .glass-strong {
+  .glass-strong,
+  .glass-under::before {
     background-color: var(--glass-solid);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -523,7 +549,8 @@
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass,
-  .glass-strong {
+  .glass-strong,
+  .glass-under::before {
     background-color: var(--glass-solid);
   }
 }

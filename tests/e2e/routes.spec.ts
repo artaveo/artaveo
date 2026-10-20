@@ -42,7 +42,7 @@ test('a URL that matches no route is a real 404 with a way back home', async ({ 
 // pinned here is the safe half: the response is never indexable, and the visitor
 // sees the not-found page. If the status is ever fixed, tighten this to 404.
 test('an unknown slug under a dynamic route is never indexable and shows the not-found page', async ({ page }) => {
-  for (const url of ['/en/work/no-such-project', '/fa/work/no-such-project', '/en/services/no-such-service', '/en/insights/no-such-article']) {
+  for (const url of ['/en/work/no-such-project', '/fa/work/no-such-project', '/en/products/no-such-product', '/en/services/no-such-service', '/en/insights/no-such-article']) {
     const response = await page.goto(url)
     expect([200, 404], url).toContain(response?.status())
     if (response?.status() === 200) await expect(page.locator('meta[name=robots]').first(), url).toHaveAttribute('content', /noindex/)
@@ -63,6 +63,8 @@ test('machine-readable routes: sitemap, robots, feeds, manifest', async ({ reque
   expect(sitemap.status()).toBe(200)
   const xml = await sitemap.text()
   expect(xml).toContain('/en/work/transportation-system')
+  expect(xml).toContain('/en/products/e2e-product') // Phase 30.4
+  expect(xml).toContain('/fa/products<')
   expect(xml).toContain('/fa/insights/e2e-fixture-article')
   expect(xml, 'admin and private pages are never in the sitemap').not.toMatch(/\/(en|fa)\/admin(\/|<)|\/consultation\/[0-9a-f]{8}|\/recommend\//)
 

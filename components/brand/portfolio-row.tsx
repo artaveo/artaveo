@@ -19,11 +19,13 @@ export function PortfolioRow({
   project,
   href,
   reverse = false,
+  headingLevel: Heading = 'h3',
 }: {
   project: Project
   /** The project page, or the product page when `project.isProduct`. */
   href: string
   reverse?: boolean
+  headingLevel?: 'h2' | 'h3'
 }) {
   const locale = useLocale() as Locale
   const tr = useTranslations('Brand')
@@ -64,7 +66,7 @@ export function PortfolioRow({
             {meta}
           </p>
         ) : null}
-        <h3 className="text-h3 text-balance">{t(project.title, locale)}</h3>
+        <Heading className="text-h3 text-balance">{t(project.title, locale)}</Heading>
         <p className="text-body text-pretty text-paper-muted">{line}</p>
         {tags.length > 0 ? (
           <ul className="flex flex-wrap gap-2">
@@ -102,12 +104,21 @@ export function PortfolioRow({
 }
 
 /** Rows one under another, image side alternating; nothing when the portfolio is empty. */
-export function PortfolioList({ projects, href }: { projects: Project[]; href: (project: Project) => string }) {
+export function PortfolioList({
+  projects,
+  href,
+  headingLevel,
+}: {
+  projects: Project[]
+  href: (project: Project) => string
+  /** `h2` where the rows are the page's main content (/work). */
+  headingLevel?: 'h2' | 'h3'
+}) {
   if (projects.length === 0) return null
   return (
     <div className="flex flex-col gap-7">
       {projects.map((project, index) => (
-        <PortfolioRow key={project.id} project={project} href={href(project)} reverse={index % 2 === 1} />
+        <PortfolioRow key={project.id} project={project} href={href(project)} reverse={index % 2 === 1} headingLevel={headingLevel} />
       ))}
     </div>
   )

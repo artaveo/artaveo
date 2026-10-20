@@ -68,8 +68,8 @@ export type NavItem = {
  */
 export const mainNav: NavItem[] = [
   { href: '/', key: 'home' },
-  // Phase 30 builds /products; until then the item stays hidden (`has_content = false`).
-  { href: '/products', key: 'products', hasDescription: true, hasContent: false },
+  // Phase 30: /products exists; the shell still hides it while no product is published (lib/shell-menus.ts).
+  { href: '/products', key: 'products', hasDescription: true },
   { href: '/work', key: 'work', hasDescription: true },
   { href: '/services', key: 'services', hasDescription: true },
   { href: '/process', key: 'process', hasDescription: true },
@@ -92,14 +92,12 @@ export const mainNav: NavItem[] = [
  */
 
 /**
- * `/work` shows category/technology filters only once there are enough
- * projects to need them (roadmap § 6.1). With today's two projects the
- * grid renders unfiltered; raise this only alongside real published work.
+ * `/work` shows its platform filters only once there are enough projects to
+ * need them (roadmap § 6.1, Phase 30.2 — `lib/work-filters.ts`). Below this the
+ * rows are shown unfiltered.
  */
 export const WORK_FILTER_THRESHOLD = 6
 
-/** Up to this many projects, `/work` lays them out in two large columns, never three (Phase 26.6). */
-export const WORK_TWO_COLUMN_MAX = 4
 
 export const utilityNav: NavItem[] = [
   { href: '/design-system', key: 'designSystem' },
@@ -151,7 +149,7 @@ export type CommandItem = {
 
 export const commandItems: CommandItem[] = [
   { labelKey: 'home', labelNamespace: 'CommandPalette', href: '/', group: 'navigate', keywords: 'start landing home' },
-  { labelKey: 'products', labelNamespace: 'Nav', href: '/products', group: 'navigate', keywords: 'products software licence buy demo', hasContent: false },
+  { labelKey: 'products', labelNamespace: 'Nav', href: '/products', group: 'navigate', keywords: 'products software licence buy demo' },
   { labelKey: 'work', labelNamespace: 'Nav', href: '/work', group: 'navigate', keywords: 'projects portfolio case studies work' },
   { labelKey: 'services', labelNamespace: 'Nav', href: '/services', group: 'navigate', keywords: 'offerings help services' },
   { labelKey: 'process', labelNamespace: 'Nav', href: '/process', group: 'navigate', keywords: 'method steps how process' },

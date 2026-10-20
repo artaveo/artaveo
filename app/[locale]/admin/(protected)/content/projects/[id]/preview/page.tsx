@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 
+import { ProductPage } from '@/components/products/product-page'
 import { CaseStudy } from '@/components/work/case-study'
 import { FormMessage } from '@/components/ui/form-controls'
 import { NotFoundState } from '@/components/ui/states'
@@ -13,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return { robots: { index: false, follow: false } }
 }
 
-/** § 15's preview step — admin-only read of the same row `/work/[slug]` would render, reusing `CaseStudy` directly against draft data (`getProjectAdmin`, ignores `published`). No `nextProject` — a preview isn't part of the real "next case study" sequence. */
+/** § 15's preview step — admin-only read of the same row `/work/[slug]` would render, reusing `CaseStudy` directly against draft data (`getProjectAdmin`, ignores `published`). No `nextProject` — a preview isn't part of the real "next case study" sequence. Phase 30: a product previews as its product page (`/products/[slug]`). */
 export default async function ProjectPreviewPage({
   params,
 }: {
@@ -40,7 +41,7 @@ export default async function ProjectPreviewPage({
           {admin.published ? t('cmsPreviewBannerPublished') : t('cmsPreviewBannerDraft')}
         </FormMessage>
       </div>
-      <CaseStudy project={project} />
+      {project.isProduct ? <ProductPage product={project} whatsappHref={null} /> : <CaseStudy project={project} whatsappHref={null} />}
     </div>
   )
 }

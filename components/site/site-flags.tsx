@@ -56,7 +56,7 @@ export function useFooterModel(): FooterModel {
 
 /** Command palette entries: the navigation items placed in the palette, plus the e-mail action when an address is set. */
 export function useVisibleCommandItems(): CommandItem[] {
-  const { flags, shell } = useContext(SiteFlagsContext)
+  const { flags, shell, menus } = useContext(SiteFlagsContext)
   return useMemo(() => {
     const inPalette = new Map(navFor(shell, 'command-palette').map((item) => [item.key, item]))
     const items: CommandItem[] = []
@@ -66,11 +66,13 @@ export function useVisibleCommandItems(): CommandItem[] {
         continue
       }
       if (command.contentFlag && !flags[command.contentFlag]) continue
+      // Phase 30: Products only while a product is published.
+      if (command.labelKey === 'products' && menus.products.length === 0) continue
       const nav = inPalette.get(command.labelKey)
       if (nav) items.push({ ...command, href: nav.href })
     }
     return items
-  }, [flags, shell])
+  }, [flags, shell, menus])
 }
 
 export function useShellContact(): ShellContact {

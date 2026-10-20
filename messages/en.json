@@ -70,29 +70,17 @@
     "technologyUsedIn": "{count, plural, one {Used in # project} other {Used in # projects}}: {projects}"
   },
   "Work": {
-    "eyebrow": "Selected work",
-    "title": "Work",
-    "description": "Projects I’ve built, with clear notes on the problem, how each one works and the technology behind it.",
-    "filterByCategory": "Category",
-    "filterByTechnology": "Technology",
-    "allCategories": "All categories",
-    "allTechnologies": "All technologies",
-    "clearFilters": "Clear filters",
-    "emptyState": "No projects match these filters.",
-    "screenshotPlaceholder": "Project screenshot",
-    "viewCaseStudy": "View case study",
-    "projectCount": "projects",
-    "technologies": "Technologies"
+    "eyebrow": "Work",
+    "title": "What Artaveo has built",
+    "description": "Websites and systems Artaveo has designed and built for businesses.",
+    "filterLabel": "Platform",
+    "filterAll": "All",
+    "shownCount": "{count, plural, one {# project} other {# projects}}"
   },
   "CaseStudy": {
-    "backToWork": "All work",
-    "stack": "Stack",
-    "year": "Year",
-    "liveDemo": "Live demo",
+    "liveDemo": "Visit the site",
     "opensNewTab": "(opens in a new tab)",
     "nextProject": "Next project",
-    "gallery": "Gallery",
-    "platforms": "Platforms",
     "videoTitle": "Video: {project}"
   },
   "Services": {
@@ -1495,7 +1483,10 @@
     "footerTagline": "Software design and development for businesses.",
     "footerArtaveo": "Artaveo",
     "footerWhatsapp": "WhatsApp",
-    "footerContact": "Contact"
+    "footerContact": "Contact",
+    "trailLabel": "You are here",
+    "openScreen": "View larger",
+    "closeScreen": "Close"
   },
   "Home": {
     "metaTitle": "Artaveo — software that runs your business",
@@ -1525,5 +1516,51 @@
     "step3Line": "You see the progress at every stage.",
     "step4Title": "Launch and support",
     "step4Line": "The system goes live, and support continues after handover."
+  },
+  "ProductsPage": {
+    "metaTitle": "Products",
+    "title": "Ready-made systems from Artaveo",
+    "lead": "Use them from day one — set up for the way your business works.",
+    "customTitle": "Need something different?",
+    "customLine": "Artaveo also designs and builds software made for your business alone."
+  },
+  "ProductPage": {
+    "heroWays": "Ways to get it",
+    "waysEyebrow": "Ways to get it",
+    "waysTitle": "How you can get {product}",
+    "waysLead": "Pick the way that fits your business — if you're not sure, Artaveo helps you choose.",
+    "requestTitle": "Ask for a demo or buy it",
+    "requestLead": "Leave your details — you'll hear back the same day.",
+    "kindLegend": "What would you like?",
+    "kindDemo": "See a demo first",
+    "kindPurchase": "Buy it",
+    "optionLegend": "Way to get it",
+    "optionUndecided": "Not decided yet",
+    "servicesLegend": "After-sales services (optional)",
+    "fieldName": "Your name",
+    "fieldEmail": "E-mail",
+    "fieldPhone": "Phone or WhatsApp number",
+    "channelLegend": "How should Artaveo reply?",
+    "channelWhatsapp": "WhatsApp",
+    "channelEmail": "E-mail",
+    "fieldMessage": "Anything to add (optional)",
+    "fieldMessageHint": "For example the size of your business, how many people will use it, or when you'd like to start.",
+    "consentLabel": "I agree that Artaveo uses these details to answer this request (<privacy>privacy</privacy>).",
+    "submitDemo": "Request a demo",
+    "submitPurchase": "Send the purchase request",
+    "submitting": "Sending…",
+    "successDemoTitle": "Your demo request is in",
+    "successPurchaseTitle": "Your purchase request is in",
+    "successLine": "Artaveo will contact you about {product} the same day.",
+    "errorRequired": "This is required",
+    "errorEmail": "Enter a valid e-mail address",
+    "errorPhone": "Needed for a reply on WhatsApp",
+    "errorConsent": "Please agree so Artaveo can reply",
+    "errorRejected": "The request could not be sent. Try again in a moment, or send a message on WhatsApp.",
+    "errorNetwork": "The connection dropped and nothing was sent. Please try again.",
+    "errorOffline": "You're offline — connect and try again.",
+    "errorGeneric": "Something went wrong and nothing was sent. Please try again.",
+    "questionsTitle": "Any questions?",
+    "questionsLine": "Ask about this system — you'll hear back the same day."
   }
 }

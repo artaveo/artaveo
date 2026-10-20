@@ -46,7 +46,13 @@ export function SiteFooter() {
       tagline={tr('footerTagline')}
       year={formatDate(new Date().toISOString(), locale, { day: undefined, month: undefined, year: 'numeric' })}
       columns={[
-        { title: tr('products'), links: model.products.map((entry) => ({ href: entry.href, label: entry.title })) },
+        {
+          title: tr('products'),
+          links: [
+            ...model.products.map((entry) => ({ href: entry.href, label: entry.title })),
+            ...(model.allProductsHref ? [{ href: model.allProductsHref, label: tr('allProducts') }] : []),
+          ],
+        },
         {
           title: tr('services'),
           links: [

@@ -17,7 +17,7 @@ import { SiteShell } from '@/components/site/site-shell'
 import { pickMockupImages } from '@/lib/design/mockups'
 import { getFeaturedProjects, getProducts } from '@/lib/home-content-projects'
 import { getAllServices } from '@/lib/services-content'
-import { productDemoHref, productPageHref } from '@/lib/shell-menus'
+import { productDemoHref, productPageHref, projectHref } from '@/lib/shell-menus'
 import { getShellData } from '@/lib/shell-settings-server'
 import { whatsappHref } from '@/lib/shell-settings'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
@@ -119,7 +119,7 @@ export default async function HomePage({
                 }
               />
               <Reveal>
-                <PortfolioList projects={projects} href={(project) => productPageHref(project) ?? '/work'} />
+                <PortfolioList projects={projects} href={projectHref} />
               </Reveal>
             </BandInner>
           </PaperPanel>

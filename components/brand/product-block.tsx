@@ -95,16 +95,19 @@ export function ProductBlockList({
   products,
   productHref,
   demoHref,
+  headingLevel,
 }: {
   products: Project[]
   productHref: (product: Project) => string | null
   demoHref: (product: Project) => string
+  /** `h2` where the list is the page's main content (/products). */
+  headingLevel?: 'h2' | 'h3'
 }) {
   if (products.length === 0) return null
   return (
     <div className="flex flex-col gap-8">
       {products.map((product, index) => (
-        <ProductBlock key={product.id} product={product} productHref={productHref(product)} demoHref={demoHref(product)} reverse={index % 2 === 1} />
+        <ProductBlock key={product.id} product={product} productHref={productHref(product)} demoHref={demoHref(product)} reverse={index % 2 === 1} headingLevel={headingLevel} />
       ))}
     </div>
   )

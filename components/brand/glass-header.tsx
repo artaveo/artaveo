@@ -139,7 +139,7 @@ export function GlassHeader({
     <header
       ref={rootRef}
       data-slot="glass-header"
-      className={cn('@container glass z-sticky w-full border-b border-glass-line text-glass-foreground', sticky ? 'sticky top-0' : 'relative')}
+      className={cn('@container glass-under z-sticky w-full border-b border-glass-line text-glass-foreground', sticky ? 'sticky top-0' : 'relative')}
     >
       <div className="mx-auto flex min-h-16 max-w-[77.5rem] items-center gap-3 px-4 @3xl:px-6">
         <Link href={homeHref} className="flex shrink-0 items-center gap-2.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring/70">
@@ -314,7 +314,7 @@ function MegaEntry({
     <Link
       href={href}
       onClick={onNavigate}
-      className="flex gap-3.5 rounded-card p-3.5 outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70"
+      className="flex gap-3.5 rounded-card p-3.5 outline-none transition-colors hover:bg-white/12 focus-visible:bg-white/12 focus-visible:ring-2 focus-visible:ring-ring/70 motion-reduce:transition-none"
     >
       <span className={cn('grid size-11 shrink-0 place-items-center rounded-[0.8rem]', iconClassName)}>{icon}</span>
       <span className="min-w-0">
@@ -330,7 +330,7 @@ function AllLink({ href, label, onNavigate }: { href: string; label: string; onN
     <Link
       href={href}
       onClick={onNavigate}
-      className="flex min-h-11 items-center justify-between gap-3 rounded-card px-4 text-small font-bold text-gold outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70"
+      className="flex min-h-11 items-center justify-between gap-3 rounded-card px-4 text-small font-bold text-gold outline-none transition-colors hover:bg-white/12 focus-visible:bg-white/12 focus-visible:ring-2 focus-visible:ring-ring/70 motion-reduce:transition-none"
     >
       {label}
       <ForwardArrow className="size-4" />
