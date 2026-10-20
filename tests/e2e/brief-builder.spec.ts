@@ -130,7 +130,7 @@ test('offline: the brief is kept on the device, the visitor is told the truth, a
   await fillToReview(page, email)
   await context.setOffline(true)
   await page.getByRole('button', { name: EN.send }).click()
-  await expect(page.getByRole('status').getByText("You're offline", { exact: true })).toBeVisible()
+  await expect(page.getByRole('status').getByText(msg('en', 'BriefBuilder.offlineQueuedTitle'), { exact: true })).toBeVisible()
   await expect(page.getByRole('status').getByText('Sent', { exact: true })).toHaveCount(0)
   expect(await inquiriesFor(email), 'not sent while offline').toHaveLength(0)
 
