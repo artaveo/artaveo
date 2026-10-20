@@ -33,6 +33,8 @@ Every public word was checked against § 16 by a new content gate and rewritten 
 - Dev server, real data: `/fa/work` at 1440 px — cards 1100 px wide, screenshot panel 494 px (45 %), 471 and 407 px tall, checked in the light theme (pale blue card, navy title, soft blue panel) and the dark theme (deep navy / deep green, light blue / mint titles); `/fa/services` and `/fa/about` readable in the dark theme with the panel edge visible; at 375 px no horizontal overflow on `/fa`, `/en/work`, `/fa/work`, `/fa/work/transportation-system`, `/fa/privacy`, `/fa/design-system`; the case study shows the new captions; `/fa/design-system` shows the light card (`#eaeff8`) and the dark card (`#14253e`) side by side whatever the page theme.
 - End-to-end (CI): the search tests follow the new titles and add "technology names are not searchable and not suggested"; the case-study flow looks for the new title; the fixture product's text passes the gate.
 
+**CI run 39499785528 is green on every gate** (unit, integration with the content gate against the test stack, build, end-to-end and accessibility suites, audit), after the test fixes below.
+
 ## Found by CI and fixed
 
 - **RLS integration test:** it needs an archived engineering section to prove such rows are never public; the seed no longer carries them, so the test stack gets one fixture row (`tests/support/stack/fixtures.sql`).
