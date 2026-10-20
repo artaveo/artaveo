@@ -9,9 +9,9 @@
  */
 export const siteConfig = {
   name: 'Artaveo',
-  tagline: 'Independent full-stack developer',
+  tagline: 'Software design and development',
   description:
-    'Artaveo is the work of one independent full-stack developer — building fast, reliable web products end to end, from architecture and design systems to shipped software.',
+    'Artaveo designs and builds websites, management systems, mobile apps and desktop software for businesses.',
   email: 'artaveo.dev@gmail.com',
   location: 'Remote · Worldwide',
 }
@@ -25,7 +25,6 @@ export type NavKey =
   | 'products'
   | 'work'
   | 'services'
-  | 'process'
   | 'about'
   | 'insights'
   | 'designSystem'
@@ -72,7 +71,6 @@ export const mainNav: NavItem[] = [
   { href: '/products', key: 'products', hasDescription: true },
   { href: '/work', key: 'work', hasDescription: true },
   { href: '/services', key: 'services', hasDescription: true },
-  { href: '/process', key: 'process', hasDescription: true },
   { href: '/about', key: 'about', hasDescription: true },
   // Hidden from every nav surface for now, whether or not an article is published (Phase 26.5):
   // the articles that exist are engineering notes, not customer reading. Phase 33 decides when
@@ -151,13 +149,12 @@ export const commandItems: CommandItem[] = [
   { labelKey: 'home', labelNamespace: 'CommandPalette', href: '/', group: 'navigate', keywords: 'start landing home' },
   { labelKey: 'products', labelNamespace: 'Nav', href: '/products', group: 'navigate', keywords: 'products software licence buy demo' },
   { labelKey: 'work', labelNamespace: 'Nav', href: '/work', group: 'navigate', keywords: 'projects portfolio case studies work' },
-  { labelKey: 'services', labelNamespace: 'Nav', href: '/services', group: 'navigate', keywords: 'offerings help services' },
-  { labelKey: 'process', labelNamespace: 'Nav', href: '/process', group: 'navigate', keywords: 'method steps how process' },
-  { labelKey: 'about', labelNamespace: 'Nav', href: '/about', group: 'navigate', keywords: 'developer about' },
+  { labelKey: 'services', labelNamespace: 'Nav', href: '/services', group: 'navigate', keywords: 'offerings help services website app mobile desktop support process steps how it works' },
+  { labelKey: 'about', labelNamespace: 'Nav', href: '/about', group: 'navigate', keywords: 'about studio founder' },
   { labelKey: 'insights', labelNamespace: 'Nav', href: '/insights', group: 'navigate', keywords: 'blog writing notes insights', hasContent: false },
   { labelKey: 'designSystem', labelNamespace: 'Nav', href: '/design-system', group: 'resources', keywords: 'tokens components ui design system' },
   { labelKey: 'start', labelNamespace: 'Nav', href: '/start', group: 'actions', keywords: 'start project brief builder inquiry hire' },
-  { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'contact email whatsapp hire channels' },
+  { labelKey: 'contact', labelNamespace: 'Nav', href: '/contact', group: 'actions', keywords: 'contact email whatsapp phone call' },
   { labelKey: 'consultation', labelNamespace: 'Nav', href: '/consultation', group: 'actions', keywords: 'book consultation call intro meeting schedule time' },
   { labelKey: 'privacy', labelNamespace: 'Nav', href: '/privacy', group: 'resources', keywords: 'privacy policy data' },
   { labelKey: 'terms', labelNamespace: 'Nav', href: '/terms', group: 'resources', keywords: 'terms of service legal' },

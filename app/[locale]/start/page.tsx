@@ -7,6 +7,8 @@ import { StartContent } from '@/components/start/start-content'
 import { getAllServices } from '@/lib/services-content'
 import { getProducts } from '@/lib/home-content-projects'
 import { toProductChoices } from '@/lib/products/resolve'
+import { whatsappHref } from '@/lib/shell-settings'
+import { getShellData } from '@/lib/shell-settings-server'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
 import { buildBreadcrumbJsonLd } from '@/lib/structured-data'
 import type { Locale } from '@/types/content'
@@ -20,12 +22,12 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: 'StartPage' })
   return {
     title: t('metaTitle'),
-    description: t('description'),
+    description: t('lead'),
     // Canonical points at the bare `/start` regardless of `?service=` /
     // `?package=` prefill query params — those personalize the form, they
     // don't create a distinct page worth indexing separately.
     alternates: buildAlternates(locale, '/start'),
-    ...buildPageOpenGraph({ locale, title: t('metaTitle'), description: t('description') }),
+    ...buildPageOpenGraph({ locale, title: t('metaTitle'), description: t('lead') }),
   }
 }
 
@@ -49,7 +51,7 @@ export default async function StartPage({
   const productSlug = firstValue(query.product)
 
   // Phase 27.5: the published products, for "Buy one of our products".
-  const [services, products] = await Promise.all([getAllServices(), getProducts().then(toProductChoices)])
+  const [services, products, shell] = await Promise.all([getAllServices(), getProducts().then(toProductChoices), getShellData()])
 
   // Only prefill from a real, existing service — an unrecognised
   // `?service=` value (typo, stale link) is silently ignored rather than
@@ -77,6 +79,7 @@ export default async function StartPage({
         initialServiceSlug={initialServiceSlug}
         initialPackageId={initialPackageId}
         initialProductSlug={initialProductSlug}
+        whatsappHref={shell.contact.whatsappNumber ? whatsappHref(shell.contact.whatsappNumber) : null}
       />
     </SiteShell>
   )

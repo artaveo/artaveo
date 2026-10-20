@@ -18,7 +18,7 @@ export type NavSurface = (typeof NAV_SURFACES)[number]
 
 /** Every key the shell knows a label for (`Nav.<key>` in messages/*.json). Same list as the database check (0026). */
 export const NAV_KEYS: NavKey[] = [
-  'home', 'products', 'work', 'services', 'process', 'about', 'insights',
+  'home', 'products', 'work', 'services', 'about', 'insights',
   'designSystem', 'contact', 'start', 'consultation', 'privacy', 'terms',
 ]
 
@@ -48,7 +48,7 @@ export type ShellData = {
 // ---------------------------------------------------------------------------
 // validation shared with the admin actions
 
-/** A same-site path: `/`, `/work`, `/services/business-website`. Never `//host` or a scheme. */
+/** A same-site path: `/`, `/work`, `/services/websites`. Never `//host` or a scheme. */
 export function isSafeInternalHref(href: string): boolean {
   return typeof href === 'string' && href.length <= 200 && /^\/(?:[a-z0-9-]+(?:\/[a-z0-9-]+)*)?$/i.test(href)
 }
@@ -126,9 +126,7 @@ export const FALLBACK_SHELL: ShellData = (() => {
   const items: ShellNavItem[] = []
   for (const item of mainNav) {
     if (item.hasContent === false) continue
-    // Phase 29.1 (migration 0028): "How it works" is in the footer and the search, not the header.
-    const surfaces: NavSurface[] = item.key === 'process' ? ['footer', 'command-palette'] : ['header', 'footer', 'mobile', 'command-palette']
-    items.push({ key: item.key, href: item.href, hasDescription: !!item.hasDescription, surfaces })
+    items.push({ key: item.key, href: item.href, hasDescription: !!item.hasDescription, surfaces: ['header', 'footer', 'mobile', 'command-palette'] })
   }
   for (const item of [...utilityNav, ...legalNav]) {
     items.push({ key: item.key, href: item.href, hasDescription: false, surfaces: command.has(item.key) ? ['footer', 'command-palette'] : ['footer'] })

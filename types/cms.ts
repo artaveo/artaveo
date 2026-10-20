@@ -34,7 +34,7 @@ import type {
  * below adds the real database row id (and, where the table has one,
  * `sortOrder`) without changing the field names a public component
  * already reads — `AdminService` still satisfies `Service` structurally
- * (see `components/services/service-detail.tsx`'s reuse in the preview
+ * (see `components/services/service-page.tsx`'s reuse in the preview
  * route) for everything except the three nested collections, which carry
  * admin ids alongside the same content fields.
  */

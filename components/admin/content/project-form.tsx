@@ -230,7 +230,7 @@ export function ProjectForm({
             </Field>
             <Field>
               <FieldLabel htmlFor="project-related-service">{t('cmsFieldRelatedServiceSlug')}</FieldLabel>
-              <Input id="project-related-service" dir="ltr" value={form.relatedServiceSlug ?? ''} placeholder="business-website" disabled={pending} onChange={(event) => setField('relatedServiceSlug', event.target.value || null)} />
+              <Input id="project-related-service" dir="ltr" value={form.relatedServiceSlug ?? ''} placeholder="websites" disabled={pending} onChange={(event) => setField('relatedServiceSlug', event.target.value || null)} />
               <FieldDescription>{t('cmsFieldRelatedServiceHint')}</FieldDescription>
             </Field>
           </div>

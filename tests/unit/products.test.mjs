@@ -120,7 +120,7 @@ describe('block bodies', () => {
 
 describe('shell settings (27.6)', () => {
   it('navigation links are same-site paths only', () => {
-    for (const ok of ['/', '/work', '/services/business-website']) assert.equal(isSafeInternalHref(ok), true, ok)
+    for (const ok of ['/', '/work', '/services/websites']) assert.equal(isSafeInternalHref(ok), true, ok)
     for (const bad of ['https://x.example', '//x.example', 'javascript:alert(1)', 'work', '/work?x=1', '/../etc', '/a//b']) assert.equal(isSafeInternalHref(bad), false, bad)
   })
   it('external profiles are https only', () => {
@@ -152,7 +152,10 @@ describe('shell settings (27.6)', () => {
   })
   it('the fallback (database unreachable) is today\'s shell: no hidden item, the real channels', () => {
     assert.deepEqual(navFor(FALLBACK_SHELL, 'header').map((item) => item.key), ['home', 'products', 'work', 'services', 'about'])
-    assert.deepEqual(navFor(FALLBACK_SHELL, 'footer').map((item) => item.key).slice(0, 6), ['home', 'products', 'work', 'services', 'process', 'about'])
+    assert.deepEqual(navFor(FALLBACK_SHELL, 'footer').map((item) => item.key).slice(0, 5), ['home', 'products', 'work', 'services', 'about'])
+    // Phase 31.2: /process is retired — a stray row for it in the database is ignored.
+    assert.ok(!FALLBACK_SHELL.nav.some((item) => item.key === 'process'))
+    assert.deepEqual(buildShellData([{ key: 'process', href: '/process', surfaces: ['footer'], has_description: false, has_content: true, sort_order: 0 }], null).nav, [])
     assert.ok(!FALLBACK_SHELL.nav.some((item) => item.key === 'insights'))
     // Phase 30: /products exists; the shell itself hides it while no product is published (lib/shell-menus.ts).
     assert.ok(FALLBACK_SHELL.nav.some((item) => item.key === 'products'))

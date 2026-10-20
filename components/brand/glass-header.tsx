@@ -52,6 +52,7 @@ export function GlassHeader({
   startHref,
   whatsappHref,
   languageSwitch,
+  themeSwitch,
   onSearch,
   onSearchWarm,
   sticky = true,
@@ -69,6 +70,8 @@ export function GlassHeader({
   startHref: string
   whatsappHref?: string | null
   languageSwitch?: React.ReactNode
+  /** Phase 31 (owner, 20 October 2026): the light/dark switch is in the header again, at every width — in the footer it went unnoticed. */
+  themeSwitch?: React.ReactNode
   /** Opens the site search (the command palette). Without it the search icon is not shown. */
   onSearch?: () => void
   /** Called when the pointer or focus reaches the search icon, so the search can get ready before it opens. */
@@ -176,6 +179,7 @@ export function GlassHeader({
           </button>
         ) : null}
         {languageSwitch ? <div className="hidden @4xl:block">{languageSwitch}</div> : null}
+        {themeSwitch}
         <PillLink href={startHref} variant="gold" size="sm" className="hidden @md:inline-flex">
           {tr('start')}
         </PillLink>

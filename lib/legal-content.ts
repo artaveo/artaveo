@@ -43,9 +43,12 @@ function section(id: string, title: LocalizedText, paragraphs: LocalizedText[], 
   return { id, title, paragraphs, list }
 }
 
+/** Where a text names the contact address; replaced by `withEmail()` below. */
+const EMAIL = '{email}'
+
 /** Kept separate: a change to one document must not re-date the other. */
-const PRIVACY_LAST_UPDATED = '2026-10-16' // + storage moved from Supabase to Neon (Singapore), + encrypted daily backups (Phase 25), + failure records, event counts and security-policy reports (Phase 24), + local search history (Phase 18), + stored e-mail copies and delivery log (Phase 19), + recommenders' e-mail address (D-14), + consultation requests (Phase 20)
-const TERMS_LAST_UPDATED = '2026-09-13'
+const PRIVACY_LAST_UPDATED = '2026-10-20' // + the contact address from the admin's settings and Artaveo named with its founder (Phase 31), + storage moved from Supabase to Neon (Singapore), + encrypted daily backups (Phase 25), + failure records, event counts and security-policy reports (Phase 24), + local search history (Phase 18), + stored e-mail copies and delivery log (Phase 19), + recommenders' e-mail address (D-14), + consultation requests (Phase 20)
+const TERMS_LAST_UPDATED = '2026-10-20' // the contact address from the admin's settings, the founder's name corrected (Phase 31)
 
 const privacySections: LegalSection[] = [
   section(
@@ -53,8 +56,8 @@ const privacySections: LegalSection[] = [
     tx('Who this covers', 'این سند مربوط به کیست'),
     [
       tx(
-        `${siteConfig.name} is the work of one independent developer, Zakir Naseri, operating from Afghanistan. This page explains what personal data this website collects, why, where it's stored, and what you can do about it.`,
-        `${siteConfig.name} کار یک توسعه‌دهنده‌ی مستقل، زکریا نصری، است که از افغانستان فعالیت می‌کند. این صفحه توضیح می‌دهد این وب‌سایت چه داده‌ی شخصی‌ای جمع‌آوری می‌کند، چرا، کجا نگه‌داری می‌شود، و چه کاری می‌توانی درباره‌اش انجام دهی.`,
+        `${siteConfig.name} was founded by Zakir Naseri and operates from Afghanistan. This page explains what personal data this website collects, why, where it's stored, and what you can do about it.`,
+        `${siteConfig.name} را ذاکر ناصری بنیان گذاشته است و از افغانستان فعالیت می‌کند. این صفحه توضیح می‌دهد این وب‌سایت چه داده‌ی شخصی‌ای جمع‌آوری می‌کند، چرا، کجا نگه‌داری می‌شود، و چه کاری می‌توانی درباره‌اش انجام دهی.`,
       ),
       tx(
         'Afghanistan does not currently have a comprehensive data-protection law of its own. Nothing on this page is a claim that a specific law (like the EU\'s GDPR) applies here — the commitments below are offered voluntarily, as good practice, regardless of what the law requires.',
@@ -143,8 +146,8 @@ const privacySections: LegalSection[] = [
     tx('Your choices', 'انتخاب‌های تو'),
     [
       tx(
-        `You can e-mail ${siteConfig.email} at any time to ask what's on file about you, ask for it to be corrected, or ask for it to be deleted. I'll respond within a reasonable time.`,
-        `هر زمان می‌توانی به ${siteConfig.email} ایمیل بزنی تا بپرسی چه چیزی درباره‌ات ثبت شده، درخواست اصلاح آن را بدهی، یا درخواست حذفش را بدهی. در بازه‌ی زمانی معقولی پاسخ خواهم داد.`,
+        `You can e-mail ${EMAIL} at any time to ask what's on file about you, ask for it to be corrected, or ask for it to be deleted. I'll respond within a reasonable time.`,
+        `هر زمان می‌توانی به ${EMAIL} ایمیل بزنی تا بپرسی چه چیزی درباره‌ات ثبت شده، درخواست اصلاح آن را بدهی، یا درخواست حذفش را بدهی. در بازه‌ی زمانی معقولی پاسخ خواهم داد.`,
       ),
     ],
   ),
@@ -197,7 +200,7 @@ const termsSections: LegalSection[] = [
     [
       tx(
         'The text, design, and case-study write-ups on this site belong to Zakir Naseri / Artaveo — please don\'t copy or republish them without permission. The two real projects shown as case studies (the Transportation System and the Pezhohesh Complex Portal) are also Zakir Naseri\'s own, with publication approved for both.',
-        'متن، طراحی و توضیحات نمونه‌کارهای این سایت متعلق به زکریا نصری / آرتاویو است — لطفاً بدون اجازه آن‌ها را کپی یا بازنشر نکن. دو پروژه‌ی واقعی نشان‌داده‌شده به‌عنوان نمونه‌کار (سیستم حمل‌ونقل و پورتال مجتمع پژوهش) هم متعلق به خودِ زکریا نصری هستند، و انتشار هر دو تأیید شده است.',
+        'متن، طراحی و توضیحات نمونه‌کارهای این سایت متعلق به ذاکر ناصری / آرتاویو است — لطفاً بدون اجازه آن‌ها را کپی یا بازنشر نکن. دو پروژه‌ی واقعی نشان‌داده‌شده به‌عنوان نمونه‌کار (سیستم حمل‌ونقل و پورتال مجتمع پژوهش) هم متعلق به خودِ ذاکر ناصری هستند، و انتشار هر دو تأیید شده است.',
       ),
     ],
   ),
@@ -246,17 +249,23 @@ const termsSections: LegalSection[] = [
     tx('Contact', 'تماس'),
     [
       tx(
-        `Questions about these terms? E-mail ${siteConfig.email}.`,
-        `سؤالی درباره‌ی این شرایط داری؟ به ${siteConfig.email} ایمیل بزن.`,
+        `Questions about these terms? E-mail ${EMAIL}.`,
+        `سؤالی درباره‌ی این شرایط داری؟ به ${EMAIL} ایمیل بزن.`,
       ),
     ],
   ),
 ]
 
-export function getPrivacyPolicy(): LegalDocument {
-  return { lastUpdated: PRIVACY_LAST_UPDATED, sections: privacySections }
+/** Phase 31: the contact address is the one the owner set in the admin (`site_settings`), filled in where the texts say `{email}`. */
+function withEmail(sections: LegalSection[], email: string): LegalSection[] {
+  const fill = (text: LocalizedText): LocalizedText => ({ en: text.en.replaceAll(EMAIL, email), fa: text.fa.replaceAll(EMAIL, email) })
+  return sections.map((item) => ({ ...item, paragraphs: item.paragraphs.map(fill), list: item.list?.map(fill) }))
 }
 
-export function getTermsOfService(): LegalDocument {
-  return { lastUpdated: TERMS_LAST_UPDATED, sections: termsSections }
+export function getPrivacyPolicy(email: string = siteConfig.email): LegalDocument {
+  return { lastUpdated: PRIVACY_LAST_UPDATED, sections: withEmail(privacySections, email) }
+}
+
+export function getTermsOfService(email: string = siteConfig.email): LegalDocument {
+  return { lastUpdated: TERMS_LAST_UPDATED, sections: withEmail(termsSections, email) }
 }

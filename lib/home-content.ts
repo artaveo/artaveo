@@ -520,9 +520,10 @@ const developerData: DeveloperProfile = {
     updatedAt: '2026-09-11',
     responseCommitment: tx('Replies within a few hours, same day', 'پاسخ‌گویی در همان روز، طی چند ساعت'),
   },
+  // Phase 31.3: the founder of the studio — no "one person" framing (§ 6.7). The About page's own copy is in messages/*.json (AboutPage).
   bio: tx(
-    'Artaveo is run by one independent full-stack developer. Every project is planned, designed, built and deployed by the same person — which keeps decisions consistent from the database schema to the last detail of the interface.',
-    'آرتاویو توسط یک توسعه‌دهنده‌ی مستقل فول‌استک ساخته و اداره می‌شود. همان فرد پروژه را از برنامه‌ریزی و طراحی تا ساخت و استقرار پیش می‌برد؛ از معماری پایگاه داده تا جزئیات رابط کاربری.',
+    'Zakir Naseri founded Artaveo, which designs and builds websites, management systems, mobile apps and desktop software for businesses.',
+    'ذاکر ناصری آرتاویو را بنیان گذاشت؛ آرتاویو برای کسب‌وکارها وب‌سایت، سیستم مدیریتی، اپلیکیشن موبایل و نرم‌افزار کمپیوتری طراحی می‌کند و می‌سازد.',
   ),
   focus: [
     tx('Full-stack web applications', 'اپلیکیشن‌های وب فول‌استک'),

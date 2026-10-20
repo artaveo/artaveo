@@ -78,7 +78,7 @@ describe('Persian text hygiene', () => {
  */
 const IRANIAN = ['اتوبوس', 'صندلی', 'بلیت', 'دلار', 'مشاوره', 'کامپیوتر', 'اینترنت', 'اطلاعات', 'دانشجو', 'دانشگاه', 'سامانه', 'آمریکا', 'رزرو', 'ناوگان', 'ایده(?!‌آل)', 'جلو می‌', 'سادگی', 'وابستگی', 'رسیدگی']
 const IRANIAN_RE = new RegExp(`(?<![\\u0600-\\u06FF])(?:${IRANIAN.join('|')})`)
-const DARI_COPY_FILES = ['lib/about-content.ts', 'lib/contact-content.ts', 'lib/home-content.ts', 'lib/inquiry-content.ts', 'lib/legal-content.ts', 'lib/services-content.ts', 'lib/notifications/templates.ts', 'lib/notifications/consultation-templates.ts']
+const DARI_COPY_FILES = ['lib/contact-content.ts', 'lib/home-content.ts', 'lib/inquiry-content.ts', 'lib/legal-content.ts', 'lib/services-content.ts', 'lib/notifications/templates.ts', 'lib/notifications/consultation-templates.ts']
 
 describe('Dari vocabulary (§ 16.3)', () => {
   it('no Iranian Persian word in the Dari dictionary', () => {

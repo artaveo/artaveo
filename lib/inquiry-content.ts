@@ -90,24 +90,24 @@ export function projectTypeLabel(id: string | null | undefined): LocalizedText |
 }
 
 export const featureTagOptions: OptionDef<FeatureTagId>[] = [
-  { id: 'user-accounts', label: tx('User accounts / login', 'حساب کاربری / ورود') },
-  { id: 'payments', label: tx('Payments', 'پرداخت') },
-  { id: 'admin-dashboard', label: tx('Admin dashboard', 'داشبورد مدیریتی') },
-  { id: 'bilingual-rtl', label: tx('Bilingual / RTL support', 'پشتیبانی دوزبانه / راست‌به‌چپ') },
-  { id: 'cms-content', label: tx('Self-managed content (CMS)', 'محتوای خودمدیریتی (CMS)') },
+  { id: 'user-accounts', label: tx('Customer accounts and sign-in', 'حساب کاربری و ورود') },
+  { id: 'payments', label: tx('Online payments', 'پرداخت آنلاین') },
+  { id: 'admin-dashboard', label: tx('An admin panel', 'پنل مدیریت') },
+  { id: 'bilingual-rtl', label: tx('More than one language', 'چند زبان') },
+  { id: 'cms-content', label: tx('Staff update the content themselves', 'کارمندان خودشان محتوا را به‌روز می‌کنند') },
   {
     id: 'third-party-integrations',
-    label: tx('Third-party integrations', 'اتصال به سرویس‌های شخص‌ثالث'),
+    label: tx('Works with other programs you use', 'هماهنگ با برنامه‌های دیگری که استفاده می‌کنید'),
   },
-  { id: 'realtime', label: tx('Real-time features', 'ویژگی‌های بلادرنگ') },
+  { id: 'realtime', label: tx('Live updates and alerts', 'به‌روزرسانی و اطلاع‌رسانی لحظه‌ای') },
   { id: 'other', label: tx('Something else', 'چیز دیگری') },
 ]
 
 export const timelineOptions: OptionDef<TimelineId>[] = [
-  { id: 'asap', label: tx('As soon as possible', 'در اسرع وقت') },
+  { id: 'asap', label: tx('As soon as possible', 'هر چه زودتر') },
   { id: '1-3-months', label: tx('1–3 months', '۱ تا ۳ ماه') },
   { id: '3-6-months', label: tx('3–6 months', '۳ تا ۶ ماه') },
-  { id: 'flexible', label: tx('Flexible', 'انعطاف‌پذیر') },
+  { id: 'flexible', label: tx('Whenever suits', 'هر وقت مناسب باشد') },
   { id: 'not-sure', label: tx('Not sure yet', 'هنوز مطمئن نیستم') },
 ]
 

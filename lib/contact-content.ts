@@ -1,144 +1,40 @@
-import type { HireChannel, LocalizedText } from '@/types/content'
-import { siteConfig, socialLinks } from '@/lib/site'
-import { formatPhoneNumber, telHref, whatsappHref as whatsappLink, type ShellContact } from '@/lib/shell-settings'
+import type { LocalizedText } from '@/types/content'
+import { formatPhoneNumber, telHref, whatsappHref, type ShellContact } from '@/lib/shell-settings'
 
 /**
- * Contact & hire-channel content (roadmap § 8.3, page map § 15 —
- * `/contact` = "Direct contact + hire channels").
- *
- * Same rules as `lib/about-content.ts`: only real, verifiable facts, no
- * invented figures. `getHireChannels()` is the Hire Channel Selector's data
- * source (component inventory § 14: "Direct vs via platform, with
- * trade-offs" — "Only real profiles").
- *
- * ## D-05 disclosure
- *
- * The Decision Register (§ 7) lists D-05 ("Hire channels and which
- * external profiles are real") as still open — not yet marked "Resolved"
- * with a date, unlike D-02/D-08/D-12. Per § 7 and § 20 ("check the
- * Decision Register; if a needed decision is missing, stop that part and
- * mark it BLOCKED"), an agent must not invent this answer.
- *
- * This phase does not invent it. It implements D-05's own
- * **recommended default** — "Direct + one platform profile (Fiverr) for
- * clients who want buyer protection; list only profiles that exist" —
- * which is *already the exact configuration live in `lib/site.ts`'s
- * `socialLinks`* (GitHub, LinkedIn, Fiverr, WhatsApp — real profiles only,
- * no invented platforms) since Phase 5.2. Phase 8.3 doesn't pick a new
- * strategy; it surfaces the strategy the site has already been shipping,
- * as the comparison the roadmap calls for. Same reasoning Phase 8.2 used
- * for D-13: ship the honest, already-approved mechanism, and still ask
- * the owner to record the decision formally in `docs/decisions.md` (which
- * does not exist yet — pre-existing gap, noted since Phase 3, not fixed
- * here) rather than silently treat it as settled.
+ * Phase 31.4 — `/contact` offers direct channels only (D-05, revised in
+ * revision 45): WhatsApp, phone and e-mail, each shown only when the owner
+ * set it in the admin (Content → Contact & availability — `site_settings`,
+ * Phase 27.6). The Hire Channel Selector (direct vs a freelance platform) is
+ * retired; real external profiles stay as links in the footer.
  */
+
+export type DirectContactKind = 'whatsapp' | 'phone' | 'email'
+
+export type DirectContactChannel = {
+  id: DirectContactKind
+  label: LocalizedText
+  /** What the visitor sees: the number or the address. */
+  value: string
+  href: string
+  external: boolean
+}
 
 function tx(en: string, fa: string): LocalizedText {
   return { en, fa }
 }
 
-const emailHref = `mailto:${siteConfig.email}`
-const whatsappHref = socialLinks.find((link) => link.label === 'WhatsApp')?.href ?? ''
-const fiverrHref = socialLinks.find((link) => link.label === 'Fiverr')?.href ?? ''
-
-/** Direct contact channels shown on `/contact` alongside the Hire Channel Selector. */
-export type DirectContactChannel = {
-  id: string
-  icon: string
-  label: LocalizedText
-  value: string
-  href: string
-}
-
-/**
- * Phase 27.6: the channels come from `site_settings` (the admin's Settings page) —
- * e-mail, WhatsApp and phone, each shown only when the owner has set it.
- */
+/** WhatsApp first — the main channel in Afghanistan (§ 14.0) — then phone, then e-mail. */
 export function getDirectContactChannels(contact: ShellContact): DirectContactChannel[] {
   const channels: DirectContactChannel[] = []
-
-  if (contact.email) {
-    channels.push({ id: 'email', icon: 'Send', label: tx('Email', 'ایمیل'), value: contact.email, href: `mailto:${contact.email}` })
-  }
   if (contact.whatsappNumber) {
-    channels.push({
-      id: 'whatsapp',
-      icon: 'MessagesSquare',
-      label: tx('WhatsApp', 'واتس‌اپ'),
-      value: formatPhoneNumber(contact.whatsappNumber),
-      href: whatsappLink(contact.whatsappNumber),
-    })
+    channels.push({ id: 'whatsapp', label: tx('WhatsApp', 'واتس‌اپ'), value: formatPhoneNumber(contact.whatsappNumber), href: whatsappHref(contact.whatsappNumber), external: true })
   }
   if (contact.phoneNumber) {
-    channels.push({
-      id: 'phone',
-      icon: 'Phone',
-      label: tx('Phone', 'تلفن'),
-      value: formatPhoneNumber(contact.phoneNumber),
-      href: telHref(contact.phoneNumber),
-    })
+    channels.push({ id: 'phone', label: tx('Phone', 'تلفن'), value: formatPhoneNumber(contact.phoneNumber), href: telHref(contact.phoneNumber), external: false })
   }
-
-  return channels
-}
-
-/**
- * Hire Channel Selector data (§ 8.3 / D-05 default). Two real channels only
- * — no third "via Contra/Toptal" option, since no such profile exists
- * (§ 16.5 "never invent"; `ExternalProfileLinks` only ever renders
- * `socialLinks`).
- */
-export function getHireChannels(): HireChannel[] {
-  const channels: HireChannel[] = []
-
-  if (emailHref) {
-    channels.push({
-      id: 'direct',
-      kind: 'direct',
-      icon: 'Handshake',
-      title: tx('Direct', 'مستقیم'),
-      summary: tx(
-        'Work with me directly by email or WhatsApp — no platform fee, no intermediary, and the fastest path to a scoped conversation.',
-        'مستقیم از طریق ایمیل یا واتس‌اپ با من کار کن — بدون کارمزد پلتفرم، بدون واسطه، و سریع‌ترین راه برای شروع یک گفتگوی مشخص.',
-      ),
-      points: [
-        tx('No platform fee — the full budget goes to the work', 'بدون کارمزد پلتفرم — کل بودجه صرف خود کار می‌شود'),
-        tx(
-          'Direct relationship: the Working Agreement (see Process) governs payment, ownership and warranty',
-          'رابطه‌ی مستقیم: توافق‌نامه‌ی همکاری (صفحه‌ی روند کار) پرداخت، مالکیت و ضمانت را مشخص می‌کند',
-        ),
-        tx(
-          'No built-in escrow or buyer protection — suited to clients comfortable agreeing terms directly',
-          'بدون سپرده‌ی امانی یا محافظت خریدار داخلی — مناسب مشتریانی که راحت‌اند شرایط را مستقیماً توافق کنند',
-        ),
-      ],
-      href: emailHref,
-      ctaLabel: tx('Email me', 'برایم ایمیل بزن'),
-    })
+  if (contact.email) {
+    channels.push({ id: 'email', label: tx('E-mail', 'ایمیل'), value: contact.email, href: `mailto:${contact.email}`, external: false })
   }
-
-  if (fiverrHref) {
-    channels.push({
-      id: 'platform',
-      kind: 'platform',
-      icon: 'ShieldCheck',
-      title: tx('Via Fiverr', 'از طریق Fiverr'),
-      summary: tx(
-        'Hire through my verified Fiverr profile when you want the platform’s buyer protection, escrow and dispute process.',
-        'از پروفایل تأییدشده‌ام در Fiverr استخدام کن؛ مناسب وقتی است که محافظت خریدار، سپرده‌ی امانی و فرایند رسیده‌گی به اختلاف پلتفرم را می‌خواهی.',
-      ),
-      points: [
-        tx('Payment held in escrow and released on delivery', 'پرداخت در سپرده‌ی امانی نگه‌داری و پس از تحویل آزاد می‌شود'),
-        tx('Platform-mediated dispute resolution, if ever needed', 'حل اختلاف با میانجی‌گری پلتفرم، در صورت نیاز'),
-        tx(
-          'Platform fees and terms apply, and the site itself stays the canonical source — the Fiverr profile links back here',
-          'کارمزد و قوانین پلتفرم اعمال می‌شود، و خودِ وب‌سایت همچنان مرجع اصلی است — پروفایل Fiverr به همین‌جا لینک می‌دهد',
-        ),
-      ],
-      href: fiverrHref,
-      ctaLabel: tx('View Fiverr profile', 'مشاهده‌ی پروفایل Fiverr'),
-    })
-  }
-
   return channels
 }

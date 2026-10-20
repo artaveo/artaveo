@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 
 import { BrandLockup } from '@/components/brand/brand-lockup'
 import { GlassHeader } from '@/components/brand/glass-header'
+import { ThemeToggle } from '@/components/theme-toggle'
 import { LocaleLink } from '@/components/brand/locale-link'
 import { CommandPalette } from '@/components/site/command-palette'
 import { useHeaderModel, useShellContact } from '@/components/site/site-flags'
@@ -64,6 +65,7 @@ export function SiteHeader() {
         startHref="/start"
         whatsappHref={contact.whatsappNumber ? whatsappHref(contact.whatsappNumber) : null}
         languageSwitch={<LocaleLink />}
+        themeSwitch={<ThemeToggle tone="glass" />}
         onSearch={() => setSearchOpen(true)}
         onSearchWarm={() => warmSearchIndex(locale)}
       />

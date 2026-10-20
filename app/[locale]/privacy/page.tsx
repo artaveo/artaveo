@@ -5,6 +5,7 @@ import { SiteShell } from '@/components/site/site-shell'
 import { JsonLd } from '@/components/site/json-ld'
 import { LegalContent } from '@/components/legal/legal-content'
 import { getPrivacyPolicy } from '@/lib/legal-content'
+import { getShellData } from '@/lib/shell-settings-server'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
 import { buildBreadcrumbJsonLd } from '@/lib/structured-data'
 import type { Locale } from '@/types/content'
@@ -34,7 +35,8 @@ export default async function PrivacyPage({
 
   const t = await getTranslations('PrivacyPage')
   const tNav = await getTranslations('Nav')
-  const document = getPrivacyPolicy()
+  const shell = await getShellData()
+  const document = getPrivacyPolicy(shell.contact.email ?? undefined)
 
   return (
     <SiteShell>

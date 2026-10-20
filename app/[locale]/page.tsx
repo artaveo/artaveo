@@ -9,7 +9,7 @@ import { PortfolioList } from '@/components/brand/portfolio-row'
 import { ProcessSteps } from '@/components/brand/process-steps'
 import { ProductBlockList } from '@/components/brand/product-block'
 import { Reveal } from '@/components/brand/reveal'
-import { ServiceKindGrid } from '@/components/brand/service-card'
+import { ConsultationTile, ServiceKindGrid } from '@/components/brand/service-card'
 import { HomeHero } from '@/components/home/home-hero'
 import { PlatformsStrip } from '@/components/home/platforms-strip'
 import { Recommendations } from '@/components/home/recommendations'
@@ -21,7 +21,8 @@ import { productDemoHref, productPageHref, projectHref } from '@/lib/shell-menus
 import { getShellData } from '@/lib/shell-settings-server'
 import { whatsappHref } from '@/lib/shell-settings'
 import { buildAlternates, buildPageOpenGraph } from '@/lib/seo'
-import type { Locale, LocalizedText, Project } from '@/types/content'
+import { getWayOfWorkingSteps } from '@/lib/way-of-working'
+import type { Locale, Project } from '@/types/content'
 
 export async function generateMetadata({
   params,
@@ -77,15 +78,7 @@ export default async function HomePage({
     getTranslations('Brand'),
   ])
   const whatsapp = shell.contact.whatsappNumber ? whatsappHref(shell.contact.whatsappNumber) : null
-  const steps: { title: LocalizedText; line: LocalizedText }[] = []
-  const tEn = await getTranslations({ locale: 'en', namespace: 'Home' })
-  const tFa = await getTranslations({ locale: 'fa', namespace: 'Home' })
-  for (const n of [1, 2, 3, 4] as const) {
-    steps.push({
-      title: { en: tEn(`step${n}Title`), fa: tFa(`step${n}Title`) },
-      line: { en: tEn(`step${n}Line`), fa: tFa(`step${n}Line`) },
-    })
-  }
+  const [steps, tw] = await Promise.all([getWayOfWorkingSteps(), getTranslations('WayOfWorking')])
 
   return (
     <SiteShell>
@@ -136,23 +129,13 @@ export default async function HomePage({
                   <ServiceKindGrid
                     services={services}
                     href={(service) => `/services/${service.slug}`}
-                    closingTile={
-                      <div className="flex h-full flex-col justify-between gap-4 rounded-card-lg bg-paper-foreground bg-[radial-gradient(120%_100%_at_100%_0%,rgb(226_182_92/0.3),transparent_60%)] p-7 text-ink-foreground rtl:bg-[radial-gradient(120%_100%_at_0%_0%,rgb(226_182_92/0.3),transparent_60%)]">
-                        <div>
-                          <p className="text-card-title">{th('servicesNotSure')}</p>
-                          <p className="mt-1.5 text-sm text-ink-muted">{th('servicesNotSureLine')}</p>
-                        </div>
-                        <PillLink href="/consultation" variant="gold" size="sm" className="self-start">
-                          {th('servicesBookCall')}
-                        </PillLink>
-                      </div>
-                    }
+                    closingTile={<ConsultationTile title={th('servicesNotSure')} line={th('servicesNotSureLine')} action={th('servicesBookCall')} />}
                   />
                 </Reveal>
               </div>
             ) : null}
             <div className="flex flex-col gap-10">
-              <SectionHeading tone="paper" id={services.length > 0 ? undefined : 'home-services-title'} eyebrow={th('processEyebrow')} title={th('processTitle')} />
+              <SectionHeading tone="paper" id={services.length > 0 ? undefined : 'home-services-title'} eyebrow={tw('eyebrow')} title={tw('title')} />
               <ProcessSteps steps={steps} />
             </div>
           </BandInner>

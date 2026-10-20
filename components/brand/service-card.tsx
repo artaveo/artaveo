@@ -2,6 +2,7 @@ import { useLocale } from 'next-intl'
 import type * as React from 'react'
 
 import { ServiceKindIcon } from '@/components/brand/brand-icons'
+import { PillLink } from '@/components/brand/pill'
 import { Link } from '@/i18n/navigation'
 import { formatMoney, hasPrice } from '@/lib/products/money'
 import { t, type Locale, type Service } from '@/types/content'
@@ -53,5 +54,20 @@ export function ServiceKindGrid({
       ))}
       {closingTile ? <li>{closingTile}</li> : null}
     </ul>
+  )
+}
+
+/** The last tile of a services grid: not sure which service fits → a consultation request. */
+export function ConsultationTile({ title, line, action }: { title: string; line: string; action: string }) {
+  return (
+    <div className="flex h-full flex-col justify-between gap-4 rounded-card-lg bg-paper-foreground bg-[radial-gradient(120%_100%_at_100%_0%,rgb(226_182_92/0.3),transparent_60%)] p-7 text-ink-foreground rtl:bg-[radial-gradient(120%_100%_at_0%_0%,rgb(226_182_92/0.3),transparent_60%)]">
+      <div>
+        <p className="text-card-title">{title}</p>
+        <p className="mt-1.5 text-sm text-ink-muted">{line}</p>
+      </div>
+      <PillLink href="/consultation" variant="gold" size="sm" className="self-start">
+        {action}
+      </PillLink>
+    </div>
   )
 }

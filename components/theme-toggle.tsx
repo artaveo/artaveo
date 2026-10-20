@@ -8,12 +8,12 @@ import { Button } from '@/components/ui/button'
 import { THEME_STORAGE_KEY } from '@/lib/theme'
 
 /**
- * Light / dark switch. `tone="ink"` is the footer's version (Phase 29.1): the
- * header of Design System 2.0 carries no theme control (§ 14.0), and the ink
- * bands look the same in both themes, so the switch sits at the end of the
- * footer's legal row.
+ * Light / dark switch. `tone="glass"` is the glass header's version: Phase 29.1
+ * had moved the switch to the end of the footer, where the owner could not find
+ * it (20 October 2026), so Phase 31 put it back in the header at every width.
+ * `tone="ink"` stays for anything drawn on an ink band.
  */
-export function ThemeToggle({ tone = 'default' }: { tone?: 'default' | 'ink' }) {
+export function ThemeToggle({ tone = 'default' }: { tone?: 'default' | 'ink' | 'glass' }) {
   const t = useTranslations('Common')
   const [isDark, setIsDark] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -36,6 +36,21 @@ export function ThemeToggle({ tone = 'default' }: { tone?: 'default' | 'ink' }) 
 
   const label = isDark ? t('switchToLightMode') : t('switchToDarkMode')
   const icon = mounted && isDark ? <Moon aria-hidden="true" className="size-4" /> : <Sun aria-hidden="true" className="size-4" />
+
+  if (tone === 'glass') {
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={label}
+        aria-pressed={mounted ? isDark : undefined}
+        data-slot="theme-switch"
+        className="grid size-11 shrink-0 place-items-center rounded-pill text-glass-muted outline-none hover:bg-white/6 hover:text-glass-foreground focus-visible:ring-2 focus-visible:ring-ring/70"
+      >
+        {icon}
+      </button>
+    )
+  }
 
   if (tone === 'ink') {
     return (

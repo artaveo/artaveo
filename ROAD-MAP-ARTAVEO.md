@@ -5,16 +5,16 @@
 
 > **Revision 45 (17 October 2026) reset the plan.** In revisions 1–44 Artaveo was planned as a one-developer freelance profile. It is now a **software studio site that sells its own products, shows its work and takes client projects** (§ 1). Phases 1–25 stay exactly as they were — they are history. The work the reset requires is **new Phases 26–33 (Milestone R)**, placed **before** every phase that had not started. The phases that had not started (old 26–32) were **kept**, adapted to the new rules and **renumbered 34–40** (map in § 0.4). No completed phase was re-marked incomplete; the two partial ones (3 and 9) were closed and their open items moved to named places (§ 0.2).
 
-**خلاصه به دری:** فازهای ۱ تا ۲۵ تمام شده‌اند و دست نمی‌خورند. کارهای تازه‌ای که از بازبینی ۲۵ میزان ۱۴۰۵ بیرون آمد، فازهای ۲۶ تا ۳۳ هستند و پیش از همه‌ی فازهای باقی‌مانده انجام می‌شوند. فازهای قدیمیِ شروع‌نشده (۲۶ تا ۳۲) حذف نشده‌اند؛ با قانون‌های تازه اصلاح شده‌اند و حالا شماره‌های ۳۴ تا ۴۰ را دارند. **فاز ۲۶ تمام شد (۲۵ میزان ۱۴۰۵). فاز ۲۷ تمام شد (۲۶ میزان ۱۴۰۵): محصولات، روش‌های خرید و قیمت‌ها، خدمات بعد از فروش، بخش‌های صفحه‌ی پروژه، درخواست خرید و دمو، و راه‌های تماس و منوی سایت حالا همه از پنل مدیریت و بدون کد تنظیم می‌شوند. فاز ۲۸ تمام شد (۲۶ میزان ۱۴۰۵): سیستم طراحی ۲.۰ — رنگ‌ها، اندازه‌ی خط، شیشه، حرکت و همه‌ی کامپوننت‌های سایت تازه (سربرگ شیشه‌ای با منوهای بزرگ، بلوک محصول، ردیف نمونه‌کار، قاب لپ‌تاپ و موبایل، کارت روش خرید، دکمه‌ی واتس‌اپ و دیگران) ساخته شد و در صفحه‌ی `/design-system` با داده‌ی واقعی دیده می‌شود. فاز ۲۹ تمام شد (۲۸ میزان ۱۴۰۵): همه‌ی صفحه‌ها حالا سربرگ شیشه‌ای تازه (منوهای بزرگ محصولات و خدمات، جستجو بدون «⌘K»، تغییر زبان، شروع پروژه)، پاورقی تیره‌ی تازه و دکمه‌ی واتس‌اپ با نشان واقعی واتس‌اپ را دارند، و صفحه‌ی اصلی از نو ساخته شد: معرفی با تصویر واقعی پروژه، انواع نرم‌افزار، محصولات (هر محصول جدا)، نمونه‌کارها (هر پروژه در یک ردیف)، خدمات، روند کار در چهار قدم و دعوت به شروع پروژه. فاز ۳۰ تمام شد (۲۸ میزان ۱۴۰۵): هر محصول حالا صفحه‌ی خودش را دارد (تصویرها، امکانات، روش‌های تهیه با قیمت‌هایی که در پنل گذاشته‌اید، خدمات پس از فروش، سؤال‌ها و فورم درخواست دمو یا خرید که مستقیم به بخش درخواست‌ها می‌رسد)، صفحه‌ی نمونه‌کارها هر پروژه را در یک ردیف با رنگ خودش نشان می‌دهد، و منوی شیشه‌ای خدمات دیگر متن پشتش را نشان نمی‌دهد. فاز بعدی: فاز ۳۱ (خدمات، درباره، تماس و شروع پروژه).**
+**خلاصه به دری:** فازهای ۱ تا ۲۵ تمام شده‌اند و دست نمی‌خورند. کارهای تازه‌ای که از بازبینی ۲۵ میزان ۱۴۰۵ بیرون آمد، فازهای ۲۶ تا ۳۳ هستند و پیش از همه‌ی فازهای باقی‌مانده انجام می‌شوند. فازهای قدیمیِ شروع‌نشده (۲۶ تا ۳۲) حذف نشده‌اند؛ با قانون‌های تازه اصلاح شده‌اند و حالا شماره‌های ۳۴ تا ۴۰ را دارند. **فاز ۲۶ تمام شد (۲۵ میزان ۱۴۰۵). فاز ۲۷ تمام شد (۲۶ میزان ۱۴۰۵): محصولات، روش‌های خرید و قیمت‌ها، خدمات بعد از فروش، بخش‌های صفحه‌ی پروژه، درخواست خرید و دمو، و راه‌های تماس و منوی سایت حالا همه از پنل مدیریت و بدون کد تنظیم می‌شوند. فاز ۲۸ تمام شد (۲۶ میزان ۱۴۰۵): سیستم طراحی ۲.۰ — رنگ‌ها، اندازه‌ی خط، شیشه، حرکت و همه‌ی کامپوننت‌های سایت تازه (سربرگ شیشه‌ای با منوهای بزرگ، بلوک محصول، ردیف نمونه‌کار، قاب لپ‌تاپ و موبایل، کارت روش خرید، دکمه‌ی واتس‌اپ و دیگران) ساخته شد و در صفحه‌ی `/design-system` با داده‌ی واقعی دیده می‌شود. فاز ۲۹ تمام شد (۲۸ میزان ۱۴۰۵): همه‌ی صفحه‌ها حالا سربرگ شیشه‌ای تازه (منوهای بزرگ محصولات و خدمات، جستجو بدون «⌘K»، تغییر زبان، شروع پروژه)، پاورقی تیره‌ی تازه و دکمه‌ی واتس‌اپ با نشان واقعی واتس‌اپ را دارند، و صفحه‌ی اصلی از نو ساخته شد: معرفی با تصویر واقعی پروژه، انواع نرم‌افزار، محصولات (هر محصول جدا)، نمونه‌کارها (هر پروژه در یک ردیف)، خدمات، روند کار در چهار قدم و دعوت به شروع پروژه. فاز ۳۰ تمام شد (۲۸ میزان ۱۴۰۵): هر محصول حالا صفحه‌ی خودش را دارد (تصویرها، امکانات، روش‌های تهیه با قیمت‌هایی که در پنل گذاشته‌اید، خدمات پس از فروش، سؤال‌ها و فورم درخواست دمو یا خرید که مستقیم به بخش درخواست‌ها می‌رسد)، صفحه‌ی نمونه‌کارها هر پروژه را در یک ردیف با رنگ خودش نشان می‌دهد، و منوی شیشه‌ای خدمات دیگر متن پشتش را نشان نمی‌دهد. فاز ۳۱ تمام شد (۲۹ میزان ۱۴۰۵): خدمات حالا بر اساس نوع نرم‌افزار است (وب‌سایت، سیستم‌های تحت وب و پنل مدیریت، اپلیکیشن موبایل، نرم‌افزار کمپیوتری، پشتیبانی و توسعه)؛ هر خدمت صفحه‌ی خودش را دارد با «آنچه دریافت می‌کنید»، نمونه‌کارهای همان نوع، چهار قدم کار، قیمت «از …» فقط وقتی در پنل گذاشته شود، سؤال‌ها و دکمه‌ی شروع. صفحه‌ی «روند کار» حذف شد و به بخش روند کار در صفحه‌ی خدمات می‌رود؛ «همکاری با آرتاویو چطور است» (پرداخت، مالکیت، تحویل، تغییرها، بعد از راه‌اندازی) از پنل مدیریت (سؤال‌های عمومی) نشان داده می‌شود. صفحه‌ی «درباره» آرتاویو و بنیان‌گذارش را معرفی می‌کند، صفحه‌ی تماس فقط راه‌های مستقیم (واتس‌اپ، تلفن، ایمیل) را دارد، و صفحه‌های شروع پروژه و گرفتن وقت مشوره با طراحی تازه و متن «شما» بازنویسی شدند. دکمه‌ی روشن/تاریک دوباره در سربرگ است. نکته‌های مالک درباره‌ی کارت نمونه‌کارها (جمع‌وجورتر، رنگ پروژه روی همه‌ی کارت، رنگ‌ها مطابق تم روشن و تاریک) در فاز ۳۲.۶ نوشته شد. فاز بعدی: فاز ۳۲ (بازنویسی متن‌ها و کارت نمونه‌کارها).**
 
 ## 0.1 Where we are
 
 | | |
 |---|---|
-| Last completed phase | **Phase 30 — Products & Work pages** (20 October 2026, `docs/phases/PHASE-30-README.md`) |
+| Last completed phase | **Phase 31 — Services, About, Contact & Start** (20 October 2026, `docs/phases/PHASE-31-README.md`) |
 | Out-of-sequence work before it | Backend moved Supabase → Neon (16 October 2026, § 23.2) · Roadmap reset, revision 45 (17 October 2026, § 23.3) |
-| **Next phase** | **Phase 31 — Services, About, Contact & Start** (§ 11A) |
-| After that, in order | 32 → 33 (Milestone R), then 34 → 40 |
+| **Next phase** | **Phase 32 — Content rewrite — Dari & English, with the project-card refinement 32.6** (§ 11A) |
+| After that, in order | 33 (Milestone R), then 34 → 40 |
 | Design reference | Owner-approved design sample (17 October 2026): `https://claude.ai/artifact/C9Di6ViyqL3v4uQnYFaCfi` — private to the owner. Agents without access use § 14.1, which is its written specification. |
 
 ## 0.2 Status of every phase (one line each)
@@ -52,8 +52,8 @@ Phase  Name                                        Status
 28     Design System 2.0                           ✅ COMPLETE   — 18 October 2026; tokens and components on /design-system
 29     Shell & Home rebuild                        ✅ COMPLETE   — 20 October 2026; migration 0028 applied on Neon
 30     Products & Work pages                       ✅ COMPLETE   — 20 October 2026; migration 0029 applied on Neon
-31     Services, About, Contact & Start            ⬜ NEXT
-32     Content rewrite — Dari & English            ⬜
+31     Services, About, Contact & Start            ✅ COMPLETE   — 20 October 2026; migration 0030 applied on Neon
+32     Content rewrite — Dari & English            ⬜ NEXT       — plus 32.6, the owner's project-card and theme notes (20 October 2026)
 33     Articles revamp                             ⬜
 ────── Kept from the original plan, adapted and renumbered ──────
 34     Performance & Accessibility Certification   ⬜            (was 26)
@@ -97,7 +97,9 @@ Phase documents written before revision 45 that say "next: Phase 26 (Performance
 
 ## Document status
 
-**Last revision:** 20 October 2026 (revision 50 — **Phase 30 marked complete: Products & Work pages.** `/products` and `/products/[slug]` with exactly the published ways to get it, after-sales services, questions and a demo/purchase request that reaches the pipeline; `/work` as one coloured row per project, filters from six; visual case studies without the address-bar frame or technical labels; sitemap, `Product`/`Offer` for real prices only, redirect for products outside the portfolio. Migration `0029_products_navigation` applied on Neon. Owner's mega-menu feedback fixed in the same phase (backdrop-root bug; WinUI acrylic values 30 px / 96 %; clearer hover; § 14.1 updated). Typecheck, lint (64), 584 unit tests, build, production-build checks. **CI run 39450025348 green on every gate.** See `docs/phases/PHASE-30-README.md`.)
+**Last revision:** 20 October 2026 (revision 51 — **Phase 31 marked complete: Services, About, Contact & Start.** Five services by kind of software (migration `0030` on Neon; the seven old ones unpublished and redirected), each with what you get, related work, four steps, questions and an owner-set "from" price only; `/services` with the process (`#process`) and "how working together goes" from the global FAQs; `/process` redirected and removed from menus, search and sitemap; About as the studio and its founder; Contact with direct channels only; Start and Consultation in Design System 2.0 and «شما» voice; legal pages read the admin's e-mail. Owner notes of the same day: theme switch back in the header (done); compact, fully coloured, theme-aware project cards → new 32.6, § 6.8, D-22. Next: Phase 32.)
+
+**Previous revision:** 20 October 2026 (revision 50 — **Phase 30 marked complete: Products & Work pages.** `/products` and `/products/[slug]` with exactly the published ways to get it, after-sales services, questions and a demo/purchase request that reaches the pipeline; `/work` as one coloured row per project, filters from six; visual case studies without the address-bar frame or technical labels; sitemap, `Product`/`Offer` for real prices only, redirect for products outside the portfolio. Migration `0029_products_navigation` applied on Neon. Owner's mega-menu feedback fixed in the same phase (backdrop-root bug; WinUI acrylic values 30 px / 96 %; clearer hover; § 14.1 updated). Typecheck, lint (64), 584 unit tests, build, production-build checks. **CI run 39450025348 green on every gate.** See `docs/phases/PHASE-30-README.md`.)
 
 **Previous revision:** 20 October 2026 (revision 49 — **Phase 29 marked complete: Shell & Home rebuild.** The glass header with Products/Services mega menus from the published data, search icon, language link that keeps the query string, glass mobile menu; the ink footer with Products · Services · Artaveo · Contact and the theme switch; the floating WhatsApp button and every WhatsApp action with WhatsApp's own glyph; the new Home from Design System 2.0 sections, each hidden when its data is empty; ink bands and warm panels identical in both themes. Migration `0028_header_navigation` applied on Neon. Typecheck, lint (65), 568 unit tests, build; production-build checks for overflow, axe, menus and themes. **CI run 39416928726 green on every gate.** See `docs/phases/PHASE-29-README.md`.)
 
@@ -566,6 +568,12 @@ Measured on the live site (`artaveo-seven.vercel.app`) and in the code on 17 Oct
 - Services: 7 services + 5 engagement models (Discovery Sprint, Care Plan, …) — a freelancer gig menu. → **27.4, 31**
 - Phase 25's `.github/workflows/backup.yml` was never committed (disclosed in `docs/runbooks/backup-restore.md` § 1). → **26.8**
 
+## 6.8 Owner notes of 20 October 2026 (after Phase 30) — fixed in 31 and 32.6
+
+- **The light/dark switch could not be found** — Phase 29.1 had moved it to the end of the footer. → back in the header at every width, **Phase 31**.
+- **Project rows on Home and /work take the full page width**, and only the screenshot panel carries the project's colour; the rest of the card is plain. The owner wants a compact card (the width of the text and the screens, not the page) with the colour over the whole card, calm rather than colourful. → **32.6**, D-22.
+- **Colours do not change with the theme**: the warm panels and project cards look the same in light and dark (29.3). → theme-aware surfaces, borders and text, **32.6**, D-22.
+
 ---
 
 # 7. Decision Register (owner decisions)
@@ -595,6 +603,7 @@ Some phases cannot be completed honestly without a decision from the owner. Agen
 | **D-19** | The `Transportation-System` repository is public | **Open (owner, O-7):** make it private before that product is sold? A public repository means anyone can take the product's code for free. The site itself never links to repositories (§ 16.1). | 30 (launching that product page) |
 | **D-20** | Public names of the two products | **Open.** Default: descriptive names («سیستم فروش تکت و مدیریت ترانسپورت», «سیستم مراکز آموزشی») until the owner names them (the transport screenshots show a "Shabraw" brand — not used until confirmed). | 30 |
 | **D-21** | Currencies for prices | **Recommended default:** Afghani (AFN, shown as «افغانی») on the Dari site and USD on the English site, each price optionally given in both; the owner chooses per price in the admin. Open for confirmation. | 27.3 |
+| **D-22** | Colours across the light and dark themes; project cards (owner, 20 October 2026) | **Resolved (owner, 20 October 2026):** every project card carries its own colour across the **whole card**, not only behind its screenshot — calm and orderly, one hue in a few tonal steps (the owner's reference: flexiapps.net's portfolio, where the title takes the colour of the image panel); each card is compact, about the width of its text and screens, not the full page; and colours — project colours included — **change with the theme** where the standard does: surfaces, borders and text follow light/dark while a project's identity hue stays (Material 3 colour roles: a container colour is a light tone in the light scheme and a dark tone in the dark scheme). Replaces 29.3's "the same in both themes" for content panels and project cards. The theme switch is always visible in the header (Phase 31). | 32.6 |
 
 Decisions and their dates are recorded in `docs/decisions.md`.
 
@@ -687,8 +696,8 @@ R — REPOSITIONING & REDESIGN (added in revision 45 — do these next, in order
   Phase 28  Design System 2.0                Dark premium + limited glass, new type scale, colours per project, new components    ✅
   Phase 29  Shell & Home rebuild             New header with mega menus, WhatsApp button, new Home (one block per product/project)    ✅ 20 Oct 2026
   Phase 30  Products & Work pages            /products, product page with ways to get it, purchase/demo requests, visual case studies    ✅ 20 Oct 2026
-  Phase 31  Services, About, Contact & Start Services by kind of software, About without "one person", direct contact, broader Brief Builder    ⬜
-  Phase 32  Content rewrite — Dari & English Every public word: customer rule + Dari glossary; English written natively    ⬜
+  Phase 31  Services, About, Contact & Start Services by kind of software, About without "one person", direct contact, broader Brief Builder    ✅ 20 Oct 2026
+  Phase 32  Content rewrite — Dari & English Every public word: customer rule + Dari glossary; English written natively; 32.6 compact project cards in their own colour, theme-aware colours    ⬜
   Phase 33  Articles revamp                  Insights → Articles: customer topics, cover images, hidden until there are enough    ⬜
 
 M3b — CERTIFICATION
@@ -1475,7 +1484,10 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 
 **Exit criteria:** the owner switches a project to product in the admin and its page appears with exactly the options turned on; a purchase request with a chosen option reaches the pipeline; D-19 and D-20 respected.
 
-## Phase 31 — Services, About, Contact & Start  ⬜
+## Phase 31 — Services, About, Contact & Start  ✅ COMPLETE (20 October 2026 — see `docs/phases/PHASE-31-README.md`; migration `0030` applied on Neon)
+
+> **Done (revision 51):** 31.1–31.4 as specified below. Five services by kind of software replace the seven of revisions 1–44 (unpublished, not deleted; every old address redirects to the service that covers it): websites · web systems & admin panels · mobile apps · desktop software · support & extension, each with what you get, related published work, four steps, questions, a "from" price only when the owner sets one (otherwise «قیمت بعد از یک گفتگوی کوتاه»), and *Start this project* → `/start?service=…`. `/services` holds the services, the four-step process (`#process`) and "how working together goes" — payment, ownership, handover, changes, after launch — as the admin's global FAQs. `/process` redirects there (308) and left every menu, the search and the sitemap. `/about`: the studio, what it holds to, and its founder with name and photo; `/contact`: WhatsApp, phone and e-mail only, with the same-day reply line; `/start` and `/consultation` in Design System 2.0 with every string in «شما» voice («گرفتن وقت مشوره»). Hire-channel selector, availability card and the old sticky mobile bar removed. The legal pages read the contact e-mail from the admin and no longer call Artaveo "the work of one independent developer" (the Dari founder's name corrected to «ذاکر ناصری»). **Owner, 20 October:** the theme switch is back in the header; the project-card and theme notes went to 32.6 (§ 6.8, D-22). Verified: typecheck, lint (64), 601 unit tests, build, every rebuilt page 200 in both languages with no overflow at 375 px; redirects 308. Known: project summaries in the database still carry old wording (32.5).
+
 
 - **31.1** `/services` by kind of software (websites, web systems & admin panels, mobile apps, desktop software, support & extension); each service page: what you get, related work, process in four steps, "from" price if set, FAQ, CTA.
 - **31.2** `/process` retired → redirect to the process part of `/services`; the Working Agreement becomes a short "how working together goes" FAQ (payment, ownership, handover, support) — details live in each contract.
@@ -1484,7 +1496,7 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 
 **Exit criteria:** no engagement-model, Discovery Sprint, Care Plan or hire-channel language anywhere public; every CTA leads to a working, persisted request.
 
-## Phase 32 — Content rewrite — Dari & English  ⬜
+## Phase 32 — Content rewrite — Dari & English (+ 32.6 project cards)  ⬜
 
 - **32.1** Inventory every public string (`messages/*.json`, database content, the `lib/*-content.ts` seeds) against § 16.1's checklist.
 - **32.2** Rewrite Dari word by word with § 16.3 (research unclear words in Afghan sources — do not ask the owner); write English separately to native quality (D-15).
@@ -1492,7 +1504,13 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 - **32.4** The owner reads `/fa` end to end as a native reader; corrections applied.
 - **32.5 Project texts in the database (owner, 18 October 2026).** Rewrite every project's title line, summary, outcome line and features in both languages (`projects` rows, edited through the admin or a migration). Known example — Pezhohesh Portal: «پورتالی دوزبانه برای یک جامعه‌ی محصلان … از طریق یک CMS اختصاصی توسط کارکنان غیرتوسعه‌دهنده هم قابل مدیریت است» → no «دوزبانه», no «CMS», no «غیرتوسعه‌دهنده»; e.g. «وب‌سایت و پنل مدیریت یک مرکز آموزشی: سالن مطالعه، مشوره‌ی تحصیلی، بورسیه‌ها و دستاوردهای محصلان. کارمندان مرکز همه‌چیز را خودشان به‌روز می‌کنند.» (the design sample's line). Same check for every other project and for the English texts ("bilingual", "CMS", "non-developer staff"). 32.3's content check also scans these database fields for «دوزبانه» / "bilingual" in titles and summaries.
 
-**Exit criteria:** zero § 16.1 violations; the glossary enforced by the content check; owner's read-through done.
+- **32.6 Project cards and theme-aware colours (owner, 20 October 2026 — § 6.8, D-22).** Rework Phase 28's `PortfolioRow` (Home, /work, a service's related work) and, where it shares the rules, `ProductBlock`:
+  - **Compact:** a contained card about the width of its text and screens (≈ 1100 px at most, centred), image panel ≈ 45 %, mock-ups at most ≈ 420 px tall, less vertical padding — never a full-width band; ≥ 28 px between cards (§ 14.1).
+  - **The project's colour over the whole card**, one hue in tonal steps, nothing garish: the screenshot panel in a soft tone of the colour, the text side on a very light tint (light theme) or a deep tone (dark theme) of the same hue with a hairline border in it, the **title in the project colour** (as in the owner's reference, flexiapps.net), chips outlined in a project tone, the link in the project colour. Every pairing keeps ≥ 4.5:1 through `projectPalette()`, extended with light and dark tones.
+  - **Theme-aware** (D-22): card surfaces, borders, muted text and the warm content panels get light and dark values; a project's identity hue stays the same in both themes (Material 3 colour roles: container tones light in the light scheme, dark in the dark scheme). Ink bands (header, hero, CTA, footer) may stay ink. Check every other content panel and component against the same rule.
+  - Shown on `/design-system` in both themes and directions; axe and contrast checks in both themes; the owner approves a sample before it ships.
+
+**Exit criteria:** zero § 16.1 violations; the glossary enforced by the content check; owner's read-through done; 32.6's cards approved by the owner in both themes.
 
 ## Phase 33 — Articles revamp  ⬜
 
@@ -1622,6 +1640,8 @@ Components specific to this product. The generic primitives and patterns they ar
 This replaces the revision 1–44 direction, which banned gradients and glass and produced a flat white-on-white site. It is the written specification of the owner-approved design sample (§ 0.1), including the owner's three corrections.
 
 **Character:** premium · modern · clean · confident · alive with colour — dark bands for impact, warm light panels for reading.
+
+> **Owner, 20 October 2026 (D-22, built in 32.6):** project cards become compact and coloured over the whole card, and content panels, cards and borders follow the light/dark theme. Where a rule below says "the same in both themes" for a content panel or a project card, D-22 replaces it.
 
 **Ground and colour**
 - Dark bands (header, hero, products, CTA, footer): ink ≈ `#0A0C11`, raised surfaces ≈ `#11141B` / `#16181D`, text ≈ `#F3F1EC`, secondary text ≈ `#A9AEB8` (≥ 4.5:1 on ink).

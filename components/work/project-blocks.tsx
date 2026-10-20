@@ -1,6 +1,7 @@
-import { Check, ChevronDown } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 
+import { FaqList } from '@/components/brand/faq-list'
 import { ScreenGallery } from '@/components/brand/screen-gallery'
 import { videoEmbedUrl } from '@/lib/products/blocks'
 import { t, type Locale, type LocalizedText, type Project, type ProjectBlock, type ProjectBlockType } from '@/types/content'
@@ -103,19 +104,7 @@ function BlockBody({ block, project, locale }: { block: ProjectBlock; project: P
       )
 
     case 'faq':
-      return (
-        <div className="flex flex-col gap-3">
-          {block.items.map((item, index) => (
-            <details key={`${item.question.en}-${index}`} className="group rounded-card border border-paper-line bg-paper-card px-5 open:shadow-card">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 rounded-card font-bold outline-none focus-visible:ring-3 focus-visible:ring-ring/60 [&::-webkit-details-marker]:hidden">
-                {t(item.question, locale)}
-                <ChevronDown aria-hidden="true" className="size-5 shrink-0 transition-transform group-open:rotate-180 motion-reduce:transition-none" />
-              </summary>
-              <p className="pb-5 text-sm leading-relaxed text-paper-muted">{t(item.answer, locale)}</p>
-            </details>
-          ))}
-        </div>
-      )
+      return <FaqList items={block.items} />
 
     case 'gallery':
       return <ScreenGallery screens={block.images.map((image) => ({ src: image.src, alt: image.alt, caption: image.caption, width: image.width, height: image.height }))} />

@@ -233,3 +233,16 @@ The page copy makes no new factual claim. Product names, features, prices, ways 
 |---|---|---|
 | "You'll hear back the same day" (request section, questions band) | D-08's response commitment | 2026-10-20 |
 | Product and project facts (industry, platforms, features, outcome line) | the project's own fields, Phase 27 rows above | 2026-10-20 |
+
+## Phase 31 (20 October 2026) — services, about, contact, start, consultation
+
+Services are described by what the customer gets (D-18: Artaveo builds any kind of software; not a published claim, so no list narrows it). No price is set (D-04): every service shows «قیمت بعد از یک گفتگوی کوتاه» until the owner sets a "from" price in the admin.
+
+| Claim | Evidence | Verified |
+|---|---|---|
+| "Replies the same day, usually within a few hours" (Contact, Start, Consultation, support service) | D-08's response commitment | 2026-10-20 |
+| "A free call of up to 30 minutes" (Contact, Consultation) | D-09's default as built in Phase 20 | 2026-10-20 |
+| Software is the client's once paid for; accounts in the client's name; handover with access and training; changes priced before they are built; defects fixed within the period in the agreement | the Working Agreement of Phase 8.2 (D-13: details per agreement), now the global FAQs of migration 0030 | 2026-10-20 |
+| Zakir Naseri founded Artaveo; name and photo | D-02 (name and `/Profile-pic.jpg`) | 2026-10-20 |
+| Related work on a service page | the owner's `related_project_slugs`; only published projects are shown | 2026-10-20 |
+| Removed: "one independent developer" (privacy policy), the hire-channel comparison (Fiverr escrow), the availability card, the technical focus and tool lists, languages and time zone on About | — | 2026-10-20 |

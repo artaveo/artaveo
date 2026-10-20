@@ -17,9 +17,9 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: 'ConsultationPage' })
   return {
     title: t('metaTitle'),
-    description: t('description'),
+    description: t('lead'),
     alternates: buildAlternates(locale, '/consultation'),
-    ...buildPageOpenGraph({ locale, title: t('metaTitle'), description: t('description'), eyebrow: t('eyebrow') }),
+    ...buildPageOpenGraph({ locale, title: t('metaTitle'), description: t('lead'), eyebrow: t('eyebrow') }),
   }
 }
 

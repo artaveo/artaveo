@@ -8,7 +8,7 @@ import { clickWhenReady, db, expect, msg, test } from './support'
  */
 
 type Labels = { next: string; back: string; send: string; project: string; timeline: string; goalError: string }
-const EN: Labels = { next: 'Next', back: 'Back', send: 'Send brief', project: 'A web system or admin panel', timeline: '1–3 months', goalError: 'This field is required.' }
+const EN: Labels = { next: 'Next', back: 'Back', send: 'Send', project: 'A web system or admin panel', timeline: '1–3 months', goalError: 'This field is required.' }
 
 const unique = () => `e2e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}@example.com`
 
@@ -31,7 +31,7 @@ async function fillToReview(page: Page, email: string, extra: { goal?: string; f
   await page.locator('#brief-email').fill(email)
   await page.getByRole('checkbox', { name: /I agree/ }).click()
   await forward(page) // → review
-  await expect(page.getByRole('heading', { name: 'Review your brief' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Check your answers' })).toBeVisible()
   // The server refuses a brief sent less than 3 s after the form appeared (a bot check).
   // A real visitor never gets near that, so tests wait it out unless they are testing it.
   if (!extra.fast) await page.waitForTimeout(Math.max(0, 3300 - (Date.now() - startedAt)))
@@ -44,16 +44,16 @@ test.describe.configure({ mode: 'serial' })
 test('validation: an empty project step shows a specific error per field and does not advance', async ({ page }) => {
   await page.goto('/en/start')
   await forward(page)
-  await expect(page.getByRole('heading', { name: 'Tell me about the project' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Tell us about the project' })).toBeVisible()
   await forward(page) // nothing chosen, nothing written
-  await expect(page.getByRole('heading', { name: 'Tell me about the project' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Tell us about the project' })).toBeVisible()
   // project type and goal each show their own message (plus the form-level line)
   await expect.poll(() => page.getByText(EN.goalError).count()).toBeGreaterThanOrEqual(2)
   await page.getByRole('radio', { name: EN.project }).click()
   await page.locator('#brief-goal').fill('too short')
   await forward(page)
   await expect(page.getByText(/A little more detail/)).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Tell me about the project' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Tell us about the project' })).toBeVisible()
 })
 
 test('every option can be chosen by clicking its label, not only the small circle', async ({ page }) => {
@@ -78,20 +78,20 @@ test('a link that is not http(s) is refused with a specific message', async ({ p
   await page.getByRole('button', { name: /add.*link/i }).click()
   await page.getByPlaceholder(msg('en', 'BriefBuilder.linkPlaceholder')).first().fill('javascript:alert(1)')
   await forward(page)
-  await expect(page.getByText(/full URL/)).toBeVisible()
+  await expect(page.getByText(/full address/)).toBeVisible()
 })
 
-test('happy path from a package: the brief is saved once with the service and package, and two e-mails are queued', async ({ page }) => {
+test('happy path from a service page: the brief is saved once with the service, and two e-mails are queued', async ({ page }) => {
   const email = unique()
-  await page.goto('/en/services/business-website')
-  await page.locator('a[href="/en/start?service=business-website&package=standard"]').first().click()
+  await page.goto('/en/services/websites')
+  await page.locator('a[href="/en/start?service=websites"]').first().click()
   await fillToReview(page, email)
   await page.getByRole('button', { name: EN.send }).click()
-  await expect(page.getByRole('status').getByText('Brief sent', { exact: true })).toBeVisible()
+  await expect(page.getByRole('status').getByText('Sent', { exact: true })).toBeVisible()
 
   const rows = await inquiriesFor(email)
   expect(rows).toHaveLength(1)
-  expect(rows[0]).toMatchObject({ service_slug: 'business-website', package_id: 'standard', stage: 'new' })
+  expect(rows[0]).toMatchObject({ service_slug: 'websites', package_id: null, stage: 'new' })
   const outbox = await db<{ kind: string; status: string }[]>(`notification_outbox?inquiry_id=eq.${rows[0].id}&select=kind,status`)
   expect(outbox.map((o) => o.kind).sort()).toEqual(['client-confirmation', 'owner-alert'])
 })
@@ -119,7 +119,7 @@ test('double-clicking Send (or a second tab retry) creates exactly one inquiry',
   await fillToReview(page, email)
   const send = page.getByRole('button', { name: EN.send })
   await send.dblclick()
-  await expect(page.getByRole('status').getByText('Brief sent', { exact: true })).toBeVisible()
+  await expect(page.getByRole('status').getByText('Sent', { exact: true })).toBeVisible()
   expect(await inquiriesFor(email)).toHaveLength(1)
 })
 
@@ -130,12 +130,12 @@ test('offline: the brief is kept on the device, the visitor is told the truth, a
   await context.setOffline(true)
   await page.getByRole('button', { name: EN.send }).click()
   await expect(page.getByRole('status').getByText("You're offline", { exact: true })).toBeVisible()
-  await expect(page.getByRole('status').getByText('Brief sent', { exact: true })).toHaveCount(0)
+  await expect(page.getByRole('status').getByText('Sent', { exact: true })).toHaveCount(0)
   expect(await inquiriesFor(email), 'not sent while offline').toHaveLength(0)
 
   await context.setOffline(false)
-  await expect(page.getByRole('status').getByText('Brief sent', { exact: true })).toBeVisible({ timeout: 20_000 })
-  await expect(page.getByText(/You were offline when you first tried/)).toBeVisible()
+  await expect(page.getByRole('status').getByText('Sent', { exact: true })).toBeVisible({ timeout: 20_000 })
+  await expect(page.getByText(/You were offline at first/)).toBeVisible()
   expect(await inquiriesFor(email)).toHaveLength(1)
 })
 

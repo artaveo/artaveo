@@ -44,5 +44,5 @@ test('@mobile the Brief Builder can be started and answered with touch', async (
   await expect(page.getByRole('radio', { name: 'A web system or admin panel' })).toBeChecked()
   await page.locator('#brief-goal').fill('Rebuild our booking system for intercity buses')
   await page.getByRole('button', { name: 'Next', exact: true }).tap()
-  await expect(page.getByRole('heading', { name: 'What does it need to do?' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'What should it include?' })).toBeVisible()
 })

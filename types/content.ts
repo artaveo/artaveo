@@ -578,67 +578,10 @@ export type DeveloperProfile = {
   availability?: Availability
 }
 
-/**
- * A language the developer works in (roadmap § 8.1 About page). Not a
- * self-rated fluency scale (would be an invented, unverifiable metric per
- * § 16.5) — `note` instead states the concrete, checkable evidence: the
- * language is one of the two the site itself is written and maintained in.
- */
+/** A language listed in the admin's settings (`site_settings.languages`). Not shown on the public site since Phase 31.3. */
 export type WorkingLanguage = {
   name: LocalizedText
   note: LocalizedText
-}
-
-/**
- * One phase of the canonical, site-wide build process (roadmap § 8.1 —
- * "01 Discover · 02 Define · 03 Design · 04 Architect · 05 Build · 06 Test
- * · 07 Launch · 08 Support", each with purpose, activities, output, client
- * involvement, decisions and risks). Distinct from the shorter `ProcessStep`
- * preview shown on Home (§ 3.3) — that strip intentionally compresses the
- * same overall path into fewer stages for a scannable preview; this is the
- * full, detailed version rendered on `/process` (§ 8.1's own content, not a
- * per-service `ServiceProcessStep`, which describes one service's specific
- * steps instead of the whole engagement).
- */
-export type ProcessPhase = {
-  id: string
-  icon: string
-  title: LocalizedText
-  purpose: LocalizedText
-  activities: LocalizedText[]
-  output: LocalizedText
-  clientInvolvement: LocalizedText
-  decisionsAndRisks: LocalizedText
-}
-
-/**
- * One commitment on the Quality baseline (roadmap § 8.1 — "a short, honest
- * page of what every project receives — only commitments the owner
- * actually keeps"). Every entry here must trace to this roadmap's own
- * standards (§ 2, § 3, § 17) or to practice already demonstrated in a
- * published case study — never a new, unverified promise.
- */
-export type QualityCommitment = {
-  icon: string
-  title: LocalizedText
-  description: LocalizedText
-}
-
-/**
- * One topic of the Working Agreement (roadmap § 8.2 — "How we'll work"):
- * communication, response commitment, payment, ownership, handover,
- * warranty & change requests, confidentiality. `points` is optional —
- * some topics (confidentiality) are a single sentence, others need a
- * short bulleted breakdown. Per D-13, no sitewide deposit percentage or
- * warranty day-count is invented here; those are decided per engagement
- * during Define and stated in the mechanism, not as one fixed figure.
- */
-export type WorkingAgreementItem = {
-  id: string
-  icon: string
-  title: LocalizedText
-  summary: LocalizedText
-  points?: LocalizedText[]
 }
 
 /**
@@ -660,26 +603,4 @@ export type LegalDocument = {
   /** ISO date this document was last substantively edited — shown to the reader, not auto-generated. */
   lastUpdated: string
   sections: LegalSection[]
-}
-
-
-/**
- * One option in the Hire Channel Selector (roadmap § 8.3, component
- * inventory § 14 — "Direct vs via platform, with trade-offs" — gated by
- * D-05). `href` must always resolve to a real, verified channel (a mailto
- * link, `wa.me` link, or an existing platform profile from
- * `lib/site.ts#socialLinks`) — never an invented or placeholder link, per
- * the same honesty rule `ExternalProfileLinks` already enforces.
- */
-export type HireChannelKind = 'direct' | 'platform'
-
-export type HireChannel = {
-  id: string
-  kind: HireChannelKind
-  icon: string
-  title: LocalizedText
-  summary: LocalizedText
-  points: LocalizedText[]
-  href: string
-  ctaLabel: LocalizedText
 }

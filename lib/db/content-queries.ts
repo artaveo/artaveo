@@ -529,6 +529,14 @@ export async function queryServiceBySlug(slug: string): Promise<Service | undefi
   return services[0]
 }
 
+/** Phase 31.2 — "how working together goes" on /services: the global FAQs (Content → Global FAQs), in the owner's order. */
+export async function queryGlobalFaqs(): Promise<FaqItem[]> {
+  const client = requireClient()
+  const { data, error } = await client.from('faqs').select('question, answer, sort_order').eq('scope', 'global').order('sort_order', { ascending: true })
+  if (error) throw new Error(`Failed to load faqs: ${error.message}`)
+  return (data ?? []).map((row: any): FaqItem => ({ question: row.question, answer: row.answer }))
+}
+
 // ---------------------------------------------------------------------------
 // engagement_models
 // ---------------------------------------------------------------------------

@@ -1,189 +1,110 @@
-import { Fragment } from 'react'
-import { useLocale, useTranslations } from 'next-intl'
+import { Eye, Handshake, LifeBuoy, Puzzle } from 'lucide-react'
+import Image from 'next/image'
+import { useTranslations } from 'next-intl'
 
-import { PageHeader, CTASection, FeatureList } from '@/components/ui/patterns'
-import { Prose } from '@/components/ui/prose'
-import { LatinTerm } from '@/components/site/latin-term'
-import {
-  AvailabilityCard,
-  ExternalProfileLinks,
-  IdentityCta,
-  IdentityHeader,
-} from '@/components/ui/identity'
-import { Icon } from '@/components/icon'
-import { getAboutStory, getWorkingLanguages } from '@/lib/about-content'
-import { getDeveloperProfile, getDifferentiators, getTechStack } from '@/lib/home-content'
-import { t, type Locale } from '@/types/content'
+import { BandInner, InkBand, PaperPanel, SectionHeading } from '@/components/brand/bands'
+import { CtaBand } from '@/components/brand/cta-band'
+import { PageHero } from '@/components/brand/page-hero'
+import { PillLink } from '@/components/brand/pill'
+import { getDeveloperProfile } from '@/lib/home-content'
+
+const VALUES = [
+  { key: 'value1', icon: Eye },
+  { key: 'value2', icon: Puzzle },
+  { key: 'value3', icon: Handshake },
+  { key: 'value4', icon: LifeBuoy },
+] as const
 
 /**
- * AboutContent — the `/about` page (roadmap § 8.1). Every section reads
- * from data already established elsewhere in the codebase (the developer
- * profile from § 4.5, differentiators and tech stack from Home § 3.3) plus
- * the story/languages content added in this phase (`lib/about-content.ts`)
- * — nothing here is invented specifically for this page.
- *
- * Layout mirrors `ServiceDetail` (`components/services/service-detail.tsx`):
- * an 8/4 split with the long-form content on the start side and a sticky
- * identity/contact card on the end side, so the two most detailed content
- * pages on the site (`/services/[slug]`, `/about`) share one reading
- * pattern.
+ * Phase 31.3 — `/about`: Artaveo, the studio — what it builds and for whom,
+ * what it cares about in every project — and its founder, with name and
+ * photo (D-02). No "one person" framing, no technical focus list, no tools,
+ * no languages or time-zone widget (§ 6.7, § 14.0 retired list). The founder's
+ * name and photo come from the one profile record (`getDeveloperProfile()`);
+ * without a photo the card is the name alone.
  */
-export function AboutContent() {
-  const locale = useLocale() as Locale
-  const t18n = useTranslations('AboutPage')
-  const developer = getDeveloperProfile()
-  const story = getAboutStory()
-  const languages = getWorkingLanguages()
-  const differentiators = getDifferentiators()
-  const techStack = getTechStack()
-
-  const differentiatorItems = differentiators.map((item) => ({
-    id: item.title.en,
-    icon: (props: { className?: string }) => <Icon name={item.icon} {...props} />,
-    title: t(item.title, locale),
-    description: t(item.description, locale),
-  }))
+export function AboutContent({ whatsappHref }: { whatsappHref: string | null }) {
+  const ta = useTranslations('AboutPage')
+  const tb = useTranslations('Brand')
+  const tNav = useTranslations('Nav')
+  const founder = getDeveloperProfile()
 
   return (
-    <Fragment>
-      <div className="container-page py-16 md:py-24">
-        <PageHeader
-        eyebrow={t18n('eyebrow')}
-        title={
-          developer.name
-            ? t18n.rich('titleWithName', {
-                name: () => <LatinTerm>{developer.name}</LatinTerm>,
-              })
-            : t18n('titleNoName')
+    <div className="bg-ink">
+      <PageHero
+        titleId="about-title"
+        trail={[{ href: '/', label: tNav('home') }]}
+        current={tb('about')}
+        eyebrow={tb('about')}
+        title={ta('title')}
+        lead={ta('lead')}
+        actions={
+          <>
+            <PillLink href="/work" variant="gold" size="lg">
+              {ta('seeWork')}
+            </PillLink>
+            <PillLink href="/services" variant="glass" size="lg">
+              {ta('seeServices')}
+            </PillLink>
+          </>
         }
-        description={t18n('description')}
       />
 
-      <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
-        <div className="min-w-0 lg:col-span-8">
-          {/* Story — "not a CV" */}
-          <Prose>
-            {story.map((paragraph) => (
-              <p key={paragraph.en}>{t(paragraph, locale)}</p>
-            ))}
-          </Prose>
-
-          {/* Technical focus */}
-          {developer.focus.length ? (
-            <div className="mt-12 border-t border-border pt-10">
-              <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-                {t18n('technicalFocus')}
-              </h2>
-              <ul className="mt-4 grid gap-x-8 sm:grid-cols-2">
-                {developer.focus.map((item) => (
-                  <li
-                    key={item.en}
-                    className="flex items-center gap-3 border-b border-border py-3 text-sm"
-                  >
-                    <span aria-hidden className="size-1.5 shrink-0 rounded-[2px] bg-brand" />
-                    {t(item, locale)}
-                  </li>
-                ))}
-              </ul>
+      <PaperPanel aria-labelledby="about-story-title" data-slot="about-story">
+        <BandInner className="flex flex-col gap-20">
+          <section className="grid gap-8 @4xl:grid-cols-[0.8fr_1.2fr]">
+            <SectionHeading tone="paper" id="about-story-title" eyebrow={ta('storyEyebrow')} title={ta('storyTitle')} />
+            <div className="flex flex-col gap-4">
+              {(['story1', 'story2', 'story3'] as const).map((key) => (
+                <p key={key} className="max-w-[44rem] text-body text-pretty text-paper-muted">
+                  {ta(key)}
+                </p>
+              ))}
             </div>
-          ) : null}
+          </section>
 
-          {/* How I work / values */}
-          <div className="mt-12 border-t border-border pt-10">
-            <h2 className="text-2xl font-semibold tracking-tight text-balance">
-              {t18n('howIWork')}
-            </h2>
-            <p className="mt-2 leading-relaxed text-muted-foreground text-pretty">
-              {t18n('howIWorkDescription')}
-            </p>
-            <FeatureList items={differentiatorItems} className="mt-6" />
-          </div>
-
-          {/* Languages */}
-          <div className="mt-12 border-t border-border pt-10">
-            <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-              {t18n('languages')}
-            </h2>
-            <ul className="mt-4 flex flex-col gap-4">
-              {languages.map((language) => (
-                <li key={language.name.en} className="flex flex-col gap-1 sm:flex-row sm:gap-4">
-                  <span className="w-40 shrink-0 font-medium">{t(language.name, locale)}</span>
-                  <span className="text-sm leading-relaxed text-muted-foreground text-pretty">
-                    {t(language.note, locale)}
+          <section aria-labelledby="about-values-title" className="flex flex-col gap-10">
+            <SectionHeading tone="paper" id="about-values-title" eyebrow={ta('valuesEyebrow')} title={ta('valuesTitle')} />
+            <ul className="grid gap-4 @2xl:grid-cols-2 @5xl:grid-cols-4">
+              {VALUES.map(({ key, icon: Icon }) => (
+                <li key={key} className="flex flex-col gap-3 rounded-card-lg border border-paper-line bg-paper-card p-7 shadow-card">
+                  <span className="grid size-12 place-items-center rounded-2xl bg-paper-foreground text-gold">
+                    <Icon aria-hidden="true" className="size-5" />
                   </span>
+                  <h3 className="mt-1 text-card-title">{ta(`${key}Title`)}</h3>
+                  <p className="text-sm leading-relaxed text-pretty text-paper-muted">{ta(`${key}Line`)}</p>
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
 
-          {/* Tools & technologies */}
-          <div className="mt-12 border-t border-border pt-10">
-            <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-              {t18n('tools')}
-            </h2>
-            <div className="mt-4 grid gap-6 sm:grid-cols-2">
-              {techStack.map((category) => (
-                <div key={category.id}>
-                  <div className="flex items-center gap-2">
-                    <Icon name={category.icon} aria-hidden className="size-4 text-brand-text" />
-                    <h3 className="text-sm font-medium">{t(category.title, locale)}</h3>
-                  </div>
-                  <ul className="mt-2.5 flex flex-wrap gap-1.5">
-                    {category.items.map((item) => (
-                      <li
-                        key={item}
-                        className="rounded-full border border-border bg-card px-2.5 py-1 font-mono text-xs text-muted-foreground"
-                      >
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <aside className="min-w-0 lg:col-span-4">
-          <div className="flex flex-col gap-6 lg:sticky lg:top-24">
-            <div className="rounded-xl border border-border bg-card p-6">
-              <IdentityHeader profile={developer} title={t18n('identityTitle')} locale={locale} />
-
-              {developer.timezone ? (
-                <p className="mt-5 border-t border-border pt-5 text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">{t18n('timezoneLabel')}</span>{' '}
-                  {developer.timezone} — {t18n('timezoneNote')}
-                </p>
-              ) : null}
-
-              {developer.availability ? (
-                <AvailabilityCard
-                  availability={developer.availability}
-                  locale={locale}
-                  className="mt-5 border-0 bg-transparent p-0"
+          {founder.name ? (
+            <section aria-labelledby="about-founder-title" className="grid items-center gap-8 rounded-panel bg-paper-foreground p-6 text-ink-foreground @3xl:grid-cols-[auto_1fr] @3xl:p-10" data-slot="about-founder">
+              {founder.portrait ? (
+                <Image
+                  src={founder.portrait}
+                  alt={ta('founderPhotoAlt', { name: founder.name })}
+                  width={176}
+                  height={176}
+                  className="size-32 rounded-full object-cover ring-4 ring-gold/40 @3xl:size-44"
                 />
               ) : null}
-
-              <div className="mt-5 border-t border-border pt-5">
-                <ExternalProfileLinks className="flex-col items-start gap-2.5" />
+              <div className="flex flex-col gap-2">
+                <p className="text-small font-bold text-gold">{ta('founderEyebrow')}</p>
+                <h2 id="about-founder-title" className="text-h2">
+                  {ta('founderName')}
+                </h2>
+                <p className="text-body font-semibold text-ink-foreground">{ta('founderRole')}</p>
+                <p className="max-w-[40rem] text-body text-pretty text-ink-muted">{ta('founderLine')}</p>
               </div>
+            </section>
+          ) : null}
+        </BandInner>
+      </PaperPanel>
 
-              <div className="mt-6 flex flex-col gap-2.5">
-                <IdentityCta variant="hire" className="w-full justify-center" />
-                <IdentityCta variant="consultation" className="w-full justify-center" />
-              </div>
-            </div>
-          </div>
-        </aside>
-      </div>
+      <InkBand aria-label={tb('megaCardTitle')} className="px-4 pt-16 pb-20 @3xl:pt-20 @3xl:pb-24" data-slot="about-cta">
+        <CtaBand title={tb('megaCardTitle')} line={tb('megaCardLine')} primary={{ href: '/start', label: tb('start') }} whatsappHref={whatsappHref} whatsappLabel={tb('whatsapp')} />
+      </InkBand>
     </div>
-
-    <CTASection
-      title={t18n('ctaTitle')}
-      description={t18n('ctaDescription')}
-      primaryAction={{ href: '/start', label: t18n('ctaPrimary') }}
-      secondaryAction={{ href: '/work', label: t18n('ctaSecondary') }}
-    />
-    </Fragment>
   )
 }

@@ -215,7 +215,7 @@ describe('public content: only what is published', () => {
   })
 
   it('an unpublished service disappears — with its packages, add-ons, steps and FAQs', async () => {
-    const { data: svc } = await admin.from('services').select('id, slug').eq('slug', 'admin-dashboards').single()
+    const { data: svc } = await admin.from('services').select('id, slug').eq('slug', 'web-systems').single()
     const child = async (table) => (await visitor.from(table).select('*').eq('service_id', svc.id)).data ?? []
     for (const table of ['service_packages', 'service_addons', 'service_process_steps', 'faqs']) {
       assert.ok((await child(table)).length > 0, `precondition: ${table} visible while the service is published`)

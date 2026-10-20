@@ -7,7 +7,6 @@ import { BrandFooter, type FooterLink } from '@/components/brand/brand-footer'
 import { BrandLockup } from '@/components/brand/brand-lockup'
 import { WhatsAppIcon } from '@/components/brand/whatsapp-icon'
 import { useFooterModel, useShellContact, useShellProfiles } from '@/components/site/site-flags'
-import { ThemeToggle } from '@/components/theme-toggle'
 import { formatDate } from '@/lib/format'
 import { formatPhoneNumber, telHref, whatsappHref } from '@/lib/shell-settings'
 import type { Locale } from '@/types/content'
@@ -18,7 +17,7 @@ import type { Locale } from '@/types/content'
  * the owner's data — the published products and services, the footer's
  * navigation items, the contact channels and profiles from the admin. An
  * empty column is not drawn (no product published → no Products column).
- * The theme switch sits at the end of the legal row. The year follows the
+ * The theme switch is in the header (Phase 31). The year follows the
  * site's calendars: «۱۴۰۵» on Dari pages, 2026 on English ones.
  */
 export function SiteFooter() {
@@ -64,7 +63,6 @@ export function SiteFooter() {
         { title: tr('footerContact'), links: contactLinks },
       ]}
       legal={model.legal.map((link) => ({ href: link.href, label: tNav(link.key) }))}
-      tools={<ThemeToggle tone="ink" />}
     />
   )
 }

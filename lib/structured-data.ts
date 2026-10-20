@@ -39,7 +39,7 @@ export function buildPersonJsonLd(locale: Locale): JsonLdValue | null {
     url: absoluteUrl(`/${locale}/about`),
     ...(profile.portrait ? { image: absoluteUrl(profile.portrait) } : {}),
     description: t(profile.bio, locale),
-    jobTitle: siteConfig.tagline,
+    jobTitle: 'Founder of Artaveo',
     sameAs: sameAsLinks(),
   }
 }
@@ -212,7 +212,7 @@ export function buildArticleJsonLd(locale: Locale, article: ArticleSummary): Jso
  * no further code change.
  */
 export function buildServiceJsonLd(locale: Locale, service: Service): JsonLdValue {
-  const offers = (service.packages ?? [])
+  const offers: Record<string, unknown>[] = (service.packages ?? [])
     .filter((pkg) => pkg.price.type !== 'quote' && pkg.price.amount != null)
     .map((pkg) => ({
       '@type': 'Offer',
@@ -221,6 +221,20 @@ export function buildServiceJsonLd(locale: Locale, service: Service): JsonLdValu
       priceCurrency: pkg.price.currency ?? 'USD',
       url: absoluteUrl(`/${locale}/start?service=${service.slug}&package=${pkg.id}`),
     }))
+  // Phase 31.1: the owner's "from" price (D-04 — only when set) is a minimum, so it is `minPrice`, one Offer per currency.
+  const fromOffers = (
+    [
+      ['AFN', service.fromPrice?.afn],
+      ['USD', service.fromPrice?.usd],
+    ] as const
+  )
+    .filter(([, amount]) => typeof amount === 'number')
+    .map(([currency, amount]) => ({
+      '@type': 'Offer',
+      priceSpecification: { '@type': 'PriceSpecification', priceCurrency: currency, minPrice: amount },
+      url: absoluteUrl(`/${locale}/start?service=${service.slug}`),
+    }))
+  offers.push(...(fromOffers as typeof offers))
 
   return {
     '@context': 'https://schema.org',

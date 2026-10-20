@@ -59,6 +59,31 @@ const nextConfig = {
     // (the Content Security Policy is set per request by proxy.ts).
     return buildHeaderRules()
   },
+  /**
+   * Phase 31: the retired addresses keep working. `/process` became the process
+   * part of /services (31.2), and the seven services of revisions 1–44 became
+   * five services by kind of software (31.1) — each old address goes to the
+   * service that now covers it. Permanent (308), so search engines move too.
+   */
+  async redirects() {
+    const oldServices = {
+      'business-website': 'websites',
+      'web-application-mvp': 'web-systems',
+      'admin-dashboards': 'web-systems',
+      'backend-api-database': 'web-systems',
+      'performance-accessibility-seo': 'support',
+      'bug-fix-rescue': 'support',
+      'care-plan': 'support',
+    }
+    return [
+      { source: '/:locale(en|fa)/process', destination: '/:locale/services#process', permanent: true },
+      { source: '/process', destination: '/services#process', permanent: true },
+      ...Object.entries(oldServices).flatMap(([from, to]) => [
+        { source: `/:locale(en|fa)/services/${from}`, destination: `/:locale/services/${to}`, permanent: true },
+        { source: `/services/${from}`, destination: `/services/${to}`, permanent: true },
+      ]),
+    ]
+  },
   // Phase 23: no `X-Powered-By: Next.js` — it tells a scanner what to try.
   poweredByHeader: false,
   experimental: {

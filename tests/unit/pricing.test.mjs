@@ -71,8 +71,9 @@ describe('the real content obeys the pricing rules', () => {
   const packages = services.flatMap((s) => (s.packages ?? []).map((p) => ({ service: s.slug, ...p })))
   const addons = services.flatMap((s) => (s.addOns ?? []).map((a) => ({ service: s.slug, ...a })))
 
-  it('there are services and packages to check', () => {
-    assert.ok(services.length > 0 && packages.length > 0)
+  // Phase 31.1: the five services by kind of software have no packages in the seed (the owner can add them in the admin).
+  it('there are services to check', () => {
+    assert.ok(services.length > 0)
   })
   it('every figure-typed price carries an amount (type says figure ⇒ figure exists)', () => {
     for (const item of [...packages, ...addons]) {

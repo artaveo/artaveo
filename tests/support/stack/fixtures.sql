@@ -66,3 +66,15 @@ select p.id, '{"en": "E2E staff training", "fa": "آموزش آزمایشی کا
 from public.projects p
 where p.slug = 'e2e-product'
   and not exists (select 1 from public.product_services x where x.project_id = p.id);
+
+-- Phase 31: the five services of the seed have no packages or add-ons, so the
+-- RLS test ("an unpublished service disappears — with its packages, add-ons,
+-- steps and FAQs") gets one of each on `web-systems`. `show_packages` stays
+-- off, so no public page shows them.
+insert into public.service_packages (service_id, tier, name, summary, for_whom, price_type)
+select id, 'starter', '{"en": "E2E package", "fa": "بسته‌ی آزمایشی"}', '{"en": "Test only.", "fa": "فقط آزمایشی."}', '{"en": "Tests", "fa": "آزمون"}', 'quote'
+from public.services where slug = 'web-systems'
+on conflict (service_id, tier) do nothing;
+insert into public.service_addons (service_id, title, description, price_type)
+select id, '{"en": "E2E add-on", "fa": "افزونه‌ی آزمایشی"}', '{"en": "Test only.", "fa": "فقط آزمایشی."}', 'quote'
+from public.services where slug = 'web-systems' and not exists (select 1 from public.service_addons a join public.services s on s.id = a.service_id where s.slug = 'web-systems');

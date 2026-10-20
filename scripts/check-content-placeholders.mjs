@@ -24,7 +24,6 @@ const CONTENT_FILES = [
   'lib/home-content.ts',
   'lib/site.ts',
   'lib/services-content.ts',
-  'lib/about-content.ts',
   'lib/contact-content.ts',
   'lib/inquiry-content.ts',
   'lib/legal-content.ts',

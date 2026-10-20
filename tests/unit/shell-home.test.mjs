@@ -26,13 +26,12 @@ const tx = (en, fa) => ({ en, fa })
 
 const ALL = ['header', 'footer', 'mobile', 'command-palette']
 const row = (key, href, surfaces, sort, has_content = true) => ({ key, href, surfaces, has_description: false, has_content, sort_order: sort })
-/** The live navigation after migrations 0028 and 0029. */
+/** The live navigation after migrations 0028, 0029 and 0030 (Phase 31.2: /process retired). */
 const LIVE_NAV = [
   row('home', '/', ALL, 0),
   row('products', '/products', ALL, 1),
   row('work', '/work', ALL, 2),
   row('services', '/services', ALL, 3),
-  row('process', '/process', ['footer', 'command-palette'], 4),
   row('about', '/about', ALL, 5),
   row('insights', '/insights', ALL, 6, false),
   row('designSystem', '/design-system', ['footer', 'command-palette'], 7),
@@ -116,7 +115,7 @@ describe('the header (29.1: Products · Services · Work · About)', () => {
   it('the mobile menu adds the footer-only pages a visitor looks for (Contact), never the legal links or the design system', () => {
     const model = buildHeaderModel(shell, EMPTY_MENUS)
     const keys = model.mobileLinks.map((link) => link.key)
-    assert.deepEqual(keys, ['work', 'services', 'about', 'process', 'contact'])
+    assert.deepEqual(keys, ['work', 'services', 'about', 'contact'])
     for (const hidden of ['privacy', 'terms', 'designSystem', 'home', 'products']) assert.ok(!keys.includes(hidden), hidden)
   })
   it('the built-in fallback (database unreachable) still gives a working header', () => {
@@ -133,7 +132,7 @@ describe('the footer (§ 14.0: Products · Services · Artaveo · contact; legal
     assert.equal(model.allProductsHref, undefined, 'one product: its own link is enough')
     assert.equal(model.services.length, FOOTER_SERVICE_LIMIT)
     assert.equal(model.allServicesHref, '/services')
-    assert.deepEqual(model.pages.map((link) => link.key), ['work', 'process', 'about', 'designSystem', 'contact'])
+    assert.deepEqual(model.pages.map((link) => link.key), ['work', 'about', 'designSystem', 'contact'])
     assert.deepEqual(model.legal.map((link) => link.key), ['privacy', 'terms'])
   })
   it('no "All services" link when the column already lists every service', () => {
@@ -192,9 +191,12 @@ describe('Home (29.2)', () => {
   it('never shows ways to get a product (§ 14.1: product page only)', () => {
     assert.doesNotMatch(page, /SaleOption|AfterSales/)
   })
-  it('the header carries no "⌘K" text and no theme switch; the switch moved to the footer', () => {
+  it('the header carries no "⌘K" text; the theme switch is in the header (Phase 31, owner), not in the footer', () => {
     const header = read('components/site/site-header.tsx').replace(/\/\*[\s\S]*?\*\//g, '')
-    assert.doesNotMatch(header, /⌘K|<Kbd|ThemeToggle/)
-    assert.match(read('components/site/site-footer.tsx'), /ThemeToggle tone="ink"/)
+    assert.doesNotMatch(header, /⌘K|<Kbd/)
+    assert.match(header, /themeSwitch=\{<ThemeToggle tone="glass" \/>\}/)
+    assert.doesNotMatch(read('components/site/site-footer.tsx'), /ThemeToggle/)
+    // shown at every width: not inside a breakpoint-hidden wrapper
+    assert.match(read('components/brand/glass-header.tsx'), /\n\s*\{themeSwitch\}\r?\n/)
   })
 })
