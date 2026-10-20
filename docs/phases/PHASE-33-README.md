@@ -33,6 +33,8 @@ Insights became **Articles** («مقاله‌ها») at `/articles`, built for c
 - `npm run check:content` passes, including the database.
 - `npm run build` passes.
 
+**CI run 39505405770 is green on every gate** (unit, integration, build, end-to-end and accessibility suites, audit) on the first run.
+
 ## Known issues and what is next
 
 - **O-10 (owner):** write customer articles in the admin (Content → Articles): pick a cover, a topic, tags, "Who it is for: Customers", then publish. The footer link appears with the first, the header link with the fourth.
