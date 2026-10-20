@@ -78,3 +78,11 @@ on conflict (service_id, tier) do nothing;
 insert into public.service_addons (service_id, title, description, price_type)
 select id, '{"en": "E2E add-on", "fa": "افزونه‌ی آزمایشی"}', '{"en": "Test only.", "fa": "فقط آزمایشی."}', 'quote'
 from public.services where slug = 'web-systems' and not exists (select 1 from public.service_addons a join public.services s on s.id = a.service_id where s.slug = 'web-systems');
+
+-- Phase 32: the seed no longer carries the archived engineering sections (the
+-- importer leaves `project_sections` alone), so the RLS test ("the archived
+-- sections are not public, even for a published project") gets one row here.
+insert into public.project_sections (project_id, type, body, sort_order)
+select id, 'context', '{"en": "Archived fixture section.", "fa": "بخش بایگانی‌شده‌ی آزمایشی."}', 0
+from public.projects where slug = 'pazhuhesh-portal'
+  and not exists (select 1 from public.project_sections s join public.projects p on p.id = s.project_id where p.slug = 'pazhuhesh-portal');

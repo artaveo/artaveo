@@ -26,7 +26,7 @@ test.describe('search / command palette', () => {
     await page.keyboard.press('Control+k')
     const box = page.getByRole('combobox')
     await box.fill('system')
-    await expect(page.getByRole('option').first()).toBeVisible()
+    await expect(page.getByRole('option').nth(1)).toBeVisible() // at least two results, so ↓ has somewhere to go
     const before = await box.getAttribute('aria-activedescendant')
     await page.keyboard.press('ArrowDown')
     const after = await box.getAttribute('aria-activedescendant')

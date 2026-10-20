@@ -153,16 +153,18 @@ export function Ds2ComponentsSection({
       {/* Phase 32.6 (D-22): the same cards in the light and the dark theme, whatever theme this page is in.
           The direction is the page's own — /fa/design-system shows them right to left. */}
       {(['light', 'dark'] as const).map((theme) => (
-        <div key={theme} className={theme === 'dark' ? 'dark' : 'theme-light'} data-slot={`portfolio-cards-${theme}`}>
+        <div key={theme}>
           <Subhead>Project cards on the warm panel — {theme} theme</Subhead>
-          <Preview>
-            <PaperPanel>
-              <BandInner className="flex flex-col gap-10">
-                <SectionHeading tone="paper" eyebrow={tr('work')} title={locale === 'fa' ? 'کارهایی که آرتاویو ساخته است' : 'What Artaveo has built'} />
-                <PortfolioList projects={projects} href={workHref} />
-              </BandInner>
-            </PaperPanel>
-          </Preview>
+          <div className={theme === 'dark' ? 'dark' : 'theme-light'} data-slot={`portfolio-cards-${theme}`}>
+            <Preview>
+              <PaperPanel>
+                <BandInner className="flex flex-col gap-10">
+                  <SectionHeading tone="paper" eyebrow={tr('work')} title={locale === 'fa' ? 'کارهایی که آرتاویو ساخته است' : 'What Artaveo has built'} />
+                  <PortfolioList projects={projects} href={workHref} />
+                </BandInner>
+              </PaperPanel>
+            </Preview>
+          </div>
         </div>
       ))}
 

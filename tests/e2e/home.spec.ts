@@ -50,16 +50,24 @@ for (const locale of ['en', 'fa'] as const) {
   })
 }
 
+// Phase 32.6 (D-22): the ink bands stay ink; the warm panels and the project cards follow the theme.
+const PANEL = { light: 'rgb(244, 242, 237)', dark: 'rgb(21, 23, 29)' } as const
 for (const theme of ['light', 'dark'] as const) {
-  test(`dark bands stay ink and content panels stay warm in the ${theme} theme`, async ({ page }) => {
+  test(`dark bands stay ink and content panels follow the ${theme} theme`, async ({ page }) => {
     await setTheme(page, theme)
     await page.goto('/en')
     for (const slot of ['home-hero', 'home-cta', 'brand-footer']) {
       await expect(page.locator(`[data-slot="${slot}"]`)).toHaveCSS('background-color', 'rgb(10, 12, 17)')
     }
     for (const slot of ['home-work', 'home-services']) {
-      await expect(page.locator(`[data-slot="${slot}"]`)).toHaveCSS('background-color', 'rgb(244, 242, 237)')
+      await expect(page.locator(`[data-slot="${slot}"]`)).toHaveCSS('background-color', PANEL[theme])
     }
+    // The project card takes a light tint of its colour in the light theme and a deep tone in the dark one.
+    const card = page.locator('[data-slot="portfolio-row"]').first()
+    const ground = await card.evaluate((el) => getComputedStyle(el).backgroundColor)
+    const [r, g, b] = ground.match(/\d+/g)!.map(Number)
+    const light = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
+    expect(theme === 'light' ? light > 0.8 : light < 0.25, `${theme} card ground ${ground}`).toBe(true)
   })
 }
 
