@@ -151,7 +151,8 @@ describe('shell settings (27.6)', () => {
     assert.deepEqual(shell.contact, { email: 'a@b.co', whatsappNumber: '+93790685832', phoneNumber: null })
   })
   it('the fallback (database unreachable) is today\'s shell: no hidden item, the real channels', () => {
-    assert.deepEqual(navFor(FALLBACK_SHELL, 'header').map((item) => item.key), ['home', 'work', 'services', 'process', 'about'])
+    assert.deepEqual(navFor(FALLBACK_SHELL, 'header').map((item) => item.key), ['home', 'work', 'services', 'about'])
+    assert.deepEqual(navFor(FALLBACK_SHELL, 'footer').map((item) => item.key).slice(0, 5), ['home', 'work', 'services', 'process', 'about'])
     assert.ok(!FALLBACK_SHELL.nav.some((item) => item.key === 'products' || item.key === 'insights'))
     assert.equal(FALLBACK_SHELL.contact.whatsappNumber, '+93790685832')
   })

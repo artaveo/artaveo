@@ -1,12 +1,13 @@
 'use client'
 
-import { ChevronDown, Menu, MessageCircle, Package, Search, X } from 'lucide-react'
+import { ChevronDown, Menu, Package, Search, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useId, useRef, useState } from 'react'
 import type * as React from 'react'
 
 import { ForwardArrow, ServiceKindIcon } from '@/components/brand/brand-icons'
 import { PillLink } from '@/components/brand/pill'
+import { WhatsAppIcon } from '@/components/brand/whatsapp-icon'
 import { Link, usePathname } from '@/i18n/navigation'
 import { ensureContrast } from '@/lib/design/color'
 import { cn } from '@/lib/utils'
@@ -47,10 +48,12 @@ export function GlassHeader({
   services,
   allServicesHref,
   links,
+  mobileLinks,
   startHref,
   whatsappHref,
   languageSwitch,
   onSearch,
+  onSearchWarm,
   sticky = true,
 }: {
   logo: React.ReactNode
@@ -61,11 +64,15 @@ export function GlassHeader({
   allServicesHref?: string
   /** Work, About — in order. */
   links: HeaderLink[]
+  /** The mobile menu's plain links, when they differ from `links` (Phase 29.1: Contact joins them there). */
+  mobileLinks?: HeaderLink[]
   startHref: string
   whatsappHref?: string | null
   languageSwitch?: React.ReactNode
   /** Opens the site search (the command palette). Without it the search icon is not shown. */
   onSearch?: () => void
+  /** Called when the pointer or focus reaches the search icon, so the search can get ready before it opens. */
+  onSearchWarm?: () => void
   /** `false` on /design-system, where the header is previewed inside the page. */
   sticky?: boolean
 }) {
@@ -106,6 +113,7 @@ export function GlassHeader({
   const toggle = (menu: Exclude<OpenMenu, null>) => setOpen((current) => (current === menu ? null : menu))
   const close = () => setOpen(null)
   const hasProducts = products.length > 0
+  const isCurrent = (href: string) => (href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`))
 
   const menuButton = (menu: 'products' | 'services', label: string) => (
     <button
@@ -144,7 +152,8 @@ export function GlassHeader({
             <Link
               key={link.href}
               href={link.href}
-              className="inline-flex min-h-11 items-center rounded-pill px-3.5 text-sm font-medium outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70"
+              aria-current={isCurrent(link.href) ? 'page' : undefined}
+              className="inline-flex min-h-11 items-center rounded-pill px-3.5 text-sm font-medium outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70 aria-[current=page]:bg-white/9 aria-[current=page]:text-gold"
             >
               {link.label}
             </Link>
@@ -157,6 +166,8 @@ export function GlassHeader({
           <button
             type="button"
             onClick={onSearch}
+            onPointerEnter={onSearchWarm}
+            onFocus={onSearchWarm}
             aria-label={tr('search')}
             className="hidden size-11 place-items-center rounded-pill text-glass-muted outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70 @4xl:grid"
           >
@@ -236,11 +247,11 @@ export function GlassHeader({
 
       {open === 'mobile' ? (
         <div id={panelId('mobile')} className="absolute inset-x-0 top-full px-3 pt-2 @4xl:hidden">
-          <nav aria-label={tr('mobileNav')} className="glass-strong motion-safe:animate-menu-in flex flex-col rounded-[1.25rem] border border-glass-line p-2.5 shadow-float">
+          <nav aria-label={tr('mobileNav')} className="glass-strong motion-safe:animate-menu-in flex max-h-[calc(100dvh-5.5rem)] flex-col overflow-y-auto overscroll-contain rounded-[1.25rem] border border-glass-line p-2.5 shadow-float">
             {hasProducts ? <MobileLink href={allProductsHref ?? products[0].href} label={tr('products')} onNavigate={close} /> : null}
             {services.length > 0 ? <MobileLink href={allServicesHref ?? services[0].href} label={tr('services')} onNavigate={close} /> : null}
-            {links.map((link) => (
-              <MobileLink key={link.href} href={link.href} label={link.label} onNavigate={close} />
+            {(mobileLinks ?? links).map((link) => (
+              <MobileLink key={link.href} href={link.href} label={link.label} current={isCurrent(link.href)} onNavigate={close} />
             ))}
             {onSearch ? (
               <button
@@ -346,7 +357,7 @@ function StartCard({ startHref, whatsappHref, onNavigate }: { startHref: string;
             rel="noopener noreferrer"
             className="inline-flex min-h-11 items-center gap-2 rounded-md text-small font-semibold text-glass-muted outline-none hover:text-glass-foreground focus-visible:ring-2 focus-visible:ring-ring/70"
           >
-            <MessageCircle aria-hidden="true" className="size-4" />
+            <WhatsAppIcon className="text-whatsapp-glyph" />
             {tr('whatsappLine')}
           </a>
         ) : null}
@@ -355,12 +366,13 @@ function StartCard({ startHref, whatsappHref, onNavigate }: { startHref: string;
   )
 }
 
-function MobileLink({ href, label, onNavigate }: { href: string; label: string; onNavigate: () => void }) {
+function MobileLink({ href, label, current = false, onNavigate }: { href: string; label: string; current?: boolean; onNavigate: () => void }) {
   return (
     <Link
       href={href}
       onClick={onNavigate}
-      className="flex min-h-11 items-center rounded-xl px-4 font-semibold outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70"
+      aria-current={current ? 'page' : undefined}
+      className="flex min-h-11 items-center rounded-xl px-4 font-semibold outline-none hover:bg-white/6 focus-visible:ring-2 focus-visible:ring-ring/70 aria-[current=page]:text-gold"
     >
       {label}
     </Link>

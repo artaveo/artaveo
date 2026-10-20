@@ -69,41 +69,6 @@
   "SearchIndex": {
     "technologyUsedIn": "{count, plural, one {Used in # project} other {Used in # projects}}: {projects}"
   },
-  "Footer": {
-    "explore": "Explore",
-    "more": "More",
-    "social": "Social",
-    "tagline": "Full-stack, from build to delivery",
-    "legal": "Legal"
-  },
-  "Hero": {
-    "badge": "Available for new projects",
-    "titleLine1": "Full-stack products",
-    "titleLine2": "from idea to launch.",
-    "description": "I build web applications, business platforms and digital products from the first architecture decision through interface, backend, database and deployment.",
-    "ctaWork": "View my work",
-    "ctaContact": "Start a project",
-    "codePanelFooter": "One path from database to interface"
-  },
-  "FeaturedWork": {
-    "eyebrow": "Selected work",
-    "title": "Projects I’ve built",
-    "description": "Real projects with clear case studies covering the problem, the build, the architecture and the technologies behind them.",
-    "allWork": "All work",
-    "viewCaseStudy": "View case study",
-    "liveDemo": "Live demo",
-    "github": "GitHub",
-    "opensNewTab": "(opens in a new tab)",
-    "screenshotPlaceholder": "Project screenshot",
-    "technologies": "Technologies"
-  },
-  "ProjectStatus": {
-    "live": "Live",
-    "in-development": "In development",
-    "private": "Internal / private",
-    "archived": "Archived",
-    "concept": "Concept"
-  },
   "Work": {
     "eyebrow": "Selected work",
     "title": "Work",
@@ -181,26 +146,6 @@
     "choosePackage": "Choose this package",
     "deliveryDaysValue": "{min}–{max} business days"
   },
-  "WhyArtaveo": {
-    "eyebrow": "Why Artaveo",
-    "titleLine1": "One developer.",
-    "titleLine2": "The whole product.",
-    "description": "Artaveo is not a multi-layer agency. One person carries the project from idea to production, so the architecture, interface and code stay on one path.",
-    "fromIdeaToDeployment": "From idea to deployment",
-    "handledByOneDeveloper": "Handled by one developer",
-    "noHandoffs": "No handoffs between designers, frontend and backend teams — every decision is made with the whole system in view."
-  },
-  "TechStack": {
-    "eyebrow": "Expertise",
-    "title": "A focused technical stack",
-    "description": "Proven tools chosen for type safety, performance and long-term maintainability. Every one of them is used in the real work further down this page."
-  },
-  "Process": {
-    "eyebrow": "Process",
-    "title": "A clear path from start to launch",
-    "description": "Each stage has a visible outcome, so you always know where the project stands.",
-    "seeFullProcess": "See the full process"
-  },
   "ProcessPage": {
     "eyebrow": "Process",
     "title": "How I build, step by step",
@@ -220,16 +165,6 @@
     "ctaDescription": "Pick a service to see its packages, or get in touch to talk through what you need.",
     "ctaPrimary": "Get in touch",
     "ctaSecondary": "Browse services"
-  },
-  "AboutPreview": {
-    "eyebrow": "About",
-    "headingWithName": "<name>{name}</name>, the developer behind Artaveo",
-    "headingNoName": "The developer behind Artaveo",
-    "technicalFocus": "Technical focus",
-    "moreAbout": "More about Artaveo",
-    "portraitAltNamed": "Portrait of {name}",
-    "portraitAltGeneric": "Portrait of the developer behind Artaveo",
-    "portraitPlaceholder": "Portrait"
   },
   "AboutPage": {
     "eyebrow": "About",
@@ -272,8 +207,8 @@
   },
   "Recommendations": {
     "eyebrow": "Recommendations",
-    "title": "What it's like to work together",
-    "description": "Real feedback from people I've worked with, collected and published only with their explicit consent.",
+    "title": "What clients say",
+    "description": "In their own words, about working with Artaveo.",
     "relatedProject": "View the project",
     "viewSource": "View source",
     "verificationVerifiedRequest": "Submitted via verified request",
@@ -312,13 +247,6 @@
     "successTitle": "Thank you",
     "successDescription": "Your recommendation has been received. It will be reviewed before it's published."
   },
-  "FinalCta": {
-    "titleLine1": "Have a project in mind?",
-    "titleLine2": "Let's build it.",
-    "description": "Share the idea, timeline and what you need. I’ll reply clearly about scope and next steps.",
-    "startProject": "Start a project",
-    "viewWork": "View work"
-  },
   "DesignSystemPage": {
     "title": "Design System — Artaveo",
     "description": "The visual foundation of Artaveo: color tokens, typography, spacing, and core UI components."
@@ -334,9 +262,6 @@
     "retry": "Try again",
     "reference": "Reference:",
     "backHome": "Back to home"
-  },
-  "Loading": {
-    "label": "Loading…"
   },
   "Availability": {
     "available": "Available for new projects",
@@ -1568,6 +1493,37 @@
     "step": "Step {n}",
     "copyright": "© {year} Artaveo",
     "footerTagline": "Software design and development for businesses.",
-    "footerArtaveo": "Artaveo"
+    "footerArtaveo": "Artaveo",
+    "footerWhatsapp": "WhatsApp",
+    "footerContact": "Contact"
+  },
+  "Home": {
+    "metaTitle": "Artaveo — software that runs your business",
+    "heroEyebrow": "Software design and development",
+    "heroTitle": "Software that runs your business",
+    "heroLead": "Artaveo designs and builds websites, management systems, mobile apps and desktop software for businesses — from the first conversation to launch and support.",
+    "heroSeeProducts": "See the products",
+    "heroSeeWork": "See our work",
+    "platformsLabel": "What Artaveo builds",
+    "productsTitle": "Ready-made systems from Artaveo",
+    "productsLead": "Use them from day one — set up for the way your business works.",
+    "workTitle": "What Artaveo has built",
+    "workLead": "Each project in its own words: who it is for and what it changed.",
+    "workAll": "All work",
+    "servicesTitle": "Whatever software your business needs",
+    "servicesLead": "Tell us what you need; Artaveo designs it, builds it and stays with you after launch.",
+    "servicesNotSure": "Not sure where to start?",
+    "servicesNotSureLine": "A short call is enough to find the right first step.",
+    "servicesBookCall": "Book a call",
+    "processEyebrow": "How it works",
+    "processTitle": "From first conversation to launch, in four steps",
+    "step1Title": "A conversation",
+    "step1Line": "About what your business needs and where it wants to go.",
+    "step2Title": "Design",
+    "step2Line": "You see the screens and approve them before anything is built.",
+    "step3Title": "Build",
+    "step3Line": "You see the progress at every stage.",
+    "step4Title": "Launch and support",
+    "step4Line": "The system goes live, and support continues after handover."
   }
 }

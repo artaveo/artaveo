@@ -122,7 +122,7 @@ test.describe('interactive states', () => {
   test('the mobile menu, open', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 800 })
     await page.goto('/en')
-    await page.getByRole('button', { name: 'Open menu' }).click()
+    await page.getByRole('banner').getByRole('button', { name: 'Open the menu' }).click()
     await scan(page, 'mobile menu en')
   })
 })

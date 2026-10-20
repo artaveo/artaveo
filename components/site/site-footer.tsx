@@ -1,109 +1,64 @@
-import { useTranslations } from 'next-intl'
+'use client'
 
-import { Link } from '@/i18n/navigation'
-import { ArtaveoMark } from '@/components/site/artaveo-mark'
-import { Link as ActionLink } from '@/components/ui/actions'
-import { ExternalProfileLinks } from '@/components/ui/identity'
-import { useFooterNav, useShellContact, useShellProfiles } from '@/components/site/site-flags'
-import { siteConfig, type NavItem } from '@/lib/site'
+import { Mail, Phone } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+
+import { BrandFooter, type FooterLink } from '@/components/brand/brand-footer'
+import { BrandLockup } from '@/components/brand/brand-lockup'
+import { WhatsAppIcon } from '@/components/brand/whatsapp-icon'
+import { useFooterModel, useShellContact, useShellProfiles } from '@/components/site/site-flags'
+import { ThemeToggle } from '@/components/theme-toggle'
+import { formatDate } from '@/lib/format'
+import { formatPhoneNumber, telHref, whatsappHref } from '@/lib/shell-settings'
+import type { Locale } from '@/types/content'
 
 /**
- * § 5.2 asked for "locale-aware legal links" in the footer; § 11.2 now
- * ships the real `/privacy` and `/terms` pages this was waiting on —
- * rendered below from `legalNav` (`lib/site.ts`) via the same
- * locale-aware `Link` every other footer link already uses.
+ * Phase 29.1 — the site's footer: Design System 2.0's ink footer (§ 14.0
+ * Footer: Products · Services · Artaveo · contact; legal), every column from
+ * the owner's data — the published products and services, the footer's
+ * navigation items, the contact channels and profiles from the admin. An
+ * empty column is not drawn (no product published → no Products column).
+ * The theme switch sits at the end of the legal row. The year follows the
+ * site's calendars: «۱۴۰۵» on Dari pages, 2026 on English ones.
  */
 export function SiteFooter() {
-  const year = new Date().getFullYear()
-  const t = useTranslations('Footer')
-  const tCommon = useTranslations('Common')
+  const locale = useLocale() as Locale
+  const tr = useTranslations('Brand')
   const tNav = useTranslations('Nav')
-  const { explore, more, legal } = useFooterNav()
+  const model = useFooterModel()
   const contact = useShellContact()
   const profiles = useShellProfiles()
 
+  const contactLinks: FooterLink[] = [
+    ...(contact.whatsappNumber
+      ? [{ href: whatsappHref(contact.whatsappNumber), label: tr('footerWhatsapp'), icon: <WhatsAppIcon className="text-whatsapp-glyph" /> }]
+      : []),
+    ...(contact.email ? [{ href: `mailto:${contact.email}`, label: contact.email, dir: 'ltr' as const, icon: <Mail aria-hidden="true" className="size-4 shrink-0" /> }] : []),
+    ...(contact.phoneNumber
+      ? [{ href: telHref(contact.phoneNumber), label: formatPhoneNumber(contact.phoneNumber), dir: 'ltr' as const, icon: <Phone aria-hidden="true" className="size-4 shrink-0" /> }]
+      : []),
+    ...profiles.map((profile) => ({ href: profile.href, label: profile.label })),
+  ].filter((link, index, all) => all.findIndex((other) => other.href === link.href) === index)
+
   return (
-    <footer className="border-t border-border bg-elevated">
-      <div className="container-page py-16">
-        <div className="grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <Link href="/" className="flex items-center gap-2" aria-label="Artaveo home">
-              <ArtaveoMark className="size-7 text-foreground" />
-              <span dir="ltr" className="font-mono text-sm font-semibold tracking-[0.2em]">
-                ARTAVEO
-              </span>
-            </Link>
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">
-              {tCommon('siteDescription')}
-            </p>
-            {contact.email ? (
-              <ActionLink href={`mailto:${contact.email}`} variant="standalone" className="mt-6">
-                <span dir="ltr">{contact.email}</span>
-              </ActionLink>
-            ) : null}
-          </div>
-
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:col-span-7">
-            <FooterCol title={t('explore')} items={explore} />
-            {more.length > 0 ? <FooterCol title={t('more')} items={more} /> : null}
-            <div>
-              <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-                {t('social')}
-              </h3>
-              <ExternalProfileLinks links={profiles} className="mt-4 flex-col items-start gap-x-0 gap-y-3" />
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-16 flex flex-col items-start justify-between gap-3 border-t border-border pt-8 sm:flex-row sm:items-center">
-          <p className="text-sm text-muted-foreground">
-            © {year} {siteConfig.name}. {tCommon('location')}.
-          </p>
-          <nav aria-label={t('legal')} className="flex items-center gap-5">
-            {legal.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {tNav(item.key)}
-              </Link>
-            ))}
-          </nav>
-          <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-            {t('tagline')}
-          </p>
-        </div>
-      </div>
-    </footer>
-  )
-}
-
-function FooterCol({
-  title,
-  items,
-}: {
-  title: string
-  items: NavItem[]
-}) {
-  const tNav = useTranslations('Nav')
-  return (
-    <div>
-      <h3 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-        {title}
-      </h3>
-      <ul className="mt-4 space-y-3">
-        {items.map((item) => (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {tNav(item.key)}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <BrandFooter
+      mark={<BrandLockup />}
+      tagline={tr('footerTagline')}
+      year={formatDate(new Date().toISOString(), locale, { day: undefined, month: undefined, year: 'numeric' })}
+      columns={[
+        { title: tr('products'), links: model.products.map((entry) => ({ href: entry.href, label: entry.title })) },
+        {
+          title: tr('services'),
+          links: [
+            ...model.services.map((entry) => ({ href: entry.href, label: entry.title })),
+            ...(model.allServicesHref ? [{ href: model.allServicesHref, label: tr('allServices') }] : []),
+          ],
+        },
+        { title: tr('footerArtaveo'), links: model.pages.map((link) => ({ href: link.href, label: tNav(link.key) })) },
+        { title: tr('footerContact'), links: contactLinks },
+      ]}
+      legal={model.legal.map((link) => ({ href: link.href, label: tNav(link.key) }))}
+      tools={<ThemeToggle tone="ink" />}
+    />
   )
 }

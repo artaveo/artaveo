@@ -91,6 +91,8 @@ async function requireEditorSession(): Promise<{ userId: string; email: string }
  * clever about which action needs which subset.
  */
 function revalidateServiceRoutes(slugs: (string | null | undefined)[]): void {
+  // Phase 29: services are in every page's header mega menu and footer, and on Home.
+  revalidatePath('/', 'layout')
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/services`)
     revalidatePath(`/${locale}/start`)
@@ -101,6 +103,8 @@ function revalidateServiceRoutes(slugs: (string | null | undefined)[]): void {
 }
 
 function revalidateProjectRoutes(slugs: (string | null | undefined)[]): void {
+  // Phase 29: products are in every page's header mega menu and footer.
+  revalidatePath('/', 'layout')
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/work`)
     revalidatePath(`/${locale}`)

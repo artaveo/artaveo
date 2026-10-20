@@ -212,3 +212,15 @@ Each line is something a customer can do or see, checked against the project's r
 | Education: two admin levels — full control and a department admin | screenshots `04-super-admin-dashboard`, `05-department-admin` | 2026-10-18 |
 | Education: light and dark appearance | screenshot `11-theme-or-bilingual` (dark mode) | 2026-10-18 |
 | Industry (passenger transport, education), platform (web) and project colours | the projects themselves; the colours are design choices (§ 14.1 examples), not claims | 2026-10-18 |
+
+## Phase 29 (20 October 2026) — the new Home and shell
+
+The Home page's own words make no factual claim beyond what Artaveo offers. Everything else on it is the owner's data (projects, services, contact channels), checked where that data was entered.
+
+| Claim | Evidence | Verified |
+|---|---|---|
+| Artaveo designs and builds websites, management systems, mobile apps, desktop software and offline systems (hero line, platforms strip) | the owner's statement of what Artaveo builds (§ 1, D-18: capabilities are not limited to the published projects); the services offered (`services`) | 2026-10-20 |
+| Support continues after handover (process step 4, services line) | the published support services (`services` of kind *support*: maintenance, bug fixing) | 2026-10-20 |
+| "You'll hear back the same day" (CTA band and mega menu, Phase 28's string) | D-08's response commitment (replies within a few hours, same day) | 2026-10-20 |
+| Hero chips: the showcased project's industry, title and one feature | the project's own fields (`projects.industry`, `features`, Phase 27 rows above) | 2026-10-20 |
+| No price, client, rating or count appears on Home | — (nothing invented, § 16.7) | 2026-10-20 |

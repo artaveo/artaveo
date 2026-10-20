@@ -136,6 +136,7 @@
   --color-cool: var(--cool);
   --color-cool-text: var(--cool-text);
   --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-glyph: var(--whatsapp-glyph);
   --color-glass-foreground: var(--glass-foreground);
   --color-glass-muted: var(--glass-muted);
   --color-glass-line: var(--glass-line);
@@ -303,6 +304,8 @@
   --cool: #4078ff;
   --cool-text: #8fb0ff;
   --whatsapp: #15803d;
+  /* WhatsApp's own green, for the glyph on ink and glass (29.1): ≈ 9:1 on ink, an icon only — never text. */
+  --whatsapp-glyph: #25d366;
   /* Glass (28.3). The fills alone — before any blur — keep text at ≥ 4.5:1
      over the worst background that can scroll behind them (white), so the
      contrast never depends on what the blur happens to smear. */

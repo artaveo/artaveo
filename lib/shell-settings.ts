@@ -126,7 +126,9 @@ export const FALLBACK_SHELL: ShellData = (() => {
   const items: ShellNavItem[] = []
   for (const item of mainNav) {
     if (item.hasContent === false) continue
-    items.push({ key: item.key, href: item.href, hasDescription: !!item.hasDescription, surfaces: ['header', 'footer', 'mobile', 'command-palette'] })
+    // Phase 29.1 (migration 0028): "How it works" is in the footer and the search, not the header.
+    const surfaces: NavSurface[] = item.key === 'process' ? ['footer', 'command-palette'] : ['header', 'footer', 'mobile', 'command-palette']
+    items.push({ key: item.key, href: item.href, hasDescription: !!item.hasDescription, surfaces })
   }
   for (const item of [...utilityNav, ...legalNav]) {
     items.push({ key: item.key, href: item.href, hasDescription: false, surfaces: command.has(item.key) ? ['footer', 'command-palette'] : ['footer'] })

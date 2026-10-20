@@ -10,7 +10,8 @@ import { LocaleLink } from '@/components/brand/locale-link'
 /**
  * The glass header previewed inside /design-system: not sticky, over an ink
  * band tall enough for an open mega menu. The search icon only reports that
- * it was pressed — on the site (Phase 29) it opens the command palette.
+ * it was pressed — on the site it opens the command palette (Phase 29,
+ * components/site/site-header.tsx).
  */
 export function HeaderPreview(props: {
   products: MegaProduct[]

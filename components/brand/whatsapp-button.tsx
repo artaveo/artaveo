@@ -1,5 +1,4 @@
-import { MessageCircle } from 'lucide-react'
-
+import { WhatsAppIcon } from '@/components/brand/whatsapp-icon'
 import { cn } from '@/lib/utils'
 
 /**
@@ -7,8 +6,8 @@ import { cn } from '@/lib/utils'
  * contact channel in Afghanistan. The number comes from the admin
  * (`site_settings.whatsapp_number` → `whatsappHref()`); with no number the
  * button is not rendered. It sits at the bottom of the reading-end side
- * (left on Dari pages, right on English ones); the shell (Phase 29) keeps it
- * clear of content and of the mobile call-to-action. `fixed = false` places
+ * (left on Dari pages, right on English ones); the shell (Phase 29) lifts it
+ * above the mobile call-to-action bar with `className`. `fixed = false` places
  * it in flow, for the /design-system preview.
  */
 export function FloatingWhatsAppButton({
@@ -37,7 +36,7 @@ export function FloatingWhatsAppButton({
         className,
       )}
     >
-      <MessageCircle aria-hidden="true" className="size-6" />
+      <WhatsAppIcon className="size-7" />
     </a>
   )
 }

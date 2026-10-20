@@ -47,7 +47,7 @@ const SAMPLE_AFTER_SALES: ProductService[] = [
   { id: 'a-hosting', title: tx('Hosting', 'میزبانی سیستم'), price: {}, period: 'month' },
 ]
 
-/** The four steps of the design sample; Phase 29 moves them into the site's content. */
+/** The four steps of the design sample — Home's own copy of them is in messages (`Home.step1Title` …, Phase 29). */
 const SAMPLE_STEPS = [
   { title: tx('A conversation', 'گفتگو'), line: tx('About what your business needs and where it wants to go.', 'گفتگو درباره‌ی نیاز و هدف کسب‌وکار شما.') },
   { title: tx('Design', 'طراحی'), line: tx('You see the screens and approve them before anything is built.', 'طرح صفحه‌ها را پیش از ساخت می‌بینید و تأیید می‌کنید.') },

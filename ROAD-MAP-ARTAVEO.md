@@ -5,16 +5,16 @@
 
 > **Revision 45 (17 October 2026) reset the plan.** In revisions 1–44 Artaveo was planned as a one-developer freelance profile. It is now a **software studio site that sells its own products, shows its work and takes client projects** (§ 1). Phases 1–25 stay exactly as they were — they are history. The work the reset requires is **new Phases 26–33 (Milestone R)**, placed **before** every phase that had not started. The phases that had not started (old 26–32) were **kept**, adapted to the new rules and **renumbered 34–40** (map in § 0.4). No completed phase was re-marked incomplete; the two partial ones (3 and 9) were closed and their open items moved to named places (§ 0.2).
 
-**خلاصه به دری:** فازهای ۱ تا ۲۵ تمام شده‌اند و دست نمی‌خورند. کارهای تازه‌ای که از بازبینی ۲۵ میزان ۱۴۰۵ بیرون آمد، فازهای ۲۶ تا ۳۳ هستند و پیش از همه‌ی فازهای باقی‌مانده انجام می‌شوند. فازهای قدیمیِ شروع‌نشده (۲۶ تا ۳۲) حذف نشده‌اند؛ با قانون‌های تازه اصلاح شده‌اند و حالا شماره‌های ۳۴ تا ۴۰ را دارند. **فاز ۲۶ تمام شد (۲۵ میزان ۱۴۰۵). فاز ۲۷ تمام شد (۲۶ میزان ۱۴۰۵): محصولات، روش‌های خرید و قیمت‌ها، خدمات بعد از فروش، بخش‌های صفحه‌ی پروژه، درخواست خرید و دمو، و راه‌های تماس و منوی سایت حالا همه از پنل مدیریت و بدون کد تنظیم می‌شوند. فاز ۲۸ تمام شد (۲۶ میزان ۱۴۰۵): سیستم طراحی ۲.۰ — رنگ‌ها، اندازه‌ی خط، شیشه، حرکت و همه‌ی کامپوننت‌های سایت تازه (سربرگ شیشه‌ای با منوهای بزرگ، بلوک محصول، ردیف نمونه‌کار، قاب لپ‌تاپ و موبایل، کارت روش خرید، دکمه‌ی واتس‌اپ و دیگران) ساخته شد و در صفحه‌ی `/design-system` با داده‌ی واقعی دیده می‌شود. فاز بعدی: فاز ۲۹ (سربرگ و صفحه‌ی اصلی تازه).**
+**خلاصه به دری:** فازهای ۱ تا ۲۵ تمام شده‌اند و دست نمی‌خورند. کارهای تازه‌ای که از بازبینی ۲۵ میزان ۱۴۰۵ بیرون آمد، فازهای ۲۶ تا ۳۳ هستند و پیش از همه‌ی فازهای باقی‌مانده انجام می‌شوند. فازهای قدیمیِ شروع‌نشده (۲۶ تا ۳۲) حذف نشده‌اند؛ با قانون‌های تازه اصلاح شده‌اند و حالا شماره‌های ۳۴ تا ۴۰ را دارند. **فاز ۲۶ تمام شد (۲۵ میزان ۱۴۰۵). فاز ۲۷ تمام شد (۲۶ میزان ۱۴۰۵): محصولات، روش‌های خرید و قیمت‌ها، خدمات بعد از فروش، بخش‌های صفحه‌ی پروژه، درخواست خرید و دمو، و راه‌های تماس و منوی سایت حالا همه از پنل مدیریت و بدون کد تنظیم می‌شوند. فاز ۲۸ تمام شد (۲۶ میزان ۱۴۰۵): سیستم طراحی ۲.۰ — رنگ‌ها، اندازه‌ی خط، شیشه، حرکت و همه‌ی کامپوننت‌های سایت تازه (سربرگ شیشه‌ای با منوهای بزرگ، بلوک محصول، ردیف نمونه‌کار، قاب لپ‌تاپ و موبایل، کارت روش خرید، دکمه‌ی واتس‌اپ و دیگران) ساخته شد و در صفحه‌ی `/design-system` با داده‌ی واقعی دیده می‌شود. فاز ۲۹ تمام شد (۲۸ میزان ۱۴۰۵): همه‌ی صفحه‌ها حالا سربرگ شیشه‌ای تازه (منوهای بزرگ محصولات و خدمات، جستجو بدون «⌘K»، تغییر زبان، شروع پروژه)، پاورقی تیره‌ی تازه و دکمه‌ی واتس‌اپ با نشان واقعی واتس‌اپ را دارند، و صفحه‌ی اصلی از نو ساخته شد: معرفی با تصویر واقعی پروژه، انواع نرم‌افزار، محصولات (هر محصول جدا)، نمونه‌کارها (هر پروژه در یک ردیف)، خدمات، روند کار در چهار قدم و دعوت به شروع پروژه. فاز بعدی: فاز ۳۰ (صفحه‌های محصولات و نمونه‌کارها).**
 
 ## 0.1 Where we are
 
 | | |
 |---|---|
-| Last completed phase | **Phase 28 — Design System 2.0** (18 October 2026, `docs/phases/PHASE-28-README.md`) |
+| Last completed phase | **Phase 29 — Shell & Home rebuild** (20 October 2026, `docs/phases/PHASE-29-README.md`) |
 | Out-of-sequence work before it | Backend moved Supabase → Neon (16 October 2026, § 23.2) · Roadmap reset, revision 45 (17 October 2026, § 23.3) |
-| **Next phase** | **Phase 29 — Shell & Home rebuild** (§ 11A) — built from `components/brand/` (Phase 28) |
-| After that, in order | 30 → 31 → 32 → 33 (Milestone R), then 34 → 40 |
+| **Next phase** | **Phase 30 — Products & Work pages** (§ 11A) — `/products`, `/products/[slug]`, `/work` rows, visual case studies |
+| After that, in order | 31 → 32 → 33 (Milestone R), then 34 → 40 |
 | Design reference | Owner-approved design sample (17 October 2026): `https://claude.ai/artifact/C9Di6ViyqL3v4uQnYFaCfi` — private to the owner. Agents without access use § 14.1, which is its written specification. |
 
 ## 0.2 Status of every phase (one line each)
@@ -23,7 +23,7 @@
 Phase  Name                                        Status
 1      Design System Foundation                    ✅ COMPLETE   — succeeded by Phase 28 (Design System 2.0)
 2      Global Shell                                ✅ CLOSED     — its missing parts were delivered by Phase 5; nothing left (rev 45)
-3      Content Truth Pass & Home Page              ✅ CLOSED     — open 3.5 items moved to Phase 26.7; Home is rebuilt in Phase 29 (rev 45)
+3      Content Truth Pass & Home Page              ✅ CLOSED     — open 3.5 items moved to Phase 26.7; Home rebuilt in Phase 29 (rev 49)
 4      Brand Identity & Design System              ✅ COMPLETE   — 4.1 placeholder-mark debt closed in Phase 28.6
 5      Internationalization & Shell                ✅ COMPLETE   — Dari locale formatting (fa-AF, Solar Hijri) is Phase 26.2
 6      Work & Case Study Engine                    ✅ COMPLETE   — template and content succeeded by Phases 27, 30, 32
@@ -38,7 +38,7 @@ Phase  Name                                        Status
 15     CMS & Media                                 ✅ COMPLETE   — extended by Phase 27; public nav/settings read path is Phase 27.6
 16     Verified Evidence                           ✅ COMPLETE
 17     Insights / Engineering Journal              ✅ COMPLETE   — succeeded by Phase 33 (Articles)
-18     Search & Command Palette                    ✅ COMPLETE   — header search simplified in Phase 29
+18     Search & Command Palette                    ✅ COMPLETE   — header search is an icon since Phase 29
 19     Notifications & Outbox                      ✅ COMPLETE   — real sending is O-6
 20     Consultation                                ✅ COMPLETE   — copy renamed in Phase 31 («گرفتن وقت مشوره»)
 21     Testing                                     ✅ COMPLETE
@@ -50,8 +50,8 @@ Phase  Name                                        Status
 26     Live-site corrections                       ✅ COMPLETE   — 17 October 2026; also turned CI green again (Next.js 16.3.8 security update)
 27     Products, sale options & flexible content   ✅ COMPLETE   — 18 October 2026; migration 0026 applied on Neon
 28     Design System 2.0                           ✅ COMPLETE   — 18 October 2026; tokens and components on /design-system
-29     Shell & Home rebuild                        ⬜ NEXT
-30     Products & Work pages                       ⬜
+29     Shell & Home rebuild                        ✅ COMPLETE   — 20 October 2026; migration 0028 applied on Neon
+30     Products & Work pages                       ⬜ NEXT
 31     Services, About, Contact & Start            ⬜
 32     Content rewrite — Dari & English            ⬜
 33     Articles revamp                             ⬜
@@ -97,7 +97,9 @@ Phase documents written before revision 45 that say "next: Phase 26 (Performance
 
 ## Document status
 
-**Last revision:** 18 October 2026 (revision 48 — **Phase 28 marked complete: Design System 2.0.** Tokens (ink, warm panel, gold and gold-deep, one cool blue; radii; shadows; the same in both themes), per-project colours kept readable for any admin colour by `projectPalette()`, the § 14.1 type scale with Dari line heights 1.85–1.9, glass that stays readable from its fill alone and turns solid under reduced transparency, the whole-page fade removed and small motion off under reduced motion; the § 14.0 components in `components/brand/`, data-fed and hidden when empty, on `/design-system` with live data at three widths; the share image re-rendered from the corrected mark (4.1 debt closed). Typecheck, lint (66), 549 unit tests, build; new e2e suite for the showcase. **CI run 39127664210 green on every gate.** See `docs/phases/PHASE-28-README.md`.)
+**Last revision:** 20 October 2026 (revision 49 — **Phase 29 marked complete: Shell & Home rebuild.** The glass header with Products/Services mega menus from the published data, search icon, language link that keeps the query string, glass mobile menu; the ink footer with Products · Services · Artaveo · Contact and the theme switch; the floating WhatsApp button and every WhatsApp action with WhatsApp's own glyph; the new Home from Design System 2.0 sections, each hidden when its data is empty; ink bands and warm panels identical in both themes. Migration `0028_header_navigation` applied on Neon. Typecheck, lint (65), 567 unit tests, build; production-build checks for overflow, axe, menus and themes. See `docs/phases/PHASE-29-README.md`.)
+
+**Previous revision:** 18 October 2026 (revision 48 — **Phase 28 marked complete: Design System 2.0.** Tokens (ink, warm panel, gold and gold-deep, one cool blue; radii; shadows; the same in both themes), per-project colours kept readable for any admin colour by `projectPalette()`, the § 14.1 type scale with Dari line heights 1.85–1.9, glass that stays readable from its fill alone and turns solid under reduced transparency, the whole-page fade removed and small motion off under reduced motion; the § 14.0 components in `components/brand/`, data-fed and hidden when empty, on `/design-system` with live data at three widths; the share image re-rendered from the corrected mark (4.1 debt closed). Typecheck, lint (66), 549 unit tests, build; new e2e suite for the showcase. **CI run 39127664210 green on every gate.** See `docs/phases/PHASE-28-README.md`.)
 
 **Previous revision:** 18 October 2026 (revision 47 — **Phase 27 marked complete: Products, sale options & flexible content.** Migration `0026_products_and_blocks` applied on Neon (projects: portfolio/product switches, colours, library cover, industry, platforms, outcome line, features; `project_blocks` with nine block types; `project_sections` archived; `product_sale_options` and `product_services` with Afghani/dollar prices; services: kind, "from" price, optional packages; inquiries: kind + product snapshot; `site_settings`: e-mail, WhatsApp, phone; navigation keys `products` (hidden) and `consultation`). Admin: project editor with Project / Page / Product tabs — switches, colour pickers, cover from the media library, blocks (add, edit, reorder, show/hide, delete), sale options and after-sales services with prices; service kind, "from" price and packages switch; contact channels in Settings. Public: case studies built from blocks; header, menu, footer, command palette and contact page from the database; engagement models off `/services` and the Brief Builder; Brief Builder project types by kind of software with "buy one of our products". New `submitProductRequest`; pipeline, CSV and e-mails show product requests. Public CSP may frame only the YouTube (no-cookie) and Vimeo players. The Neon Data API needs its settings re-saved after a migration to see new tables (`docs/security.md` § 9). **CI run 39077140486 green on every gate.** See `docs/phases/PHASE-27-README.md`.)
 
@@ -681,7 +683,7 @@ R — REPOSITIONING & REDESIGN (added in revision 45 — do these next, in order
   Phase 26  Live-site corrections            Fix what hurts the live site now: Persian font, Dari dates, mobile overflow, internal refs, hide engineering copy    ✅ COMPLETE (17 Oct 2026)
   Phase 27  Products, sale options & content Data model + admin: products, ways to get them, prices, free content blocks, colours, covers, new inquiry types    ✅ (18 Oct 2026)
   Phase 28  Design System 2.0                Dark premium + limited glass, new type scale, colours per project, new components    ✅
-  Phase 29  Shell & Home rebuild             New header with mega menus, WhatsApp button, new Home (one block per product/project)    ⬜ NEXT
+  Phase 29  Shell & Home rebuild             New header with mega menus, WhatsApp button, new Home (one block per product/project)    ✅ 20 Oct 2026
   Phase 30  Products & Work pages            /products, product page with ways to get it, purchase/demo requests, visual case studies    ⬜
   Phase 31  Services, About, Contact & Start Services by kind of software, About without "one person", direct contact, broader Brief Builder    ⬜
   Phase 32  Content rewrite — Dari & English Every public word: customer rule + Dari glossary; English written natively    ⬜
@@ -1448,7 +1450,10 @@ INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E (previ
 
 **Exit criteria:** every component on `/design-system` in both themes, both directions and three sizes; glass contrast and reduced-transparency/motion fallbacks verified; matches the design sample and § 14.1.
 
-## Phase 29 — Shell & Home rebuild  ⬜
+## Phase 29 — Shell & Home rebuild  ✅ COMPLETE (20 October 2026 — see `docs/phases/PHASE-29-README.md`; migration `0028` applied on Neon)
+
+> **Done (revision 49):** 29.1–29.3 as specified below. Every public page has the glass header fed by the owner's data (Products mega menu only while a published product has a page, Services mega menu of the published services, Work, About; search icon without "⌘K" — the shortcut still works; the language link, which keeps the query string; *Start a Project*; the glass mobile menu with Contact), the ink footer (Products · Services · Artaveo · Contact, legal row, the year in the page's calendar, the theme switch moved here) and the floating WhatsApp button, lifted above the mobile bar on phones. **WhatsApp's own glyph** (`components/brand/whatsapp-icon.tsx`) replaces the generic chat bubble in every WhatsApp action. Home is hero with a real project's mock-ups and two glass chips from its data → platforms strip → one block per product → one row per project → services → four steps → recommendations (when real) → CTA band; the five retired sections and their 55 strings are gone. Hero, products, CTA and footer stay ink and the panels warm in both themes. Migration `0028` moves "How it works" out of the header (footer and search keep it until 31.2). Until Phase 30 a product opens its project page, or offers only the demo request when it has none. Verified: typecheck, lint (65, cap lowered), 567 unit tests (18 new), build; on the production build with live data no overflow at 375/768/1280 in both languages, axe clean on Home (both languages and themes) and with each menu open, menus by keyboard, the language link keeping `?service=…&package=…`; e2e suites updated and `home.spec.ts` added. Known: database service and project texts on Home still carry old wording (CMS, MVP, Discovery Sprint, «دوزبانه») → 31/32.
+
 
 - **29.1 Header and navigation:** Products · Services · Work · About + *Start a Project*; Products and Services as mega menus; search as an icon (no "⌘K" text); language switch; mobile menu; floating WhatsApp button; footer per § 14.1. **WhatsApp icon (owner, 18 October 2026):** the floating button and every WhatsApp action must show the real WhatsApp glyph (the phone in a speech bubble, from WhatsApp's own brand resources, used as their guidelines allow), not a generic chat bubble coloured green — Phase 28's `FloatingWhatsAppButton` and `CtaBand` use lucide's `MessageCircle` as a stand-in; swap it for an inline SVG in one shared `WhatsAppIcon` component.
 - **29.2 Home** (≈ 7 sections, each hidden when empty): hero with real product mock-ups and two actions (*Start a Project*, *See products*); platforms strip; products — **one separate block per product**; work — one row per project; services; process in four steps; CTA band. Removed: Capability Strip, Tech Stack, "one developer" Why section, About preview's technical focus, Insights preview (returns with Phase 33 if wanted).

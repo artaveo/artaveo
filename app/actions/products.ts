@@ -58,6 +58,8 @@ function isUuid(value: unknown): value is string {
 async function revalidateProject(db: NonNullable<ReturnType<typeof requireDb>>, projectId: string): Promise<void> {
   const { data } = await db.from('projects').select('slug').eq('id', projectId).maybeSingle()
   const slug = (data as { slug?: string } | null)?.slug
+  // Phase 29: products are in every page's header mega menu and footer.
+  revalidatePath('/', 'layout')
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}`)
     revalidatePath(`/${locale}/work`)

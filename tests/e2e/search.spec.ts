@@ -82,7 +82,9 @@ test.describe('search / command palette', () => {
 
   test('@mobile the palette can be opened on a phone (there is no keyboard shortcut)', async ({ page }) => {
     await page.goto('/en')
-    await page.getByRole('banner').getByRole('button', { name: 'Search' }).first().click()
+    // Phase 29.1: on a phone, search is in the glass header's menu.
+    await page.getByRole('banner').getByRole('button', { name: 'Open the menu' }).click()
+    await page.getByRole('banner').getByRole('button', { name: 'Search' }).click()
     await expect(page.getByRole('combobox')).toBeVisible()
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
     expect(overflow).toBeLessThanOrEqual(0)

@@ -26,7 +26,8 @@ export function ProductBlock({
   headingLevel = 'h3',
 }: {
   product: Project
-  productHref: string
+  /** The product's page; `null` while it has none yet — the block then offers the demo request alone. */
+  productHref: string | null
   demoHref: string
   reverse?: boolean
   headingLevel?: 'h2' | 'h3'
@@ -71,10 +72,12 @@ export function ProductBlock({
             <PillLink href={demoHref} variant="project">
               {tr('requestDemo')}
             </PillLink>
-            <PillLink href={productHref} variant="glass">
-              {tr('seeProduct')}
-              <ForwardArrow />
-            </PillLink>
+            {productHref ? (
+              <PillLink href={productHref} variant="glass">
+                {tr('seeProduct')}
+                <ForwardArrow />
+              </PillLink>
+            ) : null}
           </div>
         </div>
         {laptop ? (
@@ -94,7 +97,7 @@ export function ProductBlockList({
   demoHref,
 }: {
   products: Project[]
-  productHref: (product: Project) => string
+  productHref: (product: Project) => string | null
   demoHref: (product: Project) => string
 }) {
   if (products.length === 0) return null

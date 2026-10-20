@@ -15,21 +15,24 @@ test.describe('@mobile every page fits a phone', () => {
 })
 
 test.describe('@mobile navigation', () => {
+  // Phase 29.1: the glass header's menu — a disclosure button and a glass sheet with the pages.
   test('@mobile the menu opens, lists the pages, navigates, and closes', async ({ page }) => {
     await page.goto('/en')
-    await clickWhenReady(page.getByRole('button', { name: 'Open menu' }))
-    const nav = page.getByRole('dialog')
+    const button = page.getByRole('banner').getByRole('button', { name: msg('en', 'Brand.openMenu') })
+    await clickWhenReady(button)
+    const nav = page.getByRole('banner').getByRole('navigation', { name: msg('en', 'Brand.mobileNav') })
     await expect(nav.getByRole('link', { name: 'Services' })).toBeVisible()
+    await expect(nav.getByRole('link', { name: 'Contact' })).toBeVisible()
     await nav.getByRole('link', { name: 'Services' }).click()
     await expect(page).toHaveURL(/\/en\/services$/)
-    await expect(page.getByRole('button', { name: 'Open menu' })).toBeVisible()
-    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(page.getByRole('banner').getByRole('button', { name: msg('en', 'Brand.openMenu') })).toBeVisible()
+    await expect(nav).toHaveCount(0)
   })
 
   test('@mobile the menu works right-to-left in Persian', async ({ page }) => {
     await page.goto('/fa')
-    await clickWhenReady(page.getByRole('button', { name: msg('fa', 'Common.openMenu') }))
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await clickWhenReady(page.getByRole('banner').getByRole('button', { name: msg('fa', 'Brand.openMenu') }))
+    await expect(page.getByRole('banner').getByRole('navigation', { name: msg('fa', 'Brand.mobileNav') })).toBeVisible()
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
   })
 })

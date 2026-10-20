@@ -1,8 +1,8 @@
-import { MessageCircle } from 'lucide-react'
 import type * as React from 'react'
 
 import { ForwardArrow } from '@/components/brand/brand-icons'
 import { PillLink } from '@/components/brand/pill'
+import { WhatsAppIcon } from '@/components/brand/whatsapp-icon'
 import { cn } from '@/lib/utils'
 
 /** On a phone a long label ("Chat on WhatsApp") may take two lines rather than run off the band. */
@@ -52,7 +52,7 @@ export function CtaBand({
         </PillLink>
         {whatsappHref && whatsappLabel ? (
           <PillLink href={whatsappHref} variant="glass" size={compact ? 'md' : 'lg'} className={WRAP} external>
-            <MessageCircle aria-hidden="true" />
+            <WhatsAppIcon className="text-whatsapp-glyph" />
             {whatsappLabel}
           </PillLink>
         ) : null}

@@ -62,16 +62,17 @@ test.describe('Service → Package → Brief Builder', () => {
   })
 })
 
+// Phase 29.1: the switch is one link to the other language, named in that language («دری», "English").
 test.describe('language switch on every route type', () => {
   for (const [label, route] of ROUTES) {
-    test(`${label}: EN → فا → EN keeps the same page`, async ({ page }) => {
+    test(`${label}: EN → دری → EN keeps the same page`, async ({ page }) => {
       await page.goto(`/en${route}`)
-      await page.getByRole('banner').getByRole('button', { name: 'فا' }).click()
+      await page.getByRole('banner').getByRole('link', { name: 'دری', exact: true }).click()
       await expect(page).toHaveURL(new RegExp(`/fa${route.replace(/[/-]/g, '\\$&')}(\\?.*)?$`))
       await expect(page.locator('html')).toHaveAttribute('lang', 'fa')
       await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
       await expect(page.locator('h1')).toHaveCount(1)
-      await page.getByRole('banner').getByRole('button', { name: 'EN' }).click()
+      await page.getByRole('banner').getByRole('link', { name: 'English', exact: true }).click()
       await expect(page).toHaveURL(new RegExp(`/en${route.replace(/[/-]/g, '\\$&')}(\\?.*)?$`))
       await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
     })
@@ -79,11 +80,12 @@ test.describe('language switch on every route type', () => {
 
   test('the switch keeps the query string (a chosen package survives it)', async ({ page }) => {
     await page.goto('/en/start?service=business-website&package=standard')
-    await page.getByRole('banner').getByRole('button', { name: 'فا' }).click()
+    await page.getByRole('banner').getByRole('link', { name: 'دری', exact: true }).click()
     await expect(page).toHaveURL(/\/fa\/start\?service=business-website&package=standard/)
   })
 })
 
+// Phase 29.1: the theme switch sits at the end of the footer's legal row (the glass header carries none).
 test.describe('theme', () => {
   test('switching to dark applies at once, survives a reload and applies to a different page; switching back restores light', async ({ page }) => {
     await page.goto('/en')
@@ -102,7 +104,7 @@ test.describe('theme', () => {
 
   test('the theme control is named in the page language (a screen-reader user of the Persian site hears Persian)', async ({ page }) => {
     await page.goto('/fa')
-    const control = page.getByRole('banner').getByRole('button', { name: /حالت/ })
+    const control = page.getByRole('contentinfo').getByRole('button', { name: /حالت/ })
     await expect(control).toHaveCount(1)
     await expect(page.getByRole('button', { name: /^Switch to/ })).toHaveCount(0)
   })

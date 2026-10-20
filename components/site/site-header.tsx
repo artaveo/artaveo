@@ -1,58 +1,48 @@
 'use client'
 
-import { ArrowRight, Menu, Search } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
-import { Link, usePathname } from '@/i18n/navigation'
-import { Kbd } from '@/components/ui/actions'
-import { ArtaveoMark } from '@/components/site/artaveo-mark'
+import { BrandLockup } from '@/components/brand/brand-lockup'
+import { GlassHeader } from '@/components/brand/glass-header'
+import { LocaleLink } from '@/components/brand/locale-link'
 import { CommandPalette } from '@/components/site/command-palette'
-import { LanguageSwitcher } from '@/components/site/language-switcher'
-import { MobileNav } from '@/components/site/mobile-nav'
-import { ThemeToggle } from '@/components/theme-toggle'
-import { Button } from '@/components/ui/button'
-import { useVisibleMainNav } from '@/components/site/site-flags'
+import { useHeaderModel, useShellContact } from '@/components/site/site-flags'
+import { whatsappHref } from '@/lib/shell-settings'
 import { warmSearchIndex } from '@/lib/search/local-provider'
-import { cn } from '@/lib/utils'
 import type { Locale } from '@/types/content'
 
+/**
+ * Phase 29.1 — the site's header: Design System 2.0's glass header (Phase
+ * 28.5), fed by the owner's data. Products and Services are mega menus (each
+ * drawn only when it has entries — `lib/shell-menus.ts`), then the other
+ * header items (Work, About), a search icon with no "⌘K" text, the language
+ * link and *Start a Project*; below tablet width they fold into the glass
+ * mobile menu. Glass in both themes (§ 14.1: the header is always glass).
+ *
+ * The search icon opens the command palette (Phase 18). The keyboard
+ * shortcut still works — it is just no longer printed in the header.
+ */
 export function SiteHeader() {
-  const pathname = usePathname()
   const tNav = useTranslations('Nav')
-  const visibleMainNav = useVisibleMainNav()
   const tCommon = useTranslations('Common')
   const locale = useLocale() as Locale
-  const [cmdOpen, setCmdOpen] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
-  const isHome = pathname === '/'
-  /**
-   * § 5.2: solid on content pages. Home keeps the transparent-until-scroll
-   * treatment (its hero sits directly under the header), every other route
-   * is solid immediately since there's no hero to show through.
-   */
-  const solid = scrolled || !isHome
+  const model = useHeaderModel()
+  const contact = useShellContact()
+  const [searchOpen, setSearchOpen] = useState(false)
 
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault()
-        setCmdOpen((o) => !o)
+    function onKey(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setSearchOpen((open) => !open)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  useEffect(() => {
-    function onScroll() {
-      setScrolled(window.scrollY > 8)
-    }
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  const label = (link: { key: Parameters<typeof tNav>[0]; href: string }) => ({ href: link.href, label: tNav(link.key) })
 
   return (
     <>
@@ -63,104 +53,22 @@ export function SiteHeader() {
         {tCommon('skipToContent')}
       </a>
 
-      <header
-        className={cn(
-          'sticky top-0 z-sticky border-b transition-colors ease-standard',
-          solid
-            ? 'border-border bg-background/80 backdrop-blur-md'
-            : 'border-transparent bg-background',
-        )}
-      >
-        <div className="container-page flex h-16 items-center justify-between gap-4">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="group flex items-center gap-2" aria-label="Artaveo home">
-              <ArtaveoMark className="size-7 text-foreground" />
-              <span dir="ltr" className="font-mono text-sm font-semibold tracking-[0.2em]">
-                ARTAVEO
-              </span>
-            </Link>
+      <GlassHeader
+        logo={<BrandLockup />}
+        products={model.products}
+        allProductsHref={model.allProductsHref}
+        services={model.services}
+        allServicesHref={model.allServicesHref}
+        links={model.links.map(label)}
+        mobileLinks={model.mobileLinks.map(label)}
+        startHref="/start"
+        whatsappHref={contact.whatsappNumber ? whatsappHref(contact.whatsappNumber) : null}
+        languageSwitch={<LocaleLink />}
+        onSearch={() => setSearchOpen(true)}
+        onSearchWarm={() => warmSearchIndex(locale)}
+      />
 
-            <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
-              {visibleMainNav.map((item) => {
-                const active =
-                  pathname === item.href || pathname.startsWith(`${item.href}/`)
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={active ? 'page' : undefined}
-                    className={cn(
-                      'relative rounded-md px-3 py-1.5 text-sm transition-colors',
-                      active
-                        ? 'text-foreground'
-                        : 'text-muted-foreground hover:text-foreground',
-                    )}
-                  >
-                    {tNav(item.key)}
-                    {active ? (
-                      <span
-                        aria-hidden="true"
-                        className="absolute inset-x-3 -bottom-[1px] h-px bg-brand"
-                      />
-                    ) : null}
-                  </Link>
-                )
-              })}
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Warming the index on hover/focus means the first open already has it. */}
-            <button
-              type="button"
-              onClick={() => setCmdOpen(true)}
-              onPointerEnter={() => warmSearchIndex(locale)}
-              onFocus={() => warmSearchIndex(locale)}
-              className="hidden items-center gap-2 rounded-lg border border-border bg-card py-1.5 pe-2 ps-3 text-sm text-muted-foreground transition-colors hover:text-foreground md:inline-flex"
-              aria-label={tCommon('search')}
-            >
-              <Search className="size-4" />
-              <span className="hidden lg:inline">{tCommon('searchPlaceholder')}</span>
-              <Kbd className="hidden lg:inline-flex">⌘K</Kbd>
-            </button>
-
-            {/* Below `md` the labelled search button above is hidden; without
-                this there would be no way to open search on a phone. */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setCmdOpen(true)}
-              aria-label={tCommon('search')}
-            >
-              <Search />
-            </Button>
-
-            <div className="hidden items-center gap-2 sm:flex">
-              <ThemeToggle />
-              <LanguageSwitcher />
-            </div>
-
-            <Button className="hidden sm:inline-flex" render={<Link href="/start" />}>
-              {tCommon('startProject')}
-              <ArrowRight data-icon="inline-end" className="rtl:rotate-180" />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              onClick={() => setMenuOpen(true)}
-              aria-label={tCommon('openMenu')}
-            >
-              <Menu />
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <CommandPalette open={cmdOpen} onOpenChange={setCmdOpen} />
-      <MobileNav open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
     </>
   )
 }

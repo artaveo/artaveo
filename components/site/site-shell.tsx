@@ -1,9 +1,14 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
+
+import { FloatingWhatsAppButton } from '@/components/brand/whatsapp-button'
 import { usePathname } from '@/i18n/navigation'
 import { getDeveloperProfile } from '@/lib/home-content'
+import { whatsappHref } from '@/lib/shell-settings'
 import { SiteFooter } from '@/components/site/site-footer'
 import { SiteHeader } from '@/components/site/site-header'
+import { useShellContact } from '@/components/site/site-flags'
 import { StickyMobileCta } from '@/components/ui/identity'
 import { cn } from '@/lib/utils'
 
@@ -24,8 +29,16 @@ import { cn } from '@/lib/utils'
  */
 const STICKY_CTA_EXEMPT_PATHS = ['/', '/design-system', '/contact', '/start']
 
+/**
+ * Phase 29.1 — the shell of Design System 2.0: the glass header, the page,
+ * the ink footer and the floating WhatsApp button (the number from the admin;
+ * no number, no button). Where the mobile call-to-action bar is shown the
+ * button rides above it on phones, so neither covers the other.
+ */
 export function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const tr = useTranslations('Brand')
+  const contact = useShellContact()
   const showStickyCta = !STICKY_CTA_EXEMPT_PATHS.includes(pathname)
   const developer = showStickyCta ? getDeveloperProfile() : undefined
 
@@ -37,6 +50,11 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <SiteFooter />
+      <FloatingWhatsAppButton
+        href={contact.whatsappNumber ? whatsappHref(contact.whatsappNumber) : null}
+        label={tr('whatsapp')}
+        className={cn('end-4 bottom-4 md:end-6 md:bottom-6', showStickyCta && 'bottom-24 md:bottom-6')}
+      />
       {showStickyCta ? <StickyMobileCta availability={developer?.availability} /> : null}
     </div>
   )
