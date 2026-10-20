@@ -48,6 +48,8 @@ New `Home` namespace (and `Brand.footerWhatsapp`, `Brand.footerContact`), writte
   - Screenshots checked by eye: Dari Home at 1280 px, the Services mega menu (English), the Dari mobile menu.
 - End-to-end suites updated for the new shell (CI): `flows-public` (language link, footer theme switch), `mobile` (the glass menu), `a11y` (mobile menu), `search` (search through the phone menu); new `tests/e2e/home.spec.ts` (Home's sections from data in both languages, grounds in both themes, the header's content and current page, the WhatsApp glyph and number, the footer's columns and Solar Hijri year).
 
+**CI run 39416928726 is green on every gate** (end-to-end and accessibility suites included, after the two fixes below).
+
 ## Found by CI and fixed
 
 - **The current page in the header was gold text on glass** — 7:1 over ink (Home, where it was checked locally), but **3.59:1** where a white page shows through the glass (Work, a case study, About; CI run 39414964165, axe). The current page is now marked with a lighter fill and a gold bar (a non-text mark, 3.6:1 ≥ 3:1) and keeps white text (≈ 6.8:1 on that worst background); a unit test forbids gold text there.
