@@ -351,10 +351,11 @@ describe('27.6 the shell reads its settings from the database', () => {
     contactEmail: original.contact_email, whatsappNumber: original.whatsapp_number, phoneNumber: original.phone_number, ...extra,
   })
 
-  it('the seeded channels are today\'s real values, and the products item exists but is hidden', async () => {
+  it('the seeded channels are today\'s real values, and the products item is on (Phase 30, migration 0029)', async () => {
     const shell = await getShellData()
     assert.deepEqual(shell.contact, { email: 'artaveo.dev@gmail.com', whatsappNumber: '+93790685832', phoneNumber: '+93790685832' })
-    assert.ok(!shell.nav.some((item) => item.key === 'products'), 'hidden until Phase 30 builds /products')
+    // /products exists since Phase 30; the shell itself keeps it out of every menu while no product is published (lib/shell-menus.ts).
+    assert.ok(shell.nav.some((item) => item.key === 'products'), 'the products item is on since migration 0029')
     assert.ok(shell.nav.some((item) => item.key === 'consultation' && item.surfaces.includes('command-palette')))
     assert.ok(!shell.nav.some((item) => item.key === 'insights'), 'Insights stays hidden (Phase 26.5)')
   })

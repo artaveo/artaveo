@@ -97,7 +97,8 @@ test('a demo request from the hero, in Dari, and the form says what is missing f
   await form.getByRole('radio', { name: msg('fa', 'ProductPage.channelEmail') }).click()
   await form.locator('#product-name').fill('خریدار آزمایشی')
   await form.locator('#product-email').fill(email)
-  await form.locator('#product-consent').click()
+  // The visible checkbox, by its label — `#product-consent` is the hidden native input behind it.
+  await form.getByRole('checkbox', { name: /موافقم/ }).click()
   await page.waitForTimeout(Math.max(0, 2300 - (Date.now() - startedAt)))
   await form.getByRole('button', { name: msg('fa', 'ProductPage.submitDemo') }).click()
 

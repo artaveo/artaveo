@@ -38,6 +38,12 @@ New namespaces `ProductsPage` and `ProductPage`; `Work` and `CaseStudy` rewritte
 - On the production build with the live data, in headless Edge: `/work`, two case studies, an unknown slug and Home — **no horizontal overflow at 375 and 1280 px** in both languages, one `h1`, no browser errors; **axe (WCAG 2.2 AA) clean** on `/work` and a case study in light and dark; the **product page** (shown on `/design-system` with a real project standing in, since no product is published yet) axe-clean in both languages and themes; clicking a "ways to get it" card puts its option into the form; the menu blur computes to `blur(30px) saturate(1.5)` and screenshots at 88/92/96 % confirm the text behind is no longer readable.
 - End-to-end (CI): new `tests/e2e/products.spec.ts` on a fixture product in the test stack (`tests/support/stack/fixtures.sql`: a priced yearly licence, a highlighted unpriced custom edition, **an unpublished option that must never appear**, an after-sales service, features by role, audience, a question) — exactly the published options, the highlighted one, prices only where set, `Product`/`Offer`; **a purchase request with the chosen option and service reaches the pipeline** (row checked: kind, option, service, snapshot, stage `new`); a Dari demo request from the hero, refused while incomplete; `/products` and the Products menu; the `/work` → `/products` redirect. The product pages joined every-route suites (status, language switch, phone overflow, axe in both themes) and the sitemap test; `home.spec.ts` now expects the Products section and menu.
 
+## Found by CI and fixed
+
+- **Integration test:** it still pinned the pre-Phase-30 rule "the products item exists but is hidden"; it now checks the item is on (migration 0029) — the site hides it itself while no product is published, which the unit tests cover.
+- **The Dari demo-request test** clicked `#product-consent`, which Base UI puts on the hidden native input behind the checkbox; it now clicks the visible checkbox by its label (as the purchase test, which passed, already did).
+- `home (en)` in the accessibility suite was flaky once (the page reloaded during the scan on its first visit — the service worker taking control); it passed on retry, as in Phase 29's runs.
+
 ## Known issues and what is next
 
 - **No product is published on the live site yet** (owner action O-8): `/products` is a 404 and nothing links to it until the owner switches a project to a product and publishes it (Content → Projects → a project → Product tab). Saving it refreshes the pages.
