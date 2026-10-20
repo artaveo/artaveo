@@ -61,7 +61,8 @@ test('every option can be chosen by clicking its label, not only the small circl
   await forward(page)
   // Phase 27.5: by kind of software. 'Buy one of our products' is offered only while a product is published (none on the test stack).
   for (const label of ['A website', 'A web system or admin panel', 'A mobile app', 'Desktop software', 'An offline system', 'Support for software you already have', 'Something else']) {
-    await page.getByText(label, { exact: true }).click()
+    // Inside the form: since Phase 31 the footer also links services named like some of these options.
+    await page.getByLabel('Project form').getByText(label, { exact: true }).click()
     await expect(page.getByRole('radio', { name: label })).toBeChecked()
   }
 })

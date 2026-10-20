@@ -45,8 +45,9 @@ test.describe('search / command palette', () => {
   test('searching services works, and the search button opens it without a keyboard', async ({ page }) => {
     await page.goto('/en')
     await page.getByRole('banner').getByRole('button', { name: 'Search' }).first().click()
-    await page.getByRole('combobox').fill('admin dashboards')
-    await expect(page.getByRole('option').first()).toContainText(/admin/i)
+    // Phase 31.1: services by kind of software — "Web systems & admin panels".
+    await page.getByRole('combobox').fill('admin panels')
+    await expect(page.getByRole('option').first()).toContainText(/admin panels/i)
   })
 
   test('Persian: Arabic-letter spellings (ي ك) find Persian-letter text (ی ک)', async ({ page }) => {
