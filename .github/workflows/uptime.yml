@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
-      SITE_URL: ${{ vars.SITE_URL || 'https://artaveo-seven.vercel.app' }}
+      SITE_URL: ${{ vars.SITE_URL || 'https://artaveo-dev.vercel.app' }}
       CRON_SECRET: ${{ secrets.CRON_SECRET }}
     steps:
       - name: Site URL is https

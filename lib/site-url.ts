@@ -22,7 +22,7 @@
  * DNS-authenticated — no code change needed, exactly like § 9.3's
  * `EMAIL_PROVIDER` switch.
  */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://artaveo-seven.vercel.app').replace(
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://artaveo-dev.vercel.app').replace(
   /\/+$/,
   '',
 )

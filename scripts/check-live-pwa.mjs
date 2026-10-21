@@ -27,7 +27,7 @@ const arg = (name, fallback) => {
   const i = process.argv.indexOf(`--${name}`)
   return i > 0 ? process.argv[i + 1] : fallback
 }
-const BASE = (arg('url', process.env.SITE_URL ?? 'https://artaveo-seven.vercel.app')).replace(/\/+$/, '')
+const BASE = (arg('url', process.env.SITE_URL ?? 'https://artaveo-dev.vercel.app')).replace(/\/+$/, '')
 const PROFILE = arg('profile', null)
 const CHANNEL = arg('channel', undefined)
 const KEPT = ['/fa', '/fa/work', '/fa/work/transportation-system', '/fa/services', '/fa/services/websites', '/fa/about', '/en', '/en/work', '/en/services']

@@ -339,7 +339,7 @@ jobs:
       - name: 6. Report to the site
         if: env.MODE == 'backup'
         env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://artaveo-seven.vercel.app' }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://artaveo-dev.vercel.app' }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           RESTORE_OUTCOME: ${{ steps.restore.outcome }}
         run: |
@@ -373,7 +373,7 @@ jobs:
       - name: Report the failure
         if: failure() && env.MODE == 'backup' && env.BACKUP_DONE != 'true'
         env:
-          SITE_URL: ${{ vars.SITE_URL || 'https://artaveo-seven.vercel.app' }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://artaveo-dev.vercel.app' }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           [ -n "$CRON_SECRET" ] || exit 0

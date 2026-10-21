@@ -110,7 +110,7 @@ A site cannot report its own outage, and Vercel's Hobby cron runs once a day. `.
 
 **Setup — once, in GitHub** (repository → Settings → Secrets and variables → Actions):
 - **Secret** `CRON_SECRET` — the same value as in Vercel. Without it steps 1–3 run and step 4 says it was skipped.
-- **Variable** `SITE_URL` (optional) — defaults to `https://artaveo-seven.vercel.app`. It must be `https://…`: it is where the secret is sent. Set it when D-01 gives you a domain.
+- **Variable** `SITE_URL` (optional) — defaults to `https://artaveo-dev.vercel.app`. It must be `https://…`: it is where the secret is sent. Set it when D-01 gives you a domain.
 - Then **Actions → Uptime → Run workflow** once by hand. In `/admin/observability` the *Last external check* line turns from "not recorded yet" to a time.
 
 **Honest limits:** GitHub does not promise the minute (runs are late or skipped under load); it **switches scheduled workflows off after 60 days without repository activity** (the `monitor.silent` warning is the site noticing that; re-enable in the Actions tab); the failure e-mail goes to whoever last edited the schedule and depends on your GitHub notification settings; the workflow does not run in forks (`github.repository` guard).

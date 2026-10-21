@@ -83,7 +83,7 @@ export async function generateMetadata({
      * § 9.3's `EMAIL_PROVIDER` switch.
      */
     metadataBase: new URL(SITE_URL),
-    // Google Search Console ownership for artaveo-seven.vercel.app (owner, 21 October 2026).
+    // Google Search Console ownership (owner, 21 October 2026).
     // Public by design; a new domain is verified by DNS instead and needs no code.
     verification: { google: 'X-oOznobY8Y4DCZGGQSQ2leptwCqSP-2FBuaQSrU_ZY' },
     alternates: buildAlternates(locale, ''),

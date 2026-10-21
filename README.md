@@ -2,7 +2,7 @@
 
 The website of **Artaveo**, an independent full-stack development studio run by one developer. It is a bilingual (English / Persian, left-to-right and right-to-left) portfolio and client-acquisition site: real projects as proof, a small set of clearly described services, and a low-risk first step — a brief or a short intro call — before any commitment.
 
-Live (interim domain): <https://artaveo-seven.vercel.app>
+Live (interim domain): <https://artaveo-dev.vercel.app>
 
 This repository holds the public site, the private admin panel, the database schema and the tests. Everything on the site is traceable to a real project, repository or document; nothing is invented (`docs/content/claims-ledger.md`).
 
