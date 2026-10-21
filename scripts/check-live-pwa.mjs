@@ -82,8 +82,8 @@ if (PROFILE && before.controlled && before.build && before.build !== liveBuild) 
 }
 
 // 2. Offline --------------------------------------------------------------
-await page.reload() // now controlled by the worker
-for (const route of KEPT) await page.goto(`${BASE}${route}`, { waitUntil: 'load' })
+await page.reload({ waitUntil: 'domcontentloaded', timeout: 90_000 }) // now controlled by the worker
+for (const route of KEPT) await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded', timeout: 90_000 })
 await context.setOffline(true)
 for (const route of KEPT) {
   const ok = await page
