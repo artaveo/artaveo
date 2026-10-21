@@ -1,6 +1,6 @@
 # Phase 34 — Performance & Accessibility Certification
 
-**Status:** ✅ code complete (21 October 2026) — two owner actions remain: **O-11** turn on Speed Insights in Vercel (real-visitor speed data), **O-12** one screen-reader pass per language
+**Status:** ✅ code complete (21 October 2026) — two owner actions remain: **O-11** read the Speed Insights data after a few weeks (collection is on and checked), **O-12** one screen-reader pass per language
 **Roadmap:** § 11B Phase 34 (was Phase 26 before revision 45), § 3 targets (LCP < 2.5 s, CLS < 0.1, INP < 200 ms), § 14.1 glass and motion rules, Phase 10's exit criteria
 **Migration:** none
 
@@ -66,7 +66,7 @@ The coloured top of a page ended in a hard line where the page below began. Now 
 
 ## Owner actions
 
-- **O-11 Turn on Speed Insights** — Vercel → the `artaveo` project → Speed Insights → Enable. Data appears after visits; review LCP, INP and CLS (p75, mobile) per route after a few weeks of traffic against LCP < 2.5 s, INP < 200 ms, CLS < 0.1.
+- **O-11 Read Speed Insights** — nothing to switch on: the project already had it, and collection was checked on 21 October (version 2 loads from the project's own address `/217259984820bbd4/script.js`, which content blockers do not know, and posts to `/217259984820bbd4/vitals` — answered by Vercel, not by the language middleware, which redirects any other unknown address; a real visit's measurements were accepted with 200). The page shows "Get Started" until the first data is processed. After a few weeks of visits, review LCP, INP and CLS (p75, **Mobile**) per route against LCP < 2.5 s, INP < 200 ms, CLS < 0.1.
 - **O-12 One screen-reader pass per language** — NVDA (Windows) or TalkBack (Android) on `/fa`, VoiceOver or NVDA on `/en`: Home → a project → Services → *Start a project* through the Brief Builder to the review step. Report anything read in the wrong language, unnamed, or out of order.
 
 ## Known issues
