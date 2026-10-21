@@ -62,6 +62,8 @@ The coloured top of a page ended in a hard line where the page below began. Now 
 - New end-to-end suite `tests/e2e/certification.spec.ts` (glass on every page type in both languages, dark theme on four, menus and mobile menu; reduced transparency; reduced motion; keyboard into the menu) — runs in CI.
 - `scripts/check-live-pwa.mjs` against production: all install and offline checks pass.
 
+**CI run 39575713560 is green on every gate** (unit, integration, build, end-to-end and accessibility suites with the new certification spec, the Lighthouse budgets on ten routes, audit). The two runs before it were red on the new glass suite, which found the contact page's cards (contrast, then four glass layers in view) — both fixed, see the glass row above. The live update check (`check-live-pwa.mjs` with the primed profile) could not finish here: this machine's connection had dropped to 10–20 KB/s; it is to be run again.
+
 ## Owner actions
 
 - **O-11 Turn on Speed Insights** — Vercel → the `artaveo` project → Speed Insights → Enable. Data appears after visits; review LCP, INP and CLS (p75, mobile) per route after a few weeks of traffic against LCP < 2.5 s, INP < 200 ms, CLS < 0.1.
