@@ -51,7 +51,7 @@ export function ContactContent({ shell }: { shell: ShellData }) {
                     <a
                       href={channel.href}
                       {...(channel.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      className="hover-lift glass flex h-full flex-col gap-4 rounded-card-lg border border-glass-line p-7 text-glass-foreground outline-none hover:bg-white/12 focus-visible:ring-3 focus-visible:ring-ring/60"
+                      className="hover-lift flex h-full flex-col gap-4 rounded-card-lg border border-glass-line p-7 text-glass-foreground outline-none hover:bg-white/12 focus-visible:ring-3 focus-visible:ring-ring/60"
                       data-slot="contact-channel"
                     >
                       <span className={channel.id === 'whatsapp' ? 'grid size-12 place-items-center rounded-2xl bg-whatsapp/20 text-whatsapp-glyph' : 'grid size-12 place-items-center rounded-2xl bg-gold/15 text-gold'}>
