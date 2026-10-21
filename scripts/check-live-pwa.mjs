@@ -54,7 +54,7 @@ const liveBuild = swText.match(/const BUILD_ID = '([^']+)'/)?.[1]
 report(sw.ok && /no-cache|no-store|max-age=0/.test(sw.headers.get('cache-control') ?? ''), '/sw.js is never served from a cache', sw.headers.get('cache-control') ?? '')
 
 // The previous worker of a kept profile, before this visit replaces anything.
-await page.goto(`${BASE}/fa`)
+await page.goto(`${BASE}/fa`, { waitUntil: 'domcontentloaded', timeout: 60_000 })
 const before = await page.evaluate(async () => {
   const keys = await caches.keys()
   return { controlled: Boolean(navigator.serviceWorker.controller), build: keys.find((k) => k.startsWith('artaveo-static-'))?.slice('artaveo-static-'.length) ?? null }

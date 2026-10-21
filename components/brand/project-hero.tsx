@@ -49,6 +49,9 @@ export function ProjectHero({
       }}
       className="@container relative isolate overflow-hidden text-project-on"
     >
+      {/* The project's colour runs into the ink below instead of stopping in a line (owner, 21 October 2026).
+          Behind the content, under the bottom padding and the mock-ups' lower edge. */}
+      <div aria-hidden="true" data-slot="hero-fade" className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-24 bg-linear-to-b from-transparent to-ink @3xl:h-32" />
       <BandInner className={cn('grid items-center gap-10 pt-10 pb-16 @3xl:pt-14 @3xl:pb-20', laptop && '@5xl:grid-cols-[1fr_1.15fr]')}>
         <div className="flex min-w-0 flex-col gap-5">
           <nav aria-label={tb('trailLabel')}>

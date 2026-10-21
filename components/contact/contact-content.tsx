@@ -59,7 +59,7 @@ export function ContactContent({ shell }: { shell: ShellData }) {
                       </span>
                       <span className="flex min-w-0 flex-col gap-1">
                         <span className="text-card-title">{t(channel.label, locale)}</span>
-                        <span className="truncate text-body text-ink-muted" dir="ltr">
+                        <span className="truncate text-body text-glass-muted" dir="ltr">
                           <LatinTerm>{channel.value}</LatinTerm>
                         </span>
                       </span>

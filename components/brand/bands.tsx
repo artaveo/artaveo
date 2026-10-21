@@ -94,18 +94,23 @@ export function SectionHeading({
   )
 }
 
-/** Soft radial light — behind the hero mock-ups and inside coloured panels only (§ 14.1 "Glows"). */
+/**
+ * Soft radial light — behind the hero mock-ups and inside coloured panels only (§ 14.1 "Glows").
+ *
+ * The two lights are larger than a short band, so the band's edge used to cut
+ * them off in a hard line (owner, 21 October 2026). They sit in a layer that
+ * fades to nothing over the band's lower half, so the light dies out before
+ * the edge and the band runs into the ink below without a seam.
+ */
 export function BandGlow() {
   return (
-    <>
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-56 -left-40 -z-10 size-[45rem] rounded-full bg-[radial-gradient(circle,rgb(226_182_92/0.2),transparent_65%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-10 -right-64 -z-10 size-[47rem] rounded-full bg-[radial-gradient(circle,rgb(64_120_255/0.16),transparent_65%)]"
-      />
-    </>
+    <div
+      aria-hidden="true"
+      data-slot="band-glow"
+      className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,black_40%,transparent_96%)]"
+    >
+      <div className="absolute -top-56 -left-40 size-[45rem] rounded-full bg-[radial-gradient(circle,rgb(226_182_92/0.2),transparent_65%)]" />
+      <div className="absolute top-10 -right-64 size-[47rem] rounded-full bg-[radial-gradient(circle,rgb(64_120_255/0.16),transparent_65%)]" />
+    </div>
   )
 }
