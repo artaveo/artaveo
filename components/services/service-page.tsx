@@ -82,9 +82,9 @@ export function ServicePage({
               <ServiceKindIcon kind={service.kind} className="size-6" />
             </span>
             <div>
-              <p className="text-small font-bold text-ink-muted">{ts('priceLabel')}</p>
+              <p className="text-small font-bold text-glass-muted">{ts('priceLabel')}</p>
               <p className="mt-1 text-h3">{formatMoney(hasPrice(service.fromPrice) ? { ...service.fromPrice, from: true } : null, 'once', locale)}</p>
-              <p className="mt-2 text-sm text-ink-muted">{ts(hasPrice(service.fromPrice) ? 'priceLineFrom' : 'priceLineQuote')}</p>
+              <p className="mt-2 text-sm text-glass-muted">{ts(hasPrice(service.fromPrice) ? 'priceLineFrom' : 'priceLineQuote')}</p>
             </div>
           </div>
         }

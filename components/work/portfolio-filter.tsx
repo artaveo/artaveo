@@ -44,7 +44,7 @@ export function PortfolioFilter({ projects, platforms }: { projects: Project[]; 
       <p className="sr-only" aria-live="polite">
         {tw('shownCount', { count: shown.length })}
       </p>
-      <PortfolioList projects={shown} href={projectHref} headingLevel="h2" />
+      <PortfolioList projects={shown} href={projectHref} headingLevel="h2" priorityFirst />
     </div>
   )
 }

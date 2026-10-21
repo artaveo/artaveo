@@ -1,11 +1,13 @@
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, Vazirmatn } from 'next/font/google'
 import { hasLocale, NextIntlClientProvider } from 'next-intl'
-import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 
 import { routing } from '@/i18n/routing'
+import { pickMessages, SHELL_CLIENT_NAMESPACES } from '@/lib/i18n/client-messages'
 import { countPublishedArticles } from '@/lib/insights'
 import { siteConfig } from '@/lib/site'
 import { SITE_URL, buildAlternates } from '@/lib/seo'
@@ -27,14 +29,27 @@ const geistSans = Geist({
   display: 'swap',
 })
 
+/**
+ * Phase 34 font audit. next/font preloads every listed subset of every font in
+ * this module on every page, whatever its language — the class gating below
+ * decides which font applies, not which file downloads. Before: four files,
+ * ~132 KB, preloaded on every page. Now two:
+ * - Geist Mono is only eyebrows and small labels: not preloaded; it swaps in
+ *   from a metric-matched fallback.
+ * - Vazirmatn preloads only its Arabic-script file — the Dari text. Its Latin
+ *   file stays declared and downloads only when a Latin glyph is painted in it.
+ * Geist (English body) and Vazirmatn's Arabic file stay preloaded on every page:
+ * both languages share this root layout, so a preload cannot follow the locale.
+ */
 const geistMono = Geist_Mono({
   subsets: ['latin'],
   variable: '--font-geist-mono',
   display: 'swap',
+  preload: false,
 })
 
 const vazirmatn = Vazirmatn({
-  subsets: ['arabic', 'latin'],
+  subsets: ['arabic'],
   variable: '--font-vazirmatn',
   display: 'swap',
 })
@@ -151,22 +166,17 @@ export default async function RootLayout({
    */
   // Phase 27.6 — navigation and contact channels as the owner set them in the admin.
   // Phase 29.1 — and the published products and services for the mega menus and the footer.
-  const [articleCount, shellSettings, menus] = await Promise.all([countPublishedArticles(), getShellData(), getShellMenus(locale as Locale)])
+  const [articleCount, shellSettings, menus, messages] = await Promise.all([countPublishedArticles(), getShellData(), getShellMenus(locale as Locale), getMessages()])
   const articlesVisible = articleCount > 0
   const shell = applyArticleRule(shellSettings, articleCount)
 
   /**
-   * § 11.3 — fonts subset and preloaded carefully. `--font-vazirmatn` only
-   * ever gets read inside a `[dir='rtl']` rule (`app/globals.css`), so on
-   * `en` pages the variable is dead weight: Next.js preloads a font the
-   * moment its `.variable` class is present in the rendered `<html>`,
-   * regardless of whether any visible text actually resolves to it. Gating
-   * it on `dir` keeps English requests from spending preload priority
-   * (competing with the hero image / LCP element) on a font family they
-   * never paint a single glyph with. Geist Sans/Mono stay unconditional —
-   * both are genuinely used on every locale (Latin fallback in the
-   * `font-persian` stack, and `font-mono` eyebrows/labels which render in
-   * both directions per the letter-spacing reset above).
+   * § 11.3 — `--font-vazirmatn` is only read inside a `[dir='rtl']` rule
+   * (`app/globals.css`), so English pages leave its class off. (Phase 34
+   * measured that this does not stop the preload — next/font preloads per
+   * module, see the font declarations above — but it keeps English text from
+   * ever resolving to Vazirmatn.) Geist Sans/Mono stay on every locale: the
+   * Latin fallback in the `font-persian` stack and the `font-mono` labels.
    */
   const fontVariables =
     dir === 'rtl'
@@ -190,13 +200,18 @@ export default async function RootLayout({
         <JsonLd data={buildSiteJsonLd(locale as Locale)} />
         <ThemeSync />
         <ErrorReporter />
-        <NextIntlClientProvider>
+        {/* Phase 34: only the shell's Client Components' namespaces reach the browser; a form's page
+            adds its own with <ClientMessages>, the admin gets all (lib/i18n/client-messages.ts). */}
+        <NextIntlClientProvider messages={pickMessages(messages, SHELL_CLIENT_NAMESPACES)}>
           <SiteFlagsProvider flags={{ articles: articlesVisible }} shell={shell} menus={menus}>
             {children}
             <PwaManager />
           </SiteFlagsProvider>
         </NextIntlClientProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
+        {/* Phase 34 — field data: each visit's LCP, INP and CLS by route, on the project's Speed
+            Insights page in Vercel (it collects once the owner turns it on there). */}
+        {process.env.NODE_ENV === 'production' && <SpeedInsights />}
       </body>
     </html>
   )

@@ -119,6 +119,10 @@ A site cannot report its own outage, and Vercel's Hobby cron runs once a day. `.
 
 A browser that finds `report-to` next to `report-uri` uses the Reporting API instead: reports are batched (up to about a minute), need a `Reporting-Endpoints` header, and Firefox ignores it. `report-uri` is delivered at once by every engine and is what the browser test (`observability.spec.ts`, a real blocked script in a real Chromium) can actually verify — the first version had both, and the test never saw a report. `report-uri` is the older, formally deprecated form; the endpoint already parses the Reporting API's format too, so adding `report-to` later is one line in `lib/security/csp.ts`.
 
+## 5c. Real-visitor speed (Phase 34)
+
+`@vercel/speed-insights` (root layout, production only) sends each visit's Core Web Vitals — LCP, INP, CLS, plus FCP and TTFB — to Vercel, where the project's **Speed Insights** page shows them per route at p75. It collects nothing until the owner enables it in the Vercel project (O-11). Nothing is stored in our database. Lab numbers and per-route byte budgets are in CI (`docs/testing.md`, Lighthouse budgets).
+
 ## 6. What is not verified (cannot be from a sandbox)
 
 - **`onRequestError` fed by Next.js itself**: the hook and the capture code are tested with the argument shapes Next.js documents (`captureRequestError`, real database), but no test makes the built app throw a real render error and watches the hook fire — the site has no route that fails on purpose and adding one only for a test was not worth its risk. After the first deploy, the first real unhandled error settles it (it should appear as a `request.render_error` / `request.action_error` group with a digest).

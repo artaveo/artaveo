@@ -83,12 +83,17 @@ Drive the **built** app (`next start`, port 3100) in Chromium. One worker, in or
 | `admin` | login (generic errors), editor vs owner, moving a lead through the pipeline, notes, CSV, **publish a project → public in both languages → unpublish** |
 | `mobile` | (`--project=mobile`, Pixel 5) every page type in both languages fits the screen width; the menu; the Brief Builder by touch |
 | `a11y` | axe-core (WCAG 2.0/2.1/2.2 A + AA) on every page type in both languages, dark theme, every Brief Builder step, the open palette, the mobile menu |
+| `certification` | (Phase 34) text on glass ≥ 4.5:1 against the worst background on every page type in both languages, with the menus and the mobile menu open, ≤ 3 glass layers in view (`glass-audit.ts`); reduced transparency → nothing blurs; reduced motion → nothing lasts longer than a frame; Tab goes into an open mega menu and back |
+
+**Lighthouse budgets** (Phase 34, `npm run test:lighthouse` after a build): ten routes, mobile, slow 4G — bytes per resource type, layout shift and accessibility fail the run; LCP, blocking time and the performance score are warnings with regression ceilings (`tests/performance/lighthouserc.json`). CI runs it in the end-to-end job and keeps the reports as the `lighthouse-reports` artifact. Locally, set `CHROME_PATH` (and `LHCI_BIN` for an installed `lhci`).
+
+**Live PWA check** (Phase 34, not in CI — it needs the deployed site): `node scripts/check-live-pwa.mjs --channel chrome --profile <dir>` checks the manifest, installability and offline pages; run it before and after a deploy with the same profile to check the update prompt.
 
 **Every** E2E test also fails if the browser raised an uncaught exception, a Base UI/React error or a hydration error — a page that shows "Something went wrong" cannot pass by accident.
 
 ### Accessibility — what this does and does not do
 
-axe finds the mechanical problems (names, roles, contrast, duplicate ids, landmarks, valid ARIA). It is estimated to find about a third of real accessibility problems. **Still manual, before a release:** a keyboard-only pass through the Brief Builder and admin, and one screen-reader pass (NVDA or VoiceOver) in each language. Every violation is fixed or listed in `KNOWN_ISSUES` at the top of `a11y.spec.ts` with a reason; a listed issue that stops occurring should be removed.
+axe finds the mechanical problems (names, roles, contrast, duplicate ids, landmarks, valid ARIA). It is estimated to find about a third of real accessibility problems. **Still manual, before a release:** a keyboard-only pass through the Brief Builder and admin, and one screen-reader pass (NVDA or VoiceOver) in each language. (Phase 34 did the keyboard pass on the public pages and checked the accessibility tree; the screen-reader pass is owner action O-12.) Every violation is fixed or listed in `KNOWN_ISSUES` at the top of `a11y.spec.ts` with a reason; a listed issue that stops occurring should be removed.
 
 ### Writing E2E tests here
 

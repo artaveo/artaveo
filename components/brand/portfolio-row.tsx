@@ -31,12 +31,15 @@ export function PortfolioRow({
   href,
   reverse = false,
   headingLevel: Heading = 'h3',
+  priority = false,
 }: {
   project: Project
   /** The project page, or the product page when `project.isProduct`. */
   href: string
   reverse?: boolean
   headingLevel?: 'h2' | 'h3'
+  /** Phase 34: the first card of a page that opens with the list (/work) — its screen is the page's largest paint, so it loads early, not lazily. */
+  priority?: boolean
 }) {
   const locale = useLocale() as Locale
   const tr = useTranslations('Brand')
@@ -68,7 +71,7 @@ export function PortfolioRow({
         data-slot="portfolio-row-screens"
       >
         {laptop ? (
-          <DeviceShowcase laptop={laptop} phone={phone} phoneSide={reverse ? 'end' : 'start'} className="max-w-[40rem]" />
+          <DeviceShowcase laptop={laptop} phone={phone} phoneSide={reverse ? 'end' : 'start'} priority={priority} className="max-w-[40rem]" />
         ) : (
           <div aria-hidden="true" className="aspect-[16/10] w-full max-w-[30rem]" />
         )}
@@ -122,17 +125,20 @@ export function PortfolioList({
   projects,
   href,
   headingLevel,
+  priorityFirst = false,
 }: {
   projects: Project[]
   href: (project: Project) => string
   /** `h2` where the cards are the page's main content (/work). */
   headingLevel?: 'h2' | 'h3'
+  /** The list opens the page, so the first card's screen is loaded first (Phase 34). */
+  priorityFirst?: boolean
 }) {
   if (projects.length === 0) return null
   return (
     <div className="flex flex-col gap-7">
       {projects.map((project, index) => (
-        <PortfolioRow key={project.id} project={project} href={href(project)} reverse={index % 2 === 1} headingLevel={headingLevel} />
+        <PortfolioRow key={project.id} project={project} href={href(project)} reverse={index % 2 === 1} headingLevel={headingLevel} priority={priorityFirst && index === 0} />
       ))}
     </div>
   )

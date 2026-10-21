@@ -5,6 +5,7 @@ import { BandInner, InkBand } from '@/components/brand/bands'
 import { PageHero } from '@/components/brand/page-hero'
 import { PillLink } from '@/components/brand/pill'
 import { WhatsAppIcon } from '@/components/brand/whatsapp-icon'
+import { ClientMessages } from '@/components/site/client-messages'
 import { BriefBuilder } from '@/components/start/brief-builder'
 import type { Service } from '@/types/content'
 import type { ProductChoice } from '@/types/inquiry'
@@ -67,13 +68,15 @@ export function StartContent({
             ) : null}
           </div>
           <div className="min-w-0 rounded-panel bg-background p-4 text-foreground @3xl:p-6">
-            <BriefBuilder
-              services={services}
-              products={products}
-              initialServiceSlug={initialServiceSlug}
-              initialPackageId={initialPackageId}
-              initialProductSlug={initialProductSlug}
-            />
+            <ClientMessages scope="briefBuilder">
+              <BriefBuilder
+                services={services}
+                products={products}
+                initialServiceSlug={initialServiceSlug}
+                initialPackageId={initialPackageId}
+                initialProductSlug={initialProductSlug}
+              />
+            </ClientMessages>
           </div>
         </BandInner>
       </InkBand>

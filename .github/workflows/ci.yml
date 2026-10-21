@@ -1,6 +1,6 @@
 # Release gates (roadmap Phase 22):
 #
-#   INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E → SECURITY → (DEPLOY)
+#   INSTALL → TYPECHECK → LINT → UNIT → INTEGRATION → BUILD → E2E → LIGHTHOUSE → SECURITY → (DEPLOY)
 #
 # Four jobs run in parallel and one final job, "CI passed", waits for all of them. That last
 # job is the ONLY status check branch protection needs to require (docs/ci.md): rename or
@@ -120,7 +120,7 @@ jobs:
   e2e:
     name: Build and end-to-end + accessibility tests
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -167,6 +167,16 @@ jobs:
         run: pnpm run test:stack:build
       - name: End-to-end and accessibility tests
         run: pnpm run test:e2e
+      - name: "Lighthouse budgets per route (Phase 34: tests/performance/lighthouserc.json)"
+        run: pnpm run test:lighthouse
+      - name: Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/reports/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Report, traces and stack logs (on failure)
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

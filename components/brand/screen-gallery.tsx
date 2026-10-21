@@ -96,8 +96,16 @@ export function ScreenGallery({ screens }: { screens: Screen[] }) {
             >
               <X aria-hidden="true" className="size-5" />
             </button>
-            {/* eslint-disable-next-line @next/next/no-img-element -- full size, any aspect ratio, only once opened */}
-            <img src={current.src} alt={t(current.alt, locale)} className="max-h-[78vh] w-full rounded-card object-contain" />
+            {/* Phase 34: through the image optimizer at the dialog's width, not the original file (up to
+                1.5 MB of PNG). The size given only reserves space; the screen keeps its own shape. */}
+            <Image
+              src={current.src}
+              alt={t(current.alt, locale)}
+              width={current.width ?? 1600}
+              height={current.height ?? 1000}
+              sizes="(min-width: 1090px) 1024px, 94vw"
+              className="h-auto max-h-[78vh] w-full rounded-card object-contain"
+            />
             {current.caption ? <figcaption className="text-center text-sm text-white">{t(current.caption, locale)}</figcaption> : null}
           </figure>
         ) : null}

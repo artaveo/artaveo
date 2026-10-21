@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { RecommendationForm } from '@/components/recommend/recommendation-form'
+import { ClientMessages } from '@/components/site/client-messages'
 import { SiteShell } from '@/components/site/site-shell'
 import { NotFoundState, SuccessState } from '@/components/ui/states'
 import { resolveRequestToken } from '@/lib/recommendations'
@@ -46,14 +47,16 @@ export default async function RecommendPage({
         </div>
 
         {resolved.state === 'open' ? (
-          <RecommendationForm
-            token={token}
-            locale={locale as Locale}
-            priorSubmission={resolved.priorSubmission}
-            moderationNote={resolved.moderationNote}
-            suggestedRelatedProjectTitle={resolved.suggestedRelatedProjectTitle}
-            suggestedRelatedServiceTitle={resolved.suggestedRelatedServiceTitle}
-          />
+          <ClientMessages scope="recommendation">
+            <RecommendationForm
+              token={token}
+              locale={locale as Locale}
+              priorSubmission={resolved.priorSubmission}
+              moderationNote={resolved.moderationNote}
+              suggestedRelatedProjectTitle={resolved.suggestedRelatedProjectTitle}
+              suggestedRelatedServiceTitle={resolved.suggestedRelatedServiceTitle}
+            />
+          </ClientMessages>
         ) : resolved.state === 'closed' ? (
           <SuccessState title={t('closedTitle')} description={t('closedDescription')} />
         ) : (

@@ -1,0 +1,159 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 1,
+      "url": [
+        "http://127.0.0.1:3400/fa",
+        "http://127.0.0.1:3400/en",
+        "http://127.0.0.1:3400/fa/work",
+        "http://127.0.0.1:3400/fa/work/transportation-system",
+        "http://127.0.0.1:3400/fa/products/e2e-product",
+        "http://127.0.0.1:3400/fa/services",
+        "http://127.0.0.1:3400/fa/services/websites",
+        "http://127.0.0.1:3400/fa/about",
+        "http://127.0.0.1:3400/en/contact",
+        "http://127.0.0.1:3400/fa/start"
+      ],
+      "settings": {
+        "chromeFlags": "--headless=new --no-sandbox --disable-dev-shm-usage",
+        "onlyCategories": [
+          "performance",
+          "accessibility",
+          "best-practices",
+          "seo"
+        ]
+      }
+    },
+    "assert": {
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": ".*",
+          "assertions": {
+            "categories:accessibility": [
+              "error",
+              {
+                "minScore": 0.95
+              }
+            ],
+            "categories:performance": [
+              "warn",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "categories:best-practices": [
+              "warn",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "categories:seo": [
+              "warn",
+              {
+                "minScore": 0.9
+              }
+            ],
+            "cumulative-layout-shift": [
+              "error",
+              {
+                "maxNumericValue": 0.1
+              }
+            ],
+            "largest-contentful-paint": [
+              "warn",
+              {
+                "maxNumericValue": 2500
+              }
+            ],
+            "total-blocking-time": [
+              "warn",
+              {
+                "maxNumericValue": 200
+              }
+            ],
+            "resource-summary:font:size": [
+              "error",
+              {
+                "maxNumericValue": 133120
+              }
+            ],
+            "resource-summary:document:size": [
+              "error",
+              {
+                "maxNumericValue": 71680
+              }
+            ],
+            "resource-summary:stylesheet:size": [
+              "error",
+              {
+                "maxNumericValue": 30720
+              }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": "^(?!.*/start$).*",
+          "assertions": {
+            "largest-contentful-paint": [
+              "error",
+              {
+                "maxNumericValue": 6000
+              }
+            ],
+            "total-blocking-time": [
+              "error",
+              {
+                "maxNumericValue": 600
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 286720
+              }
+            ],
+            "resource-summary:total:size": [
+              "error",
+              {
+                "maxNumericValue": 819200
+              }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": ".*/start$",
+          "assertions": {
+            "largest-contentful-paint": [
+              "error",
+              {
+                "maxNumericValue": 6500
+              }
+            ],
+            "total-blocking-time": [
+              "error",
+              {
+                "maxNumericValue": 600
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 348160
+              }
+            ],
+            "resource-summary:total:size": [
+              "error",
+              {
+                "maxNumericValue": 716800
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci/reports"
+    }
+  }
+}

@@ -1,3 +1,5 @@
+import { NextIntlClientProvider } from 'next-intl'
+
 /**
  * Every admin page is rendered per request (Phase 23). Most already were — they
  * read the session cookie — but the sign-in and verification pages might not
@@ -8,6 +10,11 @@
  */
 export const dynamic = 'force-dynamic'
 
+/**
+ * Phase 34: the public pages send only the shell's messages to the browser
+ * (lib/i18n/client-messages.ts); the admin's Client Components read every
+ * namespace, so this provider — without a `messages` prop — sends them all.
+ */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return children
+  return <NextIntlClientProvider>{children}</NextIntlClientProvider>
 }

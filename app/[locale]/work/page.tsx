@@ -74,7 +74,7 @@ export default async function WorkPage({
             {platforms.length > 0 ? (
               <PortfolioFilter projects={projects} platforms={platforms} />
             ) : (
-              <PortfolioList projects={projects} href={projectHref} headingLevel="h2" />
+              <PortfolioList projects={projects} href={projectHref} headingLevel="h2" priorityFirst />
             )}
           </BandInner>
         </PaperPanel>

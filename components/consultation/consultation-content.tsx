@@ -5,6 +5,7 @@ import { BandInner, InkBand } from '@/components/brand/bands'
 import { PageHero } from '@/components/brand/page-hero'
 import { PillLink } from '@/components/brand/pill'
 import { ConsultationForm } from '@/components/consultation/consultation-form'
+import { ClientMessages } from '@/components/site/client-messages'
 import type { Locale } from '@/types/content'
 
 /**
@@ -50,7 +51,9 @@ export function ConsultationContent({ locale }: { locale: Locale }) {
             </div>
           </div>
           <div className="min-w-0 rounded-panel bg-background p-4 text-foreground @3xl:p-6">
-            <ConsultationForm locale={locale} />
+            <ClientMessages scope="consultation">
+              <ConsultationForm locale={locale} />
+            </ClientMessages>
           </div>
         </BandInner>
       </InkBand>

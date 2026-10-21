@@ -1,5 +1,6 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useLocale, useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
@@ -7,11 +8,19 @@ import { BrandLockup } from '@/components/brand/brand-lockup'
 import { GlassHeader } from '@/components/brand/glass-header'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { LocaleLink } from '@/components/brand/locale-link'
-import { CommandPalette } from '@/components/site/command-palette'
 import { useHeaderModel, useShellContact } from '@/components/site/site-flags'
 import { whatsappHref } from '@/lib/shell-settings'
 import { warmSearchIndex } from '@/lib/search/local-provider'
 import type { Locale } from '@/types/content'
+
+/**
+ * Phase 34: the search window is ~40 KB of script every page used to load and
+ * run before anyone asked for it. It now loads when it is first wanted — the
+ * pointer or focus reaching the search icon starts the download (with the
+ * search index, as before), and a click or the keyboard shortcut mounts it.
+ */
+const loadPalette = () => import('@/components/site/command-palette')
+const CommandPalette = dynamic(() => loadPalette().then((m) => m.CommandPalette), { ssr: false })
 
 /**
  * Phase 29.1 — the site's header: Design System 2.0's glass header (Phase
@@ -31,11 +40,17 @@ export function SiteHeader() {
   const model = useHeaderModel()
   const contact = useShellContact()
   const [searchOpen, setSearchOpen] = useState(false)
+  const [searchWanted, setSearchWanted] = useState(false)
+  const openSearch = (open: boolean) => {
+    if (open) setSearchWanted(true)
+    setSearchOpen(open)
+  }
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault()
+        setSearchWanted(true)
         setSearchOpen((open) => !open)
       }
     }
@@ -66,11 +81,14 @@ export function SiteHeader() {
         whatsappHref={contact.whatsappNumber ? whatsappHref(contact.whatsappNumber) : null}
         languageSwitch={<LocaleLink />}
         themeSwitch={<ThemeToggle tone="glass" />}
-        onSearch={() => setSearchOpen(true)}
-        onSearchWarm={() => warmSearchIndex(locale)}
+        onSearch={() => openSearch(true)}
+        onSearchWarm={() => {
+          void loadPalette()
+          warmSearchIndex(locale)
+        }}
       />
 
-      <CommandPalette open={searchOpen} onOpenChange={setSearchOpen} />
+      {searchWanted ? <CommandPalette open={searchOpen} onOpenChange={openSearch} /> : null}
     </>
   )
 }

@@ -113,6 +113,40 @@ export function GlassHeader({
     }
   }, [open])
 
+  /**
+   * Phase 34 (keyboard pass): the panels are drawn after the header bar, so
+   * Tab from an open menu's button would skip to the next header item and
+   * reach the menu's links only after search, language, theme and Start.
+   * Tab now goes from the button into its panel, Shift+Tab from the panel's
+   * first link back to the button, and Tab from its last link on to the item
+   * after the button (closing the menu, as focus has left it).
+   */
+  function onMenuTab(event: React.KeyboardEvent<HTMLElement>) {
+    if (event.key !== 'Tab' || (open !== 'products' && open !== 'services')) return
+    const trigger = triggers.current[open]
+    const panel = document.getElementById(panelId(open))
+    if (!trigger || !panel) return
+    const focusable = 'a[href], button:not([disabled])'
+    const inPanel = [...panel.querySelectorAll<HTMLElement>(focusable)]
+    const target = event.target as HTMLElement
+    if (target === trigger && !event.shiftKey && inPanel.length > 0) {
+      event.preventDefault()
+      inPanel[0].focus()
+      return
+    }
+    const index = inPanel.indexOf(target)
+    if (index === -1) return
+    if (event.shiftKey && index === 0) {
+      event.preventDefault()
+      trigger.focus()
+    } else if (!event.shiftKey && index === inPanel.length - 1) {
+      event.preventDefault()
+      const order = [...(rootRef.current?.querySelectorAll<HTMLElement>(focusable) ?? [])].filter((el) => !panel.contains(el) && el.getClientRects().length > 0)
+      setOpen(null)
+      order[order.indexOf(trigger) + 1]?.focus()
+    }
+  }
+
   const toggle = (menu: Exclude<OpenMenu, null>) => setOpen((current) => (current === menu ? null : menu))
   const close = () => setOpen(null)
   const hasProducts = products.length > 0
@@ -141,6 +175,7 @@ export function GlassHeader({
   return (
     <header
       ref={rootRef}
+      onKeyDown={onMenuTab}
       data-slot="glass-header"
       className={cn('@container glass-under z-sticky w-full border-b border-glass-line text-glass-foreground', sticky ? 'sticky top-0' : 'relative')}
     >

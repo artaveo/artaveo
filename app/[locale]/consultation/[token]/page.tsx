@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { ManageActions } from '@/components/consultation/manage-actions'
 import { ManageSummary } from '@/components/consultation/manage-summary'
+import { ClientMessages } from '@/components/site/client-messages'
 import { SiteShell } from '@/components/site/site-shell'
 import { NotFoundState } from '@/components/ui/states'
 import { resolveConsultationToken } from '@/lib/consultation/queries'
@@ -57,12 +58,14 @@ export default async function ConsultationManagePage({
                 action={{ label: t('requestNew'), href: `/${locale}/consultation` }}
               />
             ) : (
-              <ManageActions
-                token={token}
-                locale={locale as Locale}
-                timezone={resolved.consultation.timezone}
-                rescheduleRequests={resolved.consultation.rescheduleRequests}
-              />
+              <ClientMessages scope="consultationManage">
+                <ManageActions
+                  token={token}
+                  locale={locale as Locale}
+                  timezone={resolved.consultation.timezone}
+                  rescheduleRequests={resolved.consultation.rescheduleRequests}
+                />
+              </ClientMessages>
             )}
           </div>
         ) : resolved.state === 'expired' ? (

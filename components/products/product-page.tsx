@@ -9,6 +9,7 @@ import { ProjectHero } from '@/components/brand/project-hero'
 import { AfterSalesChips, SaleOptionGrid } from '@/components/brand/sale-option-card'
 import { ScreenGallery } from '@/components/brand/screen-gallery'
 import { ProductRequestForm } from '@/components/products/product-request-form'
+import { ClientMessages } from '@/components/site/client-messages'
 import { ProjectBlocks, visibleBlocks } from '@/components/work/project-blocks'
 import { projectPalette, projectStyle } from '@/lib/design/color'
 import { formatMoney } from '@/lib/products/money'
@@ -135,21 +136,23 @@ export function ProductPage({ product, whatsappHref }: { product: Project; whats
           <div className="@4xl:sticky @4xl:top-24">
             <SectionHeading id="product-request-title" eyebrow={title} title={tp('requestTitle')} lead={tp('requestLead')} />
           </div>
-          <ProductRequestForm
-            locale={locale}
-            productSlug={product.slug}
-            productTitle={title}
-            options={product.saleOptions.map((option) => ({
-              id: option.id,
-              title: t(option.title, locale) || tk(option.kind),
-              price: formatMoney(option.price, option.billingPeriod, locale),
-            }))}
-            services={product.productServices.map((service) => ({
-              id: service.id,
-              title: t(service.title, locale),
-              price: formatMoney(service.price, service.period, locale),
-            }))}
-          />
+          <ClientMessages scope="productRequest">
+            <ProductRequestForm
+              locale={locale}
+              productSlug={product.slug}
+              productTitle={title}
+              options={product.saleOptions.map((option) => ({
+                id: option.id,
+                title: t(option.title, locale) || tk(option.kind),
+                price: formatMoney(option.price, option.billingPeriod, locale),
+              }))}
+              services={product.productServices.map((service) => ({
+                id: service.id,
+                title: t(service.title, locale),
+                price: formatMoney(service.price, service.period, locale),
+              }))}
+            />
+          </ClientMessages>
         </BandInner>
       </InkBand>
 

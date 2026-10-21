@@ -28,3 +28,6 @@ playwright-report/
 
 # Phase 25 — local output of the external backup export (scripts/backup/collect.mjs, pg_dump)
 .backup-work/
+
+# Phase 34 — Lighthouse CI output (scripts/lighthouse-budgets.mjs)
+.lighthouseci/
