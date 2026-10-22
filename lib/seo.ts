@@ -62,6 +62,9 @@ export function buildPageOpenGraph({
   return {
     openGraph: {
       type: 'website' as const,
+      // A page's openGraph replaces the layout's whole, so the site's name is repeated here
+      // (og:site_name — one of the signals for the name Google shows above a result).
+      siteName: 'Artaveo',
       title,
       description,
       images: [image],
