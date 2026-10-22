@@ -105,6 +105,8 @@ export async function generateMetadata({
     icons: {
       icon: [
         { url: '/artaveo-icon.svg', type: 'image/svg+xml' },
+        // Google's result icon wants a square of a multiple of 48 px (Phase 34 follow-up).
+        { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
         { url: '/icon-light-32x32.png', sizes: '32x32', type: 'image/png', media: '(prefers-color-scheme: light)' },
         { url: '/icon-dark-32x32.png', sizes: '32x32', type: 'image/png', media: '(prefers-color-scheme: dark)' },
         { url: '/icon-light-16x16.png', sizes: '16x16', type: 'image/png', media: '(prefers-color-scheme: light)' },
@@ -114,6 +116,7 @@ export async function generateMetadata({
     },
     openGraph: {
       type: 'website',
+      siteName: siteConfig.name,
       title,
       description,
       // `public/brand/og-image.png` — static render (not a dynamic `next/og`

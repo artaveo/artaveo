@@ -56,6 +56,7 @@ export function buildProfessionalServiceJsonLd(locale: Locale): JsonLdValue {
     name: siteConfig.name,
     description: siteConfig.description,
     url: absoluteUrl(`/${locale}`),
+    logo: absoluteUrl('/icon-512.png'),
     email: siteConfig.email,
     founder: { '@id': absoluteUrl('/#person') },
     areaServed: 'Worldwide',
@@ -69,7 +70,10 @@ export function buildWebSiteJsonLd(locale: Locale): JsonLdValue {
     '@type': 'WebSite',
     '@id': absoluteUrl('/#website'),
     name: siteConfig.name,
-    url: absoluteUrl(`/${locale}`),
+    // Google's site name (owner, 22 October 2026: results showed "Vercel"): it reads the
+    // WebSite entry whose url is the site's root, and the Dari name as its alternate.
+    alternateName: ['آرتاویو'],
+    url: absoluteUrl('/'),
     description: siteConfig.description,
     inLanguage: locale,
     publisher: { '@id': absoluteUrl('/#business') },
